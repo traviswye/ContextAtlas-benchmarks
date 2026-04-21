@@ -1,0 +1,34 @@
+{
+  "name": "contextatlas-benchmarks",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Benchmark harness and methodology for ContextAtlas, measuring its impact on Claude Code's codebase exploration efficiency.",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "echo 'linting not yet configured'"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.0",
+    "contextatlas": "file:../contextatlas"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "keywords": [
+    "benchmark",
+    "mcp",
+    "claude-code",
+    "contextatlas",
+    "methodology"
+  ],
+  "license": "SEE LICENSE IN LICENSE"
+}
