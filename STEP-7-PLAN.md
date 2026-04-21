@@ -1,16 +1,24 @@
-# Step-7 Benchmark Plan (captured pre-restructure)
+# Step-7 Benchmark Plan
 
 **Purpose.** This document captures the complete step-7 benchmark
-harness plan as of end-of-day-1 dogfooding. It exists so the plan
-survives the imminent monorepo restructure and a fresh agent session
-without requiring re-planning. After the restructure, this file moves
-to `packages/benchmarks/STEP-7-PLAN.md`. A resuming session should
-read it top-to-bottom and begin implementation.
+harness plan. A resuming session should read it top-to-bottom and
+begin implementation.
 
-**Status at time of writing.** Steps 1-6 complete and pushed to main.
-The primitive `get_symbol_context` is dogfooded against ContextAtlas's
-own atlas (committed at `.contextatlas/atlas.json`) and delivers
-richly — SymbolId rose from 1 → 15 linked claims after the frontmatter
+**Repo structure context.** This is the ContextAtlas-benchmarks
+repository — a standalone repository separate from the main
+`contextatlas` package. The original plan anticipated a monorepo
+restructure; that was revised in favor of two separate repos
+(Structure C) to keep the published `contextatlas` package lean
+and to let the benchmark harness evolve independently as a proper
+methodology project. All paths in this document refer to locations
+within this repository.
+
+**Status at time of writing.** ContextAtlas steps 1-6 are complete
+in the sibling `../contextatlas` repo, plus dogfood round 1 and a
+signature-population follow-up. The primitive `get_symbol_context`
+is working against ContextAtlas's own atlas (committed at
+`../contextatlas/.contextatlas/atlas.json`) and delivers richly —
+SymbolId rose from 1 → 15 linked claims after the frontmatter
 resolver hint landed, type aliases render with `kind: type`, REFS
 clusters show meaningful module structure. Next: measure against a
 baseline using realistic developer prompts on external repos.
@@ -28,7 +36,7 @@ baseline using realistic developer prompts on external repos.
 
 **Step 13 extension (out of scope here, but designed now):**
 - Additional 12 prompts (bringing the full suite to 24, matching
-  RUBRIC.md's eventual methodology)
+  RUBRIC.md's full methodology)
 - Three runs per prompt, medians reported
 - Blind manual grading layer for correctness
 - Polished summary for the README
@@ -49,7 +57,7 @@ Both baselines are implemented and run:
   tools: `Read`, `Grep`, `Glob`, `LS`. Workflow tools (Edit, Write,
   TodoWrite, etc.) are deliberately excluded — they aren't used in
   exploration and would add noise. The Alpha tool set is frozen and
-  documented in `RUBRIC.md`.
+  documented in `RUBRIC.md` under "Alpha Tool Set Specification".
 
 - **Beta baseline** — real Claude Code CLI driven headlessly via
   subprocess with prompt injection and stop detection. Measures what
@@ -78,7 +86,7 @@ Conditions, in full:
 
 ### Prompt diversity (anti-cherry-picking)
 
-Per repo, step-7's 6 prompts follow a deliberate mix:
+Per repo, step-7's 6 prompts follow a deliberate 3/2/1 mix:
 
 - **3 clear-win prompts** — architectural constraint / impact questions
   that require ADR context. ContextAtlas should materially outperform.
@@ -141,9 +149,9 @@ designed for it but not used in step 7.
 
 ### Benchmark repo provisioning
 
-**Manual clone at pinned commits.** The RUBRIC documents the exact
-SHAs. Users clone into `benchmarks/repos/hono/` and
-`benchmarks/repos/httpx/` (both gitignored per the existing
+**Manual clone at pinned commits.** RUBRIC.md's "Pinned Benchmark
+Targets" section documents the exact SHAs. Users clone into
+`repos/hono/` and `repos/httpx/` (both gitignored per the existing
 `.gitignore` rule). Harness verifies the SHA matches the documented
 pin before running; refuses to run on a drifted checkout.
 
@@ -153,12 +161,11 @@ simpler and explicit for step 7. Revisit for step 13.
 ### Pre-populated atlases
 
 Hono and httpx atlases are extracted once (estimated $4-6 total for
-~7 ADRs per repo) and **committed alongside ContextAtlas's own
-atlas** under `benchmarks/atlases/hono/atlas.json` and
-`benchmarks/atlases/httpx/atlas.json`. Source code stays gitignored
-per the existing rule; only the atlas artifacts are committed. This
-mirrors ADR-06's flagship-mode claim — teams pull the atlas, they
-don't re-extract.
+~5 ADRs per repo) and **committed** under `atlases/hono/atlas.json`
+and `atlases/httpx/atlas.json`. Source code stays gitignored per the
+existing rule; only the atlas artifacts are committed. This mirrors
+ADR-06's flagship-mode claim — teams pull the atlas, they don't
+re-extract.
 
 ---
 
@@ -256,7 +263,7 @@ prompt-file alongside the step-7 set, but gated by a `bucket:
 
 ### Per-run JSON
 
-`benchmarks/runs/<timestamp>/<repo>/<prompt_id>/<condition>.json`
+`runs/<timestamp>/<repo>/<prompt_id>/<condition>.json`
 
 ```jsonc
 {
@@ -275,8 +282,7 @@ prompt-file alongside the step-7 set, but gated by a `bucket:
   "capped": null,                  // or "tool_calls" | "tokens" | "wall_clock"
   "answer": "...full final response text...",
   "trace": [
-    { "tool": "Grep", "args": { "pattern": "..." }, "result_preview": "..." },
-    ...
+    { "tool": "Grep", "args": { "pattern": "..." }, "result_preview": "..." }
   ]
 }
 ```
@@ -308,61 +314,48 @@ for the demo.
 
 ### Artifact commits
 
-- Commit `benchmarks/atlases/hono/atlas.json` and
-  `benchmarks/atlases/httpx/atlas.json` (the per-repo atlases).
-- Commit `benchmarks/prompts/hono.yml` and `httpx.yml` (the locked
+- Commit `atlases/hono/atlas.json` and `atlases/httpx/atlas.json`
+  (the per-repo atlases).
+- Commit `prompts/hono.yml` and `prompts/httpx.yml` (the locked
   prompt files).
-- Commit **one reference** run's artifacts: `benchmarks/runs/reference/`
+- Commit **one reference** run's artifacts: `runs/reference/`
   with both the summary table and the per-prompt JSONs. Subsequent
   iteration runs land under timestamped subdirs which are gitignored
   so the repo doesn't bloat.
 
 ---
 
-## 6. File plan (post-restructure paths)
+## 6. File plan
 
-All paths below are the post-restructure locations the resuming
-session should target. Pre-restructure, the harness lives under
-`benchmarks/`; after the monorepo split, it moves to
-`packages/benchmarks/`.
+All paths are relative to this repository's root.
 
-**New (benchmark package):**
-- `packages/benchmarks/package.json` — own workspace package
-- `packages/benchmarks/harness/run.ts` — driver; orchestrates
+**New files (benchmark harness):**
+- `package.json` — already exists from scaffold
+- `src/harness/run.ts` — driver; orchestrates
   conditions × prompts × repos
-- `packages/benchmarks/harness/alpha-agent.ts` — Alpha base agent
-- `packages/benchmarks/harness/beta-agent.ts` — Claude Code CLI
-  driver
-- `packages/benchmarks/harness/ca-agent.ts` — Alpha agent + CA
-  MCP client (thin wrapper)
-- `packages/benchmarks/harness/metrics.ts` — metrics types, writers
-- `packages/benchmarks/harness/caps.ts` — cap enforcement + grace
-  extension
-- `packages/benchmarks/harness/tools/read.ts`, `grep.ts`, `glob.ts`,
-  `ls.ts` — the Alpha tool implementations
-- `packages/benchmarks/harness/claude-code-driver.ts` — subprocess,
+- `src/harness/alpha-agent.ts` — Alpha base agent
+- `src/harness/beta-agent.ts` — Claude Code CLI driver
+- `src/harness/ca-agent.ts` — Alpha agent + CA MCP client
+  (thin wrapper)
+- `src/harness/metrics.ts` — metrics types, writers
+- `src/harness/caps.ts` — cap enforcement + grace extension
+- `src/harness/tools/read.ts`, `grep.ts`, `glob.ts`, `ls.ts` —
+  the Alpha tool implementations
+- `src/harness/claude-code-driver.ts` — subprocess,
   prompt injection, stop detection (Beta only)
-- `packages/benchmarks/prompts/hono.yml` — all 12 hono prompts
-  (6 step-7 + 6 held-out)
-- `packages/benchmarks/prompts/httpx.yml` — all 12 httpx prompts
-- `packages/benchmarks/configs/hono.yml` — `.contextatlas.yml` for
-  hono
-- `packages/benchmarks/configs/httpx.yml` — `.contextatlas.yml` for
-  httpx
-- `packages/benchmarks/atlases/hono/atlas.json` — pre-populated
-  atlas (committed)
-- `packages/benchmarks/atlases/httpx/atlas.json` — pre-populated
-  atlas (committed)
-- `packages/benchmarks/runs/reference/...` — reference run's
-  artifacts (committed)
-- `packages/benchmarks/STEP-7-PLAN.md` — this file, moved from
-  `benchmarks/STEP-7-PLAN.md`
+- `prompts/hono.yml` — all 12 hono prompts (6 step-7 + 6 held-out)
+- `prompts/httpx.yml` — all 12 httpx prompts
+- `configs/hono.yml` — `.contextatlas.yml` for hono
+- `configs/httpx.yml` — `.contextatlas.yml` for httpx
+- `atlases/hono/atlas.json` — pre-populated atlas (committed)
+- `atlases/httpx/atlas.json` — pre-populated atlas (committed)
+- `runs/reference/...` — reference run's artifacts (committed)
 
 **Modified:**
-- `RUBRIC.md` — document the Alpha tool set, the Alpha-vs-Beta
-  distinction, pinned benchmark repo SHAs, prompt-lock policy.
-- `.gitignore` — ensure `packages/benchmarks/runs/*` is ignored
-  except `packages/benchmarks/runs/reference/`.
+- `RUBRIC.md` — already updated with pinned SHAs, Alpha tool set
+  specification, step-7-vs-step-13 scope clarification
+- `.gitignore` — already ensures `runs/*` is ignored except
+  `runs/reference/`; already ignores `repos/`
 
 ---
 
@@ -375,11 +368,8 @@ session should target. Pre-restructure, the harness lives under
 4. Full 12-prompt × 3-condition run completes within the expected
    time envelope (estimate: 12 × 3 × ~60s average = ~36 min, plus
    Alpha/Beta baseline overhead).
-5. Summary table is produced and committed under
-   `packages/benchmarks/runs/reference/`.
-6. RUBRIC.md updated with pinned SHAs, Alpha tool set, and prompt-
-   lock policy.
-7. Observations documented: at least a paragraph per repo on what
+5. Summary table is produced and committed under `runs/reference/`.
+6. Observations documented: at least a paragraph per repo on what
    the numbers show, any surprises, any follow-up fixes identified.
 
 Step 7 does NOT need to produce polished marketing numbers. It
@@ -402,6 +392,9 @@ adjustments before step 13 publishes.
   limitation.
 - **Atlas pre-population run.** Who runs the hono/httpx extractions?
   User runs them; cost is $4-6; atlases get committed.
+- **Claude Code CLI version pinning.** For reproducibility of Beta
+  numbers, pin a specific Claude Code CLI version. Document in
+  RUBRIC.md once decided.
 
 ---
 
@@ -410,14 +403,15 @@ adjustments before step 13 publishes.
 When the next session resumes step 7:
 
 1. Read this file end-to-end.
-2. Check `packages/benchmarks/` scaffold is in place (post-restructure).
-3. Verify `benchmarks/repos/hono/` and `benchmarks/repos/httpx/` are
-   cloned at the pinned SHAs (per RUBRIC.md).
-4. Verify atlases are committed under
-   `packages/benchmarks/atlases/<repo>/atlas.json`.
+2. Verify `../contextatlas` exists as sibling and that
+   `npm install` in this repo resolves the `contextatlas`
+   dependency.
+3. Verify `repos/hono/` and `repos/httpx/` are cloned at the
+   pinned SHAs (per RUBRIC.md).
+4. Verify atlases are committed under `atlases/<repo>/atlas.json`.
 5. Start implementing the harness in the file order under section 6.
 6. Lock the prompts (if not already committed) before any run.
 7. Run the full 12-prompt × 3-condition benchmark.
-8. Commit results under `packages/benchmarks/runs/reference/`.
+8. Commit results under `runs/reference/`.
 
 **Do not re-plan.** This document is the plan.

@@ -11,22 +11,23 @@ This is the benchmark harness and methodology repository for
 
 The harness measures ContextAtlas's impact on Claude Code's ability
 to explore and reason about unfamiliar codebases. It does this by
-running a locked prompt set against two conditions:
+running a locked prompt set against three conditions:
 
 - **Baseline (Alpha):** Claude with standard codebase exploration
   tools (Read, Grep, Glob, LS) via a custom Anthropic SDK agent
 - **ContextAtlas (Alpha+CA):** Baseline + ContextAtlas MCP tools
   (`get_symbol_context`, `find_by_intent`, `impact_of_change`)
-
-And for final numbers:
-
 - **Real Claude Code CLI (Beta):** Driving Claude Code headlessly
   against each condition, measuring tokens, tool calls, and
   wall-clock
 
 Results compare baseline-vs-CA delta across both harness styles.
+The Alpha-vs-Beta gap is itself informative — it reveals where
+Claude Code's own harness adds value beneath whatever ContextAtlas
+adds on top.
+
 See `RUBRIC.md` for full methodology and `STEP-7-PLAN.md` for the
-current MVP plan.
+current MVP implementation plan.
 
 ## Critical Constraints
 
@@ -49,6 +50,10 @@ baselines from scratch.
 **Cost caps per prompt run:** 30 tool calls, 200k tokens, 300 seconds
 wall-clock. Runs hitting caps are recorded with a "capped" flag
 rather than discarded — the fact that a run hit caps is itself data.
+If a run hits the wall-clock cap while still actively making tool
+calls, it gets a +30s grace extension to let in-flight calls
+complete cleanly (prevents measurement artifacts from abrupt
+mid-exploration termination). Grace extends once, not repeatedly.
 
 **Reference runs are the ONLY committed run artifacts.** Iteration
 runs stay in `runs/` (gitignored). Only `runs/reference/*` is tracked
