@@ -102,3 +102,54 @@ describeIf(
     }, 120_000);
   },
 );
+
+describeIf(
+  "alpha-agent integration: h3-middleware-onion on hono",
+  () => {
+    it("answers by exploring compose without ADR context", async () => {
+      const client = new Anthropic();
+      const prompt = await loadHonoPrompt("h3-middleware-onion");
+      const caps = new CapsTracker(DEFAULT_CAPS);
+      const ctx = { repoDir: path.join(ROOT, "repos", "hono") };
+
+      const result = await runAlphaAgent(
+        {
+          model: "claude-opus-4-7",
+          systemPrompt: SYSTEM_PROMPT,
+          prompt,
+          tools: [readTool, grepTool, globTool, lsTool],
+          ctx,
+          caps,
+        },
+        { createMessage: (params) => client.messages.create(params) },
+      );
+
+      // eslint-disable-next-line no-console
+      console.log("[alpha h3-middleware-onion] metrics:", result.metrics);
+      // eslint-disable-next-line no-console
+      console.log(
+        "[alpha h3-middleware-onion] tools used:",
+        result.trace.map((t) => t.tool).join(", "),
+      );
+      // eslint-disable-next-line no-console
+      console.log("[alpha h3-middleware-onion] answer:\n", result.answer);
+      // eslint-disable-next-line no-console
+      console.log(
+        "[alpha h3-middleware-onion] comparison vs ca (Phase 3 log):\n" +
+          "                   alpha       ca\n" +
+          `  tool_calls       ${result.metrics.tool_calls}           5\n` +
+          `  total_tokens     ${result.metrics.total_tokens}       21078\n` +
+          `  wall_clock_ms    ${result.metrics.wall_clock_ms}       42540`,
+      );
+
+      expect(result.capped).toBeNull();
+      expect(result.answer.length).toBeGreaterThan(0);
+      expect(result.metrics.tool_calls).toBeGreaterThan(0);
+      // Looser upper bound than h6's ≤10: h3 is win-bucket; Alpha lacks
+      // ADR context and may need many Grep/Read rounds to assemble the
+      // middleware-onion picture.
+      expect(result.metrics.tool_calls).toBeLessThanOrEqual(20);
+      expect(result.metrics.total_tokens).toBeGreaterThan(0);
+    }, 180_000);
+  },
+);

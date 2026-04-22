@@ -131,4 +131,102 @@ describeIf("beta-agent integration on hono", () => {
     expect(result.metrics.tool_calls).toBeGreaterThan(0);
     expect(result.metrics.total_tokens).toBeGreaterThan(0);
   }, 240_000);
+
+  // ---- h3-middleware-onion (win bucket) across both beta conditions ----
+
+  it("h3-middleware-onion: beta baseline without MCP", async () => {
+    const prompt = await loadHonoPrompt("h3-middleware-onion");
+    const caps = new CapsTracker(DEFAULT_CAPS);
+    const repoDir = path.join(ROOT, "repos", "hono");
+    const mcpConfigTemplate = path.join(ROOT, "configs", "mcp-empty.json");
+
+    const result = await runBetaAgent({
+      prompt,
+      model: "opus",
+      repoDir,
+      benchmarksRoot: ROOT,
+      mcpConfigTemplatePath: mcpConfigTemplate,
+      caps,
+    });
+
+    // eslint-disable-next-line no-console
+    console.log("[beta h3-middleware-onion] metrics:", result.metrics);
+    // eslint-disable-next-line no-console
+    console.log(
+      "[beta h3-middleware-onion] tools used:",
+      result.trace.map((t) => t.tool).join(", "),
+    );
+    // eslint-disable-next-line no-console
+    console.log("[beta h3-middleware-onion] diagnostics:", result.diagnostics);
+    // eslint-disable-next-line no-console
+    console.log("[beta h3-middleware-onion] answer:\n", result.answer);
+    // eslint-disable-next-line no-console
+    console.log(
+      "[beta h3-middleware-onion] comparison vs ca (Phase 3 log):\n" +
+        "                   beta        ca\n" +
+        `  tool_calls       ${result.metrics.tool_calls}           5\n` +
+        `  total_tokens     ${result.metrics.total_tokens}       21078\n` +
+        `  wall_clock_ms    ${result.metrics.wall_clock_ms}       42540`,
+    );
+
+    expect(result.capped).toBeNull();
+    expect(result.diagnostics.isError ?? false).toBe(false);
+    expect(result.answer.length).toBeGreaterThan(0);
+    expect(result.metrics.tool_calls).toBeGreaterThan(0);
+    expect(result.metrics.tool_calls).toBeLessThanOrEqual(20);
+    expect(result.metrics.total_tokens).toBeGreaterThan(0);
+    expect(result.diagnostics.modelUsage).toBeDefined();
+    expect(result.diagnostics.totalCostUsd).toBeGreaterThan(0);
+  }, 240_000);
+
+  it("h3-middleware-onion: beta-ca with contextatlas MCP", async () => {
+    const prompt = await loadHonoPrompt("h3-middleware-onion");
+    const caps = new CapsTracker(DEFAULT_CAPS);
+    const repoDir = path.join(ROOT, "repos", "hono");
+    const mcpConfigTemplate = path.join(
+      ROOT,
+      "configs",
+      "mcp-contextatlas-hono.json",
+    );
+
+    const result = await runBetaAgent({
+      prompt,
+      model: "opus",
+      repoDir,
+      benchmarksRoot: ROOT,
+      mcpConfigTemplatePath: mcpConfigTemplate,
+      caps,
+    });
+
+    // eslint-disable-next-line no-console
+    console.log("[beta-ca h3-middleware-onion] metrics:", result.metrics);
+    // eslint-disable-next-line no-console
+    console.log(
+      "[beta-ca h3-middleware-onion] tools used:",
+      result.trace.map((t) => t.tool).join(", "),
+    );
+    // eslint-disable-next-line no-console
+    console.log(
+      "[beta-ca h3-middleware-onion] diagnostics:",
+      result.diagnostics,
+    );
+    // eslint-disable-next-line no-console
+    console.log("[beta-ca h3-middleware-onion] answer:\n", result.answer);
+    // eslint-disable-next-line no-console
+    console.log(
+      "[beta-ca h3-middleware-onion] comparison vs ca (Phase 3 log):\n" +
+        "                   beta-ca     ca\n" +
+        `  tool_calls       ${result.metrics.tool_calls}           5\n` +
+        `  total_tokens     ${result.metrics.total_tokens}       21078\n` +
+        `  wall_clock_ms    ${result.metrics.wall_clock_ms}       42540`,
+    );
+
+    expect(result.capped).toBeNull();
+    expect(result.diagnostics.isError ?? false).toBe(false);
+    expect(result.answer.length).toBeGreaterThan(0);
+    expect(result.metrics.tool_calls).toBeGreaterThan(0);
+    expect(result.metrics.total_tokens).toBeGreaterThan(0);
+    expect(result.diagnostics.modelUsage).toBeDefined();
+    expect(result.diagnostics.totalCostUsd).toBeGreaterThan(0);
+  }, 240_000);
 });
