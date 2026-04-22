@@ -1,0 +1,29 @@
+# ContextAtlas config for httpx benchmark target.
+#
+# Pre-registered: committed BEFORE any CA baseline measurement to
+# prevent p-hacking. Changing this file after baseline runs
+# invalidates prior results — same policy as prompts/.
+#
+# **Extraction is blocked until main-repo step 9.** contextatlas's
+# adapter registry (dist/adapters/registry.js:15) throws "Python
+# adapter not yet implemented" when languages contains 'python'.
+# This config is committed now so that when the Python adapter
+# lands upstream, step-13 extraction can run against it unchanged.
+# Phase 3 validates the harness against hono only.
+
+version: 1
+
+languages: [python]
+
+adrs:
+  # Paths resolve from the target repo root (repos/httpx/).
+  path: ../../adrs/httpx/
+
+docs:
+  # ADRs-only extraction. See configs/hono.yml for rationale.
+  include: []
+
+atlas:
+  committed: true
+  path: ../../atlases/httpx/atlas.json
+  local_cache: .contextatlas/index.db
