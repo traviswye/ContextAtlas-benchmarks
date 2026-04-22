@@ -16,5 +16,5 @@
     "sourceMap": true
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "runs", "repos"]
+  "exclude": ["node_modules", "dist", "runs", "repos", "src/**/__fixtures__/**"]
 }

@@ -109,6 +109,7 @@ of these change materially.
 | Claude Code CLI     | 2.1.116          | `claude --version` on the run host  |
 | Node.js             | 22.22.2          | `node --version` on the run host    |
 | Anthropic SDK       | ^0.32.0          | `package.json` dependency pin       |
+| @vscode/ripgrep     | ^1.17.1          | `package.json` dependency pin; bundles the rg binary the Alpha Grep tool uses |
 | Model               | Opus 4.7 (`claude-opus-4-7`) | Passed via `--model opus` on every run |
 
 The Claude Code CLI version was fixed after the Phase 0 Beta
