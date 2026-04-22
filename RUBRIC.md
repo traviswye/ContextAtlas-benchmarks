@@ -199,6 +199,37 @@ because any attempt to normalize system prompts across conditions
 would undermine both the "real user experience" of Beta and the
 "clean tool surface" of Alpha.
 
+### Tool exposure asymmetry (v0.1 characteristic)
+
+`find_by_intent` and `impact_of_change` are scaffolded in
+contextatlas v0.1 — registered in the MCP server with handlers
+that throw "not yet implemented." Implementation lands in
+main-repo steps 8-10.
+
+Alpha-side CA conditions filter these tools out of the
+model-visible tool set via `CA_TOOL_ALLOWLIST` (only
+`get_symbol_context` is exposed). This prevents Alpha from
+wasting calls on scaffolded tools.
+
+Beta-side CA conditions (`beta-ca`) do not apply this filter —
+the MCP config declares the contextatlas server, and Claude Code
+sees all three tools via `ListTools`. Claude Code may attempt
+`find_by_intent` or `impact_of_change`, receive errors, and
+recover via alternative tools.
+
+This asymmetry is a v0.1 measurement characteristic, not a
+methodology bug. It accurately reflects the state of
+contextatlas at v0.1: the serving layer advertises all
+registered tools, and consumers behave as they would with any
+real v0.1 deployment. Steps 8-10 resolve the asymmetry by
+making all three tools callable.
+
+Benchmark artifacts for `beta-ca` conditions include tool
+traces showing these attempts where they occurred. Readers
+should interpret the failed `find_by_intent` /
+`impact_of_change` calls in `beta-ca` traces as honest v0.1
+data, not noise.
+
 ---
 
 ## Alpha Tool Set Specification
