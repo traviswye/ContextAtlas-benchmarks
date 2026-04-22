@@ -7,7 +7,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 
-export type Condition = "alpha" | "ca" | "beta";
+export type Condition = "alpha" | "ca" | "beta" | "beta-ca";
 export type Bucket = "win" | "tie" | "trick" | "held_out";
 export type CapReason = "tool_calls" | "tokens" | "wall_clock";
 
