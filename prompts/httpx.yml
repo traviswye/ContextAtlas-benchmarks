@@ -47,30 +47,50 @@ prompts:
     prompt: "What arguments does `httpx.Client.get` accept?"
 
   # ------------------------------------------------------------
-  # Held-out for step 13 — topic placeholders only. Prompt text
-  # intentionally deferred (see file header).
+  # Held-out for step 13. Prompt text drafted in this session to
+  # prevent step-13 drift (STEP-7-PLAN.md §1). `bucket: held_out`
+  # remains the step-7 runner gate; `step13_bucket` is the real
+  # classification the step-13 driver reads.
   # ------------------------------------------------------------
 
   - prompt_id: p7-mock-transport-contract
+    target_symbol: MockTransport
     bucket: held_out
-    notes: "ADR-03 MockTransport. Intended step-13 bucket: win."
+    step13_bucket: win
+    prompt: "I want to write unit tests for code that uses httpx without hitting the network. How do I use `MockTransport`, and what contract does it satisfy?"
+    notes: "ADR-03 MockTransport."
 
   - prompt_id: p8-auth-yield-semantics
+    target_symbol: Auth.auth_flow
     bucket: held_out
-    notes: "ADR-04 auth_flow yield semantics. Intended step-13 bucket: win."
+    step13_bucket: win
+    prompt: "When I implement an auth scheme by overriding `auth_flow`, what exactly am I supposed to yield, and what does httpx do with each yielded request?"
+    notes: "ADR-04 auth_flow yield semantics."
 
   - prompt_id: p9-stream-reread
+    target_symbol: Response.stream
     bucket: held_out
-    notes: "ADR-05 re-read streams. Intended step-13 bucket: win."
+    step13_bucket: win
+    prompt: "I read a streaming response's body once, and now I need to read it again in another piece of code. Can I re-read an httpx streaming response, and if not, what's the pattern I should use instead?"
+    notes: "ADR-05 re-read streams."
 
   - prompt_id: p10-default-timeout-location
+    target_symbol: Timeout
     bucket: held_out
-    notes: "default timeout location. Intended step-13 bucket: tie."
+    step13_bucket: tie
+    prompt: "What is the default timeout on an `httpx.Client`, and where is it configured?"
+    notes: "default timeout location."
 
   - prompt_id: p11-httpx-get-return
+    target_symbol: Response
     bucket: held_out
-    notes: "httpx.get() return. Intended step-13 bucket: trick."
+    step13_bucket: trick
+    prompt: "I'm writing a quick script to check a URL is alive. When I do `httpx.get(url)`, what type comes back and how do I check the status?"
+    notes: "httpx.get() return."
 
   - prompt_id: p12-proxy-configuration
+    target_symbol: Proxy
     bucket: held_out
-    notes: "proxy configuration. Intended step-13 bucket: tie."
+    step13_bucket: tie
+    prompt: "How do I configure an HTTP proxy for httpx requests?"
+    notes: "proxy configuration."

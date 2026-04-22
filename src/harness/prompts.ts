@@ -8,6 +8,9 @@ import { readFile } from "node:fs/promises";
 import yaml from "js-yaml";
 import type { Bucket } from "./metrics.js";
 
+/** The bucket held-out entries will carry when step 13 promotes them. */
+export type Step13Bucket = "win" | "tie" | "trick";
+
 export interface PromptEntry {
   readonly prompt_id: string;
   readonly bucket: Bucket;
@@ -15,6 +18,8 @@ export interface PromptEntry {
   readonly task_category?: string;
   readonly prompt?: string;
   readonly notes?: string;
+  /** Populated on held-out entries so step 13 can promote them without re-classifying. */
+  readonly step13_bucket?: Step13Bucket;
 }
 
 interface PromptFile {
@@ -28,6 +33,10 @@ function isValidBucket(value: unknown): value is Bucket {
     value === "trick" ||
     value === "held_out"
   );
+}
+
+function isValidStep13Bucket(value: unknown): value is Step13Bucket {
+  return value === "win" || value === "tie" || value === "trick";
 }
 
 function validateEntry(entry: unknown, index: number, file: string): PromptEntry {
@@ -48,6 +57,16 @@ function validateEntry(entry: unknown, index: number, file: string): PromptEntry
       `${file}:${String(e.prompt_id)} step-7 prompt text is missing`,
     );
   }
+  if (e.step13_bucket !== undefined && !isValidStep13Bucket(e.step13_bucket)) {
+    throw new Error(
+      `${file}:${String(e.prompt_id)} invalid step13_bucket ${JSON.stringify(e.step13_bucket)}`,
+    );
+  }
+  if (e.bucket !== "held_out" && e.step13_bucket !== undefined) {
+    throw new Error(
+      `${file}:${String(e.prompt_id)} step13_bucket only applies to held_out entries`,
+    );
+  }
   return {
     prompt_id: e.prompt_id,
     bucket: e.bucket,
@@ -55,6 +74,7 @@ function validateEntry(entry: unknown, index: number, file: string): PromptEntry
     task_category: typeof e.task_category === "string" ? e.task_category : undefined,
     prompt: typeof e.prompt === "string" ? e.prompt : undefined,
     notes: typeof e.notes === "string" ? e.notes : undefined,
+    step13_bucket: isValidStep13Bucket(e.step13_bucket) ? e.step13_bucket : undefined,
   };
 }
 

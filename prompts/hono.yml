@@ -47,30 +47,50 @@ prompts:
     prompt: "What's the signature of Hono's `.fetch` method? I need to mount a Hono app inside another framework."
 
   # ------------------------------------------------------------
-  # Held-out for step 13 — topic placeholders only. Prompt text
-  # intentionally deferred (see file header).
+  # Held-out for step 13. Prompt text drafted in this session to
+  # prevent step-13 drift (STEP-7-PLAN.md §1). `bucket: held_out`
+  # remains the step-7 runner gate; `step13_bucket` is the real
+  # classification the step-13 driver reads.
   # ------------------------------------------------------------
 
   - prompt_id: h7-jsx-backend-integration
+    target_symbol: JSXNode
     bucket: held_out
-    notes: "ADR-05 jsx backends. Intended step-13 bucket: win."
+    step13_bucket: win
+    prompt: "I want to write JSX components that work in both Hono's server-side rendering and its DOM runtime. What are the constraints I need to respect?"
+    notes: "ADR-05 jsx backends."
 
   - prompt_id: h8-context-sharing
+    target_symbol: Context
     bucket: held_out
-    notes: "ADR-01 Context lifetime. Intended step-13 bucket: win."
+    step13_bucket: win
+    prompt: "I need to share data across middleware for a single request. How does the Context lifetime work — can I store something in one middleware and read it in another, and when does it get cleared?"
+    notes: "ADR-01 Context lifetime."
 
   - prompt_id: h9-middleware-return-semantics
+    target_symbol: compose
     bucket: held_out
-    notes: "ADR-03 middleware return-vs-next. Intended step-13 bucket: win."
+    step13_bucket: win
+    prompt: "I'm writing a middleware that sometimes wants to short-circuit the request and return a Response, and sometimes wants to let the next handler run. What's the difference between returning a Response and calling `next()` — does order matter?"
+    notes: "ADR-03 middleware return-vs-next."
 
   - prompt_id: h10-env-type-on-context
+    target_symbol: Bindings
     bucket: held_out
-    notes: "env type on Context. Intended step-13 bucket: tie/trick."
+    step13_bucket: tie
+    prompt: "I'm using Hono on Cloudflare Workers and I want `c.env` to be typed correctly for my bindings. How do I do that?"
+    notes: "env type on Context. Source note called this tie/trick; locked as tie."
 
   - prompt_id: h11-hc-request-shape
+    target_symbol: hc
     bucket: held_out
-    notes: "hc client. Intended step-13 bucket: tie."
+    step13_bucket: tie
+    prompt: "I'm calling a Hono route from another TypeScript service using `hc`. What shape do I pass when the route expects a JSON body?"
+    notes: "hc client."
 
   - prompt_id: h12-middleware-storage-location
+    target_symbol: Hono
     bucket: held_out
-    notes: "middleware storage location. Intended step-13 bucket: tie."
+    step13_bucket: tie
+    prompt: "I'm debugging a case where one of my middlewares isn't running in the order I expected. Where does Hono actually store the registered middleware — can I inspect it to see the order?"
+    notes: "middleware storage location."

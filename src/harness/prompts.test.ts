@@ -93,6 +93,58 @@ prompts:
     );
   });
 
+  it("parses step13_bucket on held_out entries", async () => {
+    await withTempFile(
+      `
+prompts:
+  - prompt_id: h7
+    bucket: held_out
+    step13_bucket: win
+  - prompt_id: h8
+    bucket: held_out
+    step13_bucket: tie
+`.trim(),
+      async (file) => {
+        const entries = await loadPromptFile(file);
+        expect(entries[0].step13_bucket).toBe("win");
+        expect(entries[1].step13_bucket).toBe("tie");
+      },
+    );
+  });
+
+  it("rejects step13_bucket on non-held_out entries", async () => {
+    await withTempFile(
+      `
+prompts:
+  - prompt_id: h1
+    bucket: win
+    prompt: "x"
+    step13_bucket: tie
+`.trim(),
+      async (file) => {
+        await expect(loadPromptFile(file)).rejects.toThrow(
+          /only applies to held_out/,
+        );
+      },
+    );
+  });
+
+  it("rejects invalid step13_bucket values", async () => {
+    await withTempFile(
+      `
+prompts:
+  - prompt_id: h7
+    bucket: held_out
+    step13_bucket: nonsense
+`.trim(),
+      async (file) => {
+        await expect(loadPromptFile(file)).rejects.toThrow(
+          /invalid step13_bucket/,
+        );
+      },
+    );
+  });
+
   it("throws when the top-level prompts list is missing", async () => {
     await withTempFile("other: stuff", async (file) => {
       await expect(loadPromptFile(file)).rejects.toThrow(/prompts/);
@@ -123,7 +175,7 @@ describe("findPrompt", () => {
 });
 
 describe("loadPromptFile against the committed prompt files", () => {
-  it("loads prompts/hono.yml and validates step-7 entries have text", async () => {
+  it("loads prompts/hono.yml and validates all 24 entries fully populated", async () => {
     const entries = await loadPromptFile(
       path.resolve("prompts", "hono.yml"),
     );
@@ -131,9 +183,26 @@ describe("loadPromptFile against the committed prompt files", () => {
     const step7 = filterStep7(entries);
     expect(step7.length).toBe(6);
     expect(step7.every((e) => typeof e.prompt === "string")).toBe(true);
+
+    const heldOut = entries.filter((e) => e.bucket === "held_out");
+    expect(heldOut.length).toBe(6);
+    // Held-out entries must now also have prompt text and step13_bucket
+    // — they were drafted in this commit to prevent step-13 drift.
+    expect(heldOut.every((e) => typeof e.prompt === "string")).toBe(true);
+    expect(
+      heldOut.every(
+        (e) =>
+          e.step13_bucket === "win" ||
+          e.step13_bucket === "tie" ||
+          e.step13_bucket === "trick",
+      ),
+    ).toBe(true);
+    expect(heldOut.every((e) => typeof e.target_symbol === "string")).toBe(
+      true,
+    );
   });
 
-  it("loads prompts/httpx.yml and validates step-7 entries have text", async () => {
+  it("loads prompts/httpx.yml and validates all 24 entries fully populated", async () => {
     const entries = await loadPromptFile(
       path.resolve("prompts", "httpx.yml"),
     );
@@ -141,5 +210,20 @@ describe("loadPromptFile against the committed prompt files", () => {
     const step7 = filterStep7(entries);
     expect(step7.length).toBe(6);
     expect(step7.every((e) => typeof e.prompt === "string")).toBe(true);
+
+    const heldOut = entries.filter((e) => e.bucket === "held_out");
+    expect(heldOut.length).toBe(6);
+    expect(heldOut.every((e) => typeof e.prompt === "string")).toBe(true);
+    expect(
+      heldOut.every(
+        (e) =>
+          e.step13_bucket === "win" ||
+          e.step13_bucket === "tie" ||
+          e.step13_bucket === "trick",
+      ),
+    ).toBe(true);
+    expect(heldOut.every((e) => typeof e.target_symbol === "string")).toBe(
+      true,
+    );
   });
 });
