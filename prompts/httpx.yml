@@ -1,0 +1,76 @@
+# Locked prompt set for the ContextAtlas benchmark — target repo: httpx.
+#
+# Committed as pre-registration per STEP-7-PLAN.md §2: once these
+# prompts run against a baseline condition, their text is frozen.
+# Any paraphrase or reformat invalidates prior results.
+#
+# Step-7 runs ONLY entries with bucket != "held_out". Held-out
+# entries are placeholders for the step-13 extended suite — their
+# prompt text is drafted when that session begins. Do not draft
+# held-out prompt text without session-level approval.
+
+prompts:
+  - prompt_id: p1-sync-async-split
+    target_symbol: Client/AsyncClient
+    task_category: constraint
+    bucket: win
+    prompt: "Why does httpx have both Client and AsyncClient instead of one class? Can I merge them?"
+
+  - prompt_id: p2-http3-transport
+    target_symbol: BaseTransport
+    task_category: impact
+    bucket: win
+    prompt: "I want to add an HTTP/3 transport. What base interface do I implement?"
+
+  - prompt_id: p3-custom-auth
+    target_symbol: Auth.auth_flow
+    task_category: localize+constraint
+    bucket: win
+    prompt: "How does httpx handle authentication? I need to implement a custom auth scheme that does a token refresh."
+
+  - prompt_id: p4-stream-lifecycle
+    target_symbol: Response.stream
+    task_category: constraint
+    bucket: win
+    prompt: "When I call `response.content` on a streaming response, what happens? What's the lifecycle I need to respect?"
+
+  - prompt_id: p5-drop-anyio
+    target_symbol: "(module-level)"
+    task_category: constraint
+    bucket: tie
+    prompt: "Can I drop anyio and just use raw asyncio in httpx?"
+
+  - prompt_id: p6-client-get-args
+    target_symbol: Client.get
+    task_category: localize
+    bucket: trick
+    prompt: "What arguments does `httpx.Client.get` accept?"
+
+  # ------------------------------------------------------------
+  # Held-out for step 13 — topic placeholders only. Prompt text
+  # intentionally deferred (see file header).
+  # ------------------------------------------------------------
+
+  - prompt_id: p7-mock-transport-contract
+    bucket: held_out
+    notes: "ADR-03 MockTransport. Intended step-13 bucket: win."
+
+  - prompt_id: p8-auth-yield-semantics
+    bucket: held_out
+    notes: "ADR-04 auth_flow yield semantics. Intended step-13 bucket: win."
+
+  - prompt_id: p9-stream-reread
+    bucket: held_out
+    notes: "ADR-05 re-read streams. Intended step-13 bucket: win."
+
+  - prompt_id: p10-default-timeout-location
+    bucket: held_out
+    notes: "default timeout location. Intended step-13 bucket: tie."
+
+  - prompt_id: p11-httpx-get-return
+    bucket: held_out
+    notes: "httpx.get() return. Intended step-13 bucket: trick."
+
+  - prompt_id: p12-proxy-configuration
+    bucket: held_out
+    notes: "proxy configuration. Intended step-13 bucket: tie."

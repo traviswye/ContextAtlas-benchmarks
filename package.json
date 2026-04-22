@@ -14,9 +14,11 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.0",
     "@vscode/ripgrep": "^1.17.1",
-    "contextatlas": "file:../contextatlas"
+    "contextatlas": "file:../contextatlas",
+    "js-yaml": "^4.1.1"
   },
   "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
     "@types/node": "^22.19.17",
     "typescript": "^5.3.3",
     "vitest": "^1.2.0"

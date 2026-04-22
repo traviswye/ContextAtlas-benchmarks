@@ -1,0 +1,76 @@
+# Locked prompt set for the ContextAtlas benchmark — target repo: hono.
+#
+# Committed as pre-registration per STEP-7-PLAN.md §2: once these
+# prompts run against a baseline condition, their text is frozen.
+# Any paraphrase or reformat invalidates prior results.
+#
+# Step-7 runs ONLY entries with bucket != "held_out". Held-out
+# entries are placeholders for the step-13 extended suite — their
+# prompt text is drafted when that session begins. Do not draft
+# held-out prompt text without session-level approval.
+
+prompts:
+  - prompt_id: h1-context-runtime
+    target_symbol: Context
+    task_category: constraint
+    bucket: win
+    prompt: "If I'm writing a new Hono route handler, what can I safely assume is on Context at runtime? I want to make sure my handler works in both Cloudflare Workers and Node."
+
+  - prompt_id: h2-router-contract
+    target_symbol: RegExpRouter
+    task_category: impact/constraint
+    bucket: win
+    prompt: "I want to replace RegExpRouter with my own implementation. What's the contract I need to satisfy?"
+
+  - prompt_id: h3-middleware-onion
+    target_symbol: compose
+    task_category: localize
+    bucket: win
+    prompt: "Where is Hono's middleware onion actually composed? I need to understand what `next()` is doing mechanically."
+
+  - prompt_id: h4-validator-typeflow
+    target_symbol: validator
+    task_category: constraint
+    bucket: win
+    prompt: "I want to add a zod validator to a route. How does the validator's type flow into the handler and the typed RPC client?"
+
+  - prompt_id: h5-hono-generics
+    target_symbol: Hono
+    task_category: impact
+    bucket: tie
+    prompt: "If I change the Hono class's type parameters, which downstream types would need to update?"
+
+  - prompt_id: h6-fetch-signature
+    target_symbol: Hono.fetch
+    task_category: localize
+    bucket: trick
+    prompt: "What's the signature of Hono's `.fetch` method? I need to mount a Hono app inside another framework."
+
+  # ------------------------------------------------------------
+  # Held-out for step 13 — topic placeholders only. Prompt text
+  # intentionally deferred (see file header).
+  # ------------------------------------------------------------
+
+  - prompt_id: h7-jsx-backend-integration
+    bucket: held_out
+    notes: "ADR-05 jsx backends. Intended step-13 bucket: win."
+
+  - prompt_id: h8-context-sharing
+    bucket: held_out
+    notes: "ADR-01 Context lifetime. Intended step-13 bucket: win."
+
+  - prompt_id: h9-middleware-return-semantics
+    bucket: held_out
+    notes: "ADR-03 middleware return-vs-next. Intended step-13 bucket: win."
+
+  - prompt_id: h10-env-type-on-context
+    bucket: held_out
+    notes: "env type on Context. Intended step-13 bucket: tie/trick."
+
+  - prompt_id: h11-hc-request-shape
+    bucket: held_out
+    notes: "hc client. Intended step-13 bucket: tie."
+
+  - prompt_id: h12-middleware-storage-location
+    bucket: held_out
+    notes: "middleware storage location. Intended step-13 bucket: tie."
