@@ -34,19 +34,23 @@ function resolveContextatlasBin(): string {
 export interface WithCaToolsOptions {
   /** Absolute path to the benchmarks repo root — passed as --config-root to the MCP binary. */
   readonly configRoot: string;
+  /** Config file path relative to configRoot (e.g. "configs/hono.yml") — passed as --config. */
+  readonly contextatlasConfigPath: string;
   /** Override the MCP server binary path. Defaults to the resolved contextatlas package. */
   readonly mcpServerPath?: string;
 }
 
 /**
  * Spawn contextatlas's MCP server with --config-root pointing at the
- * benchmarks repo, connect an MCP client, filter tools to the
- * allowlist, adapt them, invoke `fn` with the resulting BenchmarkTool
- * list, and clean up the server process in a try/finally.
+ * benchmarks repo and --config naming the per-target config file,
+ * connect an MCP client, filter tools to the allowlist, adapt them,
+ * invoke `fn` with the resulting BenchmarkTool list, and clean up
+ * the server process in a try/finally.
  *
- * ADR-08 removes the previous requirement that the server's cwd equal
- * the source tree — the binary now reads config from configRoot and
- * derives source.root from the config.
+ * ADR-08 (runtime coverage) enables this flag combination: the binary
+ * loads the specified config file from configRoot and derives
+ * source.root from the config, decoupling config location from source
+ * code location.
  */
 export async function withCaTools<T>(
   opts: WithCaToolsOptions,
@@ -56,7 +60,13 @@ export async function withCaTools<T>(
 
   const transport = new StdioClientTransport({
     command: process.execPath,
-    args: [mcpServerPath, "--config-root", opts.configRoot],
+    args: [
+      mcpServerPath,
+      "--config-root",
+      opts.configRoot,
+      "--config",
+      opts.contextatlasConfigPath,
+    ],
     stderr: "inherit",
   });
   const client = new Client(
@@ -88,6 +98,8 @@ export interface CaAgentInput extends Omit<AlphaAgentInput, "tools"> {
   readonly alphaTools: readonly BenchmarkTool[];
   /** Absolute path to the benchmarks repo root. Passed as --config-root to the MCP binary. */
   readonly configRoot: string;
+  /** Config file path relative to configRoot (e.g. "configs/hono.yml") — passed as --config. */
+  readonly contextatlasConfigPath: string;
   /** Optional override for the MCP server binary. */
   readonly mcpServerPath?: string;
 }
@@ -105,6 +117,7 @@ export async function runCaAgent(
   return withCaTools(
     {
       configRoot: input.configRoot,
+      contextatlasConfigPath: input.contextatlasConfigPath,
       mcpServerPath: input.mcpServerPath,
     },
     async (caTools) =>

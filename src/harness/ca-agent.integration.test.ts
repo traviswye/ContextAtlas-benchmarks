@@ -70,6 +70,7 @@ describeIf("ca-agent integration on hono", () => {
         ctx,
         caps,
         configRoot: ROOT,
+        contextatlasConfigPath: "configs/hono.yml",
       },
       { createMessage: (params) => client.messages.create(params) },
     );
@@ -116,6 +117,7 @@ describeIf("ca-agent integration on hono", () => {
         ctx,
         caps,
         configRoot: ROOT,
+        contextatlasConfigPath: "configs/hono.yml",
       },
       { createMessage: (params) => client.messages.create(params) },
     );
