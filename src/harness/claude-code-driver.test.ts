@@ -6,6 +6,7 @@ import {
   CLAUDE_PREVIEW_MAX,
   INTERRUPTED_PREVIEW,
   StreamJsonParser,
+  TERMINAL_REASON_SIGTERM_CAPPED,
   extractToolResultText,
   resolveMcpConfig,
 } from "./claude-code-driver.js";
@@ -294,6 +295,120 @@ describe("StreamJsonParser", () => {
         costUSD: 0.00042,
       },
     });
+  });
+
+  it("synthesizes modelUsage from per-assistant accumulation when no result event arrives", () => {
+    const p = new StreamJsonParser();
+    p.handle({
+      type: "assistant",
+      message: {
+        model: "claude-opus-4-7",
+        content: [{ type: "tool_use", id: "t1", name: "Read", input: {} }],
+        usage: {
+          input_tokens: 5,
+          output_tokens: 20,
+          cache_read_input_tokens: 1000,
+          cache_creation_input_tokens: 200,
+        },
+      },
+    });
+    p.handle({
+      type: "assistant",
+      message: {
+        model: "claude-haiku-4-5-20251001",
+        content: [{ type: "text", text: "routing hint" }],
+        usage: {
+          input_tokens: 350,
+          output_tokens: 14,
+          cache_read_input_tokens: 0,
+          cache_creation_input_tokens: 0,
+        },
+      },
+    });
+    // No result event — simulate a SIGTERM-before-result scenario.
+    const out = p.finalize(1000);
+    expect(out.diagnostics.modelUsage).toEqual({
+      "claude-opus-4-7": {
+        inputTokens: 5,
+        outputTokens: 20,
+        cacheReadInputTokens: 1000,
+        cacheCreationInputTokens: 200,
+      },
+      "claude-haiku-4-5-20251001": {
+        inputTokens: 350,
+        outputTokens: 14,
+        cacheReadInputTokens: 0,
+        cacheCreationInputTokens: 0,
+      },
+    });
+  });
+
+  it("result.modelUsage takes precedence over synthesized when both available", () => {
+    const p = new StreamJsonParser();
+    // Per-assistant accumulation (would synthesize to a {haiku, opus} dict)
+    p.handle({
+      type: "assistant",
+      message: {
+        model: "claude-opus-4-7",
+        content: [],
+        usage: { input_tokens: 10, output_tokens: 2, cache_read_input_tokens: 100, cache_creation_input_tokens: 50 },
+      },
+    });
+    // Result event carries its own (authoritative, different) modelUsage
+    p.handle(resultEvent({
+      modelUsage: {
+        "claude-opus-4-7": {
+          inputTokens: 6, outputTokens: 177, cacheReadInputTokens: 15, cacheCreationInputTokens: 2327,
+        },
+      },
+    }));
+    const out = p.finalize(2000);
+    expect(out.diagnostics.modelUsage).toEqual({
+      "claude-opus-4-7": {
+        inputTokens: 6,
+        outputTokens: 177,
+        cacheReadInputTokens: 15,
+        cacheCreationInputTokens: 2327,
+      },
+    });
+  });
+
+  it("skips <synthetic> model entries in per-model accumulation", () => {
+    const p = new StreamJsonParser();
+    p.handle({
+      type: "assistant",
+      message: {
+        model: "<synthetic>",
+        content: [{ type: "text", text: "error sentinel" }],
+        usage: { input_tokens: 0, output_tokens: 0 },
+      },
+    });
+    const out = p.finalize(500);
+    // No real model was seen, so no synthesized modelUsage.
+    expect(out.diagnostics.modelUsage).toBeUndefined();
+  });
+
+  it("markInterruptedByCap sets terminalReason = sigterm_capped when no result event arrives", () => {
+    const p = new StreamJsonParser();
+    p.handle(initEvent());
+    p.handle(assistantTextEvent("partial"));
+    p.markInterruptedByCap("tokens");
+    // No result event — finalize with the synthetic terminalReason.
+    const out = p.finalize(1000);
+    expect(out.diagnostics.terminalReason).toBe(TERMINAL_REASON_SIGTERM_CAPPED);
+    // totalCostUsd and numTurns are unavailable without a result event.
+    expect(out.diagnostics.totalCostUsd).toBeUndefined();
+    expect(out.diagnostics.numTurns).toBeUndefined();
+  });
+
+  it("result.terminal_reason takes precedence over the synthetic sigterm_capped marker", () => {
+    const p = new StreamJsonParser();
+    p.handle(initEvent());
+    p.markInterruptedByCap("tokens");
+    // Result event still arrived (race between SIGTERM and event flush).
+    p.handle(resultEvent({ terminal_reason: "completed" }));
+    const out = p.finalize(1000);
+    expect(out.diagnostics.terminalReason).toBe("completed");
   });
 
   it("snapshotTotalTokens reflects the running incremental sum across all four fields", () => {

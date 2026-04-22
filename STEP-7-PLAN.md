@@ -106,6 +106,30 @@ This ratio produces a benchmark that's credible. All-wins would be
 obvious cherry-picking. Including genuine ties and one trick makes the
 "wins" defensible.
 
+### CA value can manifest on two axes
+
+On some win-bucket prompts CA saves tool calls and tokens
+(efficiency axis); on others it produces an architecturally grounded
+answer in the same call count (quality axis). Step 7's efficiency-
+only summary table will miss the quality dimension when CA and Alpha
+land at similar efficiency on a particular prompt.
+
+That's not a methodology failure. Close alpha/CA efficiency on a win
+prompt doesn't rule out CA's architectural contribution — it may
+indicate CA's value on that prompt manifested as answer framing
+rather than exploration reduction, which step 7's efficiency view
+doesn't capture.
+
+The quality axis is step-13 scope (blind-graded correctness per
+RUBRIC.md §"Three-Axis Framework"). Step-7 results should be
+interpreted with this two-axis framing in mind.
+
+Observed example: the Phase 4+ integration addendum showed alpha and
+CA tied at 5 tool calls on `h3-middleware-onion`, but CA's answer
+cited ADR-03 by name, quoted specific invariants, and synthesized
+claim metadata with code mechanics. That's a quality win invisible
+to the efficiency table.
+
 ### Prompts are locked before any measurement
 
 P-hacking prevention: we lock the prompt text before running a single

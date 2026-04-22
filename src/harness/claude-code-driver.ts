@@ -21,6 +21,9 @@ import {
   type TraceEntry,
 } from "./metrics.js";
 
+/** Synthetic terminalReason stamped when the driver SIGTERMs before a result event arrives. */
+export const TERMINAL_REASON_SIGTERM_CAPPED = "sigterm_capped";
+
 export const CLAUDE_PREVIEW_MAX = DEFAULT_PREVIEW_MAX;
 
 /** Sentinel stamped into trace entries for tool_use blocks whose matching tool_result never arrived. */
@@ -62,6 +65,13 @@ interface ResultUsage {
  * Handle one event at a time; call `snapshot()` or `finalize()`
  * to read accumulated state.
  */
+interface PerModelAccumulator {
+  inputTokens: number;
+  outputTokens: number;
+  cacheReadInputTokens: number;
+  cacheCreationInputTokens: number;
+}
+
 export class StreamJsonParser {
   private readonly pendingTools = new Map<string, ParserPendingTool>();
   private readonly completedTrace: TraceEntry[] = [];
@@ -74,6 +84,14 @@ export class StreamJsonParser {
   private cacheReadTokens = 0;
   private cacheCreationTokens = 0;
   private outputTokens = 0;
+  // Per-model usage accumulated from assistant events keyed by
+  // message.model. Used as a fallback to synthesize
+  // diagnostics.modelUsage when a run terminates before the
+  // `result` event arrives (e.g., SIGTERM on a cap trip).
+  // Per-assistant output_tokens are partial upstream — these
+  // values UNDERESTIMATE output for capped runs. totalCostUsd
+  // and numTurns cannot be recovered this way and stay undefined.
+  private readonly perModelUsage = new Map<string, PerModelAccumulator>();
   // Authoritative usage from the terminal `result` event. When
   // present, overrides the incrementals at finalize.
   private resultUsage?: ResultUsage;
@@ -86,6 +104,7 @@ export class StreamJsonParser {
   private terminalReason?: string;
   private modelUsage?: Record<string, unknown>;
   private terminalSeen = false;
+  private interruptedByCap?: CapReason;
 
   handle(event: unknown): void {
     if (!isRecord(event)) return;
@@ -125,6 +144,24 @@ export class StreamJsonParser {
     this.cacheReadTokens += numberOrZero(usage.cache_read_input_tokens);
     this.cacheCreationTokens += numberOrZero(usage.cache_creation_input_tokens);
     this.outputTokens += numberOrZero(usage.output_tokens);
+
+    // Per-model accumulation for capped-run diagnostics fallback.
+    // Skip "<synthetic>" — error-path sentinel that carries no real
+    // model attribution.
+    const model = typeof msg.model === "string" ? msg.model : undefined;
+    if (model && model !== "<synthetic>") {
+      const existing = this.perModelUsage.get(model) ?? {
+        inputTokens: 0,
+        outputTokens: 0,
+        cacheReadInputTokens: 0,
+        cacheCreationInputTokens: 0,
+      };
+      existing.inputTokens += numberOrZero(usage.input_tokens);
+      existing.outputTokens += numberOrZero(usage.output_tokens);
+      existing.cacheReadInputTokens += numberOrZero(usage.cache_read_input_tokens);
+      existing.cacheCreationInputTokens += numberOrZero(usage.cache_creation_input_tokens);
+      this.perModelUsage.set(model, existing);
+    }
 
     const content = Array.isArray(msg.content) ? msg.content : [];
     for (const block of content) {
@@ -203,6 +240,17 @@ export class StreamJsonParser {
   }
 
   /**
+   * Record that the driver SIGTERMed the subprocess due to a cap
+   * trip. When the subsequent finalize runs without a result event
+   * having arrived, diagnostics.terminalReason defaults to
+   * `sigterm_capped` so callers can distinguish "run completed
+   * without diagnostics" from "run was killed by caps."
+   */
+  markInterruptedByCap(reason: CapReason): void {
+    this.interruptedByCap = reason;
+  }
+
+  /**
    * Current total-tokens estimate from the incremental accumulators.
    * Used by the driver to feed cap enforcement mid-run. Not
    * authoritative — the result event's usage overrides this at
@@ -259,6 +307,33 @@ export class StreamJsonParser {
     const outputTokens = authoritative
       ? authoritative.outputTokens
       : this.outputTokens;
+
+    // modelUsage resolution order:
+    //   1. Authoritative from result.modelUsage if captured.
+    //   2. Best-effort synthesis from per-model assistant-event
+    //      accumulation if the result event never arrived.
+    //   3. Undefined if nothing was accumulated.
+    // Synthesized modelUsage inherits the per-assistant output
+    // partiality — on a capped run, output_tokens per model will
+    // UNDERESTIMATE what the model really produced. That's the
+    // best we can do without the terminal result event.
+    let modelUsage = this.modelUsage;
+    if (!modelUsage && this.perModelUsage.size > 0) {
+      const synthesized: Record<string, unknown> = {};
+      for (const [name, accum] of this.perModelUsage) {
+        synthesized[name] = { ...accum };
+      }
+      modelUsage = synthesized;
+    }
+
+    // terminalReason: if the driver SIGTERMed before a result event
+    // arrived, mark the run synthetically so readers can distinguish
+    // capped from cleanly-completed runs. Real terminalReason from
+    // the result event always wins if it was captured.
+    const terminalReason =
+      this.terminalReason ??
+      (this.interruptedByCap ? TERMINAL_REASON_SIGTERM_CAPPED : undefined);
+
     return {
       answer: this.answerBuffer,
       trace: this.completedTrace,
@@ -275,8 +350,8 @@ export class StreamJsonParser {
         numTurns: this.numTurns,
         isError: this.isError,
         errorFromEvent: this.errorFromEvent,
-        terminalReason: this.terminalReason,
-        modelUsage: this.modelUsage,
+        terminalReason,
+        modelUsage,
       },
     };
   }
@@ -415,6 +490,9 @@ export async function runClaudeCode(
         if (killed) return;
         killed = true;
         cappedReason = reason;
+        // Mark the parser so finalize can synthesize a terminalReason
+        // when no result event arrives after the SIGTERM.
+        parser.markInterruptedByCap(reason);
         child.kill("SIGTERM");
         killTimer = setTimeout(() => child.kill("SIGKILL"), 5000);
       };
