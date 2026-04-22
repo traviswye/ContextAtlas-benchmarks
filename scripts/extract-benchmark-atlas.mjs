@@ -76,12 +76,17 @@ async function extractOne(repoName) {
     process.exit(1);
   }
 
-  // Verify adapters before any work. Fails fast with a friendly
-  // message on languages whose adapters aren't implemented yet.
+  // Construct adapters and initialize each one against the source
+  // root. The MCP binary's startup does the same (dist/index.js);
+  // runExtractionPipeline itself does NOT call .initialize(), so
+  // callers must. Without this, listSymbols throws
+  // "TypeScriptAdapter not initialized" on every source file and
+  // the atlas ends up with zero symbols.
   const adapters = new Map();
   for (const lang of config.languages) {
+    let adapter;
     try {
-      adapters.set(lang, createAdapter(lang));
+      adapter = createAdapter(lang);
     } catch (err) {
       console.error(
         `[${repoName}] extraction blocked: ${err instanceof Error ? err.message : String(err)}`,
@@ -94,6 +99,9 @@ async function extractOne(repoName) {
       );
       process.exit(2);
     }
+    await adapter.initialize(repoDir);
+    adapters.set(lang, adapter);
+    console.log(`[${repoName}] initialized ${lang} adapter against ${repoDir}`);
   }
 
   const atlasPath = resolve(ROOT, config.atlas.path);
@@ -161,6 +169,14 @@ async function extractOne(repoName) {
       );
     }
   } finally {
+    // Mirror the MCP binary's shutdown order: adapters first (kills
+    // spawned LSP subprocesses like typescript-language-server so
+    // they don't become zombies), then close the DB.
+    for (const [lang, adapter] of adapters) {
+      await adapter.shutdown().catch((err) => {
+        console.error(`[${repoName}] error shutting down ${lang} adapter: ${String(err)}`);
+      });
+    }
     db.close();
   }
 }
