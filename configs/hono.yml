@@ -4,36 +4,37 @@
 # prevent p-hacking. Changing this file after baseline runs
 # invalidates prior results — same policy as prompts/.
 #
-# This file lives in the benchmarks repo; the harness copies it to
-# repos/hono/.contextatlas.yml at extraction and runtime because
-# contextatlas looks for the config in the target repo's cwd.
-# The repos/ directory is gitignored so the copy doesn't pollute
-# our git or affect hono's own tree (the target repo sees an
-# untracked file we clean up after the run).
+# All paths below resolve against the benchmarks repo root (passed
+# as `configRoot` in the extraction pipeline and `--config-root`
+# on the MCP binary, per ADR-08). `source.root` names where the
+# cloned source code lives; other paths live in our benchmarks
+# repo directly so the atlas, ADRs, and cache stay version-
+# controlled alongside the harness code.
 
 version: 1
 
 languages: [typescript]
 
+source:
+  # Cloned upstream repo. Gitignored — see RUBRIC.md for the pinned SHA.
+  root: repos/hono/
+
 adrs:
-  # Paths resolve from the target repo root (repos/hono/), so
-  # ../../ goes up to the benchmarks root and into our curated
-  # ADR set — NOT hono's own docs.
-  path: ../../adrs/hono/
+  # Curated ADRs for the benchmark. NOT hono's own docs — the
+  # atlas reflects our methodology, not upstream documentation.
+  path: adrs/hono/
 
 docs:
   # Empty array is an explicit override that disables the default
   # docs.include (README.md, docs/**/*.md, CONTRIBUTING.md).
-  # Verified against contextatlas's config parser. We want
-  # ADRs-only extraction so the atlas reflects our methodology,
-  # not hono's upstream documentation.
+  # ADRs-only extraction keeps the atlas scoped to our methodology.
   include: []
 
 atlas:
   committed: true
-  # The atlas lives in our benchmarks repo (committed) rather than
-  # inside the target repo. Runtime MCP reads from the same path.
-  path: ../../atlases/hono/atlas.json
-  # Local sqlite cache for incremental extraction. Lands under
-  # repos/hono/.contextatlas/ which is gitignored in our repo.
-  local_cache: .contextatlas/index.db
+  # The atlas lives in our benchmarks repo (committed) alongside
+  # the ADRs it was extracted from.
+  path: atlases/hono/atlas.json
+  # Local sqlite cache for incremental extraction — sits next to
+  # the atlas. Gitignored via atlases/*/index.db.
+  local_cache: atlases/hono/index.db

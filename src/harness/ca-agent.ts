@@ -2,12 +2,16 @@
 // tools. The agent loop is inherited unchanged from alpha-agent.ts —
 // only the tool set differs — so only the MCP lifecycle (spawn
 // server, connect client, cleanup) lives here.
+//
+// Post-ADR-08: the MCP binary accepts --config-root, so we spawn it
+// pointing at our benchmarks repo root and let the binary resolve
+// paths (source.root, atlas.path, adrs.path, local_cache) from there.
+// No config file copying, no cwd gymnastics — the binary has enough
+// information from its own flags.
 
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
-import { copyFileSync, rmSync } from "node:fs";
 import { createRequire } from "node:module";
-import { join } from "node:path";
 import {
   type AlphaAgentDeps,
   type AlphaAgentInput,
@@ -28,40 +32,31 @@ function resolveContextatlasBin(): string {
 }
 
 export interface WithCaToolsOptions {
-  /** Absolute path to the target repo (must contain source code). */
-  readonly repoDir: string;
-  /** Absolute path to the committed `.contextatlas.yml` we copy in. */
-  readonly contextatlasConfigPath: string;
+  /** Absolute path to the benchmarks repo root — passed as --config-root to the MCP binary. */
+  readonly configRoot: string;
   /** Override the MCP server binary path. Defaults to the resolved contextatlas package. */
   readonly mcpServerPath?: string;
 }
 
 /**
- * Spawn contextatlas's MCP server, connect an MCP client, filter
- * tools to the allowlist, adapt them, invoke `fn` with the resulting
- * BenchmarkTool list, and clean up the server process and the copied
- * config in a try/finally — even on throw.
+ * Spawn contextatlas's MCP server with --config-root pointing at the
+ * benchmarks repo, connect an MCP client, filter tools to the
+ * allowlist, adapt them, invoke `fn` with the resulting BenchmarkTool
+ * list, and clean up the server process in a try/finally.
  *
- * NOTE: `StdioClientTransport` does not accept a `cwd` option, so
- * the spawned child inherits the parent's cwd. We chdir into the
- * target repo before connect and restore before returning. This is
- * safe for sequential benchmark runs; do NOT call `withCaTools`
- * concurrently within the same Node process.
+ * ADR-08 removes the previous requirement that the server's cwd equal
+ * the source tree — the binary now reads config from configRoot and
+ * derives source.root from the config.
  */
 export async function withCaTools<T>(
   opts: WithCaToolsOptions,
   fn: (caTools: readonly BenchmarkTool[]) => Promise<T>,
 ): Promise<T> {
   const mcpServerPath = opts.mcpServerPath ?? resolveContextatlasBin();
-  const configDst = join(opts.repoDir, ".contextatlas.yml");
-
-  copyFileSync(opts.contextatlasConfigPath, configDst);
-  const prevCwd = process.cwd();
-  process.chdir(opts.repoDir);
 
   const transport = new StdioClientTransport({
     command: process.execPath,
-    args: [mcpServerPath],
+    args: [mcpServerPath, "--config-root", opts.configRoot],
     stderr: "inherit",
   });
   const client = new Client(
@@ -85,20 +80,14 @@ export async function withCaTools<T>(
     } catch {
       /* best-effort shutdown */
     }
-    process.chdir(prevCwd);
-    try {
-      rmSync(configDst, { force: true });
-    } catch {
-      /* best-effort cleanup */
-    }
   }
 }
 
 export interface CaAgentInput extends Omit<AlphaAgentInput, "tools"> {
   /** Base Alpha tools exposed alongside the CA MCP tools. */
   readonly alphaTools: readonly BenchmarkTool[];
-  /** Path to our committed `configs/<repo>.yml`. */
-  readonly contextatlasConfigPath: string;
+  /** Absolute path to the benchmarks repo root. Passed as --config-root to the MCP binary. */
+  readonly configRoot: string;
   /** Optional override for the MCP server binary. */
   readonly mcpServerPath?: string;
 }
@@ -115,8 +104,7 @@ export async function runCaAgent(
 ): Promise<AlphaAgentOutput> {
   return withCaTools(
     {
-      repoDir: input.ctx.repoDir,
-      contextatlasConfigPath: input.contextatlasConfigPath,
+      configRoot: input.configRoot,
       mcpServerPath: input.mcpServerPath,
     },
     async (caTools) =>

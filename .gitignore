@@ -39,5 +39,8 @@ runs/*
 # Cloned benchmark repositories
 repos/
 
+# Local sqlite extraction caches — atlas.json is committed, cache is not
+atlases/*/index.db
+
 # Claude Code local settings
 .claude/settings.local.json
