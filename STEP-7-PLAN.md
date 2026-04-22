@@ -86,7 +86,8 @@ real-world tool a user has today.
 Conditions, in full:
 - `alpha` — Alpha base agent only
 - `ca` — Alpha base agent + ContextAtlas MCP
-- `beta` — Claude Code CLI headless
+- `beta` — Claude Code CLI headless, default tools, no MCP
+- `beta-ca` — Claude Code CLI headless with ContextAtlas MCP declared
 
 ### Prompt diversity (anti-cherry-picking)
 

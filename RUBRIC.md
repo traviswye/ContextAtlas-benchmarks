@@ -106,23 +106,27 @@ of these change materially.
 
 | Tool                | Version          | Source of truth                     |
 |---------------------|------------------|-------------------------------------|
-| Claude Code CLI     | 2.1.116          | `claude --version` on the run host  |
+| Claude Code CLI     | 2.1.117          | `claude --version` on the run host  |
 | Node.js             | 22.22.2          | `node --version` on the run host    |
 | Anthropic SDK       | ^0.32.0          | `package.json` dependency pin       |
 | @vscode/ripgrep     | ^1.17.1          | `package.json` dependency pin; bundles the rg binary the Alpha Grep tool uses |
 | Model               | Opus 4.7 (`claude-opus-4-7`) | Passed via `--model opus` on every run |
 
-The Claude Code CLI version was fixed after the Phase 0 Beta
-feasibility spike confirmed headless mode works end-to-end at 2.1.116
-(see `research/phase-0-beta-feasibility.md`). If the CLI upgrades
-during the benchmark period, Beta runs must be re-executed before
-publishing numbers.
+The Claude Code CLI version pin was originally fixed at 2.1.116
+after the Phase 0 Beta feasibility spike confirmed headless mode
+works end-to-end (see `research/phase-0-beta-feasibility.md`). The
+Phase 4 stream-json schema smoke test (see
+`research/phase-4-stream-json-shape.md`) observed 2.1.117 on the
+run host; pin updated to match. Both versions produce the same
+stream-json event shapes for our purposes. If the CLI upgrades
+further during the benchmark period, Beta runs must be
+re-executed before publishing numbers.
 
 ---
 
 ## Harness Conditions
 
-Three conditions are measured, identified by short codenames used in
+Four conditions are measured, identified by short codenames used in
 output files:
 
 ### `alpha` — Custom baseline agent
@@ -138,22 +142,62 @@ the server exposes `get_symbol_context` only; `find_by_intent` and
 `impact_of_change` are scaffolded in contextatlas but not yet
 implemented (they land in main-repo steps 8-10) and are filtered out
 of the model-visible tool set to prevent the model from wasting calls
-on "not yet implemented" errors. This is the condition we're
-evaluating.
+on "not yet implemented" errors.
 
 ### `beta` — Real Claude Code CLI headless
 
-Claude Code CLI driven as a subprocess from the harness. Uses
-whatever tools Claude Code ships with by default. Represents what
-users actually experience.
+Claude Code CLI driven as a subprocess from the harness with its
+default tool set and no MCP servers declared. Represents what users
+experience with Claude Code alone.
 
-Alpha-vs-CA measures "did adding ContextAtlas help a minimal baseline
-improve?" Beta-vs-CA measures "did adding ContextAtlas help compared
-to what users have today?" Alpha-vs-Beta measures "how much does
-Claude Code's own harness add on top of the minimal baseline?" —
-informative on its own.
+### `beta-ca` — Claude Code CLI + ContextAtlas MCP
 
-All three conditions use Claude Opus 4.7 as the underlying model.
+Claude Code CLI driven as a subprocess from the harness with the
+ContextAtlas MCP server declared via `--mcp-config`. Represents what
+users experience with Claude Code when they've added ContextAtlas to
+their setup.
+
+### Comparisons the four conditions support
+
+- **Alpha-vs-CA** — "Does ContextAtlas help a minimal baseline
+  improve?" Clean tool-surface signal.
+- **Beta-vs-Beta+CA** — "Does ContextAtlas help a real user?" Same
+  signal measured through Claude Code's actual UX.
+- **Alpha-vs-Beta** — "How much does Claude Code's own harness add
+  on top of the minimal baseline?" Informative on its own.
+- **CA-vs-Beta+CA** — "How much does Claude Code's harness add when
+  ContextAtlas is already present?" Cross-check on whether the
+  ContextAtlas contribution is stable across harness styles.
+
+All four conditions use Claude Opus 4.7 as the underlying model.
+
+### System prompt asymmetry (acknowledged, not mitigated)
+
+Alpha and CA use a neutral system prompt ("You are helping a
+developer with a question about a codebase. Use the provided tools
+to explore the codebase and answer the question."), identical across
+both conditions.
+
+Beta and Beta+CA use Claude Code's full built-in system prompt,
+which includes extensive tool descriptions, workflow guidance, and
+memory scaffolding not present in the Alpha-side conditions.
+
+**This is an intentional methodological choice, not a bug.** Alpha/CA
+measure "our tools with a controlled prompt" — the signal is clean
+on tool surface. Beta/Beta+CA measure "real Claude Code experience"
+— the signal is what users actually get. The Alpha-vs-Beta gap
+captures what Claude Code's own harness layers add on top of a
+minimal baseline.
+
+When interpreting published numbers, the Alpha-vs-CA comparison
+answers "does ContextAtlas help a minimal baseline?" and the
+Beta-vs-Beta+CA comparison answers "does ContextAtlas help a real
+user?" Both are informative; neither is the "true" number.
+
+This asymmetry is documented explicitly rather than mitigated
+because any attempt to normalize system prompts across conditions
+would undermine both the "real user experience" of Beta and the
+"clean tool surface" of Alpha.
 
 ---
 
