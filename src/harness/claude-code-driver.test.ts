@@ -111,7 +111,9 @@ describe("StreamJsonParser", () => {
     expect(out.diagnostics.claudeCodeVersion).toBe("2.1.117");
   });
 
-  it("accumulates token usage across assistant events", () => {
+  it("accumulates token usage incrementally when no result.usage present (fallback path)", () => {
+    // resultEvent() helper intentionally omits a usage field, so the
+    // parser falls back to its incremental accumulator.
     const p = new StreamJsonParser();
     p.handle(initEvent());
     p.handle(assistantTextEvent("partial", { input: 50, output: 10 }));
@@ -121,6 +123,63 @@ describe("StreamJsonParser", () => {
     expect(out.metrics.input_tokens).toBe(130);
     expect(out.metrics.output_tokens).toBe(30);
     expect(out.metrics.total_tokens).toBe(160);
+  });
+
+  it("accumulates cache_read + cache_creation into total_tokens incrementally", () => {
+    const p = new StreamJsonParser();
+    p.handle({
+      type: "assistant",
+      message: {
+        content: [{ type: "text", text: "ok" }],
+        usage: {
+          input_tokens: 5,
+          output_tokens: 10,
+          cache_read_input_tokens: 2000,
+          cache_creation_input_tokens: 500,
+        },
+      },
+    });
+    // No result event — incremental is authoritative.
+    const out = p.finalize(1000);
+    // Option A: input_tokens stays fresh-only; total_tokens sums everything.
+    expect(out.metrics.input_tokens).toBe(5);
+    expect(out.metrics.output_tokens).toBe(10);
+    expect(out.metrics.total_tokens).toBe(5 + 2000 + 500 + 10);
+  });
+
+  it("result.usage overrides incremental accumulation when present (authoritative path)", () => {
+    const p = new StreamJsonParser();
+    // Intermediate assistant event with partial output (mirrors the
+    // real Claude Code schema per research/phase-4-parser-bug.md).
+    p.handle(
+      {
+        type: "assistant",
+        message: {
+          content: [{ type: "text", text: "streaming..." }],
+          usage: {
+            input_tokens: 5,
+            output_tokens: 1,
+            cache_read_input_tokens: 10,
+            cache_creation_input_tokens: 100,
+          },
+        },
+      },
+    );
+    // Terminal result event with authoritative aggregates.
+    p.handle(
+      resultEvent({
+        usage: {
+          input_tokens: 6,
+          output_tokens: 177,
+          cache_read_input_tokens: 15,
+          cache_creation_input_tokens: 2327,
+        },
+      }),
+    );
+    const out = p.finalize(2000);
+    expect(out.metrics.input_tokens).toBe(6);
+    expect(out.metrics.output_tokens).toBe(177);
+    expect(out.metrics.total_tokens).toBe(6 + 15 + 2327 + 177);
   });
 
   it("concatenates text content blocks into the answer buffer", () => {
@@ -199,6 +258,20 @@ describe("StreamJsonParser", () => {
         num_turns: 7,
         is_error: false,
         terminal_reason: "completed",
+        modelUsage: {
+          "claude-opus-4-7": {
+            inputTokens: 6,
+            outputTokens: 177,
+            cacheReadInputTokens: 15,
+            cacheCreationInputTokens: 2327,
+            costUSD: 0.019,
+          },
+          "claude-haiku-4-5-20251001": {
+            inputTokens: 350,
+            outputTokens: 14,
+            costUSD: 0.00042,
+          },
+        },
       }),
     );
     const out = p.finalize(1000);
@@ -206,6 +279,47 @@ describe("StreamJsonParser", () => {
     expect(out.diagnostics.numTurns).toBe(7);
     expect(out.diagnostics.isError).toBe(false);
     expect(out.diagnostics.terminalReason).toBe("completed");
+    // modelUsage is captured verbatim; parser doesn't interpret the inner shape.
+    expect(out.diagnostics.modelUsage).toEqual({
+      "claude-opus-4-7": {
+        inputTokens: 6,
+        outputTokens: 177,
+        cacheReadInputTokens: 15,
+        cacheCreationInputTokens: 2327,
+        costUSD: 0.019,
+      },
+      "claude-haiku-4-5-20251001": {
+        inputTokens: 350,
+        outputTokens: 14,
+        costUSD: 0.00042,
+      },
+    });
+  });
+
+  it("snapshotTotalTokens reflects the running incremental sum across all four fields", () => {
+    const p = new StreamJsonParser();
+    expect(p.snapshotTotalTokens()).toBe(0);
+    p.handle({
+      type: "assistant",
+      message: {
+        content: [{ type: "text", text: "x" }],
+        usage: {
+          input_tokens: 3,
+          output_tokens: 7,
+          cache_read_input_tokens: 1000,
+          cache_creation_input_tokens: 50,
+        },
+      },
+    });
+    expect(p.snapshotTotalTokens()).toBe(3 + 7 + 1000 + 50);
+    p.handle({
+      type: "assistant",
+      message: {
+        content: [],
+        usage: { input_tokens: 2, cache_read_input_tokens: 10 },
+      },
+    });
+    expect(p.snapshotTotalTokens()).toBe(3 + 7 + 1000 + 50 + 2 + 10);
   });
 
   it("records an error event on the assistant-error path", () => {

@@ -13,8 +13,22 @@ export type CapReason = "tool_calls" | "tokens" | "wall_clock";
 
 export interface Metrics {
   readonly tool_calls: number;
+  /**
+   * Input tokens the model processed THIS RUN, excluding cache reads
+   * and cache creation. For Alpha/CA (no caching) this is full input
+   * volume. For Beta/Beta+CA (heavy caching) this is the "fresh"
+   * delta per turn; most actual input volume flows through the cache
+   * path, visible in diagnostics.modelUsage on those conditions.
+   *
+   * Prefer `total_tokens` for cross-condition comparison.
+   */
   readonly input_tokens: number;
   readonly output_tokens: number;
+  /**
+   * All tokens the model processed, including cache reads and cache
+   * creation. The fair cross-condition measure. The 200k cap is
+   * enforced against this field.
+   */
   readonly total_tokens: number;
   readonly wall_clock_ms: number;
 }

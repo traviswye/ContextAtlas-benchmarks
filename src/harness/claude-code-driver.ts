@@ -39,6 +39,22 @@ export interface DiagnosticInfo {
   readonly isError?: boolean;
   readonly errorFromEvent?: string;
   readonly terminalReason?: string;
+  /**
+   * Claude Code's internal per-model usage breakdown. Opaque shape
+   * subject to upstream changes. Typically contains entries keyed by
+   * model name (e.g. "claude-opus-4-7", "claude-haiku-4-5-20251001")
+   * with inputTokens, outputTokens, cacheReadInputTokens,
+   * cacheCreationInputTokens, costUSD fields. Use for diagnostic
+   * reporting only — do not parse for measurement.
+   */
+  readonly modelUsage?: Record<string, unknown>;
+}
+
+interface ResultUsage {
+  readonly inputTokens: number;
+  readonly cacheReadTokens: number;
+  readonly cacheCreationTokens: number;
+  readonly outputTokens: number;
 }
 
 /**
@@ -50,8 +66,17 @@ export class StreamJsonParser {
   private readonly pendingTools = new Map<string, ParserPendingTool>();
   private readonly completedTrace: TraceEntry[] = [];
   private answerBuffer = "";
-  private inputTokens = 0;
+  // Incremental accumulators. Per the Phase 4 parser fix:
+  // accurate for input-side fields per assistant event;
+  // `outputTokens` is imperfect on intermediate events (partial
+  // values) and is overwritten at finalize if result.usage is seen.
+  private inputTokensNoncached = 0;
+  private cacheReadTokens = 0;
+  private cacheCreationTokens = 0;
   private outputTokens = 0;
+  // Authoritative usage from the terminal `result` event. When
+  // present, overrides the incrementals at finalize.
+  private resultUsage?: ResultUsage;
   private inFlightCount = 0;
   private claudeCodeVersion?: string;
   private totalCostUsd?: number;
@@ -59,6 +84,7 @@ export class StreamJsonParser {
   private isError?: boolean;
   private errorFromEvent?: string;
   private terminalReason?: string;
+  private modelUsage?: Record<string, unknown>;
   private terminalSeen = false;
 
   handle(event: unknown): void {
@@ -91,10 +117,14 @@ export class StreamJsonParser {
   private handleAssistant(event: Record<string, unknown>): void {
     const msg = isRecord(event.message) ? event.message : {};
     const usage = isRecord(msg.usage) ? msg.usage : {};
-    const inTokens = numberOrZero(usage.input_tokens);
-    const outTokens = numberOrZero(usage.output_tokens);
-    this.inputTokens += inTokens;
-    this.outputTokens += outTokens;
+    // Accumulate all four usage fields incrementally. Input-side
+    // fields are accurate per assistant event; output_tokens can be
+    // partial on intermediate events and will be corrected at
+    // finalize if a result.usage is seen.
+    this.inputTokensNoncached += numberOrZero(usage.input_tokens);
+    this.cacheReadTokens += numberOrZero(usage.cache_read_input_tokens);
+    this.cacheCreationTokens += numberOrZero(usage.cache_creation_input_tokens);
+    this.outputTokens += numberOrZero(usage.output_tokens);
 
     const content = Array.isArray(msg.content) ? msg.content : [];
     for (const block of content) {
@@ -144,6 +174,23 @@ export class StreamJsonParser {
     if (typeof event.terminal_reason === "string") {
       this.terminalReason = event.terminal_reason;
     }
+    if (isRecord(event.modelUsage)) {
+      this.modelUsage = event.modelUsage;
+    }
+    // Capture authoritative usage from the terminal result event.
+    // Claude Code's intermediate assistant events carry partial
+    // output_token values; only the result event has the final
+    // aggregated totals.
+    if (isRecord(event.usage)) {
+      this.resultUsage = {
+        inputTokens: numberOrZero(event.usage.input_tokens),
+        cacheReadTokens: numberOrZero(event.usage.cache_read_input_tokens),
+        cacheCreationTokens: numberOrZero(
+          event.usage.cache_creation_input_tokens,
+        ),
+        outputTokens: numberOrZero(event.usage.output_tokens),
+      };
+    }
     // If no text blocks landed but `result` carries final text, use it.
     if (this.answerBuffer === "" && typeof event.result === "string") {
       this.answerBuffer = event.result;
@@ -155,6 +202,22 @@ export class StreamJsonParser {
     return this.inFlightCount;
   }
 
+  /**
+   * Current total-tokens estimate from the incremental accumulators.
+   * Used by the driver to feed cap enforcement mid-run. Not
+   * authoritative — the result event's usage overrides this at
+   * finalize. See the incremental vs authoritative note in
+   * `finalize`.
+   */
+  snapshotTotalTokens(): number {
+    return (
+      this.inputTokensNoncached +
+      this.cacheReadTokens +
+      this.cacheCreationTokens +
+      this.outputTokens
+    );
+  }
+
   /** Has the terminal `result` event been seen? */
   isTerminal(): boolean {
     return this.terminalSeen;
@@ -164,7 +227,10 @@ export class StreamJsonParser {
    * Finalize the accumulated state into a Metrics record. Flushes
    * any still-pending tool_use entries into the trace with an
    * `INTERRUPTED` marker so the trace reflects what the model did,
-   * not just what completed.
+   * not just what completed. Token totals come from the terminal
+   * `result.usage` event when available (authoritative) and fall
+   * back to the incremental accumulator when no result event was
+   * seen (e.g., on early termination).
    */
   finalize(wallClockMs: number): {
     readonly answer: string;
@@ -180,14 +246,27 @@ export class StreamJsonParser {
       });
     }
     const toolCalls = this.completedTrace.length;
+    const authoritative = this.resultUsage;
+    const inputTokens = authoritative
+      ? authoritative.inputTokens
+      : this.inputTokensNoncached;
+    const cacheRead = authoritative
+      ? authoritative.cacheReadTokens
+      : this.cacheReadTokens;
+    const cacheCreation = authoritative
+      ? authoritative.cacheCreationTokens
+      : this.cacheCreationTokens;
+    const outputTokens = authoritative
+      ? authoritative.outputTokens
+      : this.outputTokens;
     return {
       answer: this.answerBuffer,
       trace: this.completedTrace,
       metrics: {
         tool_calls: toolCalls,
-        input_tokens: this.inputTokens,
-        output_tokens: this.outputTokens,
-        total_tokens: this.inputTokens + this.outputTokens,
+        input_tokens: inputTokens,
+        output_tokens: outputTokens,
+        total_tokens: inputTokens + cacheRead + cacheCreation + outputTokens,
         wall_clock_ms: wallClockMs,
       },
       diagnostics: {
@@ -197,6 +276,7 @@ export class StreamJsonParser {
         isError: this.isError,
         errorFromEvent: this.errorFromEvent,
         terminalReason: this.terminalReason,
+        modelUsage: this.modelUsage,
       },
     };
   }
@@ -359,7 +439,14 @@ export async function runClaudeCode(
             // Malformed line — skip silently; schema drift tolerance.
             continue;
           }
+          // For cap enforcement mid-run we use the incremental
+          // running sum, which is accurate for input-side fields and
+          // a conservative (imperfect) approximation for output. See
+          // research/phase-4-parser-bug.md for why.
+          const tokensBefore = parser.snapshotTotalTokens();
           parser.handle(event);
+          const tokensAfter = parser.snapshotTotalTokens();
+          input.caps.addTokens(tokensAfter - tokensBefore);
           input.caps.setInFlightCount(parser.inFlightTools());
           const reason = input.caps.check();
           if (reason) tryKill(reason);
