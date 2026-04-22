@@ -153,11 +153,29 @@ describe("adaptAllowlistedMcpTools", () => {
     name: "impact_of_change",
     inputSchema: { type: "object" },
   };
+  const FUTURE_UNLISTED_TOOL: McpToolDefinition = {
+    name: "future_unlisted_tool",
+    inputSchema: { type: "object" },
+  };
 
-  it("keeps only allowlisted tools", () => {
+  it("keeps all three allowlisted CA tools", () => {
     const client = mockClient(async () => successResponse(""));
     const adapted = adaptAllowlistedMcpTools(
       [GET_SYMBOL_CONTEXT, FIND_BY_INTENT, IMPACT_OF_CHANGE],
+      client,
+      new McpCircuitBreaker(),
+    );
+    expect(adapted.map((t) => t.name)).toEqual([
+      "get_symbol_context",
+      "find_by_intent",
+      "impact_of_change",
+    ]);
+  });
+
+  it("filters out tools not in the allowlist (future v0.4+ tools)", () => {
+    const client = mockClient(async () => successResponse(""));
+    const adapted = adaptAllowlistedMcpTools(
+      [GET_SYMBOL_CONTEXT, FUTURE_UNLISTED_TOOL],
       client,
       new McpCircuitBreaker(),
     );
@@ -167,16 +185,22 @@ describe("adaptAllowlistedMcpTools", () => {
   it("returns an empty list when none of the listed tools are allowlisted", () => {
     const client = mockClient(async () => successResponse(""));
     const adapted = adaptAllowlistedMcpTools(
-      [FIND_BY_INTENT, IMPACT_OF_CHANGE],
+      [FUTURE_UNLISTED_TOOL],
       client,
       new McpCircuitBreaker(),
     );
     expect(adapted).toHaveLength(0);
   });
 
-  it("CA_TOOL_ALLOWLIST currently exposes only get_symbol_context", () => {
-    // Pinned expectation — update this test when main-repo steps 8-10
-    // implement the other two handlers and we extend the allowlist.
-    expect(CA_TOOL_ALLOWLIST).toEqual(["get_symbol_context"]);
+  it("CA_TOOL_ALLOWLIST exposes the three shipped CA tools (v0.1)", () => {
+    // Pinned expectation — changes to the allowlist are explicit
+    // methodology decisions, not automatic inclusion. Update this
+    // test deliberately when v0.4+ tools land upstream and we want
+    // them in the benchmark.
+    expect(CA_TOOL_ALLOWLIST).toEqual([
+      "get_symbol_context",
+      "find_by_intent",
+      "impact_of_change",
+    ]);
   });
 });

@@ -10,17 +10,21 @@ import type { BenchmarkTool, ToolResult } from "./types.js";
 export const CA_PREVIEW_MAX = DEFAULT_PREVIEW_MAX;
 
 /**
- * MCP tool names exposed to the model in step 7.
+ * MCP tool names exposed to the model in the CA condition.
  *
- * contextatlas scaffolds three tools in its server (get_symbol_context,
- * find_by_intent, impact_of_change) but only get_symbol_context is
- * implemented today. Calling the other two returns McpError
- * "not yet implemented". Exposing them would let the model spend tool
- * calls on useless paths and contaminate benchmark signal — so we
- * filter here before the model sees anything. Extend this list when
- * the other two land upstream (main-repo steps 8-10).
+ * As of main-repo steps 8, 10, 11, all three tools are implemented:
+ * get_symbol_context (step 1), find_by_intent (step 8), and
+ * impact_of_change (step 11). The allowlist stays in place as an
+ * EXPLICIT PARTITION rather than a filter — when future tool additions
+ * land upstream (v0.4+), extending this list becomes a deliberate
+ * methodology decision rather than automatic inclusion. Same
+ * defense-in-depth discipline as main-repo ADR-12's subcommand model.
  */
-export const CA_TOOL_ALLOWLIST: readonly string[] = ["get_symbol_context"];
+export const CA_TOOL_ALLOWLIST: readonly string[] = [
+  "get_symbol_context",
+  "find_by_intent",
+  "impact_of_change",
+];
 
 /**
  * Consecutive-error tracker for MCP calls. Resets on any success —
