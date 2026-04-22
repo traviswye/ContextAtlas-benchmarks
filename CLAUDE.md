@@ -15,8 +15,10 @@ running a locked prompt set against three conditions:
 
 - **Baseline (Alpha):** Claude with standard codebase exploration
   tools (Read, Grep, Glob, LS) via a custom Anthropic SDK agent
-- **ContextAtlas (Alpha+CA):** Baseline + ContextAtlas MCP tools
-  (`get_symbol_context`, `find_by_intent`, `impact_of_change`)
+- **ContextAtlas (Alpha+CA):** Baseline + ContextAtlas MCP tools.
+  Step 7 ships `get_symbol_context` only — `find_by_intent` and
+  `impact_of_change` are deferred until they are implemented
+  upstream (main-repo steps 8-10).
 - **Real Claude Code CLI (Beta):** Driving Claude Code headlessly
   against each condition, measuring tokens, tool calls, and
   wall-clock

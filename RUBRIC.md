@@ -133,9 +133,13 @@ clean baseline where we control every variable except the model.
 
 ### `ca` — Alpha base + ContextAtlas MCP
 
-The `alpha` agent plus a ContextAtlas MCP server connected, exposing
-`get_symbol_context`, `find_by_intent`, and `impact_of_change`. This
-is the condition we're evaluating.
+The `alpha` agent plus a ContextAtlas MCP server connected. In step 7
+the server exposes `get_symbol_context` only; `find_by_intent` and
+`impact_of_change` are scaffolded in contextatlas but not yet
+implemented (they land in main-repo steps 8-10) and are filtered out
+of the model-visible tool set to prevent the model from wasting calls
+on "not yet implemented" errors. This is the condition we're
+evaluating.
 
 ### `beta` — Real Claude Code CLI headless
 

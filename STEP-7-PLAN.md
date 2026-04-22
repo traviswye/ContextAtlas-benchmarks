@@ -74,10 +74,14 @@ whatever ContextAtlas adds on top. Numbers that look like
 tell a more complete story than either alone.
 
 **ContextAtlas condition** = the Alpha base agent with our MCP server
-additionally connected, exposing `get_symbol_context`, `find_by_intent`,
-`impact_of_change`. We compare Alpha-baseline ↔ Alpha-plus-CA to
-isolate our marginal contribution, and also compare CA ↔ Beta-baseline
-to show delta against the real-world tool a user has today.
+additionally connected. In step 7 the server exposes
+`get_symbol_context` only; `find_by_intent` and `impact_of_change` are
+scaffolded upstream but not yet implemented (they land in main-repo
+steps 8-10) and are filtered out of the model-visible tool set so the
+model doesn't waste calls on "not yet implemented" errors. We compare
+Alpha-baseline ↔ Alpha-plus-CA to isolate our marginal contribution,
+and also compare CA ↔ Beta-baseline to show delta against the
+real-world tool a user has today.
 
 Conditions, in full:
 - `alpha` — Alpha base agent only
