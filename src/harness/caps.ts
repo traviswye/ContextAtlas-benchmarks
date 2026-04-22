@@ -63,6 +63,17 @@ export class CapsTracker {
   }
 
   /**
+   * Directly set the in-flight tool-call count. Used by the Beta
+   * driver (claude-code-driver.ts) where tool execution happens
+   * inside Claude Code's own process and is observed via the event
+   * stream, not wrapped by `runToolCall`. Alpha and CA still use
+   * `runToolCall` which manages in-flight automatically.
+   */
+  setInFlightCount(count: number): void {
+    this.inFlight = count;
+  }
+
+  /**
    * Returns the cap reason if any cap is tripped, else null. Grace
    * activates here, at most once, and only when the wall-clock cap
    * would trip while a tool call is in flight.
