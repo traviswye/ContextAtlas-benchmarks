@@ -11,25 +11,29 @@ This is the benchmark harness and methodology repository for
 
 The harness measures ContextAtlas's impact on Claude Code's ability
 to explore and reason about unfamiliar codebases. It does this by
-running a locked prompt set against three conditions:
+running a locked prompt set against four conditions:
 
-- **Baseline (Alpha):** Claude with standard codebase exploration
-  tools (Read, Grep, Glob, LS) via a custom Anthropic SDK agent
-- **ContextAtlas (Alpha+CA):** Baseline + ContextAtlas MCP tools.
-  Step 7 ships `get_symbol_context` only — `find_by_intent` and
-  `impact_of_change` are deferred until they are implemented
-  upstream (main-repo steps 8-10).
-- **Real Claude Code CLI (Beta):** Driving Claude Code headlessly
-  against each condition, measuring tokens, tool calls, and
-  wall-clock
+- **alpha:** Minimal baseline agent — custom Anthropic SDK loop,
+  Opus 4.7, frozen tool set (Read, Grep, Glob, LS). No MCP.
+- **ca:** alpha + ContextAtlas MCP tools
+  (`get_symbol_context`, `find_by_intent`, `impact_of_change`).
+  Isolates the tool-surface effect on the same SDK baseline.
+- **beta:** Real Claude Code CLI driven headlessly. Full CLI
+  harness — different system prompt, different tool surface
+  (Bash, Read, Grep, etc.), caching. Represents what users
+  experience with Claude Code alone.
+- **beta-ca:** beta + ContextAtlas MCP server wired in via
+  `--mcp-config`. Represents what users experience with
+  ContextAtlas added.
 
-Results compare baseline-vs-CA delta across both harness styles.
-The Alpha-vs-Beta gap is itself informative — it reveals where
-Claude Code's own harness adds value beneath whatever ContextAtlas
-adds on top.
+Within-harness comparisons (ca vs alpha, beta-ca vs beta) are the
+primary measurements. Cross-harness deltas conflate model pricing,
+harness architecture, and caching — see RUBRIC.md §System prompt
+asymmetry for interpretation guidance.
 
-See `RUBRIC.md` for full methodology and `STEP-7-PLAN.md` for the
-current MVP implementation plan.
+See `RUBRIC.md` for full methodology and
+`research/phase-5-reference-run.md` for the first complete
+reference-run synthesis (hono, v0.1 baseline).
 
 ## Critical Constraints
 
@@ -62,18 +66,34 @@ runs stay in `runs/` (gitignored). Only `runs/reference/*` is tracked
 in git. This keeps the repo small while preserving the canonical
 published numbers.
 
-## Build Order
+## Current Version
 
-The harness is being built per `STEP-7-PLAN.md`. Current work:
+- **Methodology:** [`RUBRIC.md`](RUBRIC.md) — stable, validated against
+  the Phase 5 reference run.
+- **Phase 5 reference run:**
+  [`research/phase-5-reference-run.md`](research/phase-5-reference-run.md)
+  (hono, v0.1 baseline; benchmarks commit `be65a96`).
+- **v0.2 work in this repo:** httpx reference run (after main-repo
+  Stream A completes its PyrightAdapter refinements) + Go benchmark
+  target registration (cobra, during main-repo Stream B; gin
+  fallback if probe reveals sparse architectural surface).
+- **Main repo scope:** [`../contextatlas/v0.2-SCOPE.md`](../contextatlas/v0.2-SCOPE.md)
+- **Strategic arc:** [`../contextatlas/ROADMAP.md`](../contextatlas/ROADMAP.md)
 
-- [ ] Alpha harness (custom baseline agent with Read/Grep/Glob/LS)
-- [ ] Beta harness (real Claude Code CLI driver)
-- [ ] Metric collection layer (tokens, tool calls, wall-clock, trace)
-- [ ] Prompt runner
-- [ ] Results aggregation and summary table generator
-- [ ] Reference run and committed result artifacts
+## Build Order — v0.1 (shipped)
 
-See `STEP-7-PLAN.md` for detail on each.
+The harness was built per `STEP-7-PLAN.md`. Ship order preserved
+below as historical record:
+
+- [x] Alpha harness (custom baseline agent with Read/Grep/Glob/LS)
+- [x] Beta harness (real Claude Code CLI driver)
+- [x] Metric collection layer (tokens, tool calls, wall-clock, trace)
+- [x] Prompt runner
+- [x] Results aggregation and summary table generator
+- [x] Reference run and committed result artifacts (hono, Phase 5)
+
+`STEP-7-PLAN.md` remains in-tree as the historical plan document —
+reference `research/phase-5-reference-run.md` for the outcome.
 
 ## Coding Standards
 
@@ -92,5 +112,6 @@ See `STEP-7-PLAN.md` for detail on each.
 
 ## When Things Are Unclear
 
-If you encounter ambiguity not covered here, RUBRIC.md, or
-STEP-7-PLAN.md: ask. Don't guess.
+If you encounter ambiguity not covered here, RUBRIC.md,
+`research/phase-5-reference-run.md`, or
+`../contextatlas/v0.2-SCOPE.md`: ask. Don't guess.
