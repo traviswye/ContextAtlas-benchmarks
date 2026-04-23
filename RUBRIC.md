@@ -1,7 +1,12 @@
 # ContextAtlas: Benchmark Methodology
 
-**Status:** Draft v0.2
-**Last Updated:** 2026-04-21
+**Status:** Methodology v0.2 (validated against Phase 5 reference run
+at benchmarks commit `be65a96`, hono target). See
+[`research/phase-5-reference-run.md`](research/phase-5-reference-run.md)
+for the synthesis. *"v0.2" here refers to this methodology
+document's own versioning, not the parallel ContextAtlas v0.2 scope
+(`../contextatlas/v0.2-SCOPE.md`).*
+**Last Updated:** 2026-04-23
 
 ---
 
