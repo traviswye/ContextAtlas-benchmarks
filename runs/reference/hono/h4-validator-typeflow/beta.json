@@ -1,0 +1,169 @@
+{
+  "prompt_id": "h4-validator-typeflow",
+  "repo": "hono",
+  "condition": "beta",
+  "target_symbol": "validator",
+  "bucket": "win",
+  "metrics": {
+    "tool_calls": 15,
+    "input_tokens": 21,
+    "output_tokens": 4057,
+    "total_tokens": 119987,
+    "wall_clock_ms": 66033
+  },
+  "capped": null,
+  "answer": "Here's how the inference flows, grounded in Hono's own ADR-04 (\"type-inference-to-typed-client\") and the symbols in `src/validator` / `src/types.ts` / `src/client`:\n\n## 1. At the route — `validator(target, schema)` produces an `Input`\n\n`validator` lives at `src/validator/validator.ts:46` and takes a `target` (`'json' | 'form' | 'query' | 'param' | 'header' | 'cookie'`) plus a `ValidationFunction`. For a Zod validator, you hand it a schema and the helper turns it into the `ValidationFunction` shape Hono expects. The output type is captured by `ExtractValidatorOutput` and reshaped into the framework's `Input` type (the `{ in: {...}, out: {...} }` record keyed by target).\n\n```ts\nimport { validator } from 'hono/validator';\nimport { z } from 'zod';\n\nconst schema = z.object({ name: z.string() });\n\napp.post('/users',\n  validator('json', (value, c) => {\n    const parsed = schema.safeParse(value);\n    if (!parsed.success) return c.json({ error: parsed.error }, 400);\n    return parsed.data;          // <-- this return type becomes I['in']['json'] / I['out']['json']\n  }),\n  (c) => {\n    const body = c.req.valid('json'); // typed as z.infer<typeof schema>\n    return c.json({ ok: true, body });\n  }\n);\n```\n\n(Use `@hono/zod-validator`'s `zValidator` in real code — it's a thin wrapper that produces the same `ValidationFunction`. Per ADR-01, anything requiring a dep like Zod lives under `@hono/*`, not in core.)\n\n## 2. Into the handler — `Input` merges into `Context<E, P, I>`\n\nADR-04 states as a **hard** invariant:\n\n> Validator output (`Input` with `in`/`out` fields) must merge into the downstream handler's `Context<E, P, I>` so `c.req.valid(target)` returns the validated type.\n\nMechanically: each handler slot in `HandlerInterface` (in `src/types.ts`) is a generic whose `I extends Input` is inferred from the preceding validator's return. `MergePath<BasePath, P>` carries the route pattern in parallel so `c.req.param(...)` stays typed. That's why `c.req.valid('json')` inside the handler gives you `z.infer<typeof schema>` without any extra annotation.\n\nTwo constraints worth knowing if you ever touch middleware generics yourself (both hard invariants in ADR-04):\n\n- `MiddlewareHandler` generic changes must preserve `Input` propagation — a seemingly local tweak can silently collapse validator→handler inference to `any`.\n- Every route method (`.get`, `.post`, …, `.on`) has overloads per handler-chain arity; a new route-level feature between the path and handler must be added to **all** overloads, not just the single-handler one.\n\n## 3. Into the typed RPC client — accumulated into `Schema`, read by `hc<typeof app>`\n\nRoute registrations return a new `HonoBase` typed as `S & ToSchema<Method, Path, I, Output>` so chains like `app.post(...).get(...)` losslessly accumulate a composite `Schema`. That generic `S` is what the typed client reads:\n\n```ts\nimport { hc } from 'hono/client';\nimport type { AppType } from './server';\n\nconst client = hc<AppType>('http://localhost:8787');\n\n// Request payload typed from I['in']['json'] (the validator's *input* side)\nawait client.users.$post({ json: { name: 'ada' } });\n```\n\n`hc` is implemented by `createProxy` in `src/client/client.ts` — ADR-04 notes the whole runtime footprint is \"a 17-line recursive Proxy plus request-building utilities; everything else is compile-time TypeScript.\" There is no codegen and no runtime schema introspection; the client's request/response types fall out of `typeof app`.\n\nNote the `in` vs `out` split matters on the client: the request body type uses `I['in']` (the pre-parse shape the caller must send), while `c.req.valid(target)` inside the handler uses `I['out']` (the post-parse shape). Zod coercions / transforms are where these diverge.\n\n## Quick checklist when adding the validator\n\n1. `import { validator } from 'hono/validator'` (or `zValidator` from `@hono/zod-validator`).\n2. Insert it between the path and the handler: `app.post('/x', zValidator('json', schema), handler)`.\n3. In the handler, read it with `c.req.valid('json' | 'form' | 'query' | 'param' | 'header' | 'cookie')`.\n4. Export `type AppType = typeof app` from the server module.\n5. On the client: `const client = hc<AppType>(baseUrl)` — the validator's input side will type `client.x.$post({ json: ... })` automatically.\n\nADR-04 even has a review-time rule you can borrow informally: \"does the validator example in the README still infer?\" — if your editor shows `any` at `c.req.valid(...)` or at the `$post({ json })` call, the chain has broken somewhere between those four segments (route Schema accumulation → path propagation → validator Input flow → client inference).",
+  "trace": [
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "ls C:\\CodeWork\\ContextAtlas-benchmarks\\atlases\\hono\\",
+        "description": "List hono atlas contents"
+      },
+      "result_preview": "Parse error"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "ls atlases/hono/",
+        "description": "List hono atlas contents"
+      },
+      "result_preview": "atlas.json\nindex.db\nindex.db-shm\nindex.db-wal"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "ls atlases/hono/ -la 2>/dev/null; file atlases/hono/atlas.json 2>/dev/null; head -c 2000 atlases/hono/atlas.json",
+        "description": "Inspect atlas.json contents"
+      },
+      "result_preview": "total 2456\ndrwxr-xr-x 1 Travis 197121       0 Apr 22 21:21 .\ndrwxr-xr-x 1 Travis 197121       0 Apr 22 16:48 ..\n-rw-r--r-- 1 Travis 197121  965457 Apr 22 20:11 atlas.json\n-rw-r--r-- 1 Travis 197121 1511424 Apr 22 20:11 index.db\n-rw-r--r-- 1 Travis 197121   32768 Apr 23 12:33 index.db-shm\n-rw-r--r-- 1 Travis 197121       0 Apr 22 21:21 index.db-wal\natlases/hono/atlas.json: JSON text data\n{\n  \"version\": \"1.1\",\n  \"generated_at\": \"2026-04-23T00:11:43.790Z\",\n  \"extracted_at_sha\": \"cf2d2b7edcf07adef2db7614557f4d7f9e2be7ba\",\n  \"generator\": {\n    \"contextatlas_version\": \"0.0.1\",\n    \"extraction_model\": \"claude-opus-4-7\"\n  },\n  \"source_shas\": {\n    \"ADR-01-web-standards-zero-deps.md\": \"f0859390aa48e8cb056f926a6ae36a8d30c7cb233bac1553b82649543607fa6b\",\n    \"ADR-02-router-interface-and-presets.md\": \"611b65231bd15a6e7fa7de69e287ad2dfe48c3e419e52d0f5d4606031a762e49\",\n    \"ADR-03-onion-middleware-compose.md\": \"ff0af54899bc79db0167348a1c898512c7a10f9a7696821ec766bb10ba1d362e\",\n    \"ADR-04-type-inference-to-typed-client.md\": \"c48cd13c3a58c91330dfc7bbc227adddb8d785a559c002707e5ec9d8be6d0564\",\n    \"ADR-05-dual-jsx-backends.md\": \"85ca7513ba55ce5eee8e66e6139105044f28033e1e4f4fc7d09cf22c25f02a32\"\n  },\n  \"symbols\": [\n    {\n      \"id\": \"sym:ts:benchmarks/deno/fast.ts:app\",\n      \"name\": \"app\",\n      \"kind\": \"variable\",\n      \"path\": \"benchmarks/deno/fast.ts\",\n      \"line\": 4,\n      \"file_sha\": \"f7057eff513855e0a52f14b90070f7751725e14d52d30a07c9f489fe6f393a58\"\n    },\n    {\n      \"id\": \"sym:ts:benchmarks/deno/fast.ts:app.get('/event/:id') callback\",\n      \"name\": \"app.get('/event/:id') callback\",\n      \"kind\": \"function\",\n      \"path\": \"benchmarks/deno/fast.ts\",\n      \"line\": 10,\n      \"signature\": \"app.get('/event/:id', () =>\",\n      \"file_sha\": \"f7057eff513855e0a52f14b90070f7751725e14d52d30a07c9f489fe6f393a58\"\n    },\n    {\n      \"id\": \"sym:ts:benchmarks/deno/fast.ts:app.get('/event/:id/comments') callback\",\n      \"name\": \"app.get('/event/:id/comments') callback\",\n      \"kind\": \"function\",\n      \"path\": \"benchmarks/deno/fast.ts\",\n      \"line\": 11,\n      \"signature\": \"app.get('/event/:id/comments', () =>\",\n      \"file_sha\": \"f7057eff513855e0a52f14b90070f7751725e14d52d30a07c9f489fe6f393a58\"\n    },\n    {\n      \"id\": \"sym:ts:benchmarks/deno/fast.ts:app.get('/user') callback\",\n      \"name\": \"app.get('/user') callback\",\n      \"kind\": \"function\",\n      \"path\": \"benchmarks/deno/f"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "sqlite3 atlases/hono/index.db \".schema\" 2>&1 | head -60",
+        "description": "Inspect atlas sqlite schema"
+      },
+      "result_preview": "This Bash command contains multiple operations. The following part requires approval: sqlite3 atlases/hono/index.db \".schema\" 2>&1"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "sqlite3 atlases/hono/index.db \".schema\"",
+        "description": "Inspect atlas sqlite schema"
+      },
+      "result_preview": "This command requires approval"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -o '\"path\":\"[^\"]*validator[^\"]*\"' atlases/hono/atlas.json | sort -u | head -30",
+        "description": "Find validator-related paths in atlas"
+      },
+      "result_preview": "(Bash completed with no output)"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -oE '\"path\": \"[^\"]*\"' atlases/hono/atlas.json | sort -u | head -80",
+        "description": "List unique file paths in atlas"
+      },
+      "result_preview": "\"path\": \"benchmarks/deno/fast.ts\"\n\"path\": \"benchmarks/deno/faster.ts\"\n\"path\": \"benchmarks/deno/hono.ts\"\n\"path\": \"benchmarks/deno/magalo.ts\"\n\"path\": \"benchmarks/deno/oak.ts\"\n\"path\": \"benchmarks/deno/opine.ts\"\n\"path\": \"benchmarks/http-server/benchmark.ts\"\n\"path\": \"benchmarks/jsx/src/benchmark.ts\"\n\"path\": \"benchmarks/jsx/src/hono.ts\"\n\"path\": \"benchmarks/jsx/src/nano.ts\"\n\"path\": \"benchmarks/jsx/src/page-react.tsx\"\n\"path\": \"benchmarks/jsx/src/page.tsx\"\n\"path\": \"benchmarks/jsx/src/preact.ts\"\n\"path\": \"benchmarks/jsx/src/react-jsx/benchmark.ts\"\n\"path\": \"benchmarks/jsx/src/react-jsx/hono.ts\"\n\"path\": \"benchmarks/jsx/src/react-jsx/nano.ts\"\n\"path\": \"benchmarks/jsx/src/react-jsx/page-hono.tsx\"\n\"path\": \"benchmarks/jsx/src/react-jsx/page-nano.tsx\"\n\"path\": \"benchmarks/jsx/src/react-jsx/page-preact.tsx\"\n\"path\": \"benchmarks/jsx/src/react-jsx/page-react.tsx\"\n\"path\": \"benchmarks/jsx/src/react-jsx/preact.ts\"\n\"path\": \"benchmarks/jsx/src/react-jsx/react.ts\"\n\"path\": \"benchmarks/jsx/src/react.ts\"\n\"path\": \"benchmarks/query-param/src/bench.mts\"\n\"path\": \"benchmarks/query-param/src/fast-querystring.mts\"\n\"path\": \"benchmarks/query-param/src/hono.mts\"\n\"path\": \"benchmarks/query-param/src/qs.mts\"\n\"path\": \"benchmarks/routers-deno/src/bench.mts\"\n\"path\": \"benchmarks/routers-deno/src/find-my-way.mts\"\n\"path\": \"benchmarks/routers-deno/src/hono.mts\"\n\"path\": \"benchmarks/routers-deno/src/koa-router.mts\"\n\"path\": \"benchmarks/routers-deno/src/koa-tree-router.mts\"\n\"path\": \"benchmarks/routers-deno/src/medley-router.mts\"\n\"path\": \"benchmarks/routers-deno/src/tool.mts\"\n\"path\": \"benchmarks/routers-deno/src/trek-router.mts\"\n\"path\": \"benchmarks/routers/src/bench-includes-init.mts\"\n\"path\": \"benchmarks/routers/src/bench.mts\"\n\"path\": \"benchmarks/routers/src/express.mts\"\n\"path\": \"benchmarks/routers/src/find-my-way.mts\"\n\"path\": \"benchmarks/routers/src/hono.mts\"\n\"path\": \"benchmarks/routers/src/koa-router.mts\"\n\"path\": \"benchmarks/routers/src/koa-tree-router.mts\"\n\"path\": \"benchmarks/routers/src/medley-router.mts\"\n\"path\": \"benchmarks/routers/src/memoirist.mts\"\n\"path\": \"benchmarks/routers/src/radix3.mts\"\n\"path\": \"benchmarks/routers/src/rou3.mts\"\n\"path\": \"benchmarks/routers/src/tool.mts\"\n\"path\": \"benchmarks/routers/src/trek-router.mts\"\n\"path\": \"benchmarks/utils/src/get-path.ts\"\n\"path\": \"perf-measures/bundle-check/scripts/check-bundle-size.ts\"\n\"path\": \"perf-measures/type-check/client.ts\"\n\"path\": \"perf-measures/type-check/scripts/generate-app.ts\"\n\"path\": \"perf-measures/type-check/scripts/process-results.ts\"\n\"path\": \"runtime-tests/bun/color.test.ts\"\n\"path\": \"runtime-tests/bun/index.test.tsx\"\n\"path\": \"runtime-tests/deno-jsx/jsx.test.tsx\"\n\"path\": \"runtime-tests/deno/hono.test.ts\"\n\"path\": \"runtime-tests/deno/middleware.test.tsx\"\n\"path\": \"runtime-tests/deno/ssg.test.tsx\"\n\"path\": \"runtime-tests/deno/stream.test.ts\"\n\"path\": \"runtime-tests/fastly/index.test.ts\"\n\"path\": \"runtime-tests/fastly/vitest.config.ts\"\n\"path\": \"runtime-tests/lambda-edge/index.test.ts\"\n\"path\": \"runtime-tests/lambda-edge/vitest.config.ts\"\n\"path\": \"runtime-tests/lambda/index.test.ts\"\n\"path\": \"runtime-tests/lambda/mock.ts\"\n\"path\": \"runtime-tests/lambda/stream-mock.ts\"\n\"path\": \"runtime-tests/lambda/stream.test.ts\"\n\"path\": \"runtime-tests/lambda/vitest.config.ts\"\n\"path\": \"runtime-tests/node/index.test.ts\"\n\"path\": \"runtime-tests/node/vitest.config.ts\"\n\"path\": \"runtime-tests/workerd/index.test.ts\"\n\"path\": \"runtime-tests/workerd/index.ts\"\n\"path\": \"runtime-tests/workerd/vitest.config.ts\"\n\"path\": \"src/adapter/aws-lambda/conninfo.test.ts\"\n\"path\": \"src/adapter/aws-lambda/conninfo.ts\"\n\"path\": \"src/adapter/aws-lambda/handler.test.ts\"\n\"path\": \"src/adapter/aws-lambda/handler.ts\"\n\"path\": \"src/adapter/aws-lambda/types.ts\"\n\"path\": \"src/adapter/bun/conninfo.test.ts\""
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -oE '\"path\": \"[^\"]*\"' atlases/hono/atlas.json | sort -u | grep -iE 'valid|client|hono-base|types' | head -40",
+        "description": "Find validator/client/type files in atlas"
+      },
+      "result_preview": "\"path\": \"perf-measures/type-check/client.ts\"\n\"path\": \"src/adapter/aws-lambda/types.ts\"\n\"path\": \"src/adapter/service-worker/types.ts\"\n\"path\": \"src/client/client.test.ts\"\n\"path\": \"src/client/client.ts\"\n\"path\": \"src/client/fetch-result-please.ts\"\n\"path\": \"src/client/types.test.ts\"\n\"path\": \"src/client/types.ts\"\n\"path\": \"src/client/utils.test.ts\"\n\"path\": \"src/client/utils.ts\"\n\"path\": \"src/helper/conninfo/types.ts\"\n\"path\": \"src/hono-base.ts\"\n\"path\": \"src/jsx/dom/client.test.tsx\"\n\"path\": \"src/jsx/dom/client.ts\"\n\"path\": \"src/jsx/types.ts\"\n\"path\": \"src/types.test.ts\"\n\"path\": \"src/types.ts\"\n\"path\": \"src/utils/jwt/types.ts\"\n\"path\": \"src/utils/types.test.ts\"\n\"path\": \"src/utils/types.ts\"\n\"path\": \"src/validator/utils.test.ts\"\n\"path\": \"src/validator/utils.ts\"\n\"path\": \"src/validator/validator.test.ts\"\n\"path\": \"src/validator/validator.ts\""
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -oE '\"id\": \"sym:ts:src/validator/validator\\.ts:[^\"]*\"' atlases/hono/atlas.json | sort -u",
+        "description": "List validator.ts symbols"
+      },
+      "result_preview": "\"id\": \"sym:ts:src/validator/validator.ts:ExtractValidationResponse\"\n\"id\": \"sym:ts:src/validator/validator.ts:ExtractValidatorOutput\"\n\"id\": \"sym:ts:src/validator/validator.ts:ValidationFunction\"\n\"id\": \"sym:ts:src/validator/validator.ts:ValidationTargetByMethod\"\n\"id\": \"sym:ts:src/validator/validator.ts:ValidationTargetKeysWithBody\"\n\"id\": \"sym:ts:src/validator/validator.ts:jsonRegex\"\n\"id\": \"sym:ts:src/validator/validator.ts:multipartRegex\"\n\"id\": \"sym:ts:src/validator/validator.ts:urlencodedRegex\"\n\"id\": \"sym:ts:src/validator/validator.ts:validator\""
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "python -c \"import json; d=json.load(open('atlases/hono/atlas.json')); syms=[s for s in d['symbols'] if s.get('path','').startswith('src/validator/validator.ts')]; import pprint; pprint.pprint(syms[:20])\"",
+        "description": "Inspect validator symbols in detail"
+      },
+      "result_preview": "This command requires approval"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "node -e \"const d=require('./atlases/hono/atlas.json'); const syms=d.symbols.filter(s=>(s.path||'').startsWith('src/validator/validator.ts')); console.log(JSON.stringify(syms.slice(0,20),null,2));\"",
+        "description": "Inspect validator symbols"
+      },
+      "result_preview": "This command requires approval"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -A 30 '\"id\": \"sym:ts:src/validator/validator.ts:validator\"' atlases/hono/atlas.json | head -60",
+        "description": "Inspect the validator symbol entry"
+      },
+      "result_preview": "      \"id\": \"sym:ts:src/validator/validator.ts:validator\",\n      \"name\": \"validator\",\n      \"kind\": \"variable\",\n      \"path\": \"src/validator/validator.ts\",\n      \"line\": 46,\n      \"file_sha\": \"e10101677e368edfa45de5ec195899bf49f34ac83757213d984a8875ba60cfb0\"\n    },\n    {\n      \"id\": \"sym:ts:vitest.config.ts:default\",\n      \"name\": \"default\",\n      \"kind\": \"variable\",\n      \"path\": \"vitest.config.ts\",\n      \"line\": 3,\n      \"file_sha\": \"67690e4c85a8da889dfae23d24dbc45608e94772f19516dcdca7db69fef2aa93\"\n    }\n  ],\n  \"claims\": [\n    {\n      \"source\": \"ADR-01\",\n      \"source_path\": \"ADR-01-web-standards-zero-deps.md\",\n      \"source_sha\": \"f0859390aa48e8cb056f926a6ae36a8d30c7cb233bac1553b82649543607fa6b\",\n      \"severity\": \"context\",\n      \"claim\": \"Adding capabilities that require runtime APIs (streaming file I/O, WebSocket upgrade, client IP, signed-cookie crypto) requires one adapter file per runtime rather than a single core patch.\",\n      \"rationale\": \"Consequence of keeping runtime-specific code out of core.\",\n      \"excerpt\": \"New features that need runtime APIs fork into adapter implementations. Streaming file I/O, WebSocket upgrade, connection info (client IP), signed-cookie crypto — each requires one adapter file per runtime.\",\n      \"symbol_ids\": [\n        \"sym:ts:src/client/types.ts:HonoRequest\",\n        \"sym:ts:src/context.ts:Context\",\n        \"sym:ts:src/hono-base.ts:Hono\",\n        \"sym:ts:src/hono.ts:Hono\",\n        \"sym:ts:src/jsx/context.ts:Context\","
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -B2 -A 30 '\"ADR-04\"' atlases/hono/atlas.json | head -200",
+        "description": "Check ADR-04 claims on type inference to client"
+      },
+      "result_preview": "    },\n    {\n      \"source\": \"ADR-04\",\n      \"source_path\": \"ADR-04-type-inference-to-typed-client.md\",\n      \"source_sha\": \"c48cd13c3a58c91330dfc7bbc227adddb8d785a559c002707e5ec9d8be6d0564\",\n      \"severity\": \"hard\",\n      \"claim\": \"Path patterns must propagate into handler Context via MergePath so `c.req.param(name)` is typed from the pattern, including nested apps via `.basePath()` and `.route()`.\",\n      \"rationale\": \"Without propagation, handler param typing collapses.\",\n      \"excerpt\": \"`MergePath<BasePath, P>` carries the route pattern into `Context<E, P, I>`\",\n      \"symbol_ids\": [\n        \"sym:ts:benchmarks/routers-deno/src/bench.mts:route\",\n        \"sym:ts:benchmarks/routers-deno/src/find-my-way.mts:route\",\n        \"sym:ts:benchmarks/routers-deno/src/koa-router.mts:route\",\n        \"sym:ts:benchmarks/routers-deno/src/koa-tree-router.mts:route\",\n        \"sym:ts:benchmarks/routers-deno/src/medley-router.mts:route\",\n        \"sym:ts:benchmarks/routers-deno/src/trek-router.mts:route\",\n        \"sym:ts:benchmarks/routers/src/bench.mts:route\",\n        \"sym:ts:benchmarks/routers/src/express.mts:route\",\n        \"sym:ts:benchmarks/routers/src/find-my-way.mts:route\",\n        \"sym:ts:benchmarks/routers/src/koa-router.mts:route\",\n        \"sym:ts:benchmarks/routers/src/koa-tree-router.mts:route\",\n        \"sym:ts:benchmarks/routers/src/medley-router.mts:route\",\n        \"sym:ts:benchmarks/routers/src/memoirist.mts:route\",\n        \"sym:ts:benchmarks/routers/src/radix3.mts:route\",\n        \"sym:ts:benchmarks/routers/src/rou3.mts:route\",\n        \"sym:ts:benchmarks/routers/src/trek-router.mts:route\",\n        \"sym:ts:src/client/client.ts:createProxy\",\n        \"sym:ts:src/client/client.ts:hc\",\n        \"sym:ts:src/client/types.ts:Client\",\n        \"sym:ts:src/context.ts:Context\",\n        \"sym:ts:src/helper/route/index.ts:basePath\",\n        \"sym:ts:src/hono-base.ts:Hono\",\n        \"sym:ts:src/hono.ts:Hono\",\n--\n    },\n    {\n      \"source\": \"ADR-04\",\n      \"source_path\": \"ADR-04-type-inference-to-typed-client.md\",\n      \"source_sha\": \"c48cd13c3a58c91330dfc7bbc227adddb8d785a559c002707e5ec9d8be6d0564\",\n      \"severity\": \"hard\",\n      \"claim\": \"Adding a route-level feature between the path and handler must extend HandlerInterface overloads for every arity, not just the single-handler overload.\",\n      \"rationale\": \"Adding only to single-handler overload leaves multi-handler variants broken — a regression.\",\n      \"excerpt\": \"Adding it to only the single-handler overload leaves the multi-handler variants broken and is a regression per the rule above.\",\n      \"symbol_ids\": [\n        \"sym:ts:src/client/client.ts:createProxy\",\n        \"sym:ts:src/client/client.ts:hc\",\n        \"sym:ts:src/client/types.ts:Client\",\n        \"sym:ts:src/context.ts:Context\",\n        \"sym:ts:src/hono-base.ts:Hono\",\n        \"sym:ts:src/hono.ts:Hono\",\n        \"sym:ts:src/jsx/context.ts:Context\",\n        \"sym:ts:src/jsx/dom/render.ts:Context\",\n        \"sym:ts:src/middleware/cache/index.test.ts:Context\",\n        \"sym:ts:src/preset/quick.ts:Hono\",\n        \"sym:ts:src/preset/tiny.ts:Hono\",\n        \"sym:ts:src/router/reg-exp-router/node.ts:Context\",\n        \"sym:ts:src/types.ts:HandlerInterface\",\n        \"sym:ts:src/types.ts:Input\",\n        \"sym:ts:src/types.ts:MergePath\",\n        \"sym:ts:src/types.ts:Schema\",\n        \"sym:ts:src/types.ts:ToSchema\",\n        \"sym:ts:src/validator/validator.ts:validator\"\n      ]\n    },\n    {\n      \"source\": \"ADR-04\",\n      \"source_path\": \"ADR-04-type-inference-to-typed-client.md\",\n      \"source_sha\": \"c48cd13c3a58c91330dfc7bbc227adddb8d785a559c002707e5ec9d8be6d0564\",\n      \"severity\": \"context\",\n      \"claim\": \"Alternatives (OpenAPI codegen, runtime schema introspection, explicit route type annotations) were rejected due to drift, runtime dependencies, or verbosity.\",\n      \"rationale\": \"Documents why the no-codegen typeof-app approach was chosen.\",\n      \"excerpt\": \"Alternatives considered: Code generation (OpenAPI → client): adds a build step, drifts from the runtime schema\",\n      \"symbol_ids\": [\n        \"sym:ts:src/client/client.ts:createProxy\",\n        \"sym:ts:src/client/client.ts:hc\",\n        \"sym:ts:src/client/types.ts:Client\",\n        \"sym:ts:src/context.ts:Context\",\n        \"sym:ts:src/hono-base.ts:Hono\",\n        \"sym:ts:src/hono.ts:Hono\",\n        \"sym:ts:src/jsx/context.ts:Context\",\n        \"sym:ts:src/jsx/dom/render.ts:Context\",\n        \"sym:ts:src/middleware/cache/index.test.ts:Context\",\n        \"sym:ts:src/preset/quick.ts:Hono\",\n        \"sym:ts:src/preset/tiny.ts:Hono\",\n        \"sym:ts:src/router/reg-exp-router/node.ts:Context\",\n        \"sym:ts:src/types.ts:HandlerInterface\",\n        \"sym:ts:src/types.ts:Input\",\n        \"sym:ts:src/types.ts:MergePath\",\n        \"sym:ts:src/types.ts:Schema\",\n        \"sym:ts:src/types.ts:ToSchema\",\n        \"sym:ts:src/validator/validator.ts:validator\"\n      ]\n    },\n    {\n      \"source\": \"ADR-04\",\n      \"source_path\": \"ADR-04-type-inference-to-typed-client.md\",\n      \"source_sha\": \"c48cd13\n\n[truncated: 5217 additional bytes not shown]"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -B2 -A 8 'ExtractValidatorOutput\\|ValidationFunction\\|\"Schema\"\\|\"ToSchema\"\\|\"Input\"' atlases/hono/atlas.json | grep -A 6 '\"claim\":' | head -80",
+        "description": "Look for claims on Input/Schema/ToSchema"
+      },
+      "result_preview": "(Bash completed with no output)"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -B 1 -A 6 '\"claim\":' atlases/hono/atlas.json | grep -B 1 -A 4 -i 'validat\\|Input\\|ToSchema\\|typed client\\|hc<' | head -100",
+        "description": "Find validator-related claims"
+      },
+      "result_preview": "      \"rationale\": \"Keeps dep-requiring middleware opt-in and prevents affecting users who don't install them.\",\n      \"excerpt\": \"Third-party middleware lives outside this repo. Middleware that needs deps (Zod validation, OpenAPI generation, Sentry, Prisma integration) ships under `@hono/*` scope or user-owned packages.\",\n      \"symbol_ids\": [\n        \"sym:ts:src/client/types.ts:HonoRequest\",\n        \"sym:ts:src/context.ts:Context\",\n        \"sym:ts:src/hono-base.ts:Hono\",\n--\n      \"severity\": \"soft\",\n      \"claim\": \"Backwards-incompatible changes to how `validator()` produces Input belong only in major version bumps with migration guidance.\",\n      \"rationale\": \"Third-party adapter validators depend on this signature.\",\n      \"excerpt\": \"These changes belong in major version bumps with migration guidance.\",\n      \"symbol_ids\": [\n        \"sym:ts:src/client/client.ts:createProxy\",\n        \"sym:ts:src/client/client.ts:hc\",\n--\n      \"severity\": \"hard\",\n      \"claim\": \"Middleware author changes to MiddlewareHandler generics must preserve Input propagation.\",\n      \"rationale\": \"Seemingly local generic changes can silently break validator→handler inference for all users.\",\n      \"excerpt\": \"Middleware authors touching `MiddlewareHandler` generics** at `src/types.ts:83+` must preserve `Input` propagation.\",\n      \"symbol_ids\": [\n        \"sym:ts:src/client/client.ts:createProxy\",\n        \"sym:ts:src/client/client.ts:hc\",\n        \"sym:ts:src/client/types.ts:Client\",\n--\n      \"severity\": \"soft\",\n      \"claim\": \"PR reviews for type changes should include verifying that the validator example in the README still infers correctly.\",\n      \"rationale\": \"Catches silent breakage of validator→handler inference chain.\",\n      \"excerpt\": \"PR reviews for type changes should include a \\\"does the validator example in the README still infer?\\\" check.\",\n      \"symbol_ids\": [\n        \"sym:ts:src/client/client.ts:createProxy\",\n        \"sym:ts:src/client/client.ts:hc\",\n        \"sym:ts:src/client/types.ts:Client\",\n--\n      \"claim\": \"Response-shape changes in routes are accepted as compile-time breaking changes for all `hc` consumers, even with no runtime API change.\",\n      \"rationale\": \"Typed clients mean types are the API; breaking changes are caught at client compilation.\",\n      \"excerpt\": \"This is accepted: typed clients mean the types are the API.\",\n      \"symbol_ids\": [\n        \"sym:ts:src/client/client.ts:createProxy\",\n        \"sym:ts:src/client/client.ts:hc\",\n        \"sym:ts:src/client/types.ts:Client\",\n--\n      \"severity\": \"hard\",\n      \"claim\": \"Route registrations must return a new HonoBase with `S & ToSchema<...>` so chained routes accumulate a composite Schema losslessly.\",\n      \"rationale\": \"The generic parameter `S` is what `hc<typeof app>` eventually reads; losing accumulation breaks the client types.\",\n      \"excerpt\": \"so that `app.get(...).post(...).route(...)` chains accumulate a composite `Schema` losslessly.\",\n      \"symbol_ids\": [\n        \"sym:ts:src/client/client.ts:createProxy\",\n        \"sym:ts:src/client/client.ts:hc\",\n--\n      \"severity\": \"hard\",\n      \"claim\": \"The type-inference chain from route registration through handler Context to typed client must be preserved end-to-end across all four segments (route Schema accumulation, path propagation, validator Input flow, client inference).\",\n      \"rationale\": \"Type inference is the marketed differentiator; any break silently collapses downstream types to `any` without compiler errors.\",\n      \"excerpt\": \"The type-inference chain from route registration through handler Context to typed client MUST be preserved end-to-end.\",\n      \"symbol_ids\": [\n        \"sym:ts:src/client/client.ts:createProxy\",\n        \"sym:ts:src/client/client.ts:hc\",\n        \"sym:ts:src/client/types.ts:Client\",\n--\n      \"claim\": \"The typed RPC client's runtime footprint is a 17-line recursive Proxy plus request-building utilities; everything else is compile-time TypeScript.\",\n      \"rationale\": \"Part of the product promise: no build tools, no schema generation, no runtime schema validation on the client.\",\n      \"excerpt\": \"The entire typed RPC machinery's runtime footprint is the `createProxy` function plus request-building utilities.\",\n      \"symbol_ids\": [\n        \"sym:ts:src/client/client.ts:createProxy\",\n        \"sym:ts:src/client/client.ts:hc\",\n--\n      \"severity\": \"hard\",\n      \"claim\": \"Validator output (Input with in/out fields) must merge into the downstream handler's Context so `c.req.valid(target)` returns the validated type.\",\n      \"rationale\": \"Breaking this breaks validator→handler inference chain for every user.\",\n      \"excerpt\": \"the validator's `Input` merges into the downstream handler's `Context<E, P, I>` so `c.req.valid(target)` returns the validated type.\",\n      \"symbol_ids\": [\n        \"sym:ts:src/client/client.ts:createProxy\",\n        \"sym:ts:src/client/client.ts:hc\",\n        \"sym:ts:src/client/types.ts:Client\",\n--\n      \"severity\": \"hard\",\n      \"claim\": \"`any` \n\n[truncated: 601 additional bytes not shown]"
+    }
+  ],
+  "diagnostics": {
+    "claudeCodeVersion": "2.1.118",
+    "totalCostUsd": 0.28648175,
+    "numTurns": 16,
+    "isError": false,
+    "terminalReason": "completed",
+    "modelUsage": {
+      "claude-haiku-4-5-20251001": {
+        "inputTokens": 367,
+        "outputTokens": 18,
+        "cacheReadInputTokens": 0,
+        "cacheCreationInputTokens": 0,
+        "webSearchRequests": 0,
+        "costUSD": 0.000457,
+        "contextWindow": 200000,
+        "maxOutputTokens": 32000
+      },
+      "claude-opus-4-7": {
+        "inputTokens": 21,
+        "outputTokens": 4057,
+        "cacheReadInputTokens": 93902,
+        "cacheCreationInputTokens": 22007,
+        "webSearchRequests": 0,
+        "costUSD": 0.28602475,
+        "contextWindow": 1000000,
+        "maxOutputTokens": 64000
+      }
+    }
+  },
+  "cost_usd": 0.28648175,
+  "written_at": "2026-04-23T16:36:08.676Z"
+}

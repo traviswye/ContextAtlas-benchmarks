@@ -1,0 +1,145 @@
+{
+  "prompt_id": "h3-middleware-onion",
+  "repo": "hono",
+  "condition": "beta",
+  "target_symbol": "compose",
+  "bucket": "win",
+  "metrics": {
+    "tool_calls": 12,
+    "input_tokens": 18,
+    "output_tokens": 3327,
+    "total_tokens": 83677,
+    "wall_clock_ms": 64472
+  },
+  "capped": null,
+  "answer": "Based on the Hono atlas (ADR-03-onion-middleware-compose) and the symbol index, here's the mechanical picture — with concrete file/line anchors pulled from the atlas so you can read them in source:\n\n## Where it's composed\n\n**`src/compose.ts`** — a single ~74-line file, modeled on `koa-compose` with two Hono-specific additions (`onError` and `onNotFound`). That's the *only* place the onion is assembled. The exported symbol is `sym:ts:src/compose.ts:compose` at line 15.\n\nThe atlas is emphatic that this file is small on purpose: \"Every 2+ handler request on every Hono deployment flows through this code. The fact that it fits on one screen is itself a feature\" (ADR-03, soft claim).\n\n## What `next()` is mechanically doing\n\nEach middleware has the signature (hard claim, ADR-03):\n\n```ts\ntype MiddlewareHandler<E, P, I> = (\n  c: Context<E, P, I>,\n  next: Next\n) => Promise<Response | void>\n```\n\n`next` is a **closure bound to index `i+1` of the handler array**. Calling it does three things:\n\n1. **Advances the dispatch cursor** — pulls the next handler out of the composed list, wraps it in a promise, and returns that promise so your `await next()` suspends until the rest of the chain (everything deeper than you) resolves.\n2. **Guards against double-dispatch** — `src/compose.ts:33-35` throws `'next() called multiple times'` if you call it twice in the same frame (ADR-03 hard claim). This is why the onion is safe: each layer owns exactly one downstream invocation.\n3. **Unwinds through `await`** — when the inner promise resolves, control returns to your post-`next()` code. That's where \"work after next()\" happens (response mutation, timing, logger flush, etag computation). The atlas notes nearly every middleware in `src/middleware/**` (logger, timing, request-id, CORS, secure-headers, body-limit, compress, etag, timeout, pretty-json) exploits this.\n\n## The error and tail semantics (both in compose.ts)\n\n- **`src/compose.ts:52-59`** — any throw anywhere in the chain is caught here and handed to the app's `onError` handler. That's why a throw in layer N unwinds cleanly through layers N-1…0.\n- **`src/compose.ts:62-65`** — if the innermost handler returns without finalizing and `c.finalized === false`, the `onNotFound` handler runs. That's the \"tail of the chain\" behavior.\n\n## The fast-path you have to know about\n\nThis is the most important non-obvious part, flagged as a **hard invariant** in ADR-03:\n\n> Routes with exactly one handler do **not** flow through `compose()`. Dispatch in **`src/hono-base.ts:424-442`** checks `matchResult[0].length === 1` and invokes that single handler directly, skipping closure allocation, the outer promise, and a microtask.\n\nTwo consequences worth internalizing:\n\n1. If you're writing a test to exercise composition behavior, you **must** register at least two handlers on the route or you're not executing `compose()` at all.\n2. The fast-path is called out as \"an invariant, not an optimization\" — removing it on the grounds that it \"duplicates compose logic\" would be a subtle regression, because `compose()` unconditionally allocates closures/promises that the fast-path avoids.\n\n## Sub-app error isolation\n\nOne other mechanical detail in ADR-03: when a sub-app mounted via `.route()` has a non-default `errorHandler`, its handlers are wrapped with a **per-app** `compose([], subApp.errorHandler)(...)` call. So `onError` is per-compose-invocation, not global — errors in the mounted app are caught by *its* handler, not the parent's.\n\n## The \"must await\" gotcha\n\nHard claim from ADR-03: calling `next()` without `await` lets downstream handlers run concurrently with your continuation, which breaks the onion model outright. Combined with the \"at most once\" rule above, those two invariants are what make the compose loop's sequential-unwind reasoning sound.\n\n---\n\n**TL;DR reading order if you want to trace it end-to-end:**\n1. `src/hono-base.ts:424-442` — fast-path branch and the call site that hands ≥2 handlers to `compose()`.\n2. `src/compose.ts` (whole file, 74 lines) — the dispatcher. Lines 33-35 (double-call guard), 52-59 (error path), 62-65 (not-found tail).\n3. `src/types.ts` — `MiddlewareHandler` and `Next` to see the contract types.",
+  "trace": [
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "ls C:\\CodeWork\\ContextAtlas-benchmarks\\atlases\\hono\\",
+        "description": "List files in Hono atlas directory"
+      },
+      "result_preview": "Parse error"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "ls atlases/hono/",
+        "description": "List files in Hono atlas directory"
+      },
+      "result_preview": "atlas.json\nindex.db\nindex.db-shm\nindex.db-wal"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "ls atlases/hono/ && head -c 2000 atlases/hono/atlas.json",
+        "description": "Check atlas contents"
+      },
+      "result_preview": "atlas.json\nindex.db\nindex.db-shm\nindex.db-wal\n{\n  \"version\": \"1.1\",\n  \"generated_at\": \"2026-04-23T00:11:43.790Z\",\n  \"extracted_at_sha\": \"cf2d2b7edcf07adef2db7614557f4d7f9e2be7ba\",\n  \"generator\": {\n    \"contextatlas_version\": \"0.0.1\",\n    \"extraction_model\": \"claude-opus-4-7\"\n  },\n  \"source_shas\": {\n    \"ADR-01-web-standards-zero-deps.md\": \"f0859390aa48e8cb056f926a6ae36a8d30c7cb233bac1553b82649543607fa6b\",\n    \"ADR-02-router-interface-and-presets.md\": \"611b65231bd15a6e7fa7de69e287ad2dfe48c3e419e52d0f5d4606031a762e49\",\n    \"ADR-03-onion-middleware-compose.md\": \"ff0af54899bc79db0167348a1c898512c7a10f9a7696821ec766bb10ba1d362e\",\n    \"ADR-04-type-inference-to-typed-client.md\": \"c48cd13c3a58c91330dfc7bbc227adddb8d785a559c002707e5ec9d8be6d0564\",\n    \"ADR-05-dual-jsx-backends.md\": \"85ca7513ba55ce5eee8e66e6139105044f28033e1e4f4fc7d09cf22c25f02a32\"\n  },\n  \"symbols\": [\n    {\n      \"id\": \"sym:ts:benchmarks/deno/fast.ts:app\",\n      \"name\": \"app\",\n      \"kind\": \"variable\",\n      \"path\": \"benchmarks/deno/fast.ts\",\n      \"line\": 4,\n      \"file_sha\": \"f7057eff513855e0a52f14b90070f7751725e14d52d30a07c9f489fe6f393a58\"\n    },\n    {\n      \"id\": \"sym:ts:benchmarks/deno/fast.ts:app.get('/event/:id') callback\",\n      \"name\": \"app.get('/event/:id') callback\",\n      \"kind\": \"function\",\n      \"path\": \"benchmarks/deno/fast.ts\",\n      \"line\": 10,\n      \"signature\": \"app.get('/event/:id', () =>\",\n      \"file_sha\": \"f7057eff513855e0a52f14b90070f7751725e14d52d30a07c9f489fe6f393a58\"\n    },\n    {\n      \"id\": \"sym:ts:benchmarks/deno/fast.ts:app.get('/event/:id/comments') callback\",\n      \"name\": \"app.get('/event/:id/comments') callback\",\n      \"kind\": \"function\",\n      \"path\": \"benchmarks/deno/fast.ts\",\n      \"line\": 11,\n      \"signature\": \"app.get('/event/:id/comments', () =>\",\n      \"file_sha\": \"f7057eff513855e0a52f14b90070f7751725e14d52d30a07c9f489fe6f393a58\"\n    },\n    {\n      \"id\": \"sym:ts:benchmarks/deno/fast.ts:app.get('/user') callback\",\n      \"name\": \"app.get('/user') callback\",\n      \"kind\": \"function\",\n      \"path\": \"benchmarks/deno/f"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -l \"compose\" atlases/hono/atlas.json | head -5; grep -o '\"path\":\"[^\"]*compose[^\"]*\"' atlases/hono/atlas.json | sort -u | head -20",
+        "description": "Search for compose references in atlas"
+      },
+      "result_preview": "atlases/hono/atlas.json"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -oE '\"path\":\\s*\"[^\"]*compose[^\"]*\"' atlases/hono/atlas.json | sort -u",
+        "description": "Find compose-related file paths"
+      },
+      "result_preview": "\"path\": \"src/compose.test.ts\"\n\"path\": \"src/compose.ts\""
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "python -c \"\nimport json\nwith open('atlases/hono/atlas.json') as f:\n    a = json.load(f)\nfor s in a['symbols']:\n    if s.get('path') == 'src/compose.ts':\n        print(s.get('line'), s.get('kind'), s.get('name'), '|', s.get('signature',''))\n\"",
+        "description": "List symbols in compose.ts"
+      },
+      "result_preview": "This command requires approval"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -oE '\\{[^{}]*\"path\":\\s*\"src/compose.ts\"[^{}]*\\}' atlases/hono/atlas.json | head -40",
+        "description": "List symbols in compose.ts"
+      },
+      "result_preview": "(Bash completed with no output)"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -n -B1 -A6 '\"path\": \"src/compose.ts\"' atlases/hono/atlas.json | head -120",
+        "description": "Show compose.ts symbol context"
+      },
+      "result_preview": "5158-      \"kind\": \"variable\",\n5159:      \"path\": \"src/compose.ts\",\n5160-      \"line\": 15,\n5161-      \"file_sha\": \"e62bb2748fae15bdfc2abdc994ffd7b8675d194c928d4448157f016e829d6e56\"\n5162-    },\n5163-    {\n5164-      \"id\": \"sym:ts:src/context.test.ts:'./context'\",\n5165-      \"name\": \"'./context'\","
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "sed -n '5130,5165p' atlases/hono/atlas.json",
+        "description": "Show compose.ts symbol"
+      },
+      "result_preview": "      \"name\": \"describe('compose with Context - not finalized') callback\",\n      \"kind\": \"function\",\n      \"path\": \"src/compose.test.ts\",\n      \"line\": 301,\n      \"signature\": \"describe('compose with Context - not finalized', () =>\",\n      \"file_sha\": \"d4a7f02eb6e81dfce312dab264e3aa8268d77a987fd9f6a314fc3a01012b1665\"\n    },\n    {\n      \"id\": \"sym:ts:src/compose.test.ts:describe('compose with returning a promise, non-async function') callback\",\n      \"name\": \"describe('compose with returning a promise, non-async function') callback\",\n      \"kind\": \"function\",\n      \"path\": \"src/compose.test.ts\",\n      \"line\": 61,\n      \"signature\": \"describe('compose with returning a promise, non-async function', () =>\",\n      \"file_sha\": \"d4a7f02eb6e81dfce312dab264e3aa8268d77a987fd9f6a314fc3a01012b1665\"\n    },\n    {\n      \"id\": \"sym:ts:src/compose.test.ts:describe('compose') callback\",\n      \"name\": \"describe('compose') callback\",\n      \"kind\": \"function\",\n      \"path\": \"src/compose.test.ts\",\n      \"line\": 14,\n      \"signature\": \"describe('compose', () =>\",\n      \"file_sha\": \"d4a7f02eb6e81dfce312dab264e3aa8268d77a987fd9f6a314fc3a01012b1665\"\n    },\n    {\n      \"id\": \"sym:ts:src/compose.ts:compose\",\n      \"name\": \"compose\",\n      \"kind\": \"variable\",\n      \"path\": \"src/compose.ts\",\n      \"line\": 15,\n      \"file_sha\": \"e62bb2748fae15bdfc2abdc994ffd7b8675d194c928d4448157f016e829d6e56\"\n    },\n    {\n      \"id\": \"sym:ts:src/context.test.ts:'./context'\",\n      \"name\": \"'./context'\","
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -n \"ADR-03\" atlases/hono/atlas.json | head -20",
+        "description": "Find ADR-03 references"
+      },
+      "result_preview": "12:    \"ADR-03-onion-middleware-compose.md\": \"ff0af54899bc79db0167348a1c898512c7a10f9a7696821ec766bb10ba1d362e\",\n17142:      \"source\": \"ADR-03\",\n17143:      \"source_path\": \"ADR-03-onion-middleware-compose.md\",\n17168:      \"source\": \"ADR-03\",\n17169:      \"source_path\": \"ADR-03-onion-middleware-compose.md\",\n17194:      \"source\": \"ADR-03\",\n17195:      \"source_path\": \"ADR-03-onion-middleware-compose.md\",\n17220:      \"source\": \"ADR-03\",\n17221:      \"source_path\": \"ADR-03-onion-middleware-compose.md\",\n17246:      \"source\": \"ADR-03\",\n17247:      \"source_path\": \"ADR-03-onion-middleware-compose.md\",\n17272:      \"source\": \"ADR-03\",\n17273:      \"source_path\": \"ADR-03-onion-middleware-compose.md\",\n17298:      \"source\": \"ADR-03\",\n17299:      \"source_path\": \"ADR-03-onion-middleware-compose.md\",\n17324:      \"source\": \"ADR-03\",\n17325:      \"source_path\": \"ADR-03-onion-middleware-compose.md\",\n17350:      \"source\": \"ADR-03\",\n17351:      \"source_path\": \"ADR-03-onion-middleware-compose.md\",\n17376:      \"source\": \"ADR-03\","
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "sed -n '17100,17400p' atlases/hono/atlas.json",
+        "description": "Read ADR-03 narrative chunks"
+      },
+      "result_preview": "        \"sym:ts:src/router/reg-exp-router/router.ts:RegExpRouter\",\n        \"sym:ts:src/router/smart-router/router.ts:SmartRouter\",\n        \"sym:ts:src/router/trie-router/router.ts:TrieRouter\"\n      ]\n    },\n    {\n      \"source\": \"ADR-02\",\n      \"source_path\": \"ADR-02-router-interface-and-presets.md\",\n      \"source_sha\": \"611b65231bd15a6e7fa7de69e287ad2dfe48c3e419e52d0f5d4606031a762e49\",\n      \"severity\": \"context\",\n      \"claim\": \"Three presets ship as separate entry points: hono (SmartRouter[RegExpRouter, TrieRouter]), hono/quick (SmartRouter[LinearRouter, TrieRouter]), hono/tiny (PatternRouter alone)\",\n      \"rationale\": \"Each preset targets a different performance shape (long-running, edge cold-start, minimum-bundle)\",\n      \"excerpt\": \"Three presets ship as separate entry points\",\n      \"symbol_ids\": [\n        \"sym:ts:src/router.ts:Router\",\n        \"sym:ts:src/router.ts:UnsupportedPathError\",\n        \"sym:ts:src/router/linear-router/router.ts:LinearRouter\",\n        \"sym:ts:src/router/pattern-router/router.ts:PatternRouter\",\n        \"sym:ts:src/router/reg-exp-router/router.ts:RegExpRouter\",\n        \"sym:ts:src/router/smart-router/router.ts:SmartRouter\",\n        \"sym:ts:src/router/trie-router/router.ts:TrieRouter\"\n      ]\n    },\n    {\n      \"source\": \"ADR-02\",\n      \"source_path\": \"ADR-02-router-interface-and-presets.md\",\n      \"source_sha\": \"611b65231bd15a6e7fa7de69e287ad2dfe48c3e419e52d0f5d4606031a762e49\",\n      \"severity\": \"soft\",\n      \"claim\": \"Users needing fully deterministic router behavior should pass a concrete router instead of a SmartRouter-based preset\",\n      \"rationale\": \"SmartRouter's self-mutation on first match makes behavior non-deterministic until selection\",\n      \"excerpt\": \"Users needing fully deterministic behavior should pass a concrete router instead of a SmartRouter-based preset.\",\n      \"symbol_ids\": [\n        \"sym:ts:src/router.ts:Router\",\n        \"sym:ts:src/router.ts:UnsupportedPathError\",\n        \"sym:ts:src/router/linear-router/router.ts:LinearRouter\",\n        \"sym:ts:src/router/pattern-router/router.ts:PatternRouter\",\n        \"sym:ts:src/router/reg-exp-router/router.ts:RegExpRouter\",\n        \"sym:ts:src/router/smart-router/router.ts:SmartRouter\",\n        \"sym:ts:src/router/trie-router/router.ts:TrieRouter\"\n      ]\n    },\n    {\n      \"source\": \"ADR-03\",\n      \"source_path\": \"ADR-03-onion-middleware-compose.md\",\n      \"source_sha\": \"ff0af54899bc79db0167348a1c898512c7a10f9a7696821ec766bb10ba1d362e\",\n      \"severity\": \"context\",\n      \"claim\": \"Errors thrown anywhere in the middleware chain are caught by compose() and delegated to the app's onError handler\",\n      \"rationale\": \"Describes centralized error propagation via promise rejection\",\n      \"excerpt\": \"Errors thrown anywhere in the chain are caught by `compose()` and delegated to the app's `onError` handler (`src/compose.ts:52-59`).\",\n      \"symbol_ids\": [\n        \"sym:ts:src/adapter/aws-lambda/types.ts:Handler\",\n        \"sym:ts:src/adapter/service-worker/handler.ts:Handler\",\n        \"sym:ts:src/compose.ts:compose\",\n        \"sym:ts:src/context.ts:Context\",\n        \"sym:ts:src/hono-base.ts:Hono\",\n        \"sym:ts:src/hono.ts:Hono\",\n        \"sym:ts:src/jsx/context.ts:Context\",\n        \"sym:ts:src/jsx/dom/render.ts:Context\",\n        \"sym:ts:src/middleware/cache/index.test.ts:Context\",\n        \"sym:ts:src/preset/quick.ts:Hono\",\n        \"sym:ts:src/preset/tiny.ts:Hono\",\n        \"sym:ts:src/router/reg-exp-router/node.ts:Context\",\n        \"sym:ts:src/types.ts:Handler\",\n        \"sym:ts:src/types.ts:MiddlewareHandler\",\n        \"sym:ts:src/types.ts:Next\"\n      ]\n    },\n    {\n      \"source\": \"ADR-03\",\n      \"source_path\": \"ADR-03-onion-middleware-compose.md\",\n      \"source_sha\": \"ff0af54899bc79db0167348a1c898512c7a10f9a7696821ec766bb10ba1d362e\",\n      \"severity\": \"hard\",\n      \"claim\": \"Hono uses Koa-style onion composition for middleware, implemented in src/compose.ts\",\n      \"rationale\": \"Foundational architectural choice that determines how middleware wraps, handles errors, and composes\",\n      \"excerpt\": \"Hono uses **Koa-style onion composition**. The implementation is `src/compose.ts` — 74 lines modeled on `koa-compose` with additions for `onError` and `onNotFound` handlers.\",\n      \"symbol_ids\": [\n        \"sym:ts:src/adapter/aws-lambda/types.ts:Handler\",\n        \"sym:ts:src/adapter/service-worker/handler.ts:Handler\",\n        \"sym:ts:src/compose.ts:compose\",\n        \"sym:ts:src/context.ts:Context\",\n        \"sym:ts:src/hono-base.ts:Hono\",\n        \"sym:ts:src/hono.ts:Hono\",\n        \"sym:ts:src/jsx/context.ts:Context\",\n        \"sym:ts:src/jsx/dom/render.ts:Context\",\n        \"sym:ts:src/middleware/cache/index.test.ts:Context\",\n        \"sym:ts:src/preset/quick.ts:Hono\",\n        \"sym:ts:src/preset/tiny.ts:Hono\",\n        \"sym:ts:src/router/reg-exp-router/node.ts:Context\",\n        \"sym:ts:src/types.ts:Handler\",\n        \"sym:ts:src/types.ts:MiddlewareHandler\",\n        \"sym:ts:src/types.ts:Next\"\n      ]\n    },\n    {\n      \"source\": \"ADR\n\n[truncated: 10632 additional bytes not shown]"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "sed -n '17400,17700p' atlases/hono/atlas.json",
+        "description": "Continue reading ADR-03 narrative chunks"
+      },
+      "result_preview": "    },\n    {\n      \"source\": \"ADR-03\",\n      \"source_path\": \"ADR-03-onion-middleware-compose.md\",\n      \"source_sha\": \"ff0af54899bc79db0167348a1c898512c7a10f9a7696821ec766bb10ba1d362e\",\n      \"severity\": \"hard\",\n      \"claim\": \"Tests exercising middleware composition must have at least two handlers in the route\",\n      \"rationale\": \"Single-handler routes skip compose() entirely; tests with one handler don't exercise composition logic\",\n      \"excerpt\": \"Tests that exercise middleware composition MUST have at least two handlers in the route; otherwise they don't exercise `compose()` at all.\",\n      \"symbol_ids\": [\n        \"sym:ts:src/adapter/aws-lambda/types.ts:Handler\",\n        \"sym:ts:src/adapter/service-worker/handler.ts:Handler\",\n        \"sym:ts:src/compose.ts:compose\",\n        \"sym:ts:src/context.ts:Context\",\n        \"sym:ts:src/hono-base.ts:Hono\",\n        \"sym:ts:src/hono.ts:Hono\",\n        \"sym:ts:src/jsx/context.ts:Context\",\n        \"sym:ts:src/jsx/dom/render.ts:Context\",\n        \"sym:ts:src/middleware/cache/index.test.ts:Context\",\n        \"sym:ts:src/preset/quick.ts:Hono\",\n        \"sym:ts:src/preset/tiny.ts:Hono\",\n        \"sym:ts:src/router/reg-exp-router/node.ts:Context\",\n        \"sym:ts:src/types.ts:Handler\",\n        \"sym:ts:src/types.ts:MiddlewareHandler\",\n        \"sym:ts:src/types.ts:Next\"\n      ]\n    },\n    {\n      \"source\": \"ADR-03\",\n      \"source_path\": \"ADR-03-onion-middleware-compose.md\",\n      \"source_sha\": \"ff0af54899bc79db0167348a1c898512c7a10f9a7696821ec766bb10ba1d362e\",\n      \"severity\": \"hard\",\n      \"claim\": \"The single-handler fast-path is an invariant and must not be removed as duplication of compose logic\",\n      \"rationale\": \"Fast-path is not equivalent to compose() with one middleware because compose() unconditionally allocates closures and promises\",\n      \"excerpt\": \"The fast-path is an invariant, not an optimization.** Removing it \\\"because it duplicates compose logic\\\" is a subtle regression\",\n      \"symbol_ids\": [\n        \"sym:ts:src/adapter/aws-lambda/types.ts:Handler\",\n        \"sym:ts:src/adapter/service-worker/handler.ts:Handler\",\n        \"sym:ts:src/compose.ts:compose\",\n        \"sym:ts:src/context.ts:Context\",\n        \"sym:ts:src/hono-base.ts:Hono\",\n        \"sym:ts:src/hono.ts:Hono\",\n        \"sym:ts:src/jsx/context.ts:Context\",\n        \"sym:ts:src/jsx/dom/render.ts:Context\",\n        \"sym:ts:src/middleware/cache/index.test.ts:Context\",\n        \"sym:ts:src/preset/quick.ts:Hono\",\n        \"sym:ts:src/preset/tiny.ts:Hono\",\n        \"sym:ts:src/router/reg-exp-router/node.ts:Context\",\n        \"sym:ts:src/types.ts:Handler\",\n        \"sym:ts:src/types.ts:MiddlewareHandler\",\n        \"sym:ts:src/types.ts:Next\"\n      ]\n    },\n    {\n      \"source\": \"ADR-03\",\n      \"source_path\": \"ADR-03-onion-middleware-compose.md\",\n      \"source_sha\": \"ff0af54899bc79db0167348a1c898512c7a10f9a7696821ec766bb10ba1d362e\",\n      \"severity\": \"soft\",\n      \"claim\": \"compose.ts changes have high blast radius; reviews should include micro-benchmarks\",\n      \"rationale\": \"Every 2+ handler route on every Hono deployment goes through this file, so performance regressions ripple across the ecosystem\",\n      \"excerpt\": \"Reviews of `compose.ts` changes should include micro-benchmarks.\",\n      \"symbol_ids\": [\n        \"sym:ts:src/adapter/aws-lambda/types.ts:Handler\",\n        \"sym:ts:src/adapter/service-worker/handler.ts:Handler\",\n        \"sym:ts:src/compose.ts:compose\",\n        \"sym:ts:src/context.ts:Context\",\n        \"sym:ts:src/hono-base.ts:Hono\",\n        \"sym:ts:src/hono.ts:Hono\",\n        \"sym:ts:src/jsx/context.ts:Context\",\n        \"sym:ts:src/jsx/dom/render.ts:Context\",\n        \"sym:ts:src/middleware/cache/index.test.ts:Context\",\n        \"sym:ts:src/preset/quick.ts:Hono\",\n        \"sym:ts:src/preset/tiny.ts:Hono\",\n        \"sym:ts:src/router/reg-exp-router/node.ts:Context\",\n        \"sym:ts:src/types.ts:Handler\",\n        \"sym:ts:src/types.ts:MiddlewareHandler\",\n        \"sym:ts:src/types.ts:Next\"\n      ]\n    },\n    {\n      \"source\": \"ADR-03\",\n      \"source_path\": \"ADR-03-onion-middleware-compose.md\",\n      \"source_sha\": \"ff0af54899bc79db0167348a1c898512c7a10f9a7696821ec766bb10ba1d362e\",\n      \"severity\": \"soft\",\n      \"claim\": \"compose.ts is intentionally kept small (~74 lines) to remain auditable on one screen\",\n      \"rationale\": \"Small size allows dispatch bugs to be diagnosed by reading the whole file\",\n      \"excerpt\": \"`compose.ts` is 74 lines. Every 2+ handler request on every Hono deployment flows through this code. The fact that it fits on one screen is itself a feature\",\n      \"symbol_ids\": [\n        \"sym:ts:src/adapter/aws-lambda/types.ts:Handler\",\n        \"sym:ts:src/adapter/service-worker/handler.ts:Handler\",\n        \"sym:ts:src/compose.ts:compose\",\n        \"sym:ts:src/context.ts:Context\",\n        \"sym:ts:src/hono-base.ts:Hono\",\n        \"sym:ts:src/hono.ts:Hono\",\n        \"sym:ts:src/jsx/context.ts:Context\",\n        \"sym:ts:src/jsx/dom/render.ts:Context\",\n        \"sym:ts:src/middleware/cache/index.test.ts\n\n[truncated: 10559 additional bytes not shown]"
+    }
+  ],
+  "diagnostics": {
+    "claudeCodeVersion": "2.1.118",
+    "totalCostUsd": 0.25195475,
+    "numTurns": 13,
+    "isError": false,
+    "terminalReason": "completed",
+    "modelUsage": {
+      "claude-haiku-4-5-20251001": {
+        "inputTokens": 364,
+        "outputTokens": 18,
+        "cacheReadInputTokens": 0,
+        "cacheCreationInputTokens": 0,
+        "webSearchRequests": 0,
+        "costUSD": 0.00045400000000000003,
+        "contextWindow": 200000,
+        "maxOutputTokens": 32000
+      },
+      "claude-opus-4-7": {
+        "inputTokens": 18,
+        "outputTokens": 3327,
+        "cacheReadInputTokens": 58059,
+        "cacheCreationInputTokens": 22273,
+        "webSearchRequests": 0,
+        "costUSD": 0.25150075,
+        "contextWindow": 1000000,
+        "maxOutputTokens": 64000
+      }
+    }
+  },
+  "cost_usd": 0.25195475,
+  "written_at": "2026-04-23T16:28:30.406Z"
+}

@@ -1,0 +1,190 @@
+{
+  "prompt_id": "h5-hono-generics",
+  "repo": "hono",
+  "condition": "beta",
+  "target_symbol": "Hono",
+  "bucket": "tie",
+  "metrics": {
+    "tool_calls": 19,
+    "input_tokens": 33,
+    "output_tokens": 1196,
+    "total_tokens": 208255,
+    "wall_clock_ms": 57857
+  },
+  "capped": "tokens",
+  "answer": "",
+  "trace": [
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "ls C:\\CodeWork\\ContextAtlas-benchmarks\\atlases\\hono\\",
+        "description": "List hono atlas contents"
+      },
+      "result_preview": "Parse error"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "ls atlases/hono/",
+        "description": "List hono atlas contents"
+      },
+      "result_preview": "atlas.json\nindex.db\nindex.db-shm\nindex.db-wal"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "sqlite3 atlases/hono/index.db \".tables\"",
+        "description": "List tables in hono atlas db"
+      },
+      "result_preview": "This command requires approval"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "sqlite3 atlases/hono/index.db \".tables\"",
+        "description": "List tables in hono atlas db",
+        "dangerouslyDisableSandbox": true
+      },
+      "result_preview": "This command requires approval"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "which sqlite3 || echo \"no sqlite3\"; ls atlases/hono/atlas.json | head -5",
+        "description": "Check sqlite3 availability"
+      },
+      "result_preview": "which: no sqlite3 in (/c/Users/Travis/bin:/mingw64/bin:/usr/local/bin:/usr/bin:/bin:/mingw64/bin:/usr/bin:/c/Users/Travis/bin:/c/CodeWork/ContextAtlas-benchmarks/node_modules/.bin:/c/CodeWork/ContextAtlas-benchmarks/node_modules/.bin:/c/CodeWork/node_modules/.bin:/c/node_modules/.bin:/c/Users/Travis/AppData/Local/nvm/v22.22.2/node_modules/npm/node_modules/@npmcli/run-script/lib/node-gyp-bin:/c/Python314/Scripts:/c/Python314:/c/WINDOWS/system32:/c/WINDOWS:/c/WINDOWS/System32/Wbem:/c/WINDOWS/System32/WindowsPowerShell/v1.0:/c/WINDOWS/System32/OpenSSH:/c/Program Files/NVIDIA Corporation/NVIDIA App/NvDLISR:/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common:/c/Program Files/dotnet:/cmd:/c/ProgramData/chocolatey/bin:/c/Program Files/Amazon/AWSCLIV2:%NVM_HOME%:%NVM_SYMLINK%:/c/Users/Travis/AppData/Local/Microsoft/WindowsApps:/c/Users/Travis/AppData/Local/Programs/Microsoft VS Code/bin:/c/Users/Travis/AppData/Local/GitHubDesktop/bin:/c/Users/Travis/AppData/Roaming/npm:/c/Users/Travis/.local/bin:/c/Users/Travis/AppData/Local/nvm:/c/nvm4w/nodejs:/c/Users/Travis/AppData/Local/nvm:/c/nvm4w/nodejs:/usr/bin/vendor_perl:/usr/bin/core_perl)\nno sqlite3\natlases/hono/atlas.json"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "wc -l atlases/hono/atlas.json; head -c 2000 atlases/hono/atlas.json",
+        "description": "Inspect atlas.json structure"
+      },
+      "result_preview": "23667 atlases/hono/atlas.json\n{\n  \"version\": \"1.1\",\n  \"generated_at\": \"2026-04-23T00:11:43.790Z\",\n  \"extracted_at_sha\": \"cf2d2b7edcf07adef2db7614557f4d7f9e2be7ba\",\n  \"generator\": {\n    \"contextatlas_version\": \"0.0.1\",\n    \"extraction_model\": \"claude-opus-4-7\"\n  },\n  \"source_shas\": {\n    \"ADR-01-web-standards-zero-deps.md\": \"f0859390aa48e8cb056f926a6ae36a8d30c7cb233bac1553b82649543607fa6b\",\n    \"ADR-02-router-interface-and-presets.md\": \"611b65231bd15a6e7fa7de69e287ad2dfe48c3e419e52d0f5d4606031a762e49\",\n    \"ADR-03-onion-middleware-compose.md\": \"ff0af54899bc79db0167348a1c898512c7a10f9a7696821ec766bb10ba1d362e\",\n    \"ADR-04-type-inference-to-typed-client.md\": \"c48cd13c3a58c91330dfc7bbc227adddb8d785a559c002707e5ec9d8be6d0564\",\n    \"ADR-05-dual-jsx-backends.md\": \"85ca7513ba55ce5eee8e66e6139105044f28033e1e4f4fc7d09cf22c25f02a32\"\n  },\n  \"symbols\": [\n    {\n      \"id\": \"sym:ts:benchmarks/deno/fast.ts:app\",\n      \"name\": \"app\",\n      \"kind\": \"variable\",\n      \"path\": \"benchmarks/deno/fast.ts\",\n      \"line\": 4,\n      \"file_sha\": \"f7057eff513855e0a52f14b90070f7751725e14d52d30a07c9f489fe6f393a58\"\n    },\n    {\n      \"id\": \"sym:ts:benchmarks/deno/fast.ts:app.get('/event/:id') callback\",\n      \"name\": \"app.get('/event/:id') callback\",\n      \"kind\": \"function\",\n      \"path\": \"benchmarks/deno/fast.ts\",\n      \"line\": 10,\n      \"signature\": \"app.get('/event/:id', () =>\",\n      \"file_sha\": \"f7057eff513855e0a52f14b90070f7751725e14d52d30a07c9f489fe6f393a58\"\n    },\n    {\n      \"id\": \"sym:ts:benchmarks/deno/fast.ts:app.get('/event/:id/comments') callback\",\n      \"name\": \"app.get('/event/:id/comments') callback\",\n      \"kind\": \"function\",\n      \"path\": \"benchmarks/deno/fast.ts\",\n      \"line\": 11,\n      \"signature\": \"app.get('/event/:id/comments', () =>\",\n      \"file_sha\": \"f7057eff513855e0a52f14b90070f7751725e14d52d30a07c9f489fe6f393a58\"\n    },\n    {\n      \"id\": \"sym:ts:benchmarks/deno/fast.ts:app.get('/user') callback\",\n      \"name\": \"app.get('/user') callback\",\n      \"kind\": \"function\",\n      \"path\": \"benchmarks/deno/f"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -n '\"Hono\"' atlases/hono/atlas.json | head -20",
+        "description": "Find Hono class entries"
+      },
+      "result_preview": "7373:      \"name\": \"Hono\",\n7854:      \"name\": \"Hono\",\n12164:      \"name\": \"Hono\",\n12191:      \"name\": \"Hono\","
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "C:\\CodeWork\\ContextAtlas-benchmarks\\atlases\\hono\\atlas.json",
+        "offset": 7360,
+        "limit": 80
+      },
+      "result_preview": "7360\t      \"file_sha\": \"55fd0da6b5af9783bf657fe855f827e01cdc3daf51f82591b42eb90ae01b81c9\"\n7361\t    },\n7362\t    {\n7363\t      \"id\": \"sym:ts:src/hono-base.ts:GetPath\",\n7364\t      \"name\": \"GetPath\",\n7365\t      \"kind\": \"type\",\n7366\t      \"path\": \"src/hono-base.ts\",\n7367\t      \"line\": 44,\n7368\t      \"signature\": \"type GetPath<E extends Env> = (request: Request, options?: { env?: E['Bindings'] }) => string export type HonoOptions<E extends Env> = { /** * `strict` option specifies whether to distinguish whether the last path is a directory or not. *\",\n7369\t      \"file_sha\": \"068061a01effa9a3af709e30abb5803310868186a177c8f57ed5e1886966fbb1\"\n7370\t    },\n7371\t    {\n7372\t      \"id\": \"sym:ts:src/hono-base.ts:Hono\",\n7373\t      \"name\": \"Hono\",\n7374\t      \"kind\": \"class\",\n7375\t      \"path\": \"src/hono-base.ts\",\n7376\t      \"line\": 98,\n7377\t      \"file_sha\": \"068061a01effa9a3af709e30abb5803310868186a177c8f57ed5e1886966fbb1\"\n7378\t    },\n7379\t    {\n7380\t      \"id\": \"sym:ts:src/hono-base.ts:HonoOptions\",\n7381\t      \"name\": \"HonoOptions\",\n7382\t      \"kind\": \"type\",\n7383\t      \"path\": \"src/hono-base.ts\",\n7384\t      \"line\": 46,\n7385\t      \"signature\": \"type HonoOptions<E extends Env> = { /** * `strict` option specifies whether to distinguish whether the last path is a directory or not. * * @see {@link https://hono.dev/docs/api/hono#strict-mode} *\",\n7386\t      \"file_sha\": \"068061a01effa9a3af709e30abb5803310868186a177c8f57ed5e1886966fbb1\"\n7387\t    },\n7388\t    {\n7389\t      \"id\": \"sym:ts:src/hono-base.ts:MountOptionHandler\",\n7390\t      \"name\": \"MountOptionHandler\",\n7391\t      \"kind\": \"type\",\n7392\t      \"path\": \"src/hono-base.ts\",\n7393\t      \"line\": 89,\n7394\t      \"signature\": \"type MountOptionHandler = (c: Context) => unknown type MountReplaceRequest = (originalRequest: Request) => Request type MountOptions = | MountOptionHandler | { optionHandler?: MountOptionHandler\",\n7395\t      \"file_sha\": \"068061a01effa9a3af709e30abb5803310868186a177c8f57ed5e1886966fbb1\"\n7396\t    },\n7397\t    {\n7398\t      \"id\": \"sym:ts:src/hono-base.ts:MountOptions\",\n7399\t      \"name\": \"MountOptions\",\n7400\t      \"kind\": \"type\",\n7401\t      \"path\": \"src/hono-base.ts\",\n7402\t      \"line\": 91,\n7403\t      \"signature\": \"type MountOptions = | MountOptionHandler | { optionHandler?: MountOptionHandler replaceRequest?: MountReplaceRequest | false }\",\n7404\t      \"file_sha\": \"068061a01effa9a3af709e30abb5803310868186a177c8f57ed5e1886966fbb1\"\n7405\t    },\n7406\t    {\n7407\t      \"id\": \"sym:ts:src/hono-base.ts:MountReplaceRequest\",\n7408\t      \"name\": \"MountReplaceRequest\",\n7409\t      \"kind\": \"type\",\n7410\t      \"path\": \"src/hono-base.ts\",\n7411\t      \"line\": 90,\n7412\t      \"signature\": \"type MountReplaceRequest = (originalRequest: Request) => Request type MountOptions = | MountOptionHandler | { optionHandler?: MountOptionHandler replaceRequest?: MountReplaceRequest | false\",\n7413\t      \"file_sha\": \"068061a01effa9a3af709e30abb5803310868186a177c8f57ed5e1886966fbb1\"\n7414\t    },\n7415\t    {\n7416\t      \"id\": \"sym:ts:src/hono-base.ts:errorHandler\",\n7417\t      \"name\": \"errorHandler\",\n7418\t      \"kind\": \"variable\",\n7419\t      \"path\": \"src/hono-base.ts\",\n7420\t      \"line\": 35,\n7421\t      \"file_sha\": \"068061a01effa9a3af709e30abb5803310868186a177c8f57ed5e1886966fbb1\"\n7422\t    },\n7423\t    {\n7424\t      \"id\": \"sym:ts:src/hono-base.ts:notFoundHandler\",\n7425\t      \"name\": \"notFoundHandler\",\n7426\t      \"kind\": \"variable\",\n7427\t      \"path\": \"src/hono-base.ts\",\n7428\t      \"line\": 31,\n7429\t      \"file_sha\": \"068061a01effa9a3af709e30abb5803310868186a177c8f57ed5e1886966fbb1\"\n7430\t    },\n7431\t    {\n7432\t      \"id\": \"sym:ts:src/hono.test.ts:'./context'\",\n7433\t      \"name\": \"'./context'\",\n7434\t      \"kind\": \"module\",\n7435\t      \"path\": \"src/hono.test.ts\",\n7436\t      \"line\": 2796,\n7437\t      \"file_sha\": \"eb2082dcd350fcf8598c23fda819745f41462c9c8d0160da3485e6a2c5564477\"\n7438\t    },\n7439\t    {"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "C:\\CodeWork\\ContextAtlas-benchmarks\\atlases\\hono\\atlas.json",
+        "offset": 7840,
+        "limit": 40
+      },
+      "result_preview": "7840\t      \"signature\": \"describe('param and query', () =>\",\n7841\t      \"file_sha\": \"eb2082dcd350fcf8598c23fda819745f41462c9c8d0160da3485e6a2c5564477\"\n7842\t    },\n7843\t    {\n7844\t      \"id\": \"sym:ts:src/hono.test.ts:throwExpression\",\n7845\t      \"name\": \"throwExpression\",\n7846\t      \"kind\": \"function\",\n7847\t      \"path\": \"src/hono.test.ts\",\n7848\t      \"line\": 18,\n7849\t      \"signature\": \"function throwExpression(errorMessage: string): never\",\n7850\t      \"file_sha\": \"eb2082dcd350fcf8598c23fda819745f41462c9c8d0160da3485e6a2c5564477\"\n7851\t    },\n7852\t    {\n7853\t      \"id\": \"sym:ts:src/hono.ts:Hono\",\n7854\t      \"name\": \"Hono\",\n7855\t      \"kind\": \"class\",\n7856\t      \"path\": \"src/hono.ts\",\n7857\t      \"line\": 16,\n7858\t      \"signature\": \"class Hono< E extends Env = BlankEnv, S extends Schema = BlankSchema, BasePath extends string = '/', > extends HonoBase<E, S, BasePath>\",\n7859\t      \"file_sha\": \"d39498b9bb339bfc72cbc3741d1dbd499b2fb9aa762204418c7a7c241bcae8d4\"\n7860\t    },\n7861\t    {\n7862\t      \"id\": \"sym:ts:src/http-exception.test.ts:describe('HTTPException') callback\",\n7863\t      \"name\": \"describe('HTTPException') callback\",\n7864\t      \"kind\": \"function\",\n7865\t      \"path\": \"src/http-exception.test.ts\",\n7866\t      \"line\": 3,\n7867\t      \"signature\": \"describe('HTTPException', () =>\",\n7868\t      \"file_sha\": \"9b11d05d295f33eafb5e7f410c1f4540174402f24d7d998bdcc6f56e11b7e2df\"\n7869\t    },\n7870\t    {\n7871\t      \"id\": \"sym:ts:src/http-exception.ts:HTTPException\",\n7872\t      \"name\": \"HTTPException\",\n7873\t      \"kind\": \"class\",\n7874\t      \"path\": \"src/http-exception.ts\",\n7875\t      \"line\": 46,\n7876\t      \"signature\": \"class HTTPException extends Error\",\n7877\t      \"file_sha\": \"6f37149536b482d7b654d69cf4c44ef1043679e5c04f635da24fe57f38770c36\"\n7878\t    },\n7879\t    {"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -n '\"edges\"\\|\"references\"\\|\"relations\"' atlases/hono/atlas.json | head -5",
+        "description": "Find the edges/references section"
+      },
+      "result_preview": "(Bash completed with no output)"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "python -c \"import json; d=json.load(open('atlases/hono/atlas.json')); print(list(d.keys()))\"",
+        "description": "Print top-level atlas keys"
+      },
+      "result_preview": "This command requires approval"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "node -e \"const d=require('./atlases/hono/atlas.json'); console.log(Object.keys(d));\"",
+        "description": "Print top-level atlas keys"
+      },
+      "result_preview": "This command requires approval"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -n '^  \"' atlases/hono/atlas.json | head -30",
+        "description": "List top-level keys in atlas.json"
+      },
+      "result_preview": "2:  \"version\": \"1.1\",\n3:  \"generated_at\": \"2026-04-23T00:11:43.790Z\",\n4:  \"extracted_at_sha\": \"cf2d2b7edcf07adef2db7614557f4d7f9e2be7ba\",\n5:  \"generator\": {\n9:  \"source_shas\": {\n16:  \"symbols\": [\n16511:  \"claims\": [\n18383:  \"git_commits\": ["
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "C:\\CodeWork\\ContextAtlas-benchmarks\\atlases\\hono\\atlas.json",
+        "offset": 16511,
+        "limit": 80
+      },
+      "result_preview": "16511\t  \"claims\": [\n16512\t    {\n16513\t      \"source\": \"ADR-01\",\n16514\t      \"source_path\": \"ADR-01-web-standards-zero-deps.md\",\n16515\t      \"source_sha\": \"f0859390aa48e8cb056f926a6ae36a8d30c7cb233bac1553b82649543607fa6b\",\n16516\t      \"severity\": \"context\",\n16517\t      \"claim\": \"Adding capabilities that require runtime APIs (streaming file I/O, WebSocket upgrade, client IP, signed-cookie crypto) requires one adapter file per runtime rather than a single core patch.\",\n16518\t      \"rationale\": \"Consequence of keeping runtime-specific code out of core.\",\n16519\t      \"excerpt\": \"New features that need runtime APIs fork into adapter implementations. Streaming file I/O, WebSocket upgrade, connection info (client IP), signed-cookie crypto — each requires one adapter file per runtime.\",\n16520\t      \"symbol_ids\": [\n16521\t        \"sym:ts:src/client/types.ts:HonoRequest\",\n16522\t        \"sym:ts:src/context.ts:Context\",\n16523\t        \"sym:ts:src/hono-base.ts:Hono\",\n16524\t        \"sym:ts:src/hono.ts:Hono\",\n16525\t        \"sym:ts:src/jsx/context.ts:Context\",\n16526\t        \"sym:ts:src/jsx/dom/render.ts:Context\",\n16527\t        \"sym:ts:src/middleware/cache/index.test.ts:Context\",\n16528\t        \"sym:ts:src/preset/quick.ts:Hono\",\n16529\t        \"sym:ts:src/preset/tiny.ts:Hono\",\n16530\t        \"sym:ts:src/request.ts:HonoRequest\",\n16531\t        \"sym:ts:src/router/reg-exp-router/node.ts:Context\"\n16532\t      ]\n16533\t    },\n16534\t    {\n16535\t      \"source\": \"ADR-01\",\n16536\t      \"source_path\": \"ADR-01-web-standards-zero-deps.md\",\n16537\t      \"source_sha\": \"f0859390aa48e8cb056f926a6ae36a8d30c7cb233bac1553b82649543607fa6b\",\n16538\t      \"severity\": \"hard\",\n16539\t      \"claim\": \"Any `node:` import outside `src/adapter/**` (except the documented `node:async_hooks` exception) must fail a grep-based lint.\",\n16540\t      \"rationale\": \"Mechanical enforcement prevents runtime-specific imports from leaking into core.\",\n16541\t      \"excerpt\": \"any `node:` import outside `src/adapter/**` (with the `node:async_hooks` exception) fails a grep-based lint\",\n16542\t      \"symbol_ids\": [\n16543\t        \"sym:ts:src/client/types.ts:HonoRequest\",\n16544\t        \"sym:ts:src/context.ts:Context\",\n16545\t        \"sym:ts:src/hono-base.ts:Hono\",\n16546\t        \"sym:ts:src/hono.ts:Hono\",\n16547\t        \"sym:ts:src/jsx/context.ts:Context\",\n16548\t        \"sym:ts:src/jsx/dom/render.ts:Context\",\n16549\t        \"sym:ts:src/middleware/cache/index.test.ts:Context\",\n16550\t        \"sym:ts:src/preset/quick.ts:Hono\",\n16551\t        \"sym:ts:src/preset/tiny.ts:Hono\",\n16552\t        \"sym:ts:src/request.ts:HonoRequest\",\n16553\t        \"sym:ts:src/router/reg-exp-router/node.ts:Context\"\n16554\t      ]\n16555\t    },\n16556\t    {\n16557\t      \"source\": \"ADR-01\",\n16558\t      \"source_path\": \"ADR-01-web-standards-zero-deps.md\",\n16559\t      \"source_sha\": \"f0859390aa48e8cb056f926a6ae36a8d30c7cb233bac1553b82649543607fa6b\",\n16560\t      \"severity\": \"hard\",\n16561\t      \"claim\": \"Any non-empty `dependencies` field in package.json must fail CI.\",\n16562\t      \"rationale\": \"Mechanical enforcement of the zero-dep rule; reviewers don't need judgment.\",\n16563\t      \"excerpt\": \"any non-empty `dependencies` field fails CI\",\n16564\t      \"symbol_ids\": [\n16565\t        \"sym:ts:src/client/types.ts:HonoRequest\",\n16566\t        \"sym:ts:src/context.ts:Context\",\n16567\t        \"sym:ts:src/hono-base.ts:Hono\",\n16568\t        \"sym:ts:src/hono.ts:Hono\",\n16569\t        \"sym:ts:src/jsx/context.ts:Context\",\n16570\t        \"sym:ts:src/jsx/dom/render.ts:Context\",\n16571\t        \"sym:ts:src/middleware/cache/index.test.ts:Context\",\n16572\t        \"sym:ts:src/preset/quick.ts:Hono\",\n16573\t        \"sym:ts:src/preset/tiny.ts:Hono\",\n16574\t        \"sym:ts:src/request.ts:HonoRequest\",\n16575\t        \"sym:ts:src/router/reg-exp-router/node.ts:Context\"\n16576\t      ]\n16577\t    },\n16578\t    {\n16579\t      \"source\": \"ADR-01\",\n16580\t      \"source_path\": \"ADR-01-web-standards-zero-deps.md\",\n16581\t      \"source_sha\": \"f0859390aa48e8cb056f926a6ae36a8d30c7cb233bac1553b82649543607fa6b\",\n16582\t      \"severity\": \"hard\",\n16583\t      \"claim\": \"Core code must be built entirely on Web Standard APIs with no runtime-specific globals or imports.\",\n16584\t      \"rationale\": \"Portability across 9+ runtimes depends on the Web Standards substrate; runtime-specific imports break loading on Workers and cause polyfill pulls on Deno.\",\n16585\t      \"excerpt\": \"Core code is built entirely on Web Standard APIs. Permitted primitives: `Request`, `Response`, `Headers`, `URL`, `URLSearchParams`, `fetch`, `ReadableStream` / `WritableStream` / `TransformStream`, `TextEncoder` / `TextDecoder`, `globalThis.crypto` (Web Crypto), `AbortController` / `AbortSignal`, `Blob`, `FormData`. No runtime-specific globals or imports.\",\n16586\t      \"symbol_ids\": [\n16587\t        \"sym:ts:src/client/types.ts:HonoRequest\",\n16588\t        \"sym:ts:src/context.ts:Context\",\n16589\t        \"sym:ts:src/hono-base.ts:Hono\",\n16590\t        \"sym:ts:src/hono.ts:Hono\","
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -n \"ADR-04\\|ADR-02\" atlases/hono/atlas.json | head -30",
+        "description": "Find ADR-04 references in claims"
+      },
+      "result_preview": "11:    \"ADR-02-router-interface-and-presets.md\": \"611b65231bd15a6e7fa7de69e287ad2dfe48c3e419e52d0f5d4606031a762e49\",\n13:    \"ADR-04-type-inference-to-typed-client.md\": \"c48cd13c3a58c91330dfc7bbc227adddb8d785a559c002707e5ec9d8be6d0564\",\n16843:      \"source\": \"ADR-02\",\n16844:      \"source_path\": \"ADR-02-router-interface-and-presets.md\",\n16866:      \"source\": \"ADR-02\",\n16867:      \"source_path\": \"ADR-02-router-interface-and-presets.md\",\n16885:      \"source\": \"ADR-02\",\n16886:      \"source_path\": \"ADR-02-router-interface-and-presets.md\",\n16907:      \"source\": \"ADR-02\",\n16908:      \"source_path\": \"ADR-02-router-interface-and-presets.md\",\n16926:      \"source\": \"ADR-02\",\n16927:      \"source_path\": \"ADR-02-router-interface-and-presets.md\",\n16944:      \"source\": \"ADR-02\",\n16945:      \"source_path\": \"ADR-02-router-interface-and-presets.md\",\n16962:      \"source\": \"ADR-02\",\n16963:      \"source_path\": \"ADR-02-router-interface-and-presets.md\",\n16980:      \"source\": \"ADR-02\",\n16981:      \"source_path\": \"ADR-02-router-interface-and-presets.md\",\n16998:      \"source\": \"ADR-02\",\n16999:      \"source_path\": \"ADR-02-router-interface-and-presets.md\",\n17016:      \"source\": \"ADR-02\",\n17017:      \"source_path\": \"ADR-02-router-interface-and-presets.md\",\n17034:      \"source\": \"ADR-02\",\n17035:      \"source_path\": \"ADR-02-router-interface-and-presets.md\",\n17052:      \"source\": \"ADR-02\",\n17053:      \"source_path\": \"ADR-02-router-interface-and-presets.md\",\n17070:      \"source\": \"ADR-02\",\n17071:      \"source_path\": \"ADR-02-router-interface-and-presets.md\",\n17088:      \"source\": \"ADR-02\",\n17089:      \"source_path\": \"ADR-02-router-interface-and-presets.md\","
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -n \"ADR-04\" atlases/hono/atlas.json | head -40",
+        "description": "Find ADR-04 references"
+      },
+      "result_preview": "13:    \"ADR-04-type-inference-to-typed-client.md\": \"c48cd13c3a58c91330dfc7bbc227adddb8d785a559c002707e5ec9d8be6d0564\",\n17532:      \"source\": \"ADR-04\",\n17533:      \"source_path\": \"ADR-04-type-inference-to-typed-client.md\",\n17578:      \"source\": \"ADR-04\",\n17579:      \"source_path\": \"ADR-04-type-inference-to-typed-client.md\",\n17607:      \"source\": \"ADR-04\",\n17608:      \"source_path\": \"ADR-04-type-inference-to-typed-client.md\",\n17636:      \"source\": \"ADR-04\",\n17637:      \"source_path\": \"ADR-04-type-inference-to-typed-client.md\",\n17665:      \"source\": \"ADR-04\",\n17666:      \"source_path\": \"ADR-04-type-inference-to-typed-client.md\",\n17694:      \"source\": \"ADR-04\",\n17695:      \"source_path\": \"ADR-04-type-inference-to-typed-client.md\",\n17724:      \"source\": \"ADR-04\",\n17725:      \"source_path\": \"ADR-04-type-inference-to-typed-client.md\",\n17753:      \"source\": \"ADR-04\",\n17754:      \"source_path\": \"ADR-04-type-inference-to-typed-client.md\",\n17782:      \"source\": \"ADR-04\",\n17783:      \"source_path\": \"ADR-04-type-inference-to-typed-client.md\",\n17812:      \"source\": \"ADR-04\",\n17813:      \"source_path\": \"ADR-04-type-inference-to-typed-client.md\",\n17841:      \"source\": \"ADR-04\",\n17842:      \"source_path\": \"ADR-04-type-inference-to-typed-client.md\",\n17870:      \"source\": \"ADR-04\",\n17871:      \"source_path\": \"ADR-04-type-inference-to-typed-client.md\",\n17899:      \"source\": \"ADR-04\",\n17900:      \"source_path\": \"ADR-04-type-inference-to-typed-client.md\",\n17928:      \"source\": \"ADR-04\",\n17929:      \"source_path\": \"ADR-04-type-inference-to-typed-client.md\",\n17959:      \"source\": \"ADR-04\",\n17960:      \"source_path\": \"ADR-04-type-inference-to-typed-client.md\",\n17989:      \"source\": \"ADR-04\",\n17990:      \"source_path\": \"ADR-04-type-inference-to-typed-client.md\",\n18018:      \"source\": \"ADR-04\",\n18019:      \"source_path\": \"ADR-04-type-inference-to-typed-client.md\",\n18047:      \"source\": \"ADR-04\",\n18048:      \"source_path\": \"ADR-04-type-inference-to-typed-client.md\",\n18076:      \"source\": \"ADR-04\",\n18077:      \"source_path\": \"ADR-04-type-inference-to-typed-client.md\","
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "C:\\CodeWork\\ContextAtlas-benchmarks\\atlases\\hono\\atlas.json",
+        "offset": 17530,
+        "limit": 350
+      },
+      "result_preview": "17530\t    },\n17531\t    {\n17532\t      \"source\": \"ADR-04\",\n17533\t      \"source_path\": \"ADR-04-type-inference-to-typed-client.md\",\n17534\t      \"source_sha\": \"c48cd13c3a58c91330dfc7bbc227adddb8d785a559c002707e5ec9d8be6d0564\",\n17535\t      \"severity\": \"hard\",\n17536\t      \"claim\": \"Path patterns must propagate into handler Context via MergePath so `c.req.param(name)` is typed from the pattern, including nested apps via `.basePath()` and `.route()`.\",\n17537\t      \"rationale\": \"Without propagation, handler param typing collapses.\",\n17538\t      \"excerpt\": \"`MergePath<BasePath, P>` carries the route pattern into `Context<E, P, I>`\",\n17539\t      \"symbol_ids\": [\n17540\t        \"sym:ts:benchmarks/routers-deno/src/bench.mts:route\",\n17541\t        \"sym:ts:benchmarks/routers-deno/src/find-my-way.mts:route\",\n17542\t        \"sym:ts:benchmarks/routers-deno/src/koa-router.mts:route\",\n17543\t        \"sym:ts:benchmarks/routers-deno/src/koa-tree-router.mts:route\",\n17544\t        \"sym:ts:benchmarks/routers-deno/src/medley-router.mts:route\",\n17545\t        \"sym:ts:benchmarks/routers-deno/src/trek-router.mts:route\",\n17546\t        \"sym:ts:benchmarks/routers/src/bench.mts:route\",\n17547\t        \"sym:ts:benchmarks/routers/src/express.mts:route\",\n17548\t        \"sym:ts:benchmarks/routers/src/find-my-way.mts:route\",\n17549\t        \"sym:ts:benchmarks/routers/src/koa-router.mts:route\",\n17550\t        \"sym:ts:benchmarks/routers/src/koa-tree-router.mts:route\",\n17551\t        \"sym:ts:benchmarks/routers/src/medley-router.mts:route\",\n17552\t        \"sym:ts:benchmarks/routers/src/memoirist.mts:route\",\n17553\t        \"sym:ts:benchmarks/routers/src/radix3.mts:route\",\n17554\t        \"sym:ts:benchmarks/routers/src/rou3.mts:route\",\n17555\t        \"sym:ts:benchmarks/routers/src/trek-router.mts:route\",\n17556\t        \"sym:ts:src/client/client.ts:createProxy\",\n17557\t        \"sym:ts:src/client/client.ts:hc\",\n17558\t        \"sym:ts:src/client/types.ts:Client\",\n17559\t        \"sym:ts:src/context.ts:Context\",\n17560\t        \"sym:ts:src/helper/route/index.ts:basePath\",\n17561\t        \"sym:ts:src/hono-base.ts:Hono\",\n17562\t        \"sym:ts:src/hono.ts:Hono\",\n17563\t        \"sym:ts:src/jsx/context.ts:Context\",\n17564\t        \"sym:ts:src/jsx/dom/render.ts:Context\",\n17565\t        \"sym:ts:src/middleware/cache/index.test.ts:Context\",\n17566\t        \"sym:ts:src/preset/quick.ts:Hono\",\n17567\t        \"sym:ts:src/preset/tiny.ts:Hono\",\n17568\t        \"sym:ts:src/router/reg-exp-router/node.ts:Context\",\n17569\t        \"sym:ts:src/types.ts:HandlerInterface\",\n17570\t        \"sym:ts:src/types.ts:Input\",\n17571\t        \"sym:ts:src/types.ts:MergePath\",\n17572\t        \"sym:ts:src/types.ts:Schema\",\n17573\t        \"sym:ts:src/types.ts:ToSchema\",\n17574\t        \"sym:ts:src/validator/validator.ts:validator\"\n17575\t      ]\n17576\t    },\n17577\t    {\n17578\t      \"source\": \"ADR-04\",\n17579\t      \"source_path\": \"ADR-04-type-inference-to-typed-client.md\",\n17580\t      \"source_sha\": \"c48cd13c3a58c91330dfc7bbc227adddb8d785a559c002707e5ec9d8be6d0564\",\n17581\t      \"severity\": \"hard\",\n17582\t      \"claim\": \"Adding a route-level feature between the path and handler must extend HandlerInterface overloads for every arity, not just the single-handler overload.\",\n17583\t      \"rationale\": \"Adding only to single-handler overload leaves multi-handler variants broken — a regression.\",\n17584\t      \"excerpt\": \"Adding it to only the single-handler overload leaves the multi-handler variants broken and is a regression per the rule above.\",\n17585\t      \"symbol_ids\": [\n17586\t        \"sym:ts:src/client/client.ts:createProxy\",\n17587\t        \"sym:ts:src/client/client.ts:hc\",\n17588\t        \"sym:ts:src/client/types.ts:Client\",\n17589\t        \"sym:ts:src/context.ts:Context\",\n17590\t        \"sym:ts:src/hono-base.ts:Hono\",\n17591\t        \"sym:ts:src/hono.ts:Hono\",\n17592\t        \"sym:ts:src/jsx/context.ts:Context\",\n17593\t        \"sym:ts:src/jsx/dom/render.ts:Context\",\n17594\t        \"sym:ts:src/middleware/cache/index.test.ts:Context\",\n17595\t        \"sym:ts:src/preset/quick.ts:Hono\",\n17596\t        \"sym:ts:src/preset/tiny.ts:Hono\",\n17597\t        \"sym:ts:src/router/reg-exp-router/node.ts:Context\",\n17598\t        \"sym:ts:src/types.ts:HandlerInterface\",\n17599\t        \"sym:ts:src/types.ts:Input\",\n17600\t        \"sym:ts:src/types.ts:MergePath\",\n17601\t        \"sym:ts:src/types.ts:Schema\",\n17602\t        \"sym:ts:src/types.ts:ToSchema\",\n17603\t        \"sym:ts:src/validator/validator.ts:validator\"\n17604\t      ]\n17605\t    },\n17606\t    {\n17607\t      \"source\": \"ADR-04\",\n17608\t      \"source_path\": \"ADR-04-type-inference-to-typed-client.md\",\n17609\t      \"source_sha\": \"c48cd13c3a58c91330dfc7bbc227adddb8d785a559c002707e5ec9d8be6d0564\",\n17610\t      \"severity\": \"context\",\n17611\t      \"claim\": \"Alternatives (OpenAPI codegen, runtime schema introspection, explicit route type annotations) were rejected due to drift, runtime dependencies, or verbosity.\",\n17612\t      \"rationale\": \"Documents why the no-codegen typeof-app approach was chosen.\",\n17613\t      \"excerpt\": \"Alternatives conside\n\n[truncated: 14888 additional bytes not shown]"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -n \"src/preset/quick.ts:Hono\\|src/preset/tiny.ts:Hono\\|src/preset/.*Hono\" atlases/hono/atlas.json | head -8",
+        "description": "Find preset Hono definitions"
+      },
+      "result_preview": "12163:      \"id\": \"sym:ts:src/preset/quick.ts:Hono\",\n12190:      \"id\": \"sym:ts:src/preset/tiny.ts:Hono\",\n16528:        \"sym:ts:src/preset/quick.ts:Hono\",\n16529:        \"sym:ts:src/preset/tiny.ts:Hono\",\n16550:        \"sym:ts:src/preset/quick.ts:Hono\",\n16551:        \"sym:ts:src/preset/tiny.ts:Hono\",\n16572:        \"sym:ts:src/preset/quick.ts:Hono\",\n16573:        \"sym:ts:src/preset/tiny.ts:Hono\","
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "C:\\CodeWork\\ContextAtlas-benchmarks\\atlases\\hono\\atlas.json",
+        "offset": 12160,
+        "limit": 40
+      },
+      "result_preview": "INTERRUPTED: caps tripped before tool_result received"
+    }
+  ],
+  "diagnostics": {
+    "claudeCodeVersion": "2.1.118",
+    "terminalReason": "sigterm_capped",
+    "modelUsage": {
+      "claude-opus-4-7": {
+        "inputTokens": 33,
+        "outputTokens": 1196,
+        "cacheReadInputTokens": 166601,
+        "cacheCreationInputTokens": 40425
+      }
+    }
+  },
+  "cost_usd": 0.090195,
+  "written_at": "2026-04-23T16:40:14.978Z"
+}

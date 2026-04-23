@@ -1,0 +1,107 @@
+{
+  "prompt_id": "h5-hono-generics",
+  "repo": "hono",
+  "condition": "alpha",
+  "target_symbol": "Hono",
+  "bucket": "tie",
+  "metrics": {
+    "tool_calls": 11,
+    "input_tokens": 40694,
+    "output_tokens": 2455,
+    "total_tokens": 43149,
+    "wall_clock_ms": 36305
+  },
+  "capped": null,
+  "answer": "I now have a clear picture. Here's a summary of downstream types that would need updating if you change the `Hono` class's type parameters (`E extends Env`, `S extends Schema`, `BasePath extends string`):\n\n## Direct Subclasses / Re-definitions (`extends HonoBase<E, S, BasePath>`)\n\n1. **`src/hono.ts`** — `Hono` class itself extends `HonoBase<E, S, BasePath>`. Since the actual implementation sits in `HonoBase`, changing either must be kept in sync.\n2. **`src/hono-base.ts`** — `HonoBase` class (lines 98–103), which has an extra `CurrentPath extends string = BasePath` parameter. Any field types like `HandlerInterface<E, ..., S, BasePath, CurrentPath>`, `OnHandlerInterface<E, S, BasePath>`, `MiddlewareHandlerInterface<E, S, BasePath>`, and `HonoOptions<E>` would need updates.\n3. **`src/preset/tiny.ts`** — re-declares `Hono` extending `HonoBase<E, S, BasePath>`.\n4. **`src/preset/quick.ts`** — re-declares `Hono` extending `HonoBase<E, S, BasePath>`.\n\n## Types That Infer From `HonoBase` / `Hono`\n\n5. **`src/types.ts` (line 2447)** — `ExtractSchema<T>` uses `T extends HonoBase<infer _, infer S, any, any>` (note: 4 args, matching `HonoBase` including `CurrentPath`).\n6. **`src/client/types.ts`**:\n   - Line 312: `Client<T, Prefix>` uses `T extends HonoBase<any, infer S, any>`\n   - Line 359: `ApplyGlobalResponse` uses `App extends HonoBase<infer E, infer _ extends Schema, infer B>` and returns `Hono<E, S, B>`\n   - Line 389: `PickResponseByStatusCode` similarly uses `App extends HonoBase<infer E, infer _ extends Schema, infer B>` and returns `Hono<E, S, B>`\n7. **`src/helper/testing/index.ts`**:\n   - Line 13: `ExtractEnv<T>` uses `T extends Hono<infer E, Schema, string>`\n   - Line 16: `testClient` signature uses `T extends Hono<any, Schema, string>`\n8. **`src/client/client.ts` (line 133)** — `hc` generic constraint: `T extends Hono<any, any, any>`\n\n## Supporting Types in `src/types.ts`\n\nIf you change the *meaning* (not just count) of the parameters, these interfaces will also likely need updates since they share the E/S/BasePath parameters:\n\n- `HandlerInterface<E, M, S, BasePath, CurrentPath>` (line 127)\n- `MiddlewareHandlerInterface<E, S, BasePath>` (line 1080)\n- `OnHandlerInterface<E, S, BasePath>` (line 1457)\n- `HonoOptions<E>` (in `hono-base.ts`)\n- `MergeSchemaPath`, `MergePath`, `BlankEnv`, `BlankSchema` — defaults and path-merging used in return types of the handler interfaces.\n\n## Test files\n\n- **`src/hono.test.ts`** (line 3579) — `class ExtendedHono extends Hono {}` — would compile-break if defaults change incompatibly.\n\n### Recommendation\n\nIf you're only adding a new optional type parameter at the end with a sensible default, the blast radius is small — mostly `HonoBase` and the inferring types in `client/types.ts`, `types.ts` (`ExtractSchema`), and `helper/testing/index.ts`. If you reorder or change semantics of `E`, `S`, or `BasePath`, every item listed above needs review.",
+  "trace": [
+    {
+      "tool": "Glob",
+      "args": {
+        "pattern": "**/hono-base.ts"
+      },
+      "result_preview": "src/hono-base.ts"
+    },
+    {
+      "tool": "Glob",
+      "args": {
+        "pattern": "**/hono.ts"
+      },
+      "result_preview": "src/hono.ts\nbenchmarks/jsx/src/react-jsx/hono.ts\nbenchmarks/jsx/src/hono.ts\nbenchmarks/deno/hono.ts"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "src/hono.ts"
+      },
+      "result_preview": "     1\timport { HonoBase } from './hono-base'\n     2\timport type { HonoOptions } from './hono-base'\n     3\timport { RegExpRouter } from './router/reg-exp-router'\n     4\timport { SmartRouter } from './router/smart-router'\n     5\timport { TrieRouter } from './router/trie-router'\n     6\timport type { BlankEnv, BlankSchema, Env, Schema } from './types'\n     7\t\n     8\t/**\n     9\t * The Hono class extends the functionality of the HonoBase class.\n    10\t * It sets up routing and allows for custom options to be passed.\n    11\t *\n    12\t * @template E - The environment type.\n    13\t * @template S - The schema type.\n    14\t * @template BasePath - The base path type.\n    15\t */\n    16\texport class Hono<\n    17\t  E extends Env = BlankEnv,\n    18\t  S extends Schema = BlankSchema,\n    19\t  BasePath extends string = '/',\n    20\t> extends HonoBase<E, S, BasePath> {\n    21\t  /**\n    22\t   * Creates an instance of the Hono class.\n    23\t   *\n    24\t   * @param options - Optional configuration options for the Hono instance.\n    25\t   */\n    26\t  constructor(options: HonoOptions<E> = {}) {\n    27\t    super(options)\n    28\t    this.router =\n    29\t      options.router ??\n    30\t      new SmartRouter({\n    31\t        routers: [new RegExpRouter(), new TrieRouter()],\n    32\t      })\n    33\t  }\n    34\t}"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "src/hono-base.ts"
+      },
+      "result_preview": "     1\t/**\n     2\t * @module\n     3\t * This module is the base module for the Hono object.\n     4\t */\n     5\t\n     6\t/* eslint-disable @typescript-eslint/no-explicit-any */\n     7\timport { compose } from './compose'\n     8\timport { Context } from './context'\n     9\timport type { ExecutionContext } from './context'\n    10\timport type { Router } from './router'\n    11\timport { METHODS, METHOD_NAME_ALL, METHOD_NAME_ALL_LOWERCASE } from './router'\n    12\timport type {\n    13\t  Env,\n    14\t  ErrorHandler,\n    15\t  FetchEventLike,\n    16\t  H,\n    17\t  HandlerInterface,\n    18\t  MergePath,\n    19\t  MergeSchemaPath,\n    20\t  MiddlewareHandler,\n    21\t  MiddlewareHandlerInterface,\n    22\t  Next,\n    23\t  NotFoundHandler,\n    24\t  OnHandlerInterface,\n    25\t  RouterRoute,\n    26\t  Schema,\n    27\t} from './types'\n    28\timport { COMPOSED_HANDLER } from './utils/constants'\n    29\timport { getPath, getPathNoStrict, mergePath } from './utils/url'\n    30\t\n    31\tconst notFoundHandler: NotFoundHandler = (c) => {\n    32\t  return c.text('404 Not Found', 404)\n    33\t}\n    34\t\n    35\tconst errorHandler: ErrorHandler = (err, c) => {\n    36\t  if ('getResponse' in err) {\n    37\t    const res = err.getResponse()\n    38\t    return c.newResponse(res.body, res)\n    39\t  }\n    40\t  console.error(err)\n    41\t  return c.text('Internal Server Error', 500)\n    42\t}\n    43\t\n    44\ttype GetPath<E extends Env> = (request: Request, options?: { env?: E['Bindings'] }) => string\n    45\t\n    46\texport type HonoOptions<E extends Env> = {\n    47\t  /**\n    48\t   * `strict` option specifies whether to distinguish whether the last path is a directory or not.\n    49\t   *\n    50\t   * @see {@link https://hono.dev/docs/api/hono#strict-mode}\n    51\t   *\n    52\t   * @default true\n    53\t   */\n    54\t  strict?: boolean\n    55\t  /**\n    56\t   * `router` option specifies which router to use.\n    57\t   *\n    58\t   * @see {@link https://hono.dev/docs/api/hono#router-option}\n    59\t   *\n    60\t   * @example\n    61\t   * ```ts\n    62\t   * const app = new Hono({ router: new RegExpRouter() })\n    63\t   * ```\n    64\t   */\n    65\t  router?: Router<[H, RouterRoute]>\n    66\t  /**\n    67\t   * `getPath` can handle the host header value.\n    68\t   *\n    69\t   * @see {@link https://hono.dev/docs/api/routing#routing-with-host-header-value}\n    70\t   *\n    71\t   * @example\n    72\t   * ```ts\n    73\t   * const app = new Hono({\n    74\t   *  getPath: (req) =>\n    75\t   *   '/' + req.headers.get('host') + req.url.replace(/^https?:\\/\\/[^/]+(\\/[^?]*)/, '$1'),\n    76\t   * })\n    77\t   *\n    78\t   * app.get('/www1.example.com/hello', () => c.text('hello www1'))\n    79\t   *\n    80\t   * // A following request will match the route:\n    81\t   * // new Request('http://www1.example.com/hello', {\n    82\t   * //  headers: { host: 'www1.example.com' },\n    83\t   * // })\n    84\t   * ```\n    85\t   */\n    86\t  getPath?: GetPath<E>\n    87\t}\n    88\t\n    89\ttype MountOptionHandler = (c: Context) => unknown\n    90\ttype MountReplaceRequest = (originalRequest: Request) => Request\n    91\ttype MountOptions =\n    92\t  | MountOptionHandler\n    93\t  | {\n    94\t      optionHandler?: MountOptionHandler\n    95\t      replaceRequest?: MountReplaceRequest | false\n    96\t    }\n    97\t\n    98\tclass Hono<\n    99\t  E extends Env = Env,\n   100\t  S extends Schema = {},\n   101\t  BasePath extends string = '/',\n   102\t  CurrentPath extends string = BasePath,\n   103\t> {\n   104\t  get!: HandlerInterface<E, 'get', S, BasePath, CurrentPath>\n   105\t  post!: HandlerInterface<E, 'post', S, BasePath, CurrentPath>\n   106\t  put!: HandlerInterface<E, 'put', S, BasePath, CurrentPath>\n   107\t  delete!: HandlerInterface<E, 'delete', S, BasePath, CurrentPath>\n   108\t  options!: HandlerInterface<E, 'options', S, BasePath, CurrentPath>\n   109\t  patch!: HandlerInterface<E, 'patch', S, BasePath, CurrentPath>\n   110\t  all!: HandlerInterface<E, 'all', S, BasePath, CurrentPath>\n   111\t  on: OnHandlerInterface<E, S, BasePath>\n   112\t  use: MiddlewareHandlerInterface<E, S, BasePath>\n   113\t\n   114\t  /*\n   115\t    This class is like an abstract class and does not have a router.\n   116\t    To use it, inherit the class and implement router in the constructor.\n   117\t  */\n   118\t  router!: Router<[H, RouterRoute]>\n   119\t  readonly getPath: GetPath<E>\n   120\t  // Cannot use `#` because it requires visibility at JavaScript runtime.\n   121\t  private _basePath: string = '/'\n   122\t  #path: string = '/'\n   123\t\n   124\t  routes: RouterRoute[] = []\n   125\t\n   126\t  constructor(options: HonoOptions<E> = {}) {\n   127\t    // Implementation of app.get(...handlers[]) or app.get(path, ...handlers[])\n   128\t    const allMethods = [...METHODS, METHOD_NAME_ALL_LOWERCASE]\n   129\t    allMethods.forEach((method) => {\n   130\t      this[method] = (args1: string | H, ...args: H[]) => {\n   131\t        if (typeof args1 === 'string') {\n   132\t          this.#path = args1\n   133\t        } else {\n   134\t          this.#addRoute(method, this.#path, args1)\n   135\t        }\n   13\n\n[truncated: 14854 additional bytes not shown]"
+    },
+    {
+      "tool": "Grep",
+      "args": {
+        "pattern": "export (type|interface) (HandlerInterface|OnHandlerInterface|MiddlewareHandlerInterface|Schema|Env|BlankEnv|BlankSchema|MergeSchemaPath|MergePath|RouterRoute|HonoOptions|HonoBase)",
+        "path": "src/types.ts",
+        "output_mode": "content"
+      },
+      "result_preview": "29:export type BlankEnv = {}\r\n30:export type Env = {\r\n48:export type BlankSchema = {}\r\n57:export interface RouterRoute {\r\n127:export interface HandlerInterface<\r\n1080:export interface MiddlewareHandlerInterface<\r\n1457:export interface OnHandlerInterface<\r\n2241:export type Schema = {\r\n2273:export type MergeSchemaPath<OrigSchema extends Schema, SubPath extends string> = {\r\n2320:export type MergePath<A extends string, B extends string> = B extends ''\r\n"
+    },
+    {
+      "tool": "Grep",
+      "args": {
+        "pattern": "extends HonoBase|extends Hono\\b|: Hono&lt;|Hono\\&lt;",
+        "path": "src",
+        "output_mode": "content"
+      },
+      "result_preview": "C:\\CodeWork\\ContextAtlas-benchmarks\\repos\\hono\\src\\hono.ts:20:> extends HonoBase<E, S, BasePath> {\r\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\hono\\src\\hono.test.ts:3579:  class ExtendedHono extends Hono {\r\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\hono\\src\\preset\\tiny.ts:15:> extends HonoBase<E, S, BasePath> {\r\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\hono\\src\\preset\\quick.ts:17:> extends HonoBase<E, S, BasePath> {\r\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\hono\\src\\client\\types.ts:312:  T extends HonoBase<any, infer S, any>\r\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\hono\\src\\client\\types.ts:359:  App extends HonoBase<infer E, infer _ extends Schema, infer B>\r\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\hono\\src\\client\\types.ts:389:  App extends HonoBase<infer E, infer _ extends Schema, infer B>\r\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\hono\\src\\helper\\testing\\index.ts:13:type ExtractEnv<T> = T extends Hono<infer E, Schema, string> ? E : never\r\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\hono\\src\\helper\\testing\\index.ts:16:export const testClient = <T extends Hono<any, Schema, string>>(\r\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\hono\\src\\client\\client.ts:133:export const hc = <T extends Hono<any, any, any>, Prefix extends string = string>(\r\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\hono\\src\\types.ts:2448:  T extends HonoBase<infer _, infer S, any, any> ? S : never\r\n"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "src/preset/tiny.ts"
+      },
+      "result_preview": "     1\t/**\n     2\t * @module\n     3\t * The preset that uses `PatternRouter`.\n     4\t */\n     5\t\n     6\timport { HonoBase } from '../hono-base'\n     7\timport type { HonoOptions } from '../hono-base'\n     8\timport { PatternRouter } from '../router/pattern-router'\n     9\timport type { BlankEnv, BlankSchema, Env, Schema } from '../types'\n    10\t\n    11\texport class Hono<\n    12\t  E extends Env = BlankEnv,\n    13\t  S extends Schema = BlankSchema,\n    14\t  BasePath extends string = '/',\n    15\t> extends HonoBase<E, S, BasePath> {\n    16\t  constructor(options: HonoOptions<E> = {}) {\n    17\t    super(options)\n    18\t    this.router = new PatternRouter()\n    19\t  }\n    20\t}"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "src/preset/quick.ts"
+      },
+      "result_preview": "     1\t/**\n     2\t * @module\n     3\t * The preset that uses `LinearRouter`.\n     4\t */\n     5\t\n     6\timport { HonoBase } from '../hono-base'\n     7\timport type { HonoOptions } from '../hono-base'\n     8\timport { LinearRouter } from '../router/linear-router'\n     9\timport { SmartRouter } from '../router/smart-router'\n    10\timport { TrieRouter } from '../router/trie-router'\n    11\timport type { BlankEnv, BlankSchema, Env, Schema } from '../types'\n    12\t\n    13\texport class Hono<\n    14\t  E extends Env = BlankEnv,\n    15\t  S extends Schema = BlankSchema,\n    16\t  BasePath extends string = '/',\n    17\t> extends HonoBase<E, S, BasePath> {\n    18\t  constructor(options: HonoOptions<E> = {}) {\n    19\t    super(options)\n    20\t    this.router = new SmartRouter({\n    21\t      routers: [new LinearRouter(), new TrieRouter()],\n    22\t    })\n    23\t  }\n    24\t}"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "src/types.ts",
+        "offset": 2440,
+        "limit": 20
+      },
+      "result_preview": "  2440\t\n  2441\t////////////////////////////////////////\n  2442\t//////                            //////\n  2443\t//////         Utilities          //////\n  2444\t//////                            //////\n  2445\t////////////////////////////////////////\n  2446\t\n  2447\texport type ExtractSchema<T> = UnionToIntersection<\n  2448\t  T extends HonoBase<infer _, infer S, any, any> ? S : never\n  2449\t>\n  2450\t\n  2451\texport type ExtractSchemaForStatusCode<T, Status extends number> = {\n  2452\t  [Path in keyof ExtractSchema<T>]: {\n  2453\t    [Method in keyof ExtractSchema<T>[Path]]: Extract<\n  2454\t      ExtractSchema<T>[Path][Method],\n  2455\t      { status: Status }\n  2456\t    >\n  2457\t  }\n  2458\t}\n  2459\t"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "src/client/types.ts",
+        "offset": 300,
+        "limit": 100
+      },
+      "result_preview": "   300\t  ? PathToChain<Prefix, P, E, Path>\n   301\t  : Path extends `${infer P}/${infer R}`\n   302\t    ? { [K in P]: PathToChain<Prefix, R, E, Original> }\n   303\t    : {\n   304\t        [K in Path extends '' ? 'index' : Path]: ClientRequest<\n   305\t          Prefix,\n   306\t          Original,\n   307\t          E extends Record<string, unknown> ? E[Original] : never\n   308\t        >\n   309\t      }\n   310\t\n   311\texport type Client<T, Prefix extends string> =\n   312\t  T extends HonoBase<any, infer S, any>\n   313\t    ? S extends Record<infer K, Schema>\n   314\t      ? K extends string\n   315\t        ? PathToChain<Prefix, K, S>\n   316\t        : never\n   317\t      : never\n   318\t    : never\n   319\t\n   320\texport type Callback = (opts: CallbackOptions) => unknown\n   321\t\n   322\tinterface CallbackOptions {\n   323\t  path: string[]\n   324\t  // eslint-disable-next-line @typescript-eslint/no-explicit-any\n   325\t  args: any[]\n   326\t}\n   327\t\n   328\texport type ObjectType<T = unknown> = {\n   329\t  [key: string]: T\n   330\t}\n   331\t\n   332\ttype GlobalResponseDefinition = {\n   333\t  [S in StatusCode]?: {\n   334\t    [F in KnownResponseFormat]?: unknown\n   335\t  }\n   336\t}\n   337\t\n   338\ttype ToEndpoints<Def extends GlobalResponseDefinition, R> = {\n   339\t  [S in keyof Def & StatusCode]: {\n   340\t    [F in keyof Def[S] & KnownResponseFormat]: Omit<R, 'output' | 'status' | 'outputFormat'> & {\n   341\t      output: Def[S][F]\n   342\t      status: S\n   343\t      outputFormat: F\n   344\t    }\n   345\t  }[keyof Def[S] & KnownResponseFormat]\n   346\t}[keyof Def & StatusCode]\n   347\t\n   348\ttype ModRoute<R, Def extends GlobalResponseDefinition> = R extends Endpoint\n   349\t  ? R | ToEndpoints<Def, R>\n   350\t  : R\n   351\t\n   352\ttype ModSchema<D, Def extends GlobalResponseDefinition> = {\n   353\t  [K in keyof D]: {\n   354\t    [M in keyof D[K]]: ModRoute<D[K][M], Def>\n   355\t  }\n   356\t}\n   357\t\n   358\texport type ApplyGlobalResponse<App, Def extends GlobalResponseDefinition> =\n   359\t  App extends HonoBase<infer E, infer _ extends Schema, infer B>\n   360\t    ? ModSchema<ExtractSchema<App>, Def> extends infer S extends Schema\n   361\t      ? Hono<E, S, B>\n   362\t      : never\n   363\t    : never\n   364\t\n   365\ttype PickRoute<R, U extends StatusCode> = R extends Endpoint\n   366\t  ? R extends { status: U }\n   367\t    ? R\n   368\t    : never\n   369\t  : R\n   370\t\n   371\ttype PickSchema<D, U extends StatusCode> = {\n   372\t  [K in keyof D]: {\n   373\t    [M in keyof D[K]]: PickRoute<D[K][M], U>\n   374\t  }\n   375\t}\n   376\t\n   377\t/**\n   378\t * Keep only specific status code responses from all routes of an app.\n   379\t * Useful when error responses are handled centrally (e.g., via custom fetch)\n   380\t * and you want the client to only expose success response types.\n   381\t *\n   382\t * @example\n   383\t * ```ts\n   384\t * type AppSuccessOnly = PickResponseByStatusCode<typeof app, 200>\n   385\t * const client = hc<AppSuccessOnly>('http://localhost')\n   386\t * ```\n   387\t */\n   388\texport type PickResponseByStatusCode<App, U extends StatusCode> =\n   389\t  App extends HonoBase<infer E, infer _ extends Schema, infer B>\n   390\t    ? PickSchema<ExtractSchema<App>, U> extends infer S extends Schema\n   391\t      ? Hono<E, S, B>\n   392\t      : never\n   393\t    : never"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "src/helper/testing/index.ts",
+        "offset": 1,
+        "limit": 40
+      },
+      "result_preview": "     1\t/**\n     2\t * @module\n     3\t * Testing Helper for Hono.\n     4\t */\n     5\t\n     6\timport { hc } from '../../client'\n     7\timport type { Client, ClientRequestOptions } from '../../client/types'\n     8\timport type { ExecutionContext } from '../../context'\n     9\timport type { Hono } from '../../hono'\n    10\timport type { Schema } from '../../types'\n    11\timport type { UnionToIntersection } from '../../utils/types'\n    12\t\n    13\ttype ExtractEnv<T> = T extends Hono<infer E, Schema, string> ? E : never\n    14\t\n    15\t// eslint-disable-next-line @typescript-eslint/no-explicit-any\n    16\texport const testClient = <T extends Hono<any, Schema, string>>(\n    17\t  app: T,\n    18\t  Env?: ExtractEnv<T>['Bindings'] | {},\n    19\t  executionCtx?: ExecutionContext,\n    20\t  options?: Omit<ClientRequestOptions, 'fetch'>\n    21\t): UnionToIntersection<Client<T, 'http://localhost'>> => {\n    22\t  const customFetch = (input: RequestInfo | URL, init?: RequestInit) => {\n    23\t    return app.request(input, init, Env, executionCtx)\n    24\t  }\n    25\t\n    26\t  return hc<typeof app, 'http://localhost'>('http://localhost', { ...options, fetch: customFetch })\n    27\t}"
+    }
+  ],
+  "cost_usd": 0.794535,
+  "written_at": "2026-04-23T16:37:24.839Z"
+}

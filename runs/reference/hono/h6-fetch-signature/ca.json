@@ -1,0 +1,54 @@
+{
+  "prompt_id": "h6-fetch-signature",
+  "repo": "hono",
+  "condition": "ca",
+  "target_symbol": "Hono.fetch",
+  "bucket": "trick",
+  "metrics": {
+    "tool_calls": 4,
+    "input_tokens": 12989,
+    "output_tokens": 1285,
+    "total_tokens": 14274,
+    "wall_clock_ms": 20297
+  },
+  "capped": null,
+  "answer": "Here's the signature of Hono's `.fetch` method (from `src/hono-base.ts`, lines 473–479):\n\n```ts\nfetch: (\n  request: Request,\n  Env?: E['Bindings'] | {},\n  executionCtx?: ExecutionContext\n) => Response | Promise<Response>\n```\n\n### Parameters\n\n| Param | Type | Notes |\n|---|---|---|\n| `request` | `Request` | Standard Web Fetch API `Request` object |\n| `Env` | `E['Bindings']` *(optional)* | Environment bindings (e.g. Cloudflare Workers env vars, KV, D1, etc.) |\n| `executionCtx` | `ExecutionContext` *(optional)* | Workers-style execution context, used for `waitUntil` / `passThroughOnException` |\n\nReturns: `Response | Promise<Response>` — so treat it as potentially async.\n\n### Mounting inside another framework\n\nBecause the signature matches the **Web Fetch API handler convention** (`(Request) => Response | Promise<Response>`), you can mount a Hono app almost anywhere that speaks standard Requests/Responses:\n\n```ts\n// Generic pattern — any framework that hands you a Request\nconst honoApp = new Hono()\nhonoApp.get('/hello', (c) => c.text('hi'))\n\n// Bind it, otherwise `this` inside fetch may be lost\nconst handler = honoApp.fetch.bind(honoApp)\n\n// Then delegate:\nexport default {\n  fetch: (req, env, ctx) => handler(req, env, ctx),\n}\n```\n\nA couple of practical notes:\n\n1. **Bind it** (or wrap in an arrow function). `fetch` is defined as an instance property arrow-assigned field, so in practice it retains `this`, but defensive binding is safer when passing it as a callback to another framework's router.\n2. **If the host framework only gives you a `Request`**, you can simply call `honoApp.fetch(request)` — `Env` and `executionCtx` are optional.\n3. **If your host uses Node-style req/res** (Express, Fastify), you'll need an adapter to convert to/from Web `Request`/`Response`. Hono ships `@hono/node-server` with a `getRequestListener(honoApp.fetch)` helper for exactly that.\n4. For testing or sub-path mounting, note that `.request()` (just below `.fetch` in the source) wraps `.fetch` and accepts a URL string — handy but separate from the mounting use case.",
+  "trace": [
+    {
+      "tool": "get_symbol_context",
+      "args": {
+        "symbol": "fetch",
+        "file_hint": "src/hono-base.ts",
+        "depth": "summary"
+      },
+      "result_preview": "ERROR: ERR not_found\n  MESSAGE Symbol 'fetch' not found. Try find_by_intent if you're searching by concept rather than name.\n"
+    },
+    {
+      "tool": "Grep",
+      "args": {
+        "pattern": "fetch[:=]|fetch\\s*\\(",
+        "path": "src/hono-base.ts",
+        "output_mode": "content"
+      },
+      "result_preview": "463:   * `.fetch()` will be entry point of your app.\r\n473:  fetch: (\r\n500:      return this.fetch(requestInit ? new Request(input, requestInit) : input, Env, executionCtx)\r\n503:    return this.fetch(\r\n"
+    },
+    {
+      "tool": "Glob",
+      "args": {
+        "pattern": "src/hono-base.*"
+      },
+      "result_preview": "src/hono-base.ts"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "src/hono-base.ts",
+        "offset": 455,
+        "limit": 55
+      },
+      "result_preview": "   455\t        return context.res\n   456\t      } catch (err) {\n   457\t        return this.#handleError(err, c)\n   458\t      }\n   459\t    })()\n   460\t  }\n   461\t\n   462\t  /**\n   463\t   * `.fetch()` will be entry point of your app.\n   464\t   *\n   465\t   * @see {@link https://hono.dev/docs/api/hono#fetch}\n   466\t   *\n   467\t   * @param {Request} request - request Object of request\n   468\t   * @param {Env} Env - env Object\n   469\t   * @param {ExecutionContext} - context of execution\n   470\t   * @returns {Response | Promise<Response>} response of request\n   471\t   *\n   472\t   */\n   473\t  fetch: (\n   474\t    request: Request,\n   475\t    Env?: E['Bindings'] | {},\n   476\t    executionCtx?: ExecutionContext\n   477\t  ) => Response | Promise<Response> = (request, ...rest) => {\n   478\t    return this.#dispatch(request, rest[1], rest[0], request.method)\n   479\t  }\n   480\t\n   481\t  /**\n   482\t   * `.request()` is a useful method for testing.\n   483\t   * You can pass a URL or pathname to send a GET request.\n   484\t   * app will return a Response object.\n   485\t   * ```ts\n   486\t   * test('GET /hello is ok', async () => {\n   487\t   *   const res = await app.request('/hello')\n   488\t   *   expect(res.status).toBe(200)\n   489\t   * })\n   490\t   * ```\n   491\t   * @see https://hono.dev/docs/api/hono#request\n   492\t   */\n   493\t  request = (\n   494\t    input: Request | string | URL,\n   495\t    requestInit?: RequestInit,\n   496\t    Env?: E['Bindings'] | {},\n   497\t    executionCtx?: ExecutionContext\n   498\t  ): Response | Promise<Response> => {\n   499\t    if (input instanceof Request) {\n   500\t      return this.fetch(requestInit ? new Request(input, requestInit) : input, Env, executionCtx)\n   501\t    }\n   502\t    input = input.toString()\n   503\t    return this.fetch(\n   504\t      new Request(\n   505\t        /^https?:\\/\\//.test(input) ? input : `http://localhost${mergePath('/', input)}`,\n   506\t        requestInit\n   507\t      ),\n   508\t      Env,\n   509\t      executionCtx"
+    }
+  ],
+  "cost_usd": 0.29121,
+  "written_at": "2026-04-23T16:43:11.633Z"
+}

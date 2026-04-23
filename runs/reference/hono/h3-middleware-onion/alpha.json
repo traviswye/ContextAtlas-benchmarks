@@ -1,0 +1,62 @@
+{
+  "prompt_id": "h3-middleware-onion",
+  "repo": "hono",
+  "condition": "alpha",
+  "target_symbol": "compose",
+  "bucket": "win",
+  "metrics": {
+    "tool_calls": 5,
+    "input_tokens": 15817,
+    "output_tokens": 1920,
+    "total_tokens": 17737,
+    "wall_clock_ms": 33978
+  },
+  "capped": null,
+  "answer": "Now I have everything I need. Here is the full mechanical picture.\n\n## Where the onion is composed\n\n**`src/compose.ts`** — the entire onion is ~50 lines and is a direct descendant of `koa-compose`. It's called from `src/hono-base.ts` in the `dispatch` method (around line 444) after the router returns matched handlers:\n\n```ts\nconst composed = compose(matchResult[0], this.errorHandler, this.#notFoundHandler)\nconst context = await composed(c)\n```\n\nThere's also a fast-path at line 424: **if there's only one matched handler, Hono skips `compose` entirely** and calls it directly with a synthesized `next` that invokes the not-found handler. This is a perf optimization — no closure chain needed.\n\n## What `next()` is actually doing\n\nLook at `compose.ts` lines 20–72. The trick is there's **no actual chain of wrapped functions** — despite the \"onion\" metaphor, Hono doesn't pre-build nested closures. It uses a single recursive dispatcher plus an index:\n\n```ts\nreturn (context, next) => {\n  let index = -1\n  return dispatch(0)\n\n  async function dispatch(i: number): Promise<Context> {\n    if (i <= index) {\n      throw new Error('next() called multiple times')\n    }\n    index = i\n\n    let handler\n    if (middleware[i]) {\n      handler = middleware[i][0][0]\n      context.req.routeIndex = i\n    } else {\n      handler = (i === middleware.length && next) || undefined\n    }\n\n    if (handler) {\n      try {\n        res = await handler(context, () => dispatch(i + 1))  // ← here\n      } catch (err) { ... }\n    }\n    ...\n  }\n}\n```\n\nMechanically, when your middleware calls `await next()`:\n\n1. **It's calling an arrow function** `() => dispatch(i + 1)` — a fresh one created per call, closing over the current `i`.\n2. That invokes `dispatch(i + 1)`, which looks up `middleware[i+1]` and `await`s it with *its own* freshly minted `next` closure bound to `i+2`.\n3. Because every handler is `await`ed, control doesn't return to the outer middleware's code after `await next()` until the entire inner stack resolves. That's what produces the \"onion\" shape — it's just the normal async call-stack unwinding.\n4. The shared `index` variable in the outer closure is the **guard against double-calling `next()`**: line 33 throws `\"next() called multiple times\"` because once `dispatch(i+1)` runs, `index` is bumped to `i+1`, so a second call from the same middleware would fail the `i <= index` check.\n\n## A few subtleties worth noting\n\n- **Line 46**: `handler = (i === middleware.length && next) || undefined`. When the index runs past the last middleware, if the composed function itself was called with an outer `next` (e.g. nested `compose` from sub-apps), it gets invoked as the terminal step. Otherwise falls through to…\n- **Line 62**: the not-found handler runs only if nothing finalized the context.\n- **Line 67**: `if (res && (context.finalized === false || isError)) context.res = res` — a returned `Response` from a handler becomes `context.res`, but **only if the context wasn't already finalized** (e.g. by `c.json()`) or the response came from the error handler. This is why returning vs. calling `c.json()` both work.\n- **Line 44**: `context.req.routeIndex = i` — tracks position so features that care about \"which handler am I\" (like `c.req.routeIndex`) work.\n- **Error handling** (lines 52–60): `onError` is called inline inside `dispatch`, which means `await next()` in your middleware can *see* the error handler's response as `context.res` — errors don't skip the rest of the onion's unwind phase.\n\nSo to summarize: there's no array of pre-composed wrappers. `next` is just `() => dispatch(i + 1)`, and the onion shape is an emergent property of `await`-ing a recursive dispatcher with a monotonically increasing index.",
+  "trace": [
+    {
+      "tool": "Grep",
+      "args": {
+        "pattern": "compose",
+        "output_mode": "files_with_matches",
+        "glob": "src/**/*.ts"
+      },
+      "result_preview": "C:\\CodeWork\\ContextAtlas-benchmarks\\repos\\hono\\src\\compose.test.ts\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\hono\\src\\compose.ts\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\hono\\src\\hono-base.ts\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\hono\\src\\hono.test.ts\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\hono\\src\\middleware\\combine\\index.ts\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\hono\\src\\utils\\constants.ts\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\hono\\src\\jsx\\dom\\intrinsic-element\\components.ts\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\hono\\src\\middleware\\cache\\index.test.ts\n"
+    },
+    {
+      "tool": "LS",
+      "args": {
+        "path": "."
+      },
+      "result_preview": ".contextatlas/\n.devcontainer/\n.editorconfig\n.git/\n.github/\n.gitignore\n.gitpod.yml\n.prettierrc\n.tool-versions\n.vitest.config/\n.vscode/\nLICENSE\nREADME.md\nbenchmarks/\nbuild/\nbun.lock\nbunfig.toml\ncodecov.yml\ndocs/\neslint.config.mjs\njsr.json\npackage.cjs.json\npackage.json\nperf-measures/\nruntime-tests/\nsrc/\ntsconfig.base.json\ntsconfig.build.json\ntsconfig.json\ntsconfig.spec.json\nvitest.config.ts"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "src/compose.ts"
+      },
+      "result_preview": "     1\timport type { Context } from './context'\n     2\timport type { Env, ErrorHandler, Next, NotFoundHandler } from './types'\n     3\t\n     4\t/**\n     5\t * Compose middleware functions into a single function based on `koa-compose` package.\n     6\t *\n     7\t * @template E - The environment type.\n     8\t *\n     9\t * @param {[[Function, unknown], unknown][] | [[Function]][]} middleware - An array of middleware functions and their corresponding parameters.\n    10\t * @param {ErrorHandler<E>} [onError] - An optional error handler function.\n    11\t * @param {NotFoundHandler<E>} [onNotFound] - An optional not-found handler function.\n    12\t *\n    13\t * @returns {(context: Context, next?: Next) => Promise<Context>} - A composed middleware function.\n    14\t */\n    15\texport const compose = <E extends Env = Env>(\n    16\t  middleware: [[Function, unknown], unknown][] | [[Function]][],\n    17\t  onError?: ErrorHandler<E>,\n    18\t  onNotFound?: NotFoundHandler<E>\n    19\t): ((context: Context, next?: Next) => Promise<Context>) => {\n    20\t  return (context, next) => {\n    21\t    let index = -1\n    22\t\n    23\t    return dispatch(0)\n    24\t\n    25\t    /**\n    26\t     * Dispatch the middleware functions.\n    27\t     *\n    28\t     * @param {number} i - The current index in the middleware array.\n    29\t     *\n    30\t     * @returns {Promise<Context>} - A promise that resolves to the context.\n    31\t     */\n    32\t    async function dispatch(i: number): Promise<Context> {\n    33\t      if (i <= index) {\n    34\t        throw new Error('next() called multiple times')\n    35\t      }\n    36\t      index = i\n    37\t\n    38\t      let res\n    39\t      let isError = false\n    40\t      let handler\n    41\t\n    42\t      if (middleware[i]) {\n    43\t        handler = middleware[i][0][0]\n    44\t        context.req.routeIndex = i\n    45\t      } else {\n    46\t        handler = (i === middleware.length && next) || undefined\n    47\t      }\n    48\t\n    49\t      if (handler) {\n    50\t        try {\n    51\t          res = await handler(context, () => dispatch(i + 1))\n    52\t        } catch (err) {\n    53\t          if (err instanceof Error && onError) {\n    54\t            context.error = err\n    55\t            res = await onError(err, context)\n    56\t            isError = true\n    57\t          } else {\n    58\t            throw err\n    59\t          }\n    60\t        }\n    61\t      } else {\n    62\t        if (context.finalized === false && onNotFound) {\n    63\t          res = await onNotFound(context)\n    64\t        }\n    65\t      }\n    66\t\n    67\t      if (res && (context.finalized === false || isError)) {\n    68\t        context.res = res\n    69\t      }\n    70\t      return context\n    71\t    }\n    72\t  }\n    73\t}"
+    },
+    {
+      "tool": "Grep",
+      "args": {
+        "pattern": "compose",
+        "output_mode": "content",
+        "path": "src/hono-base.ts",
+        "-i": false
+      },
+      "result_preview": "7:import { compose } from './compose'\r\n225:          (await compose([], app.errorHandler)(c, () => r.handler(c, next))).res\r\n423:    // Do not `compose` if it has only one handler\r\n444:    const composed = compose(matchResult[0], this.errorHandler, this.#notFoundHandler)\r\n448:        const context = await composed(c)\r\n"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "src/hono-base.ts",
+        "offset": 415,
+        "limit": 45
+      },
+      "result_preview": "   415\t    const c = new Context(request, {\n   416\t      path,\n   417\t      matchResult,\n   418\t      env,\n   419\t      executionCtx,\n   420\t      notFoundHandler: this.#notFoundHandler,\n   421\t    })\n   422\t\n   423\t    // Do not `compose` if it has only one handler\n   424\t    if (matchResult[0].length === 1) {\n   425\t      let res: ReturnType<H>\n   426\t      try {\n   427\t        res = matchResult[0][0][0][0](c, async () => {\n   428\t          c.res = await this.#notFoundHandler(c)\n   429\t        })\n   430\t      } catch (err) {\n   431\t        return this.#handleError(err, c)\n   432\t      }\n   433\t\n   434\t      return res instanceof Promise\n   435\t        ? res\n   436\t            .then(\n   437\t              (resolved: Response | undefined) =>\n   438\t                resolved || (c.finalized ? c.res : this.#notFoundHandler(c))\n   439\t            )\n   440\t            .catch((err: Error) => this.#handleError(err, c))\n   441\t        : (res ?? this.#notFoundHandler(c))\n   442\t    }\n   443\t\n   444\t    const composed = compose(matchResult[0], this.errorHandler, this.#notFoundHandler)\n   445\t\n   446\t    return (async () => {\n   447\t      try {\n   448\t        const context = await composed(c)\n   449\t        if (!context.finalized) {\n   450\t          throw new Error(\n   451\t            'Context is not finalized. Did you forget to return a Response object or `await next()`?'\n   452\t          )\n   453\t        }\n   454\t\n   455\t        return context.res\n   456\t      } catch (err) {\n   457\t        return this.#handleError(err, c)\n   458\t      }\n   459\t    })()"
+    }
+  ],
+  "cost_usd": 0.381255,
+  "written_at": "2026-04-23T16:26:43.607Z"
+}

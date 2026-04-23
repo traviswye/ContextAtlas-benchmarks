@@ -1,0 +1,45 @@
+{
+  "prompt_id": "h6-fetch-signature",
+  "repo": "hono",
+  "condition": "alpha",
+  "target_symbol": "Hono.fetch",
+  "bucket": "trick",
+  "metrics": {
+    "tool_calls": 3,
+    "input_tokens": 6615,
+    "output_tokens": 950,
+    "total_tokens": 7565,
+    "wall_clock_ms": 14810
+  },
+  "capped": null,
+  "answer": "Here's the signature of Hono's `.fetch` method (from `src/hono-base.ts:473-479`):\n\n```ts\nfetch: (\n  request: Request,\n  Env?: E['Bindings'] | {},\n  executionCtx?: ExecutionContext\n) => Response | Promise<Response>\n```\n\n### Parameters\n\n1. **`request: Request`** – A standard Web [`Request`](https://developer.mozilla.org/en-US/docs/Web/API/Request) object. This is required.\n2. **`Env?`** – Optional environment bindings object (typed via your app's `E['Bindings']` generic). Useful for Cloudflare Workers-style bindings; pass `{}` or omit if unused.\n3. **`executionCtx?: ExecutionContext`** – Optional execution context (e.g., for `waitUntil`/`passThroughOnException` in Workers). Omit in environments that don't have one.\n\n### Return value\n\n`Response | Promise<Response>` — so you should `await` it to be safe.\n\n### Mounting inside another framework\n\nThe signature is intentionally compatible with the standard Web Fetch handler shape, so mounting is usually a one-liner. For example:\n\n```ts\n// Any framework that gives you a Web Request and expects a Web Response\nexport default {\n  fetch(req: Request, env: any, ctx: ExecutionContext) {\n    return app.fetch(req, env, ctx)\n  }\n}\n\n// Or simpler, if you don't need env/ctx:\nsomeFramework.all('*', (req) => app.fetch(req))\n```\n\nIf your host framework doesn't hand you a Web `Request` (e.g., Node's `IncomingMessage`), you'll need to convert it first — or use `app.request(url, init?, env?, ctx?)` which accepts a URL/pathname string and builds the `Request` for you (see lines 493–511). That's handy for testing but also for frameworks that only give you a path.",
+  "trace": [
+    {
+      "tool": "Grep",
+      "args": {
+        "pattern": "fetch",
+        "path": "src/hono-base.ts",
+        "output_mode": "content"
+      },
+      "result_preview": "463:   * `.fetch()` will be entry point of your app.\r\n465:   * @see {@link https://hono.dev/docs/api/hono#fetch}\r\n473:  fetch: (\r\n500:      return this.fetch(requestInit ? new Request(input, requestInit) : input, Env, executionCtx)\r\n503:    return this.fetch(\r\n514:   * `.fire()` automatically adds a global fetch event listener.\r\n533:    addEventListener('fetch', (event: FetchEventLike): void => {\r\n"
+    },
+    {
+      "tool": "Glob",
+      "args": {
+        "pattern": "src/hono*.ts"
+      },
+      "result_preview": "src/hono.ts\nsrc/hono.test.ts\nsrc/hono-base.ts"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "src/hono-base.ts",
+        "offset": 460,
+        "limit": 55
+      },
+      "result_preview": "   460\t  }\n   461\t\n   462\t  /**\n   463\t   * `.fetch()` will be entry point of your app.\n   464\t   *\n   465\t   * @see {@link https://hono.dev/docs/api/hono#fetch}\n   466\t   *\n   467\t   * @param {Request} request - request Object of request\n   468\t   * @param {Env} Env - env Object\n   469\t   * @param {ExecutionContext} - context of execution\n   470\t   * @returns {Response | Promise<Response>} response of request\n   471\t   *\n   472\t   */\n   473\t  fetch: (\n   474\t    request: Request,\n   475\t    Env?: E['Bindings'] | {},\n   476\t    executionCtx?: ExecutionContext\n   477\t  ) => Response | Promise<Response> = (request, ...rest) => {\n   478\t    return this.#dispatch(request, rest[1], rest[0], request.method)\n   479\t  }\n   480\t\n   481\t  /**\n   482\t   * `.request()` is a useful method for testing.\n   483\t   * You can pass a URL or pathname to send a GET request.\n   484\t   * app will return a Response object.\n   485\t   * ```ts\n   486\t   * test('GET /hello is ok', async () => {\n   487\t   *   const res = await app.request('/hello')\n   488\t   *   expect(res.status).toBe(200)\n   489\t   * })\n   490\t   * ```\n   491\t   * @see https://hono.dev/docs/api/hono#request\n   492\t   */\n   493\t  request = (\n   494\t    input: Request | string | URL,\n   495\t    requestInit?: RequestInit,\n   496\t    Env?: E['Bindings'] | {},\n   497\t    executionCtx?: ExecutionContext\n   498\t  ): Response | Promise<Response> => {\n   499\t    if (input instanceof Request) {\n   500\t      return this.fetch(requestInit ? new Request(input, requestInit) : input, Env, executionCtx)\n   501\t    }\n   502\t    input = input.toString()\n   503\t    return this.fetch(\n   504\t      new Request(\n   505\t        /^https?:\\/\\//.test(input) ? input : `http://localhost${mergePath('/', input)}`,\n   506\t        requestInit\n   507\t      ),\n   508\t      Env,\n   509\t      executionCtx\n   510\t    )\n   511\t  }\n   512\t\n   513\t  /**\n   514\t   * `.fire()` automatically adds a global fetch event listener."
+    }
+  ],
+  "cost_usd": 0.170475,
+  "written_at": "2026-04-23T16:42:51.335Z"
+}

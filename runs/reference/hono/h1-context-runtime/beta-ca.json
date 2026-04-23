@@ -1,0 +1,153 @@
+{
+  "prompt_id": "h1-context-runtime",
+  "repo": "hono",
+  "condition": "beta-ca",
+  "target_symbol": "Context",
+  "bucket": "win",
+  "metrics": {
+    "tool_calls": 13,
+    "input_tokens": 16,
+    "output_tokens": 3582,
+    "total_tokens": 67702,
+    "wall_clock_ms": 62433
+  },
+  "capped": null,
+  "answer": "I don't have permission to query the Context Atlas MCP tools directly. Let me check what's locally available.Based on `adrs/hono/ADR-01-web-standards-zero-deps.md` (the \"core on Web Standards, zero deps\" rule) and the `Context` class in `repos/hono/src/context.ts`, here's what is and isn't safe to assume.\n\n## Safe in both Workers and Node (`@hono/node-server`)\n\nThese are built purely on Web Standards (Request/Response/Headers/URL/streams/Web Crypto), which ADR-01 pins as the one substrate every supported runtime agrees on:\n\n- **`c.req`** — `HonoRequest` wrapping a WHATWG `Request`. Always constructed (line 366).\n- **`c.res`** — WHATWG `Response`, lazily created (line 403). Setting it is fine everywhere.\n- **`c.finalized`** — boolean (line 317).\n- **`c.error`** — `Error | undefined` (line 333).\n- **Response helpers**: `c.body()`, `c.text()`, `c.json()`, `c.html()`, `c.redirect()`, `c.notFound()`, `c.newResponse()`, `c.header()`, `c.status()` — all return Web‑Standard `Response`.\n- **Per‑request state**: `c.set()`, `c.get()`, `c.var` (line 546–593). Note values are only present if some middleware earlier in the chain set them — typing via `Variables` doesn't guarantee runtime presence.\n- **Rendering**: `c.render()`, `c.setRenderer()`, `c.setLayout()`, `c.getLayout()`.\n\n## Present but conditional\n\n- **`c.env`** — field is always defined (initialized to `{}` on line 315), but its *contents* are whatever the adapter passes in. On Cloudflare Workers this is your `Bindings` (KV, D1, R2, secrets); on `@hono/node-server` it's generally `{}` unless you populate it yourself. **Don't assume any specific binding exists at runtime** — read defensively or validate at startup.\n\n## Will throw if you touch it on the wrong runtime\n\n- **`c.event`** (line 377) — throws `\"This context has no FetchEvent\"` unless the execution context was constructed with a `respondWith` (essentially Service Worker style). Do **not** use in portable handlers.\n- **`c.executionCtx`** (line 391) — throws `\"This context has no ExecutionContext\"` if the adapter didn't pass one. Workers always provides it (third arg to `app.fetch(request, env, ctx)` per ADR-01 §Decision 3). `@hono/node-server` does not populate it in general. So **`c.executionCtx.waitUntil(...)` is not portable** — gate it, or push background work into a Node‑side mechanism.\n\n## Practical rule for a portable handler\n\nStick to `c.req`, the response helpers, `c.set`/`c.get`/`c.var`, and `c.header`/`c.status`. Treat `c.env.*`, `c.executionCtx`, and `c.event` as capabilities you must either detect or provide via your own adapter shim. That's exactly the split ADR-01 enforces: core = Web Standards everywhere; anything runtime‑shaped lives behind `src/adapter/<runtime>/**` and is passed in at `app.fetch(request, env, ctx)` time.",
+  "trace": [
+    {
+      "tool": "mcp__contextatlas__find_by_intent",
+      "args": {
+        "query": "What properties and methods are guaranteed to be available on Hono Context at runtime across all adapters",
+        "limit": 8
+      },
+      "result_preview": "Claude requested permissions to use mcp__contextatlas__find_by_intent, but you haven't granted it yet."
+    },
+    {
+      "tool": "mcp__contextatlas__find_by_intent",
+      "args": {
+        "query": "Context runtime environment bindings Cloudflare Workers Node compatibility",
+        "limit": 8
+      },
+      "result_preview": "Claude requested permissions to use mcp__contextatlas__find_by_intent, but you haven't granted it yet."
+    },
+    {
+      "tool": "mcp__contextatlas__find_by_intent",
+      "args": {
+        "query": "What properties and methods are guaranteed to be available on Hono Context at runtime across all adapters",
+        "limit": 8
+      },
+      "result_preview": "Claude requested permissions to use mcp__contextatlas__find_by_intent, but you haven't granted it yet."
+    },
+    {
+      "tool": "mcp__contextatlas__get_symbol_context",
+      "args": {
+        "symbol": "Context",
+        "depth": "deep"
+      },
+      "result_preview": "Claude requested permissions to use mcp__contextatlas__get_symbol_context, but you haven't granted it yet."
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "ls atlases/hono/",
+        "description": "List hono atlas directory contents"
+      },
+      "result_preview": "atlas.json\nindex.db\nindex.db-shm\nindex.db-wal"
+    },
+    {
+      "tool": "mcp__contextatlas__find_by_intent",
+      "args": {
+        "query": "Hono Context properties available at runtime across adapters Cloudflare Workers Node",
+        "limit": 8
+      },
+      "result_preview": "Claude requested permissions to use mcp__contextatlas__find_by_intent, but you haven't granted it yet."
+    },
+    {
+      "tool": "mcp__contextatlas__get_symbol_context",
+      "args": {
+        "symbol": "Context",
+        "depth": "deep"
+      },
+      "result_preview": "Claude requested permissions to use mcp__contextatlas__get_symbol_context, but you haven't granted it yet."
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "ls C:/CodeWork/ContextAtlas-benchmarks/ 2>/dev/null | head -30; echo \"---\"; find . -type d -name \"hono\" -not -path \"*/node_modules/*\" 2>/dev/null | head -5",
+        "description": "List repo root and find hono source directories"
+      },
+      "result_preview": "CLAUDE.md\nLICENSE\nREADME.md\nRUBRIC.md\nSTEP-7-PLAN.md\nadrs\natlases\nconfigs\nnode_modules\npackage-lock.json\npackage.json\nprompts\nrepos\nresearch\nruns\nscripts\nsrc\ntsconfig.json\nvitest.config.ts\n---\n./adrs/hono\n./atlases/hono\n./repos/hono\n./runs/2026-04-23T01-20-18-813Z/hono\n./runs/2026-04-23T15-06-43-625Z/hono"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "ls repos/hono/src/ 2>/dev/null | head -30; echo \"---\"; ls repos/hono/src/context* 2>/dev/null",
+        "description": "List hono source directory contents"
+      },
+      "result_preview": "adapter\nclient\ncompose.test.ts\ncompose.ts\ncontext.test.ts\ncontext.ts\nhelper\nhono-base.ts\nhono.test.ts\nhono.ts\nhttp-exception.test.ts\nhttp-exception.ts\nindex.ts\njsx\nmiddleware\npreset\nrequest\nrequest.test.ts\nrequest.ts\nrouter\nrouter.ts\ntypes.test.ts\ntypes.ts\nutils\nvalidator\n---\nrepos/hono/src/context.test.ts\nrepos/hono/src/context.ts"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "ls adrs/hono/ 2>/dev/null",
+        "description": "List hono ADR directory"
+      },
+      "result_preview": "ADR-01-web-standards-zero-deps.md\nADR-02-router-interface-and-presets.md\nADR-03-onion-middleware-compose.md\nADR-04-type-inference-to-typed-client.md\nADR-05-dual-jsx-backends.md"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "C:/CodeWork/ContextAtlas-benchmarks/adrs/hono/ADR-01-web-standards-zero-deps.md"
+      },
+      "result_preview": "1\t---\n2\tid: ADR-01\n3\ttitle: Web Standards as core abstraction; zero runtime dependencies\n4\tstatus: accepted\n5\tseverity: hard\n6\tsymbols:\n7\t  - hono\n8\t  - Hono\n9\t  - HonoBase\n10\t  - Context\n11\t  - HonoRequest\n12\t  - fetch\n13\t  - adapter\n14\t---\n15\t\n16\t# ADR-01: Web Standards as core abstraction; zero runtime dependencies\n17\t\n18\t## Context\n19\t\n20\tHono targets nine-plus JavaScript runtimes — Cloudflare Workers, Cloudflare\n21\tPages, Deno, Bun, AWS Lambda, Lambda@Edge, Vercel Edge Functions, Netlify\n22\tFunctions, Service Workers, and Node.js via the separate `@hono/node-server`\n23\tpackage. These runtimes disagree on file I/O, crypto primitives, stream\n24\timplementations, HTTP server shapes, and environment/secret access. They\n25\tconverge on one substrate: the WHATWG Fetch standard\n26\t(`Request`, `Response`, `Headers`, `URL`, `URLSearchParams`, `fetch`,\n27\t`ReadableStream`, `TextEncoder`/`TextDecoder`, `AbortController`, and\n28\t`globalThis.crypto` for Web Crypto).\n29\t\n30\tTwo failure modes follow from ignoring this convergence:\n31\t\n32\t1. **Runtime-specific imports in core**. A `import { readFile } from 'node:fs'`\n33\t   anywhere in `src/hono.ts` or `src/context.ts` makes the framework fail to\n34\t   load on Cloudflare Workers at startup and silently pull polyfills on Deno.\n35\t2. **Runtime dependencies in core**. A dependency that works on Node may not\n36\t   exist on Workers. A polyfill dep bloats every bundle and expands the supply\n37\t   chain. Users install `hono` expecting portability and zero bundle cost.\n38\t\n39\tBoth failures share a root cause: core code assumed something other than the\n40\tWeb Standard substrate.\n41\t\n42\t## Decision\n43\t\n44\t1. **Core code is built entirely on Web Standard APIs.** Permitted primitives:\n45\t   `Request`, `Response`, `Headers`, `URL`, `URLSearchParams`, `fetch`,\n46\t   `ReadableStream` / `WritableStream` / `TransformStream`, `TextEncoder` /\n47\t   `TextDecoder`, `globalThis.crypto` (Web Crypto), `AbortController` /\n48\t   `AbortSignal`, `Blob`, `FormData`. No runtime-specific globals or imports.\n49\t\n50\t2. **The `hono` package has zero runtime dependencies.** `package.json` lists\n51\t   only `devDependencies`. New dependencies in the `dependencies` field are\n52\t   rejected. Dev-time packages (TypeScript, vitest, eslint, `@types/*`) are\n53\t   permitted because they do not ship.\n54\t\n55\t3. **Runtime-specific integration lives in `src/adapter/<runtime>/**`.** Each\n56\t   adapter translates the runtime's native event/request shape into a Web\n57\t   Standard `Request`, invokes `app.fetch(request, env, ctx)` on core, and\n58\t   shapes the returned `Response` back into whatever the runtime expects.\n59\t\n60\t4. **\"Core\" is precisely defined**: `src/hono.ts`, `src/hono-base.ts`,\n61\t   `src/context.ts`, `src/compose.ts`, `src/request.ts`, `src/types.ts`,\n62\t   `src/router/**`, `src/validator/**`, `src/client/**`, and `src/utils/**`.\n63\t   Middleware in `src/middleware/**` must prefer Web Standards; where a\n64\t   runtime-specific import is unavoidable it must be cross-runtime in practice\n65\t   (the single current example is `node:async_hooks` for `AsyncLocalStorage`\n66\t   in `src/middleware/context-storage/index.ts`, now supported by Node, Bun,\n67\t   Deno, and Cloudflare Workers).\n68\t\n69\t## Rationale\n70\t\n71\t- **Portability is the product.** Hono's tagline is \"Web framework built on\n72\t  Web Standards.\" The zero-dep, no-runtime-imports combination is what makes\n73\t  that tagline load-bearing rather than aspirational. A user can reasonably\n74\t  expect `app.fetch(request, env, ctx)` to run unmodified on any of the\n75\t  supported runtimes because no piece of core depends on anything outside\n76\t  the Web Standard substrate.\n77\t\n78\t- **Bundle size compounds.** Every transitive dep is shipped by bundlers by\n79\t  default. `hono/tiny` advertises sub-12 kB; that only holds if core brings\n80\t  nothing along. On Workers, where the 1 MB compressed bundle limit is real,\n81\t  a single careless dep can blow the budget for the entire application.\n82\t\n83\t- **Trust and supply chain.** Users running on Workers or Lambda Edge operate\n84\t  in environments where auditing transitive dependencies is expensive or\n85\t  impossible. `npm install hono` adding nothing but `hono` itself is a\n86\t  security property, not a nicety.\n87\t\n88\t- **Single `fetch` entry point.** Because core only traffics in Web Standards,\n89\t  the same `app.fetch(request, env, ctx)` signature works everywhere. The\n90\t  adapter's job is to produce that call — not to modify the app's behavior.\n91\t\n92\t- **Mechanical enforcement.** Both rules can be checked automatically: any\n93\t  non-empty `dependencies` field fails CI; any `node:` import outside\n94\t  `src/adapter/**` (with the `node:async_hooks` exception) fails a grep-based\n95\t  lint. Reviewers don't need judgment to catch violations.\n96\t\n97\t## Consequences\n98\t\n99\t- **Utilities are hand-implemented.** Functionality that other frameworks\n100\t  delegate to libraries — cookie parsing, query parsing, MIME detection,\n101\n\n[truncated: 2526 additional bytes not shown]"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -n \"class Context\" repos/hono/src/context.ts; echo \"---\"; grep -nE \"^\\s*(get |set |public |private |readonly |[a-zA-Z_]+\\s*[:=])\" repos/hono/src/context.ts | head -80",
+        "description": "Find Context class definition and its members"
+      },
+      "result_preview": "293:export class Context<\n---\n46:  props: any\n124:    data: T,\n129:    data: T,\n133:    data: T,\n138:    data: T,\n158:    text: T,\n163:    text: T,\n186:    object: T,\n194:    object: T,\n222:    html: T,\n227:    html: T,\n241:  env: E['Bindings']\n315:  env: E['Bindings'] = {}\n317:  finalized: boolean = false\n333:  error: Error | undefined\n366:  get req(): HonoRequest<P, I['out']> {\n377:  get event(): FetchEventLike {\n391:  get executionCtx(): ExecutionContext {\n403:  get res(): Response {\n405:      headers: (this.#preparedHeaders ??= new Headers()),\n414:  set res(_res: Response | undefined) {\n416:      _res = createResponseInstance(_res.body, _res)\n448:  render: Renderer = (...args) => {\n459:  setLayout = (\n460:    layout: Layout<PropsForRenderer & { Layout: Layout }>\n463:      Layout: Layout\n472:  getLayout = (): Layout<PropsForRenderer & { Layout: Layout }> | undefined => this.#layout\n495:  setRenderer = (renderer: Renderer): void => {\n515:  header: SetHeaders = (name, value, options): void => {\n529:  status = (status: StatusCode): void => {\n546:  set: Set<\n550:          Variables: ContextVariableMap & Record<string, any>\n571:  get: Get<\n575:          Variables: ContextVariableMap & Record<string, any>\n593:  get var(): Readonly<\n605:    data: Data | null,\n641:  newResponse: NewResponse = (...args) => this.#newResponse(...(args as Parameters<NewResponse>))\n664:  body: BodyRespond = (\n665:    data: Data | null,\n682:  text: TextRespond = (\n683:    text: string,\n708:  json: JSONRespond = <\n712:    object: T,\n723:  html: HTMLRespond = (\n724:    html: string | Promise<string>,\n750:  redirect = <T extends RedirectStatusCode = 302>(\n751:    location: string | URL,\n776:  notFound = (): ReturnType<NotFoundHandler> => {"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "C:/CodeWork/ContextAtlas-benchmarks/repos/hono/src/context.ts",
+        "offset": 280,
+        "limit": 140
+      },
+      "result_preview": "280\t\n281\tconst setDefaultContentType = (contentType: string, headers?: HeaderRecord): HeaderRecord => {\n282\t  return {\n283\t    'Content-Type': contentType,\n284\t    ...headers,\n285\t  }\n286\t}\n287\t\n288\tconst createResponseInstance = (\n289\t  body?: BodyInit | null | undefined,\n290\t  init?: globalThis.ResponseInit\n291\t): Response => new Response(body, init)\n292\t\n293\texport class Context<\n294\t  // eslint-disable-next-line @typescript-eslint/no-explicit-any\n295\t  E extends Env = any,\n296\t  // eslint-disable-next-line @typescript-eslint/no-explicit-any\n297\t  P extends string = any,\n298\t  I extends Input = {},\n299\t> {\n300\t  #rawRequest: Request\n301\t  #req: HonoRequest<P, I['out']> | undefined\n302\t  /**\n303\t   * `.env` can get bindings (environment variables, secrets, KV namespaces, D1 database, R2 bucket etc.) in Cloudflare Workers.\n304\t   *\n305\t   * @see {@link https://hono.dev/docs/api/context#env}\n306\t   *\n307\t   * @example\n308\t   * ```ts\n309\t   * // Environment object for Cloudflare Workers\n310\t   * app.get('*', async c => {\n311\t   *   const counter = c.env.COUNTER\n312\t   * })\n313\t   * ```\n314\t   */\n315\t  env: E['Bindings'] = {}\n316\t  #var: Map<unknown, unknown> | undefined\n317\t  finalized: boolean = false\n318\t  /**\n319\t   * `.error` can get the error object from the middleware if the Handler throws an error.\n320\t   *\n321\t   * @see {@link https://hono.dev/docs/api/context#error}\n322\t   *\n323\t   * @example\n324\t   * ```ts\n325\t   * app.use('*', async (c, next) => {\n326\t   *   await next()\n327\t   *   if (c.error) {\n328\t   *     // do something...\n329\t   *   }\n330\t   * })\n331\t   * ```\n332\t   */\n333\t  error: Error | undefined\n334\t\n335\t  #status: StatusCode | undefined\n336\t  #executionCtx: FetchEventLike | ExecutionContext | undefined\n337\t  #res: Response | undefined\n338\t  #layout: Layout<PropsForRenderer & { Layout: Layout }> | undefined\n339\t  #renderer: Renderer | undefined\n340\t  #notFoundHandler: NotFoundHandler<E> | undefined\n341\t  #preparedHeaders: Headers | undefined\n342\t\n343\t  #matchResult: Result<[H, RouterRoute]> | undefined\n344\t  #path: string | undefined\n345\t\n346\t  /**\n347\t   * Creates an instance of the Context class.\n348\t   *\n349\t   * @param req - The Request object.\n350\t   * @param options - Optional configuration options for the context.\n351\t   */\n352\t  constructor(req: Request, options?: ContextOptions<E>) {\n353\t    this.#rawRequest = req\n354\t    if (options) {\n355\t      this.#executionCtx = options.executionCtx\n356\t      this.env = options.env\n357\t      this.#notFoundHandler = options.notFoundHandler\n358\t      this.#path = options.path\n359\t      this.#matchResult = options.matchResult\n360\t    }\n361\t  }\n362\t\n363\t  /**\n364\t   * `.req` is the instance of {@link HonoRequest}.\n365\t   */\n366\t  get req(): HonoRequest<P, I['out']> {\n367\t    this.#req ??= new HonoRequest(this.#rawRequest, this.#path, this.#matchResult)\n368\t    return this.#req\n369\t  }\n370\t\n371\t  /**\n372\t   * @see {@link https://hono.dev/docs/api/context#event}\n373\t   * The FetchEvent associated with the current request.\n374\t   *\n375\t   * @throws Will throw an error if the context does not have a FetchEvent.\n376\t   */\n377\t  get event(): FetchEventLike {\n378\t    if (this.#executionCtx && 'respondWith' in this.#executionCtx) {\n379\t      return this.#executionCtx\n380\t    } else {\n381\t      throw Error('This context has no FetchEvent')\n382\t    }\n383\t  }\n384\t\n385\t  /**\n386\t   * @see {@link https://hono.dev/docs/api/context#executionctx}\n387\t   * The ExecutionContext associated with the current request.\n388\t   *\n389\t   * @throws Will throw an error if the context does not have an ExecutionContext.\n390\t   */\n391\t  get executionCtx(): ExecutionContext {\n392\t    if (this.#executionCtx) {\n393\t      return this.#executionCtx as ExecutionContext\n394\t    } else {\n395\t      throw Error('This context has no ExecutionContext')\n396\t    }\n397\t  }\n398\t\n399\t  /**\n400\t   * @see {@link https://hono.dev/docs/api/context#res}\n401\t   * The Response object for the current request.\n402\t   */\n403\t  get res(): Response {\n404\t    return (this.#res ||= createResponseInstance(null, {\n405\t      headers: (this.#preparedHeaders ??= new Headers()),\n406\t    }))\n407\t  }\n408\t\n409\t  /**\n410\t   * Sets the Response object for the current request.\n411\t   *\n412\t   * @param _res - The Response object to set.\n413\t   */\n414\t  set res(_res: Response | undefined) {\n415\t    if (this.#res && _res) {\n416\t      _res = createResponseInstance(_res.body, _res)\n417\t      for (const [k, v] of this.#res.headers.entries()) {\n418\t        if (k === 'content-type') {\n419\t          continue"
+    }
+  ],
+  "diagnostics": {
+    "claudeCodeVersion": "2.1.118",
+    "totalCostUsd": 0.21945475,
+    "numTurns": 14,
+    "isError": false,
+    "terminalReason": "completed",
+    "modelUsage": {
+      "claude-haiku-4-5-20251001": {
+        "inputTokens": 379,
+        "outputTokens": 15,
+        "cacheReadInputTokens": 0,
+        "cacheCreationInputTokens": 0,
+        "webSearchRequests": 0,
+        "costUSD": 0.000454,
+        "contextWindow": 200000,
+        "maxOutputTokens": 32000
+      },
+      "claude-opus-4-7": {
+        "inputTokens": 16,
+        "outputTokens": 3582,
+        "cacheReadInputTokens": 47179,
+        "cacheCreationInputTokens": 16925,
+        "webSearchRequests": 0,
+        "costUSD": 0.21900075,
+        "contextWindow": 1000000,
+        "maxOutputTokens": 64000
+      }
+    }
+  },
+  "cost_usd": 0.21945475,
+  "written_at": "2026-04-23T16:22:36.022Z"
+}

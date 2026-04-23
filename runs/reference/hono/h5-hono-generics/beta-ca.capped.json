@@ -1,0 +1,200 @@
+{
+  "prompt_id": "h5-hono-generics",
+  "repo": "hono",
+  "condition": "beta-ca",
+  "target_symbol": "Hono",
+  "bucket": "tie",
+  "metrics": {
+    "tool_calls": 21,
+    "input_tokens": 39,
+    "output_tokens": 1427,
+    "total_tokens": 210936,
+    "wall_clock_ms": 57415
+  },
+  "capped": "tokens",
+  "answer": "I need permission to use the ContextAtlas tools to answer this question. Let me try again:The MCP ContextAtlas tools aren't granted right now, so let me fall back to searching the Hono repo directly:Now let me find the downstream types that reference Hono's type parameters:",
+  "trace": [
+    {
+      "tool": "mcp__contextatlas__impact_of_change",
+      "args": {
+        "symbol": "Hono"
+      },
+      "result_preview": "Claude requested permissions to use mcp__contextatlas__impact_of_change, but you haven't granted it yet."
+    },
+    {
+      "tool": "mcp__contextatlas__impact_of_change",
+      "args": {
+        "symbol": "Hono"
+      },
+      "result_preview": "Claude requested permissions to use mcp__contextatlas__impact_of_change, but you haven't granted it yet."
+    },
+    {
+      "tool": "mcp__contextatlas__get_symbol_context",
+      "args": {
+        "symbol": "Hono",
+        "depth": "deep"
+      },
+      "result_preview": "Claude requested permissions to use mcp__contextatlas__get_symbol_context, but you haven't granted it yet."
+    },
+    {
+      "tool": "mcp__contextatlas__impact_of_change",
+      "args": {
+        "symbol": "Hono"
+      },
+      "result_preview": "Claude requested permissions to use mcp__contextatlas__impact_of_change, but you haven't granted it yet."
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "ls atlases/hono/",
+        "description": "List hono atlas files"
+      },
+      "result_preview": "atlas.json\nindex.db\nindex.db-shm\nindex.db-wal"
+    },
+    {
+      "tool": "mcp__contextatlas__get_symbol_context",
+      "args": {
+        "symbol": "Hono",
+        "depth": "deep"
+      },
+      "result_preview": "Claude requested permissions to use mcp__contextatlas__get_symbol_context, but you haven't granted it yet."
+    },
+    {
+      "tool": "mcp__contextatlas__impact_of_change",
+      "args": {
+        "symbol": "Hono"
+      },
+      "result_preview": "Claude requested permissions to use mcp__contextatlas__impact_of_change, but you haven't granted it yet."
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "find . -path ./node_modules -prune -o -name \"*.ts\" -print 2>/dev/null | xargs grep -l \"class Hono\" 2>/dev/null | head -20",
+        "description": "Find files defining the Hono class"
+      },
+      "result_preview": "This Bash command contains multiple operations. The following part requires approval: xargs grep -l \"class Hono\""
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "find . -path ./node_modules -prune -o -name \"hono-base.ts\" -print 2>/dev/null",
+        "description": "Find hono-base.ts"
+      },
+      "result_preview": "./repos/hono/src/hono-base.ts"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -n \"class Hono\" repos/hono/src/hono-base.ts repos/hono/src/hono.ts 2>/dev/null",
+        "description": "Find Hono class declarations"
+      },
+      "result_preview": "repos/hono/src/hono-base.ts:98:class Hono<\nrepos/hono/src/hono.ts:16:export class Hono<"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "C:\\CodeWork\\ContextAtlas-benchmarks\\repos\\hono\\src\\hono.ts"
+      },
+      "result_preview": "1\timport { HonoBase } from './hono-base'\n2\timport type { HonoOptions } from './hono-base'\n3\timport { RegExpRouter } from './router/reg-exp-router'\n4\timport { SmartRouter } from './router/smart-router'\n5\timport { TrieRouter } from './router/trie-router'\n6\timport type { BlankEnv, BlankSchema, Env, Schema } from './types'\n7\t\n8\t/**\n9\t * The Hono class extends the functionality of the HonoBase class.\n10\t * It sets up routing and allows for custom options to be passed.\n11\t *\n12\t * @template E - The environment type.\n13\t * @template S - The schema type.\n14\t * @template BasePath - The base path type.\n15\t */\n16\texport class Hono<\n17\t  E extends Env = BlankEnv,\n18\t  S extends Schema = BlankSchema,\n19\t  BasePath extends string = '/',\n20\t> extends HonoBase<E, S, BasePath> {\n21\t  /**\n22\t   * Creates an instance of the Hono class.\n23\t   *\n24\t   * @param options - Optional configuration options for the Hono instance.\n25\t   */\n26\t  constructor(options: HonoOptions<E> = {}) {\n27\t    super(options)\n28\t    this.router =\n29\t      options.router ??\n30\t      new SmartRouter({\n31\t        routers: [new RegExpRouter(), new TrieRouter()],\n32\t      })\n33\t  }\n34\t}\n35\t"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "C:\\CodeWork\\ContextAtlas-benchmarks\\repos\\hono\\src\\hono-base.ts",
+        "offset": 90,
+        "limit": 140
+      },
+      "result_preview": "90\ttype MountReplaceRequest = (originalRequest: Request) => Request\n91\ttype MountOptions =\n92\t  | MountOptionHandler\n93\t  | {\n94\t      optionHandler?: MountOptionHandler\n95\t      replaceRequest?: MountReplaceRequest | false\n96\t    }\n97\t\n98\tclass Hono<\n99\t  E extends Env = Env,\n100\t  S extends Schema = {},\n101\t  BasePath extends string = '/',\n102\t  CurrentPath extends string = BasePath,\n103\t> {\n104\t  get!: HandlerInterface<E, 'get', S, BasePath, CurrentPath>\n105\t  post!: HandlerInterface<E, 'post', S, BasePath, CurrentPath>\n106\t  put!: HandlerInterface<E, 'put', S, BasePath, CurrentPath>\n107\t  delete!: HandlerInterface<E, 'delete', S, BasePath, CurrentPath>\n108\t  options!: HandlerInterface<E, 'options', S, BasePath, CurrentPath>\n109\t  patch!: HandlerInterface<E, 'patch', S, BasePath, CurrentPath>\n110\t  all!: HandlerInterface<E, 'all', S, BasePath, CurrentPath>\n111\t  on: OnHandlerInterface<E, S, BasePath>\n112\t  use: MiddlewareHandlerInterface<E, S, BasePath>\n113\t\n114\t  /*\n115\t    This class is like an abstract class and does not have a router.\n116\t    To use it, inherit the class and implement router in the constructor.\n117\t  */\n118\t  router!: Router<[H, RouterRoute]>\n119\t  readonly getPath: GetPath<E>\n120\t  // Cannot use `#` because it requires visibility at JavaScript runtime.\n121\t  private _basePath: string = '/'\n122\t  #path: string = '/'\n123\t\n124\t  routes: RouterRoute[] = []\n125\t\n126\t  constructor(options: HonoOptions<E> = {}) {\n127\t    // Implementation of app.get(...handlers[]) or app.get(path, ...handlers[])\n128\t    const allMethods = [...METHODS, METHOD_NAME_ALL_LOWERCASE]\n129\t    allMethods.forEach((method) => {\n130\t      this[method] = (args1: string | H, ...args: H[]) => {\n131\t        if (typeof args1 === 'string') {\n132\t          this.#path = args1\n133\t        } else {\n134\t          this.#addRoute(method, this.#path, args1)\n135\t        }\n136\t        args.forEach((handler) => {\n137\t          this.#addRoute(method, this.#path, handler)\n138\t        })\n139\t        return this as any\n140\t      }\n141\t    })\n142\t\n143\t    // Implementation of app.on(method, path, ...handlers[])\n144\t    this.on = (method: string | string[], path: string | string[], ...handlers: H[]) => {\n145\t      for (const p of [path].flat()) {\n146\t        this.#path = p\n147\t        for (const m of [method].flat()) {\n148\t          handlers.map((handler) => {\n149\t            this.#addRoute(m.toUpperCase(), this.#path, handler)\n150\t          })\n151\t        }\n152\t      }\n153\t      return this as any\n154\t    }\n155\t\n156\t    // Implementation of app.use(...handlers[]) or app.use(path, ...handlers[])\n157\t    this.use = (arg1: string | MiddlewareHandler<any>, ...handlers: MiddlewareHandler<any>[]) => {\n158\t      if (typeof arg1 === 'string') {\n159\t        this.#path = arg1\n160\t      } else {\n161\t        this.#path = '*'\n162\t        handlers.unshift(arg1)\n163\t      }\n164\t      handlers.forEach((handler) => {\n165\t        this.#addRoute(METHOD_NAME_ALL, this.#path, handler)\n166\t      })\n167\t      return this as any\n168\t    }\n169\t\n170\t    const { strict, ...optionsWithoutStrict } = options\n171\t    Object.assign(this, optionsWithoutStrict)\n172\t    this.getPath = (strict ?? true) ? (options.getPath ?? getPath) : getPathNoStrict\n173\t  }\n174\t\n175\t  #clone(): Hono<E, S, BasePath, CurrentPath> {\n176\t    const clone = new Hono<E, S, BasePath, CurrentPath>({\n177\t      router: this.router,\n178\t      getPath: this.getPath,\n179\t    })\n180\t    clone.errorHandler = this.errorHandler\n181\t    clone.#notFoundHandler = this.#notFoundHandler\n182\t    clone.routes = this.routes\n183\t    return clone\n184\t  }\n185\t\n186\t  #notFoundHandler: NotFoundHandler = notFoundHandler\n187\t  // Cannot use `#` because it requires visibility at JavaScript runtime.\n188\t  private errorHandler: ErrorHandler = errorHandler\n189\t\n190\t  /**\n191\t   * `.route()` allows grouping other Hono instance in routes.\n192\t   *\n193\t   * @see {@link https://hono.dev/docs/api/routing#grouping}\n194\t   *\n195\t   * @param {string} path - base Path\n196\t   * @param {Hono} app - other Hono instance\n197\t   * @returns {Hono} routed Hono instance\n198\t   *\n199\t   * @example\n200\t   * ```ts\n201\t   * const app = new Hono()\n202\t   * const app2 = new Hono()\n203\t   *\n204\t   * app2.get(\"/user\", (c) => c.text(\"user\"))\n205\t   * app.route(\"/api\", app2) // GET /api/user\n206\t   * ```\n207\t   */\n208\t  route<\n209\t    SubPath extends string,\n210\t    SubEnv extends Env,\n211\t    SubSchema extends Schema,\n212\t    SubBasePath extends string,\n213\t    SubCurrentPath extends string,\n214\t  >(\n215\t    path: SubPath,\n216\t    app: Hono<SubEnv, SubSchema, SubBasePath, SubCurrentPath>\n217\t  ): Hono<E, MergeSchemaPath<SubSchema, MergePath<BasePath, SubPath>> | S, BasePath, CurrentPath> {\n218\t    const subApp = this.basePath(path)\n219\t    app.routes.map((r) => {\n220\t      let handler\n221\t      if (app.errorHandler === errorHandler) {\n222\t        handler = r.handler\n223\t      } else {\n224\t        handler = async (c: Context, next: Next) =>\n225\t        \n\n[truncated: 203 additional bytes not shown]"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -rn \"HandlerInterface\\|OnHandlerInterface\\|MiddlewareHandlerInterface\" repos/hono/src/types.ts | head -30",
+        "description": "Find handler interface definitions"
+      },
+      "result_preview": "123://////     HandlerInterface       //////\n127:export interface HandlerInterface<\n1076:////// MiddlewareHandlerInterface //////\n1080:export interface MiddlewareHandlerInterface<\n1453://////     OnHandlerInterface     //////\n1457:export interface OnHandlerInterface<"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "C:\\CodeWork\\ContextAtlas-benchmarks\\repos\\hono\\src\\types.ts",
+        "offset": 120,
+        "limit": 50
+      },
+      "result_preview": "120\t\n121\t////////////////////////////////////////\n122\t//////                            //////\n123\t//////     HandlerInterface       //////\n124\t//////                            //////\n125\t////////////////////////////////////////\n126\t\n127\texport interface HandlerInterface<\n128\t  E extends Env = Env,\n129\t  M extends string = string,\n130\t  S extends Schema = BlankSchema,\n131\t  BasePath extends string = '/',\n132\t  CurrentPath extends string = BasePath,\n133\t> {\n134\t  // app.get(handler)\n135\t  <\n136\t    P extends string = CurrentPath,\n137\t    I extends Input = BlankInput,\n138\t    R extends HandlerResponse<any> = any,\n139\t    E2 extends Env = E,\n140\t  >(\n141\t    handler: H<E2, P, I, R>\n142\t  ): HonoBase<\n143\t    IntersectNonAnyTypes<[E, E2]>,\n144\t    S & ToSchema<M, P, I, MergeTypedResponse<R>>,\n145\t    BasePath,\n146\t    CurrentPath\n147\t  >\n148\t\n149\t  // app.get(handler x2)\n150\t  <\n151\t    P extends string = CurrentPath,\n152\t    I extends Input = BlankInput,\n153\t    I2 extends Input = I,\n154\t    R extends HandlerResponse<any> = any,\n155\t    E2 extends Env = E,\n156\t    E3 extends Env = IntersectNonAnyTypes<[E, E2]>,\n157\t    M1 extends H<E2, P, I> = H<E2, P, I>,\n158\t  >(\n159\t    ...handlers: [H<E2, P, I> & M1, H<E3, P, I2, R>]\n160\t  ): HonoBase<\n161\t    IntersectNonAnyTypes<[E, E2, E3]>,\n162\t    S & ToSchema<M, P, I2, MergeTypedResponse<R> | MergeMiddlewareResponse<M1>>,\n163\t    BasePath,\n164\t    CurrentPath\n165\t  >\n166\t\n167\t  // app.get(path, handler)\n168\t  <\n169\t    P extends string,"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "C:\\CodeWork\\ContextAtlas-benchmarks\\repos\\hono\\src\\types.ts",
+        "offset": 1076,
+        "limit": 30
+      },
+      "result_preview": "1076\t////// MiddlewareHandlerInterface //////\n1077\t//////                            //////\n1078\t////////////////////////////////////////\n1079\t\n1080\texport interface MiddlewareHandlerInterface<\n1081\t  E extends Env = Env,\n1082\t  S extends Schema = BlankSchema,\n1083\t  BasePath extends string = '/',\n1084\t> {\n1085\t  //// app.use(...handlers[])\n1086\t  <E2 extends Env = E>(\n1087\t    ...handlers: MiddlewareHandler<E2, MergePath<BasePath, '*'>>[]\n1088\t  ): HonoBase<IntersectNonAnyTypes<[E, E2]>, S, BasePath, MergePath<BasePath, '*'>>\n1089\t\n1090\t  // app.use(handler)\n1091\t  <E2 extends Env = E>(\n1092\t    handler: MiddlewareHandler<E2, MergePath<BasePath, '*'>>\n1093\t  ): HonoBase<IntersectNonAnyTypes<[E, E2]>, S, BasePath, MergePath<BasePath, '*'>>\n1094\t\n1095\t  // app.use(handler x2)\n1096\t  <\n1097\t    E2 extends Env = E,\n1098\t    E3 extends Env = IntersectNonAnyTypes<[E, E2]>,\n1099\t    P extends string = MergePath<BasePath, '*'>,\n1100\t  >(\n1101\t    ...handlers: [MiddlewareHandler<E2, P>, MiddlewareHandler<E3, P>]\n1102\t  ): HonoBase<IntersectNonAnyTypes<[E, E2, E3]>, S, BasePath, P>\n1103\t\n1104\t  // app.use(path, handler)\n1105\t  <P extends string, MergedPath extends MergePath<BasePath, P>, E2 extends Env = E>("
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "C:\\CodeWork\\ContextAtlas-benchmarks\\repos\\hono\\src\\types.ts",
+        "offset": 1453,
+        "limit": 30
+      },
+      "result_preview": "1453\t//////     OnHandlerInterface     //////\n1454\t//////                            //////\n1455\t////////////////////////////////////////\n1456\t\n1457\texport interface OnHandlerInterface<\n1458\t  E extends Env = Env,\n1459\t  S extends Schema = BlankSchema,\n1460\t  BasePath extends string = '/',\n1461\t> {\n1462\t  // app.on(method, path, handler)\n1463\t  <\n1464\t    M extends string,\n1465\t    P extends string,\n1466\t    MergedPath extends MergePath<BasePath, P>,\n1467\t    R extends HandlerResponse<any> = any,\n1468\t    I extends Input = BlankInput,\n1469\t    E2 extends Env = E,\n1470\t  >(\n1471\t    method: M,\n1472\t    path: P,\n1473\t    handler: H<E2, MergedPath, I, R>\n1474\t  ): HonoBase<\n1475\t    IntersectNonAnyTypes<[E, E2]>,\n1476\t    S & ToSchema<M, MergePath<BasePath, P>, I, MergeTypedResponse<R>>,\n1477\t    BasePath,\n1478\t    MergePath<BasePath, P>\n1479\t  >\n1480\t\n1481\t  // app.on(method, path, handler x2)\n1482\t  <"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -rn \"Hono<\\|HonoBase<\" repos/hono/src --include=\"*.ts\" | grep -v \"\\.test\\.ts\" | head -40",
+        "description": "Find generic usages of Hono and HonoBase"
+      },
+      "result_preview": "repos/hono/src/adapter/aws-lambda/handler.ts:143:  app: Hono<E, S, BasePath>\nrepos/hono/src/adapter/aws-lambda/handler.ts:240:  app: Hono<E, S, BasePath>,\nrepos/hono/src/adapter/cloudflare-pages/handler.ts:34:    app: Hono<E, S, BasePath>\nrepos/hono/src/adapter/lambda-edge/handler.ts:118:  app: Hono<any>\nrepos/hono/src/adapter/netlify/handler.ts:5:  app: Hono<any, any>\nrepos/hono/src/adapter/service-worker/handler.ts:19:  app: Hono<E, S, BasePath>,\nrepos/hono/src/adapter/service-worker/index.ts:29:  app: Hono<E, S, BasePath>,\nrepos/hono/src/adapter/vercel/handler.ts:5:  (app: Hono<any, any, any>) =>\nrepos/hono/src/client/client.ts:133:export const hc = <T extends Hono<any, any, any>, Prefix extends string = string>(\nrepos/hono/src/client/types.ts:312:  T extends HonoBase<any, infer S, any>\nrepos/hono/src/client/types.ts:359:  App extends HonoBase<infer E, infer _ extends Schema, infer B>\nrepos/hono/src/client/types.ts:361:      ? Hono<E, S, B>\nrepos/hono/src/client/types.ts:389:  App extends HonoBase<infer E, infer _ extends Schema, infer B>\nrepos/hono/src/client/types.ts:391:      ? Hono<E, S, B>\nrepos/hono/src/helper/dev/index.ts:27:export const inspectRoutes = <E extends Env>(hono: Hono<E>): RouteData[] => {\nrepos/hono/src/helper/dev/index.ts:39:export const showRoutes = <E extends Env>(hono: Hono<E>, opts?: ShowRoutesOptions): void => {\nrepos/hono/src/helper/dev/index.ts:76:export const getRouterName = <E extends Env>(app: Hono<E>): string => {\nrepos/hono/src/helper/factory/index.ts:18:type InitApp<E extends Env = Env> = (app: Hono<E>) => void\nrepos/hono/src/helper/factory/index.ts:341:  createApp = (options?: HonoOptions<E>): Hono<E> => {\nrepos/hono/src/helper/factory/index.ts:342:    const app = new Hono<E>(\nrepos/hono/src/helper/ssg/ssg.ts:208:  app: Hono<E, S, BasePath>,\nrepos/hono/src/helper/ssg/ssg.ts:342:    app: Hono<any, any, any>,\nrepos/hono/src/helper/ssg/ssg.ts:358:  (app: Hono<E, S, BasePath>, options?: ToSSGOptions): Promise<ToSSGResult>\nrepos/hono/src/helper/ssg/utils.ts:62:  hono: Hono<E>\nrepos/hono/src/helper/testing/index.ts:13:type ExtractEnv<T> = T extends Hono<infer E, Schema, string> ? E : never\nrepos/hono/src/helper/testing/index.ts:16:export const testClient = <T extends Hono<any, Schema, string>>(\nrepos/hono/src/hono-base.ts:98:class Hono<\nrepos/hono/src/hono-base.ts:175:  #clone(): Hono<E, S, BasePath, CurrentPath> {\nrepos/hono/src/hono-base.ts:176:    const clone = new Hono<E, S, BasePath, CurrentPath>({\nrepos/hono/src/hono-base.ts:216:    app: Hono<SubEnv, SubSchema, SubBasePath, SubCurrentPath>\nrepos/hono/src/hono-base.ts:217:  ): Hono<E, MergeSchemaPath<SubSchema, MergePath<BasePath, SubPath>> | S, BasePath, CurrentPath> {\nrepos/hono/src/hono-base.ts:249:  ): Hono<E, S, MergePath<BasePath, SubPath>, MergePath<BasePath, SubPath>> {\nrepos/hono/src/hono-base.ts:271:  onError = (handler: ErrorHandler<E>): Hono<E, S, BasePath, CurrentPath> => {\nrepos/hono/src/hono-base.ts:291:  notFound = (handler: NotFoundHandler<E>): Hono<E, S, BasePath, CurrentPath> => {\nrepos/hono/src/hono-base.ts:332:  ): Hono<E, S, BasePath, CurrentPath> {\nrepos/hono/src/hono.ts:16:export class Hono<\nrepos/hono/src/hono.ts:20:> extends HonoBase<E, S, BasePath> {\nrepos/hono/src/middleware/context-storage/index.ts:27: * const app = new Hono<Env>()\nrepos/hono/src/middleware/method-override/index.ts:13:  app: Hono<any, any, any>\nrepos/hono/src/middleware/request-id/request-id.ts:32: * const app = new Hono<{Variables: Variables}>()"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -n \"HonoOptions\\|GetPath\\|Env\\|Schema\" repos/hono/src/hono-base.ts | head -30",
+        "description": "Find related types in hono-base.ts"
+      },
+      "result_preview": "13:  Env,\n19:  MergeSchemaPath,\n26:  Schema,\n44:type GetPath<E extends Env> = (request: Request, options?: { env?: E['Bindings'] }) => string\n46:export type HonoOptions<E extends Env> = {\n86:  getPath?: GetPath<E>\n99:  E extends Env = Env,\n100:  S extends Schema = {},\n119:  readonly getPath: GetPath<E>\n126:  constructor(options: HonoOptions<E> = {}) {\n210:    SubEnv extends Env,\n211:    SubSchema extends Schema,\n216:    app: Hono<SubEnv, SubSchema, SubBasePath, SubCurrentPath>\n217:  ): Hono<E, MergeSchemaPath<SubSchema, MergePath<BasePath, SubPath>> | S, BasePath, CurrentPath> {\n468:   * @param {Env} Env - env Object\n475:    Env?: E['Bindings'] | {},\n496:    Env?: E['Bindings'] | {},\n500:      return this.fetch(requestInit ? new Request(input, requestInit) : input, Env, executionCtx)\n508:      Env,"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -n \"Client\\|ClientRequest\\|InferResponseType\\|InferRequestType\" repos/hono/src/client/types.ts | head -20",
+        "description": "Find client types that depend on Hono generics"
+      },
+      "result_preview": "32:export type ClientRequestOptions<T = unknown> = {\n67:export type ClientRequest<Prefix extends string, Path extends string, S extends Schema> = {\n73:            options?: ClientRequestOptions\n74:          ) => Promise<ClientResponseOfEndpoint<ExpandAllMethod<S>[M]>>\n77:            options?: ClientRequestOptions\n78:          ) => Promise<ClientResponseOfEndpoint<ExpandAllMethod<S>[M]>>\n120:type ClientResponseOfEndpoint<T extends Endpoint = Endpoint> = T extends {\n125:  ? ClientResponse<O, S extends number ? S : never, F extends ResponseFormat ? F : never>\n128:export interface ClientResponse<\n232:export interface Response extends ClientResponse<unknown> {}\n235:  args?: InferRequestType<T>,\n236:  opt?: ClientRequestOptions\n237:) => Promise<ClientResponseOfEndpoint<InferEndpointType<T>>>\n244:  ? U extends ClientResponse<infer O, infer S, infer F>\n251:export type InferResponseType<T, U extends StatusCode = StatusCode> = InferResponseTypeFromEndpoint<\n256:type InferResponseTypeFromEndpoint<T extends Endpoint, U extends StatusCode> = T extends {\n265:export type InferRequestType<T> = T extends (\n269:) => Promise<ClientResponse<unknown>>\n277:) => Promise<ClientResponse<unknown>>\n282: * Filter a ClientResponse type so it only includes responses of specific status codes."
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "C:\\CodeWork\\ContextAtlas-benchmarks\\repos\\hono\\src\\client\\types.ts",
+        "offset": 300,
+        "limit": 100
+      },
+      "result_preview": "300\t  ? PathToChain<Prefix, P, E, Path>\n301\t  : Path extends `${infer P}/${infer R}`\n302\t    ? { [K in P]: PathToChain<Prefix, R, E, Original> }\n303\t    : {\n304\t        [K in Path extends '' ? 'index' : Path]: ClientRequest<\n305\t          Prefix,\n306\t          Original,\n307\t          E extends Record<string, unknown> ? E[Original] : never\n308\t        >\n309\t      }\n310\t\n311\texport type Client<T, Prefix extends string> =\n312\t  T extends HonoBase<any, infer S, any>\n313\t    ? S extends Record<infer K, Schema>\n314\t      ? K extends string\n315\t        ? PathToChain<Prefix, K, S>\n316\t        : never\n317\t      : never\n318\t    : never\n319\t\n320\texport type Callback = (opts: CallbackOptions) => unknown\n321\t\n322\tinterface CallbackOptions {\n323\t  path: string[]\n324\t  // eslint-disable-next-line @typescript-eslint/no-explicit-any\n325\t  args: any[]\n326\t}\n327\t\n328\texport type ObjectType<T = unknown> = {\n329\t  [key: string]: T\n330\t}\n331\t\n332\ttype GlobalResponseDefinition = {\n333\t  [S in StatusCode]?: {\n334\t    [F in KnownResponseFormat]?: unknown\n335\t  }\n336\t}\n337\t\n338\ttype ToEndpoints<Def extends GlobalResponseDefinition, R> = {\n339\t  [S in keyof Def & StatusCode]: {\n340\t    [F in keyof Def[S] & KnownResponseFormat]: Omit<R, 'output' | 'status' | 'outputFormat'> & {\n341\t      output: Def[S][F]\n342\t      status: S\n343\t      outputFormat: F\n344\t    }\n345\t  }[keyof Def[S] & KnownResponseFormat]\n346\t}[keyof Def & StatusCode]\n347\t\n348\ttype ModRoute<R, Def extends GlobalResponseDefinition> = R extends Endpoint\n349\t  ? R | ToEndpoints<Def, R>\n350\t  : R\n351\t\n352\ttype ModSchema<D, Def extends GlobalResponseDefinition> = {\n353\t  [K in keyof D]: {\n354\t    [M in keyof D[K]]: ModRoute<D[K][M], Def>\n355\t  }\n356\t}\n357\t\n358\texport type ApplyGlobalResponse<App, Def extends GlobalResponseDefinition> =\n359\t  App extends HonoBase<infer E, infer _ extends Schema, infer B>\n360\t    ? ModSchema<ExtractSchema<App>, Def> extends infer S extends Schema\n361\t      ? Hono<E, S, B>\n362\t      : never\n363\t    : never\n364\t\n365\ttype PickRoute<R, U extends StatusCode> = R extends Endpoint\n366\t  ? R extends { status: U }\n367\t    ? R\n368\t    : never\n369\t  : R\n370\t\n371\ttype PickSchema<D, U extends StatusCode> = {\n372\t  [K in keyof D]: {\n373\t    [M in keyof D[K]]: PickRoute<D[K][M], U>\n374\t  }\n375\t}\n376\t\n377\t/**\n378\t * Keep only specific status code responses from all routes of an app.\n379\t * Useful when error responses are handled centrally (e.g., via custom fetch)\n380\t * and you want the client to only expose success response types.\n381\t *\n382\t * @example\n383\t * ```ts\n384\t * type AppSuccessOnly = PickResponseByStatusCode<typeof app, 200>\n385\t * const client = hc<AppSuccessOnly>('http://localhost')\n386\t * ```\n387\t */\n388\texport type PickResponseByStatusCode<App, U extends StatusCode> =\n389\t  App extends HonoBase<infer E, infer _ extends Schema, infer B>\n390\t    ? PickSchema<ExtractSchema<App>, U> extends infer S extends Schema\n391\t      ? Hono<E, S, B>\n392\t      : never\n393\t    : never\n394\t"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -rn \"ExtractSchema\\|ExtractEnv\" repos/hono/src --include=\"*.ts\" | grep -v \"\\.test\\.\" | head -20",
+        "description": "Find schema and env extractor types"
+      },
+      "result_preview": "INTERRUPTED: caps tripped before tool_result received"
+    }
+  ],
+  "diagnostics": {
+    "claudeCodeVersion": "2.1.118",
+    "terminalReason": "sigterm_capped",
+    "modelUsage": {
+      "claude-opus-4-7": {
+        "inputTokens": 39,
+        "outputTokens": 1427,
+        "cacheReadInputTokens": 183809,
+        "cacheCreationInputTokens": 25661
+      }
+    }
+  },
+  "cost_usd": 0.10761,
+  "written_at": "2026-04-23T16:41:58.775Z"
+}

@@ -1,0 +1,148 @@
+{
+  "prompt_id": "h1-context-runtime",
+  "repo": "hono",
+  "condition": "beta",
+  "target_symbol": "Context",
+  "bucket": "win",
+  "metrics": {
+    "tool_calls": 12,
+    "input_tokens": 18,
+    "output_tokens": 3783,
+    "total_tokens": 132722,
+    "wall_clock_ms": 78692
+  },
+  "capped": null,
+  "answer": "Based on the hono atlas (specifically ADR-01 \"Web Standards + Zero Deps\" and `src/context.ts`), here's what you can and can't assume on `Context` if you want a handler that runs unchanged on both Workers and Node.\n\n## Safe to assume (Web Standards surface)\n\nPer ADR-01 (`hard` claim: \"Core code must be built entirely on Web Standard APIs\"), everything reachable through `c` is backed by these primitives only:\n\n- `c.req` — wraps a Web Standard `Request` (`HonoRequest` in `src/request.ts`)\n- `c.res` — a Web Standard `Response`\n- `c.header(...)`, `c.status(...)`, `c.json(...)`, `c.text(...)`, `c.html(...)`, `c.body(...)`, `c.redirect(...)` — all emit standard `Response` objects\n- `c.set(key, val)` / `c.get(key)` / `c.var` — the per-request variable map (`ContextVariableMap`, `src/context.ts:57`)\n- `c.render(...)` / `c.setRenderer(...)` — renderer plumbing\n\nUnder the hood, Hono restricts itself to: `Request`, `Response`, `Headers`, `URL`, `URLSearchParams`, `fetch`, `ReadableStream`/`WritableStream`/`TransformStream`, `TextEncoder`/`TextDecoder`, `globalThis.crypto` (Web Crypto), `AbortController`/`AbortSignal`, `Blob`, `FormData`. Those are the things that are guaranteed present at runtime on both targets.\n\n## Assume only conditionally\n\n- **`c.env`** — typed as `E['Bindings']` (`ContextOptions<E>`, `src/context.ts:237`). On Workers this is populated by `app.fetch(request, env, ctx)` from the runtime. On Node (`@hono/node-server`) it's whatever the adapter passes, which in the default setup is effectively empty. If your handler reads `c.env.SOMETHING`, you need to either inject it in the Node adapter or not depend on it.\n- **`c.executionCtx`** — `Context implements ExecutionContext` (`src/context.ts:293`), but methods like `waitUntil` and `passThroughOnException` come from the Workers runtime. The Node adapter lives in a separate `@hono/node-server` package (ADR-01 explicitly calls this out) and does not provide the Workers-shaped `ExecutionContext`. Accessing `c.executionCtx` off-Workers throws. Guard it, or use `c.executionCtx?.waitUntil?.(...)`.\n\n## Do NOT assume on Context (ADR-01 `context` claim)\n\nADR-01 enumerates the features that *require* per-runtime adapter files, so they are **not** on bare `Context`:\n\n- Streaming file I/O\n- WebSocket upgrade\n- Client IP / connection info\n- Signed-cookie crypto beyond Web Crypto\n\nIf you need any of those, import the matching adapter helper (e.g. `@hono/node-server` for Node, the `cloudflare-workers` adapter for Workers) rather than reaching through `c`.\n\n## Practical rule of thumb\n\nWrite the handler against `c.req` (standard `Request`) and return a `Response` (or use `c.json`/`c.text`/etc.). Treat `c.env` and `c.executionCtx` as optional. That's the intersection that ADR-01's \"Web Standards substrate\" guarantees across all nine supported runtimes, Workers and Node included.",
+  "trace": [
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "ls atlases/hono/",
+        "description": "List hono atlas files"
+      },
+      "result_preview": "atlas.json\nindex.db\nindex.db-shm\nindex.db-wal"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "cd atlases/hono && python -c \"import sqlite3; c=sqlite3.connect('index.db'); print([r[0] for r in c.execute(\\\"SELECT name FROM sqlite_master WHERE type='table'\\\").fetchall()])\"",
+        "description": "List tables in hono atlas database"
+      },
+      "result_preview": "This Bash command contains multiple operations. The following part requires approval: python -c \"import sqlite3; c=sqlite3.connect('index.db'); print([r[0] for r in c.execute(\\\"SELECT name FROM sqlite_master WHERE type='table'\\\").fetchall()])\""
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "sqlite3 atlases/hono/index.db \".tables\"",
+        "description": "List sqlite tables"
+      },
+      "result_preview": "This command requires approval"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "C:\\CodeWork\\ContextAtlas-benchmarks\\atlases\\hono\\atlas.json",
+        "limit": 100
+      },
+      "result_preview": "1\t{\n2\t  \"version\": \"1.1\",\n3\t  \"generated_at\": \"2026-04-23T00:11:43.790Z\",\n4\t  \"extracted_at_sha\": \"cf2d2b7edcf07adef2db7614557f4d7f9e2be7ba\",\n5\t  \"generator\": {\n6\t    \"contextatlas_version\": \"0.0.1\",\n7\t    \"extraction_model\": \"claude-opus-4-7\"\n8\t  },\n9\t  \"source_shas\": {\n10\t    \"ADR-01-web-standards-zero-deps.md\": \"f0859390aa48e8cb056f926a6ae36a8d30c7cb233bac1553b82649543607fa6b\",\n11\t    \"ADR-02-router-interface-and-presets.md\": \"611b65231bd15a6e7fa7de69e287ad2dfe48c3e419e52d0f5d4606031a762e49\",\n12\t    \"ADR-03-onion-middleware-compose.md\": \"ff0af54899bc79db0167348a1c898512c7a10f9a7696821ec766bb10ba1d362e\",\n13\t    \"ADR-04-type-inference-to-typed-client.md\": \"c48cd13c3a58c91330dfc7bbc227adddb8d785a559c002707e5ec9d8be6d0564\",\n14\t    \"ADR-05-dual-jsx-backends.md\": \"85ca7513ba55ce5eee8e66e6139105044f28033e1e4f4fc7d09cf22c25f02a32\"\n15\t  },\n16\t  \"symbols\": [\n17\t    {\n18\t      \"id\": \"sym:ts:benchmarks/deno/fast.ts:app\",\n19\t      \"name\": \"app\",\n20\t      \"kind\": \"variable\",\n21\t      \"path\": \"benchmarks/deno/fast.ts\",\n22\t      \"line\": 4,\n23\t      \"file_sha\": \"f7057eff513855e0a52f14b90070f7751725e14d52d30a07c9f489fe6f393a58\"\n24\t    },\n25\t    {\n26\t      \"id\": \"sym:ts:benchmarks/deno/fast.ts:app.get('/event/:id') callback\",\n27\t      \"name\": \"app.get('/event/:id') callback\",\n28\t      \"kind\": \"function\",\n29\t      \"path\": \"benchmarks/deno/fast.ts\",\n30\t      \"line\": 10,\n31\t      \"signature\": \"app.get('/event/:id', () =>\",\n32\t      \"file_sha\": \"f7057eff513855e0a52f14b90070f7751725e14d52d30a07c9f489fe6f393a58\"\n33\t    },\n34\t    {\n35\t      \"id\": \"sym:ts:benchmarks/deno/fast.ts:app.get('/event/:id/comments') callback\",\n36\t      \"name\": \"app.get('/event/:id/comments') callback\",\n37\t      \"kind\": \"function\",\n38\t      \"path\": \"benchmarks/deno/fast.ts\",\n39\t      \"line\": 11,\n40\t      \"signature\": \"app.get('/event/:id/comments', () =>\",\n41\t      \"file_sha\": \"f7057eff513855e0a52f14b90070f7751725e14d52d30a07c9f489fe6f393a58\"\n42\t    },\n43\t    {\n44\t      \"id\": \"sym:ts:benchmarks/deno/fast.ts:app.get('/user') callback\",\n45\t      \"name\": \"app.get('/user') callback\",\n46\t      \"kind\": \"function\",\n47\t      \"path\": \"benchmarks/deno/fast.ts\",\n48\t      \"line\": 6,\n49\t      \"signature\": \"app.get('/user', () =>\",\n50\t      \"file_sha\": \"f7057eff513855e0a52f14b90070f7751725e14d52d30a07c9f489fe6f393a58\"\n51\t    },\n52\t    {\n53\t      \"id\": \"sym:ts:benchmarks/deno/fast.ts:app.get('/user/avatar') callback\",\n54\t      \"name\": \"app.get('/user/avatar') callback\",\n55\t      \"kind\": \"function\",\n56\t      \"path\": \"benchmarks/deno/fast.ts\",\n57\t      \"line\": 8,\n58\t      \"signature\": \"app.get('/user/avatar', () =>\",\n59\t      \"file_sha\": \"f7057eff513855e0a52f14b90070f7751725e14d52d30a07c9f489fe6f393a58\"\n60\t    },\n61\t    {\n62\t      \"id\": \"sym:ts:benchmarks/deno/fast.ts:app.get('/user/comments') callback\",\n63\t      \"name\": \"app.get('/user/comments') callback\",\n64\t      \"kind\": \"function\",\n65\t      \"path\": \"benchmarks/deno/fast.ts\",\n66\t      \"line\": 7,\n67\t      \"signature\": \"app.get('/user/comments', () =>\",\n68\t      \"file_sha\": \"f7057eff513855e0a52f14b90070f7751725e14d52d30a07c9f489fe6f393a58\"\n69\t    },\n70\t    {\n71\t      \"id\": \"sym:ts:benchmarks/deno/fast.ts:app.get('/user/lookup/email/:address') callback\",\n72\t      \"name\": \"app.get('/user/lookup/email/:address') callback\",\n73\t      \"kind\": \"function\",\n74\t      \"path\": \"benchmarks/deno/fast.ts\",\n75\t      \"line\": 9,\n76\t      \"signature\": \"app.get('/user/lookup/email/:address', () =>\",\n77\t      \"file_sha\": \"f7057eff513855e0a52f14b90070f7751725e14d52d30a07c9f489fe6f393a58\"\n78\t    },\n79\t    {\n80\t      \"id\": \"sym:ts:benchmarks/deno/fast.ts:app.get('/user/lookup/username/:username') callback\",\n81\t      \"name\": \"app.get('/user/lookup/username/:username') callback\",\n82\t      \"kind\": \"function\",\n83\t      \"path\": \"benchmarks/deno/fast.ts\",\n84\t      \"line\": 15,\n85\t      \"signature\": \"app.get('/user/lookup/username/:username', (ctx: Context) =>\",\n86\t      \"file_sha\": \"f7057eff513855e0a52f14b90070f7751725e14d52d30a07c9f489fe6f393a58\"\n87\t    },\n88\t    {\n89\t      \"id\": \"sym:ts:benchmarks/deno/fast.ts:app.get('/very/deeply/nested/route/hello/there') callback\",\n90\t      \"name\": \"app.get('/very/deeply/nested/route/hello/there') callback\",\n91\t      \"kind\": \"function\",\n92\t      \"path\": \"benchmarks/deno/fast.ts\",\n93\t      \"line\": 14,\n94\t      \"signature\": \"app.get('/very/deeply/nested/route/hello/there', () =>\",\n95\t      \"file_sha\": \"f7057eff513855e0a52f14b90070f7751725e14d52d30a07c9f489fe6f393a58\"\n96\t    },\n97\t    {\n98\t      \"id\": \"sym:ts:benchmarks/deno/fast.ts:app.post('/event/:id/comments') callback\",\n99\t      \"name\": \"app.post('/event/:id/comments') callback\",\n100\t      \"kind\": \"function\","
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -c \"Context\" atlases/hono/atlas.json",
+        "description": "Count Context references"
+      },
+      "result_preview": "558"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -n \"src/context.ts\" atlases/hono/atlas.json | head -40",
+        "description": "Find context.ts references"
+      },
+      "result_preview": "5225:      \"id\": \"sym:ts:src/context.ts:BodyRespond\",\n5228:      \"path\": \"src/context.ts\",\n5234:      \"id\": \"sym:ts:src/context.ts:Context\",\n5237:      \"path\": \"src/context.ts\",\n5242:      \"id\": \"sym:ts:src/context.ts:ContextOptions\",\n5245:      \"path\": \"src/context.ts\",\n5251:      \"id\": \"sym:ts:src/context.ts:ContextRenderer\",\n5254:      \"path\": \"src/context.ts\",\n5260:      \"id\": \"sym:ts:src/context.ts:ContextVariableMap\",\n5263:      \"path\": \"src/context.ts\",\n5269:      \"id\": \"sym:ts:src/context.ts:Data\",\n5272:      \"path\": \"src/context.ts\",\n5278:      \"id\": \"sym:ts:src/context.ts:DefaultRenderer\",\n5281:      \"path\": \"src/context.ts\",\n5287:      \"id\": \"sym:ts:src/context.ts:ExecutionContext\",\n5290:      \"path\": \"src/context.ts\",\n5296:      \"id\": \"sym:ts:src/context.ts:Get\",\n5299:      \"path\": \"src/context.ts\",\n5305:      \"id\": \"sym:ts:src/context.ts:HTMLRespond\",\n5308:      \"path\": \"src/context.ts\",\n5314:      \"id\": \"sym:ts:src/context.ts:HeaderRecord\",\n5317:      \"path\": \"src/context.ts\",\n5323:      \"id\": \"sym:ts:src/context.ts:JSONRespond\",\n5326:      \"path\": \"src/context.ts\",\n5332:      \"id\": \"sym:ts:src/context.ts:JSONRespondReturn\",\n5335:      \"path\": \"src/context.ts\",\n5341:      \"id\": \"sym:ts:src/context.ts:Layout\",\n5344:      \"path\": \"src/context.ts\",\n5350:      \"id\": \"sym:ts:src/context.ts:NewResponse\",\n5353:      \"path\": \"src/context.ts\",\n5359:      \"id\": \"sym:ts:src/context.ts:PropsForRenderer\",\n5362:      \"path\": \"src/context.ts\",\n5368:      \"id\": \"sym:ts:src/context.ts:Renderer\",\n5371:      \"path\": \"src/context.ts\",\n5377:      \"id\": \"sym:ts:src/context.ts:ResponseHeadersInit\",\n5380:      \"path\": \"src/context.ts\",\n5386:      \"id\": \"sym:ts:src/context.ts:ResponseInit\",\n5389:      \"path\": \"src/context.ts\",\n5395:      \"id\": \"sym:ts:src/context.ts:ResponseOrInit\",\n5398:      \"path\": \"src/context.ts\","
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "C:\\CodeWork\\ContextAtlas-benchmarks\\atlases\\hono\\atlas.json",
+        "offset": 5230,
+        "limit": 200
+      },
+      "result_preview": "5230\t      \"signature\": \"interface BodyRespond\",\n5231\t      \"file_sha\": \"f486ae1578fcf1bb29497d2cb35f849d808fb77785426b9426397cbe89d77de3\"\n5232\t    },\n5233\t    {\n5234\t      \"id\": \"sym:ts:src/context.ts:Context\",\n5235\t      \"name\": \"Context\",\n5236\t      \"kind\": \"class\",\n5237\t      \"path\": \"src/context.ts\",\n5238\t      \"line\": 293,\n5239\t      \"file_sha\": \"f486ae1578fcf1bb29497d2cb35f849d808fb77785426b9426397cbe89d77de3\"\n5240\t    },\n5241\t    {\n5242\t      \"id\": \"sym:ts:src/context.ts:ContextOptions\",\n5243\t      \"name\": \"ContextOptions\",\n5244\t      \"kind\": \"type\",\n5245\t      \"path\": \"src/context.ts\",\n5246\t      \"line\": 237,\n5247\t      \"signature\": \"type ContextOptions<E extends Env> = { /** * Bindings for the environment. */ env: E['Bindings'] /**\",\n5248\t      \"file_sha\": \"f486ae1578fcf1bb29497d2cb35f849d808fb77785426b9426397cbe89d77de3\"\n5249\t    },\n5250\t    {\n5251\t      \"id\": \"sym:ts:src/context.ts:ContextRenderer\",\n5252\t      \"name\": \"ContextRenderer\",\n5253\t      \"kind\": \"interface\",\n5254\t      \"path\": \"src/context.ts\",\n5255\t      \"line\": 62,\n5256\t      \"signature\": \"interface ContextRenderer\",\n5257\t      \"file_sha\": \"f486ae1578fcf1bb29497d2cb35f849d808fb77785426b9426397cbe89d77de3\"\n5258\t    },\n5259\t    {\n5260\t      \"id\": \"sym:ts:src/context.ts:ContextVariableMap\",\n5261\t      \"name\": \"ContextVariableMap\",\n5262\t      \"kind\": \"interface\",\n5263\t      \"path\": \"src/context.ts\",\n5264\t      \"line\": 57,\n5265\t      \"signature\": \"interface ContextVariableMap\",\n5266\t      \"file_sha\": \"f486ae1578fcf1bb29497d2cb35f849d808fb77785426b9426397cbe89d77de3\"\n5267\t    },\n5268\t    {\n5269\t      \"id\": \"sym:ts:src/context.ts:Data\",\n5270\t      \"name\": \"Data\",\n5271\t      \"kind\": \"type\",\n5272\t      \"path\": \"src/context.ts\",\n5273\t      \"line\": 26,\n5274\t      \"signature\": \"type Data = string | ArrayBuffer | ReadableStream | Uint8Array<ArrayBuffer> /** * Interface for the execution context in a web worker or similar environment. */ export interface ExecutionContext {\",\n5275\t      \"file_sha\": \"f486ae1578fcf1bb29497d2cb35f849d808fb77785426b9426397cbe89d77de3\"\n5276\t    },\n5277\t    {\n5278\t      \"id\": \"sym:ts:src/context.ts:DefaultRenderer\",\n5279\t      \"name\": \"DefaultRenderer\",\n5280\t      \"kind\": \"interface\",\n5281\t      \"path\": \"src/context.ts\",\n5282\t      \"line\": 71,\n5283\t      \"signature\": \"interface DefaultRenderer\",\n5284\t      \"file_sha\": \"f486ae1578fcf1bb29497d2cb35f849d808fb77785426b9426397cbe89d77de3\"\n5285\t    },\n5286\t    {\n5287\t      \"id\": \"sym:ts:src/context.ts:ExecutionContext\",\n5288\t      \"name\": \"ExecutionContext\",\n5289\t      \"kind\": \"interface\",\n5290\t      \"path\": \"src/context.ts\",\n5291\t      \"line\": 31,\n5292\t      \"signature\": \"interface ExecutionContext\",\n5293\t      \"file_sha\": \"f486ae1578fcf1bb29497d2cb35f849d808fb77785426b9426397cbe89d77de3\"\n5294\t    },\n5295\t    {\n5296\t      \"id\": \"sym:ts:src/context.ts:Get\",\n5297\t      \"name\": \"Get\",\n5298\t      \"kind\": \"interface\",\n5299\t      \"path\": \"src/context.ts\",\n5300\t      \"line\": 95,\n5301\t      \"signature\": \"interface Get<E extends Env>\",\n5302\t      \"file_sha\": \"f486ae1578fcf1bb29497d2cb35f849d808fb77785426b9426397cbe89d77de3\"\n5303\t    },\n5304\t    {\n5305\t      \"id\": \"sym:ts:src/context.ts:HTMLRespond\",\n5306\t      \"name\": \"HTMLRespond\",\n5307\t      \"kind\": \"interface\",\n5308\t      \"path\": \"src/context.ts\",\n5309\t      \"line\": 220,\n5310\t      \"signature\": \"interface HTMLRespond\",\n5311\t      \"file_sha\": \"f486ae1578fcf1bb29497d2cb35f849d808fb77785426b9426397cbe89d77de3\"\n5312\t    },\n5313\t    {\n5314\t      \"id\": \"sym:ts:src/context.ts:HeaderRecord\",\n5315\t      \"name\": \"HeaderRecord\",\n5316\t      \"kind\": \"type\",\n5317\t      \"path\": \"src/context.ts\",\n5318\t      \"line\": 18,\n5319\t      \"signature\": \"type HeaderRecord = | Record<'Content-Type', BaseMime> | Record<ResponseHeader, string | string[]> | Record<string, string | string[]> /**\",\n5320\t      \"file_sha\": \"f486ae1578fcf1bb29497d2cb35f849d808fb77785426b9426397cbe89d77de3\"\n5321\t    },\n5322\t    {\n5323\t      \"id\": \"sym:ts:src/context.ts:JSONRespond\",\n5324\t      \"name\": \"JSONRespond\",\n5325\t      \"kind\": \"interface\",\n5326\t      \"path\": \"src/context.ts\",\n5327\t      \"line\": 181,\n5328\t      \"signature\": \"interface JSONRespond\",\n5329\t      \"file_sha\": \"f486ae1578fcf1bb29497d2cb35f849d808fb77785426b9426397cbe89d77de3\"\n5330\t    },\n5331\t    {\n5332\t      \"id\": \"sym:ts:src/context.ts:JSONRespondReturn\",\n5333\t      \"name\": \"JSONRespondReturn\",\n5334\t      \"kind\": \"type\",\n5335\t      \"path\": \"src/context.ts\",\n5336\t      \"line\": 205,\n5337\t      \"signature\": \"type JSONRespondReturn< T extends JSONValue | {} | InvalidJSONValue, U extends ContentfulStatusCode, > = Response & TypedResponse<JSONParsed<T>, U, 'json'> /**\",\n5338\t      \"file_sha\": \"f486ae1578fcf1bb29497d2cb35f849d808fb77785426b9426397cbe89d77de3\"\n5339\t    },\n5340\t    {\n5341\t      \"id\": \"sym:ts:src/context.ts:Layout\",\n5342\t      \"name\": \"Layout\",\n5343\t      \"kind\": \"type\",\n5344\t      \"path\": \"src/context.ts\",\n5345\t      \"line\": 88,\n5346\t      \"signature\": \"type Layout<T = Record<string, any>> = (props: T) => a\n\n[truncated: 3974 additional bytes not shown]"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -n \"ADR-01-web-standards\" atlases/hono/atlas.json | head -5",
+        "description": "Find ADR-01 references"
+      },
+      "result_preview": "10:    \"ADR-01-web-standards-zero-deps.md\": \"f0859390aa48e8cb056f926a6ae36a8d30c7cb233bac1553b82649543607fa6b\",\n16514:      \"source_path\": \"ADR-01-web-standards-zero-deps.md\",\n16536:      \"source_path\": \"ADR-01-web-standards-zero-deps.md\",\n16558:      \"source_path\": \"ADR-01-web-standards-zero-deps.md\",\n16580:      \"source_path\": \"ADR-01-web-standards-zero-deps.md\","
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "C:\\CodeWork\\ContextAtlas-benchmarks\\atlases\\hono\\atlas.json",
+        "offset": 16500,
+        "limit": 250
+      },
+      "result_preview": "16500\t      \"file_sha\": \"e10101677e368edfa45de5ec195899bf49f34ac83757213d984a8875ba60cfb0\"\n16501\t    },\n16502\t    {\n16503\t      \"id\": \"sym:ts:vitest.config.ts:default\",\n16504\t      \"name\": \"default\",\n16505\t      \"kind\": \"variable\",\n16506\t      \"path\": \"vitest.config.ts\",\n16507\t      \"line\": 3,\n16508\t      \"file_sha\": \"67690e4c85a8da889dfae23d24dbc45608e94772f19516dcdca7db69fef2aa93\"\n16509\t    }\n16510\t  ],\n16511\t  \"claims\": [\n16512\t    {\n16513\t      \"source\": \"ADR-01\",\n16514\t      \"source_path\": \"ADR-01-web-standards-zero-deps.md\",\n16515\t      \"source_sha\": \"f0859390aa48e8cb056f926a6ae36a8d30c7cb233bac1553b82649543607fa6b\",\n16516\t      \"severity\": \"context\",\n16517\t      \"claim\": \"Adding capabilities that require runtime APIs (streaming file I/O, WebSocket upgrade, client IP, signed-cookie crypto) requires one adapter file per runtime rather than a single core patch.\",\n16518\t      \"rationale\": \"Consequence of keeping runtime-specific code out of core.\",\n16519\t      \"excerpt\": \"New features that need runtime APIs fork into adapter implementations. Streaming file I/O, WebSocket upgrade, connection info (client IP), signed-cookie crypto — each requires one adapter file per runtime.\",\n16520\t      \"symbol_ids\": [\n16521\t        \"sym:ts:src/client/types.ts:HonoRequest\",\n16522\t        \"sym:ts:src/context.ts:Context\",\n16523\t        \"sym:ts:src/hono-base.ts:Hono\",\n16524\t        \"sym:ts:src/hono.ts:Hono\",\n16525\t        \"sym:ts:src/jsx/context.ts:Context\",\n16526\t        \"sym:ts:src/jsx/dom/render.ts:Context\",\n16527\t        \"sym:ts:src/middleware/cache/index.test.ts:Context\",\n16528\t        \"sym:ts:src/preset/quick.ts:Hono\",\n16529\t        \"sym:ts:src/preset/tiny.ts:Hono\",\n16530\t        \"sym:ts:src/request.ts:HonoRequest\",\n16531\t        \"sym:ts:src/router/reg-exp-router/node.ts:Context\"\n16532\t      ]\n16533\t    },\n16534\t    {\n16535\t      \"source\": \"ADR-01\",\n16536\t      \"source_path\": \"ADR-01-web-standards-zero-deps.md\",\n16537\t      \"source_sha\": \"f0859390aa48e8cb056f926a6ae36a8d30c7cb233bac1553b82649543607fa6b\",\n16538\t      \"severity\": \"hard\",\n16539\t      \"claim\": \"Any `node:` import outside `src/adapter/**` (except the documented `node:async_hooks` exception) must fail a grep-based lint.\",\n16540\t      \"rationale\": \"Mechanical enforcement prevents runtime-specific imports from leaking into core.\",\n16541\t      \"excerpt\": \"any `node:` import outside `src/adapter/**` (with the `node:async_hooks` exception) fails a grep-based lint\",\n16542\t      \"symbol_ids\": [\n16543\t        \"sym:ts:src/client/types.ts:HonoRequest\",\n16544\t        \"sym:ts:src/context.ts:Context\",\n16545\t        \"sym:ts:src/hono-base.ts:Hono\",\n16546\t        \"sym:ts:src/hono.ts:Hono\",\n16547\t        \"sym:ts:src/jsx/context.ts:Context\",\n16548\t        \"sym:ts:src/jsx/dom/render.ts:Context\",\n16549\t        \"sym:ts:src/middleware/cache/index.test.ts:Context\",\n16550\t        \"sym:ts:src/preset/quick.ts:Hono\",\n16551\t        \"sym:ts:src/preset/tiny.ts:Hono\",\n16552\t        \"sym:ts:src/request.ts:HonoRequest\",\n16553\t        \"sym:ts:src/router/reg-exp-router/node.ts:Context\"\n16554\t      ]\n16555\t    },\n16556\t    {\n16557\t      \"source\": \"ADR-01\",\n16558\t      \"source_path\": \"ADR-01-web-standards-zero-deps.md\",\n16559\t      \"source_sha\": \"f0859390aa48e8cb056f926a6ae36a8d30c7cb233bac1553b82649543607fa6b\",\n16560\t      \"severity\": \"hard\",\n16561\t      \"claim\": \"Any non-empty `dependencies` field in package.json must fail CI.\",\n16562\t      \"rationale\": \"Mechanical enforcement of the zero-dep rule; reviewers don't need judgment.\",\n16563\t      \"excerpt\": \"any non-empty `dependencies` field fails CI\",\n16564\t      \"symbol_ids\": [\n16565\t        \"sym:ts:src/client/types.ts:HonoRequest\",\n16566\t        \"sym:ts:src/context.ts:Context\",\n16567\t        \"sym:ts:src/hono-base.ts:Hono\",\n16568\t        \"sym:ts:src/hono.ts:Hono\",\n16569\t        \"sym:ts:src/jsx/context.ts:Context\",\n16570\t        \"sym:ts:src/jsx/dom/render.ts:Context\",\n16571\t        \"sym:ts:src/middleware/cache/index.test.ts:Context\",\n16572\t        \"sym:ts:src/preset/quick.ts:Hono\",\n16573\t        \"sym:ts:src/preset/tiny.ts:Hono\",\n16574\t        \"sym:ts:src/request.ts:HonoRequest\",\n16575\t        \"sym:ts:src/router/reg-exp-router/node.ts:Context\"\n16576\t      ]\n16577\t    },\n16578\t    {\n16579\t      \"source\": \"ADR-01\",\n16580\t      \"source_path\": \"ADR-01-web-standards-zero-deps.md\",\n16581\t      \"source_sha\": \"f0859390aa48e8cb056f926a6ae36a8d30c7cb233bac1553b82649543607fa6b\",\n16582\t      \"severity\": \"hard\",\n16583\t      \"claim\": \"Core code must be built entirely on Web Standard APIs with no runtime-specific globals or imports.\",\n16584\t      \"rationale\": \"Portability across 9+ runtimes depends on the Web Standards substrate; runtime-specific imports break loading on Workers and cause polyfill pulls on Deno.\",\n16585\t      \"excerpt\": \"Core code is built entirely on Web Standard APIs. Permitted primitives: `Request`, `Response`, `Headers`, `URL`, `URLSearchParams`, `fetch`, `ReadableStream` / `WritableStream` / `TransformStream`, `TextEncoder` / `TextDecod\n\n[truncated: 10105 additional bytes not shown]"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -n \"executionCtx\\|c\\\\.env\\|app.fetch\\|ExecutionContext\" atlases/hono/atlas.json | head -30",
+        "description": "Find execution context and env references"
+      },
+      "result_preview": "This Bash command contains multiple operations. The following part requires approval: grep -n \"executionCtx\\|c\\\\.env\\|app.fetch\\|ExecutionContext\" atlases/hono/atlas.json"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -n \"ExecutionContext\" atlases/hono/atlas.json | head -20",
+        "description": "Find ExecutionContext references"
+      },
+      "result_preview": "5274:      \"signature\": \"type Data = string | ArrayBuffer | ReadableStream | Uint8Array<ArrayBuffer> /** * Interface for the execution context in a web worker or similar environment. */ export interface ExecutionContext {\",\n5287:      \"id\": \"sym:ts:src/context.ts:ExecutionContext\",\n5288:      \"name\": \"ExecutionContext\",\n5292:      \"signature\": \"interface ExecutionContext\",\n10506:      \"signature\": \"class Context implements ExecutionContext\",\n19089:      \"message\": \"feat(types): Add exports field to ExecutionContext (#4719)\",\n21614:      \"message\": \"fix(context): add `props` to `ExecutionContext` (#4030)\","
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "C:\\CodeWork\\ContextAtlas-benchmarks\\atlases\\hono\\atlas.json",
+        "offset": 10498,
+        "limit": 30
+      },
+      "result_preview": "10498\t      \"file_sha\": \"a698cacd3355bc0fae35fb1bbc8265e3a01c22fb4547ad8f82708dd7d12d01b2\"\n10499\t    },\n10500\t    {\n10501\t      \"id\": \"sym:ts:src/middleware/cache/index.test.ts:Context\",\n10502\t      \"name\": \"Context\",\n10503\t      \"kind\": \"class\",\n10504\t      \"path\": \"src/middleware/cache/index.test.ts\",\n10505\t      \"line\": 6,\n10506\t      \"signature\": \"class Context implements ExecutionContext\",\n10507\t      \"file_sha\": \"3d6ccf964843dc2502dd66cf798349b74c9cfe7e5bb11759777b26c1e731e97b\"\n10508\t    },\n10509\t    {\n10510\t      \"id\": \"sym:ts:src/middleware/cache/index.test.ts:describe('Cache Middleware') callback\",\n10511\t      \"name\": \"describe('Cache Middleware') callback\",\n10512\t      \"kind\": \"function\",\n10513\t      \"path\": \"src/middleware/cache/index.test.ts\",\n10514\t      \"line\": 84,\n10515\t      \"signature\": \"describe('Cache Middleware', () =>\",\n10516\t      \"file_sha\": \"3d6ccf964843dc2502dd66cf798349b74c9cfe7e5bb11759777b26c1e731e97b\"\n10517\t    },\n10518\t    {\n10519\t      \"id\": \"sym:ts:src/middleware/cache/index.test.ts:describe('Cache Skipping Logic') callback\",\n10520\t      \"name\": \"describe('Cache Skipping Logic') callback\",\n10521\t      \"kind\": \"function\",\n10522\t      \"path\": \"src/middleware/cache/index.test.ts\",\n10523\t      \"line\": 452,\n10524\t      \"signature\": \"describe('Cache Skipping Logic', () =>\",\n10525\t      \"file_sha\": \"3d6ccf964843dc2502dd66cf798349b74c9cfe7e5bb11759777b26c1e731e97b\"\n10526\t    },\n10527\t    {"
+    }
+  ],
+  "diagnostics": {
+    "claudeCodeVersion": "2.1.118",
+    "totalCostUsd": 0.29354575,
+    "numTurns": 13,
+    "isError": false,
+    "terminalReason": "completed",
+    "modelUsage": {
+      "claude-haiku-4-5-20251001": {
+        "inputTokens": 379,
+        "outputTokens": 19,
+        "cacheReadInputTokens": 0,
+        "cacheCreationInputTokens": 0,
+        "webSearchRequests": 0,
+        "costUSD": 0.00047400000000000003,
+        "contextWindow": 200000,
+        "maxOutputTokens": 32000
+      },
+      "claude-opus-4-7": {
+        "inputTokens": 18,
+        "outputTokens": 3783,
+        "cacheReadInputTokens": 105626,
+        "cacheCreationInputTokens": 23295,
+        "webSearchRequests": 0,
+        "costUSD": 0.29307174999999996,
+        "contextWindow": 1000000,
+        "maxOutputTokens": 64000
+      }
+    }
+  },
+  "cost_usd": 0.29354575,
+  "written_at": "2026-04-23T16:21:33.586Z"
+}
