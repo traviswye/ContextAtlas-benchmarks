@@ -170,6 +170,20 @@ behavior from a small sample.
 preserve ~50% headroom over the projection. Warning gate
 $11 (80% of ceiling).
 
+## Final calibration observation (post-run #2)
+
+Priors undershoot was ~1.5× on run #2 vs ~2× on run #1. Convergence
+direction right, but tie/trick buckets weren't accurately modeled.
+
+- Observed tie-bucket avg ~$0.30/cell (priors $0.23)
+- Observed trick-bucket avg ~$0.18/cell (priors $0.17)
+- Win bucket well-calibrated
+
+For v0.2+ reference runs: tie priors should scale 80% of win (not
+65%), trick priors stay conservative at 55% (not 45%). Revisit after
+the next reference run provides more tie/trick data points; current
+observations are still n=1 per bucket pair.
+
 ## Open questions for Phase 6 qualitative analysis
 
 1. **Does the beta-ca cost-efficiency pattern hold on tie
