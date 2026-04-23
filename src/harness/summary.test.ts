@@ -31,6 +31,7 @@ function cell(
     retried: overrides.retried,
     bothCapped: overrides.bothCapped,
     errored: overrides.errored,
+    diagnostics: overrides.diagnostics,
   };
 }
 
@@ -236,6 +237,63 @@ describe("generateSummary — errored cells", () => {
     expect(markdown).toContain("Errored cells: 1");
     expect(markdown).toContain("h1-context-runtime/ca");
     expect(markdown).toContain("MCP circuit breaker tripped");
+  });
+
+  it("treats CLI soft-fails (diagnostics.isError=true) as errored: ERR in matrix, .error.json in manifest, listed in diagnostics tail", () => {
+    const cells = [
+      cell("h1-context-runtime", "alpha"),
+      cell("h1-context-runtime", "beta", {
+        metrics: {
+          tool_calls: 0,
+          input_tokens: 0,
+          output_tokens: 0,
+          total_tokens: 0,
+          wall_clock_ms: 7362,
+        },
+        costUsd: 0.000454,
+        diagnostics: { isError: true, errorFromEvent: "server_error" },
+      }),
+    ];
+    const { markdown, manifest } = generateSummary(baseInput({ cells }));
+
+    // Matrix row shows ERR for beta, not 0-call success
+    expect(markdown).toMatch(/h1-context-runtime \| win \| 5 \| 4.5k \| 15s \| — \| — \| — \| ERR \| ERR \| ERR/);
+
+    // Diagnostics tail lists the soft-fail with synthesized message
+    expect(markdown).toContain("Errored cells: 1");
+    expect(markdown).toContain("h1-context-runtime/beta: CLI soft-fail: server_error");
+
+    // Manifest: errored=true and artifact_path ends in .error.json
+    const betaCell = manifest.cells.find((c) => c.condition === "beta" && c.prompt_id === "h1-context-runtime");
+    expect(betaCell?.errored).toBe(true);
+    expect(betaCell?.artifact_path).toBe("hono/h1-context-runtime/beta.error.json");
+  });
+
+  it("excludes CLI soft-fail cost from the authoritative/estimated split", () => {
+    const cells = [
+      cell("h1-context-runtime", "alpha", { costUsd: 0.10 }),
+      cell("h1-context-runtime", "beta", {
+        costUsd: 0.000454,
+        diagnostics: { isError: true },
+      }),
+      cell("h1-context-runtime", "beta-ca", {
+        costUsd: 0.08,
+      }),
+    ];
+    const { markdown } = generateSummary(baseInput({ cells, totalCostUsd: 0.180454 }));
+    // Authoritative should be beta-ca's 0.08 only; the soft-failed beta is excluded.
+    expect(markdown).toContain("authoritative (beta/beta-ca, Claude Code reports): $0.0800");
+    expect(markdown).toContain("estimated (alpha/ca, Opus 4.7 pricing): $0.1000");
+  });
+
+  it("falls back to generic message when a soft-fail has no errorFromEvent", () => {
+    const cells = [
+      cell("h1-context-runtime", "beta", {
+        diagnostics: { isError: true },
+      }),
+    ];
+    const { markdown } = generateSummary(baseInput({ cells }));
+    expect(markdown).toContain("h1-context-runtime/beta: CLI soft-fail (diagnostics.isError=true)");
   });
 });
 

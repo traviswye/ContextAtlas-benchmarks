@@ -27,6 +27,26 @@ export interface RecordWithMeta {
   readonly bothCapped?: boolean;
   /** Populated if the run errored entirely (metrics may be empty). */
   readonly errored?: { readonly message: string };
+  /**
+   * Minimal CLI diagnostics (beta/beta-ca only). A soft-failed CLI
+   * run sets `isError=true` while `terminalReason` is still
+   * `"completed"` — we treat that as errored at the summary level.
+   */
+  readonly diagnostics?: {
+    readonly isError?: boolean;
+    readonly errorFromEvent?: string;
+  };
+}
+
+/**
+ * True if a cell represents a failed run — either an SDK-level
+ * exception (`errored`) or a CLI soft-fail (`diagnostics.isError`).
+ * Soft-fails surface as 0-call "completed" runs on the CLI path
+ * when Claude Code internally catches an upstream 529/overload; the
+ * run looks clean but carried no signal. Treat as ERR.
+ */
+export function isErroredCell(cell: RecordWithMeta): boolean {
+  return cell.errored != null || cell.diagnostics?.isError === true;
 }
 
 export interface SummaryInput {
@@ -152,7 +172,7 @@ function buildManifest(
         cost_usd: cell.costUsd,
         retried: cell.retried,
         both_capped: cell.bothCapped,
-        errored: cell.errored ? true : undefined,
+        errored: isErroredCell(cell) ? true : undefined,
       });
     }
   }
@@ -182,7 +202,7 @@ function buildManifest(
 }
 
 function artifactFilename(cell: RecordWithMeta): string {
-  if (cell.errored) return `${cell.condition}.error.json`;
+  if (isErroredCell(cell)) return `${cell.condition}.error.json`;
   if (cell.bothCapped) return `${cell.condition}.capped-retry.json`;
   return `${cell.condition}.json`;
 }
@@ -263,7 +283,7 @@ function buildMarkdown(
         row.push("—", "—", "—");
         continue;
       }
-      if (cell.errored) {
+      if (isErroredCell(cell)) {
         row.push("ERR", "ERR", "ERR");
         notes.push(`${condition}: ERR`);
         continue;
@@ -330,10 +350,10 @@ function buildMarkdown(
   lines.push("");
   const authoritative = input.cells
     .filter((c) => c.condition === "beta" || c.condition === "beta-ca")
-    .reduce((s, c) => s + (c.errored ? 0 : c.costUsd), 0);
+    .reduce((s, c) => s + (isErroredCell(c) ? 0 : c.costUsd), 0);
   const estimated = input.cells
     .filter((c) => c.condition === "alpha" || c.condition === "ca")
-    .reduce((s, c) => s + (c.errored ? 0 : c.costUsd), 0);
+    .reduce((s, c) => s + (isErroredCell(c) ? 0 : c.costUsd), 0);
   lines.push(`Total cost: $${input.totalCostUsd.toFixed(4)}`);
   lines.push(
     `  authoritative (beta/beta-ca, Claude Code reports): $${authoritative.toFixed(4)}`,
@@ -351,11 +371,15 @@ function buildMarkdown(
   }
   lines.push("");
 
-  const errored = input.cells.filter((c) => c.errored);
+  const errored = input.cells.filter((c) => isErroredCell(c));
   lines.push(`Errored cells: ${errored.length}`);
   for (const e of errored) {
-    const preview = e.errored?.message.slice(0, 120) ?? "";
-    lines.push(`  ${e.promptId}/${e.condition}: ${preview}`);
+    const message =
+      e.errored?.message ??
+      (e.diagnostics?.errorFromEvent
+        ? `CLI soft-fail: ${e.diagnostics.errorFromEvent}`
+        : "CLI soft-fail (diagnostics.isError=true)");
+    lines.push(`  ${e.promptId}/${e.condition}: ${message.slice(0, 120)}`);
   }
   lines.push("");
 
@@ -389,17 +413,19 @@ function renderDeltaRow(
 ): string {
   const b = cellMap.get(cellKey(promptId, baseline));
   const v = cellMap.get(cellKey(promptId, variant));
-  const baseCalls = b && !b.errored ? b.metrics.tool_calls.toString() : "—";
-  const varCalls = v && !v.errored ? v.metrics.tool_calls.toString() : "—";
-  const baseTokens = b && !b.errored ? formatTokens(b.metrics.total_tokens) : "—";
-  const varTokens = v && !v.errored ? formatTokens(v.metrics.total_tokens) : "—";
+  const bOk = b != null && !isErroredCell(b);
+  const vOk = v != null && !isErroredCell(v);
+  const baseCalls = bOk ? b.metrics.tool_calls.toString() : "—";
+  const varCalls = vOk ? v.metrics.tool_calls.toString() : "—";
+  const baseTokens = bOk ? formatTokens(b.metrics.total_tokens) : "—";
+  const varTokens = vOk ? formatTokens(v.metrics.total_tokens) : "—";
 
   const deltaCalls =
-    b && v && !b.errored && !v.errored
+    bOk && vOk
       ? formatDelta(v.metrics.tool_calls - b.metrics.tool_calls)
       : "— (partial)";
   const deltaTokens =
-    b && v && !b.errored && !v.errored
+    bOk && vOk
       ? formatDelta(v.metrics.total_tokens - b.metrics.total_tokens)
       : "— (partial)";
 

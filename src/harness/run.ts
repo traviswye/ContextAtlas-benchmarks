@@ -212,6 +212,38 @@ export function actualCostUsd(
   return (m.input_tokens * 15 + m.output_tokens * 75) / 1e6;
 }
 
+/**
+ * Detects the "soft-fail" shape: Claude Code CLI ran to completion
+ * (`terminalReason: "completed"`) but caught an upstream API error
+ * (`isError: true`). Only applies to beta/beta-ca — Alpha/CA surface
+ * SDK errors as thrown exceptions.
+ *
+ * First observed during the 2026-04-23 Anthropic 529 outage: 12
+ * beta/beta-ca cells reported 0 tool calls and an "API Error"
+ * answer yet looked clean to the orchestrator. Treat as errored so
+ * downstream summaries render ERR, not a bogus 0-call success row.
+ */
+function isCliSoftFail(
+  output: AlphaAgentOutput,
+  condition: Condition,
+): boolean {
+  if (condition !== "beta" && condition !== "beta-ca") return false;
+  const diag = (output as { diagnostics?: DiagnosticInfo }).diagnostics;
+  return diag?.isError === true;
+}
+
+/** Minimal diagnostics shape plumbed through to the summary layer. */
+function summaryDiagnostics(
+  output: AlphaAgentOutput,
+): { readonly isError?: boolean; readonly errorFromEvent?: string } | undefined {
+  const diag = (output as { diagnostics?: DiagnosticInfo }).diagnostics;
+  if (!diag) return undefined;
+  if (diag.isError === undefined && diag.errorFromEvent === undefined) {
+    return undefined;
+  }
+  return { isError: diag.isError, errorFromEvent: diag.errorFromEvent };
+}
+
 // ---------------------------------------------------------------------------
 // Artifact shapes
 // ---------------------------------------------------------------------------
@@ -508,11 +540,12 @@ export async function runMatrix(
       // --- Normal (non-retried) path ---
       const cost = actualCostUsd(firstResult, condition);
       accumulatedCost += cost;
+      const softFailed = isCliSoftFail(firstResult, condition);
       await writeArtifactJson(
         input.outputRoot,
         input.repoName,
         prompt.prompt_id,
-        `${condition}.json`,
+        softFailed ? `${condition}.error.json` : `${condition}.json`,
         toArtifact(firstResult, prompt, input.repoName, condition, {
           costUsd: cost,
           writtenAt: now(),
@@ -524,6 +557,7 @@ export async function runMatrix(
         metrics: firstResult.metrics,
         capped: firstResult.capped,
         costUsd: cost,
+        diagnostics: summaryDiagnostics(firstResult),
       });
     }
   }

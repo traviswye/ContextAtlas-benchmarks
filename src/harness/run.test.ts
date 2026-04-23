@@ -406,6 +406,68 @@ describe("runMatrix — errored cells", () => {
     expect(result.cells).toHaveLength(2);
     expect(result.cells[0].errored?.message).toBe("mock dispatcher failure");
   });
+
+  it("writes .error.json and flags manifest errored for beta CLI soft-fails (diagnostics.isError=true)", async () => {
+    // Simulates the 2026-04-23 Anthropic 529 outage: Claude Code catches
+    // the upstream error, terminal event says "completed", but diagnostics
+    // carries isError=true. Orchestrator should treat as errored.
+    const dispatch: DispatchFn = async (opts) => {
+      if (opts.condition === "beta") {
+        return canned({
+          answer: "API Error: Repeated 529 Overloaded errors.",
+          trace: [],
+          metrics: {
+            tool_calls: 0,
+            input_tokens: 0,
+            output_tokens: 0,
+            total_tokens: 0,
+            wall_clock_ms: 7362,
+          },
+          diagnostics: {
+            claudeCodeVersion: "2.1.118",
+            totalCostUsd: 0.000454,
+            isError: true,
+            errorFromEvent: "server_error",
+            terminalReason: "completed",
+          },
+        });
+      }
+      return canned();
+    };
+    const result = await runMatrix(
+      baseInput(f, { dispatch, conditions: ["beta"] }),
+    );
+
+    // Artifact written at .error.json, not .json
+    const errPath = path.join(
+      f.outputRoot,
+      "hono",
+      "h3-middleware-onion",
+      "beta.error.json",
+    );
+    const err = JSON.parse(await readFile(errPath, "utf-8"));
+    // Full RunArtifact shape preserved (diagnostic detail retained)
+    expect(err.diagnostics.isError).toBe(true);
+    expect(err.diagnostics.errorFromEvent).toBe("server_error");
+    expect(err.answer).toContain("API Error");
+
+    // Cell flagged errored in both the result and the written manifest
+    const softFailedCell = result.cells.find(
+      (c) => c.promptId === "h3-middleware-onion" && c.condition === "beta",
+    );
+    expect(softFailedCell?.diagnostics?.isError).toBe(true);
+    expect(result.manifest.cells.find(
+      (c) => c.prompt_id === "h3-middleware-onion" && c.condition === "beta",
+    )?.errored).toBe(true);
+
+    // Summary renders ERR for the soft-failed cell
+    const md = await readFile(
+      path.join(f.outputRoot, "hono", "summary.md"),
+      "utf-8",
+    );
+    expect(md).toContain("h3-middleware-onion | win | ERR | ERR | ERR");
+    expect(md).toContain("h3-middleware-onion/beta: CLI soft-fail: server_error");
+  });
 });
 
 // -------- priors sanity check --------
