@@ -8,6 +8,19 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 export type Condition = "alpha" | "ca" | "beta" | "beta-ca";
+
+/**
+ * Canonical iteration order for the four conditions. The run.ts
+ * orchestrator iterates in this order so artifacts, summary rows,
+ * and logs are deterministic across runs. Reference-run readers
+ * can rely on this order when diffing artifacts between runs.
+ */
+export const CONDITION_ORDER: readonly Condition[] = [
+  "alpha",
+  "ca",
+  "beta",
+  "beta-ca",
+];
 export type Bucket = "win" | "tie" | "trick" | "held_out";
 export type CapReason = "tool_calls" | "tokens" | "wall_clock";
 
