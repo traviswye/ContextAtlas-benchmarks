@@ -199,16 +199,20 @@ describe("runMatrix — budget gate", () => {
   });
 
   it("halts before overflow rather than after", async () => {
-    // Configure a tiny ceiling so the first cell fits (estimate is
-    // ~$0.25 for alpha on win) but the second won't (total would
-    // exceed $0.30).
+    // Post-calibration priors (see research/phase-5-cost-calibration.md):
+    //   h3 (win) alpha = $0.70, h6 (trick) alpha = $0.30.
+    // With ceiling $0.75, first cell fits (0 + 0.70 < 0.75) and runs at
+    // actual $0.60; second cell's estimate pushes accumulated + est
+    // to 0.60 + 0.30 = 0.90 ≥ 0.75 → halt before overflow.
+    // Metrics below produce actual cost $0.60 for alpha via
+    // (40_000 * 15 + 0 * 75) / 1e6 = 0.60.
     const dispatch = vi.fn<[DispatchOptions], Promise<AlphaAgentOutput>>(
       async () => canned({
         metrics: {
           tool_calls: 2,
-          input_tokens: 10_000,
-          output_tokens: 1_000,
-          total_tokens: 11_000,
+          input_tokens: 40_000,
+          output_tokens: 0,
+          total_tokens: 40_000,
           wall_clock_ms: 1000,
         },
       }),
@@ -216,15 +220,12 @@ describe("runMatrix — budget gate", () => {
     const result = await runMatrix(
       baseInput(f, {
         dispatch,
-        budgetCeilingUsd: 0.3,
-        warningGateUsd: 0.1,
+        budgetCeilingUsd: 0.75,
+        warningGateUsd: 0.5,
         conditions: ["alpha"],
       }),
     );
 
-    // h3 (win bucket) alpha estimate is $0.25 per COST_PRIORS_V0_1.
-    // First cell runs (accumulated becomes actual $0.225).
-    // Second cell (h6 trick) estimate is $0.10 — 0.225 + 0.10 = 0.325 >= 0.3 ceiling → halt.
     expect(dispatch).toHaveBeenCalledTimes(1);
     expect(result.halted).toBe("budget_ceiling");
     expect(result.haltedAt?.prompt).toBe("h6-fetch-signature");

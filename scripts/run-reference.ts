@@ -10,8 +10,8 @@
 //
 // Defaults:
 //   --repo hono
-//   --ceiling 5.00
-//   --warning 4.00
+//   --ceiling 14.00   (was 5.00; recalibrated per phase-5-cost-calibration)
+//   --warning 11.00   (was 4.00; 80% of ceiling)
 //   --retry ON (pass --no-retry to disable)
 //
 // Phase 5 keeps this under runs/<timestamp>/ (gitignored).
@@ -41,8 +41,11 @@ interface Args {
 
 function parseArgs(argv: readonly string[]): Args {
   let repo: "hono" | "httpx" = "hono";
-  let ceiling = 5.0;
-  let warning = 4.0;
+  // Defaults calibrated from the partial reference run (see
+  // research/phase-5-cost-calibration.md). Ceiling $14 gives ~50%
+  // headroom over the $9.31 projection from revised priors.
+  let ceiling = 14.0;
+  let warning = 11.0;
   let retry = true;
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];

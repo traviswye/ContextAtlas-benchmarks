@@ -45,12 +45,24 @@ const SYSTEM_PROMPT =
 
 const ALPHA_TOOLS = [readTool, grepTool, globTool, lsTool];
 
-/** Per-cell estimates used by the budget gate to halt before overflow. */
+/**
+ * Per-cell estimates used by the budget gate to halt before overflow.
+ *
+ * Calibrated from the partial reference run at
+ * runs/2026-04-23T01-20-18-813Z/hono/ (n=11 cells, all win-bucket).
+ * Derivation and rationale: research/phase-5-cost-calibration.md.
+ *
+ * Methodology: observed win-bucket averages + ~20% buffer for unseen
+ * variance; tie scaled at 65% of win; trick scaled at 45% of win;
+ * held_out scaled at 80% of win (step-13 prompts lean architectural).
+ * beta-ca win kept conservative ($0.25) despite observed $0.14 average
+ * because the sample was only n=2.
+ */
 export const COST_PRIORS_V0_1: Record<Bucket, Record<Condition, number>> = {
-  win: { alpha: 0.25, ca: 0.4, beta: 0.1, "beta-ca": 0.45 },
-  tie: { alpha: 0.15, ca: 0.2, beta: 0.07, "beta-ca": 0.25 },
-  trick: { alpha: 0.1, ca: 0.15, beta: 0.07, "beta-ca": 0.15 },
-  held_out: { alpha: 0.2, ca: 0.25, beta: 0.1, "beta-ca": 0.3 },
+  win: { alpha: 0.7, ca: 0.7, beta: 0.3, "beta-ca": 0.25 },
+  tie: { alpha: 0.45, ca: 0.45, beta: 0.2, "beta-ca": 0.18 },
+  trick: { alpha: 0.3, ca: 0.3, beta: 0.15, "beta-ca": 0.15 },
+  held_out: { alpha: 0.55, ca: 0.55, beta: 0.25, "beta-ca": 0.22 },
 };
 
 export interface DispatchOptions {
