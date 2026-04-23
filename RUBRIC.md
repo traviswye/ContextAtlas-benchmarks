@@ -106,7 +106,7 @@ of these change materially.
 
 | Tool                | Version          | Source of truth                     |
 |---------------------|------------------|-------------------------------------|
-| Claude Code CLI     | 2.1.117          | `claude --version` on the run host  |
+| Claude Code CLI     | 2.1.118          | `claude --version` on the run host  |
 | Node.js             | 22.22.2          | `node --version` on the run host    |
 | Anthropic SDK       | ^0.32.0          | `package.json` dependency pin       |
 | @vscode/ripgrep     | ^1.17.1          | `package.json` dependency pin; bundles the rg binary the Alpha Grep tool uses |
@@ -117,10 +117,13 @@ after the Phase 0 Beta feasibility spike confirmed headless mode
 works end-to-end (see `research/phase-0-beta-feasibility.md`). The
 Phase 4 stream-json schema smoke test (see
 `research/phase-4-stream-json-shape.md`) observed 2.1.117 on the
-run host; pin updated to match. Both versions produce the same
-stream-json event shapes for our purposes. If the CLI upgrades
-further during the benchmark period, Beta runs must be
-re-executed before publishing numbers.
+run host; pin updated to match. During Phase 5 pin-bump
+validation the run host was observed at 2.1.118 — the smoke test
+verified schema stability (minor additive/removed fields in
+paths our parser doesn't use), so pin updated again. Procedure
+for future bumps: `research/cli-pin-bump-procedure.md`.
+If the CLI upgrades further during the benchmark period, Beta
+runs must be re-executed before publishing numbers.
 
 ---
 

@@ -53,7 +53,7 @@ const PINNED_REPO_SHAS: Record<"hono" | "httpx", string> = {
 };
 
 /** Pinned Claude Code CLI version per RUBRIC.md §"Tool Versions". */
-const PINNED_CLAUDE_VERSION = "2.1.117";
+const PINNED_CLAUDE_VERSION = "2.1.118";
 
 /** Advisory threshold: warn if atlas is older than this many days. */
 const ATLAS_AGE_ADVISORY_DAYS = 30;
