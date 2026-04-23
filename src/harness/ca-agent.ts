@@ -102,6 +102,50 @@ export interface CaAgentInput extends Omit<AlphaAgentInput, "tools"> {
   readonly contextatlasConfigPath: string;
   /** Optional override for the MCP server binary. */
   readonly mcpServerPath?: string;
+  /**
+   * Per-call timeout (ms) applied to each CA MCP tool execution. On
+   * expiry the call throws, the circuit breaker increments, and the
+   * agent records a `TIMEOUT: <ms>ms hang on <tool>` entry in the
+   * trace. Beta-side CA calls use Claude Code's own timeouts + our
+   * wall-clock cap as the equivalent backstop — the timeout here
+   * only applies to the Alpha-side CA tool dispatch. Default 60s.
+   */
+  readonly caToolHangTimeoutMs?: number;
+}
+
+/**
+ * Wrap a BenchmarkTool so `execute` races against a timeout. On
+ * timeout the wrapper rejects with an error the agent's tool
+ * dispatch loop catches as an is_error trace entry. Doesn't wrap
+ * the Alpha base tools — they run in-process and shouldn't hang.
+ */
+export function withToolTimeout(
+  tool: BenchmarkTool,
+  timeoutMs: number,
+): BenchmarkTool {
+  return {
+    name: tool.name,
+    schema: tool.schema,
+    async execute(args, ctx) {
+      let timer: NodeJS.Timeout | undefined;
+      try {
+        return await Promise.race([
+          tool.execute(args, ctx),
+          new Promise<never>((_, reject) => {
+            timer = setTimeout(() => {
+              reject(
+                new Error(
+                  `TIMEOUT: ${timeoutMs}ms hang on ${tool.name}`,
+                ),
+              );
+            }, timeoutMs);
+          }),
+        ]);
+      } finally {
+        if (timer) clearTimeout(timer);
+      }
+    },
+  };
 }
 
 /**
@@ -114,16 +158,19 @@ export async function runCaAgent(
   input: CaAgentInput,
   deps: AlphaAgentDeps,
 ): Promise<AlphaAgentOutput> {
+  const timeoutMs = input.caToolHangTimeoutMs ?? 60_000;
   return withCaTools(
     {
       configRoot: input.configRoot,
       contextatlasConfigPath: input.contextatlasConfigPath,
       mcpServerPath: input.mcpServerPath,
     },
-    async (caTools) =>
-      runAlphaAgent(
-        { ...input, tools: [...input.alphaTools, ...caTools] },
+    async (caTools) => {
+      const timedCaTools = caTools.map((t) => withToolTimeout(t, timeoutMs));
+      return runAlphaAgent(
+        { ...input, tools: [...input.alphaTools, ...timedCaTools] },
         deps,
-      ),
+      );
+    },
   );
 }
