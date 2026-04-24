@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "contextatlas": {
+      "command": "node",
+      "args": [
+        "{BENCHMARKS_ROOT}/node_modules/contextatlas/dist/index.js",
+        "--config-root",
+        "{BENCHMARKS_ROOT}",
+        "--config",
+        "configs/cobra.yml"
+      ]
+    }
+  }
+}

@@ -70,7 +70,7 @@ export interface DispatchOptions {
   readonly prompt: string;
   readonly repoDir: string;
   readonly benchmarksRoot: string;
-  readonly repoName: "hono" | "httpx";
+  readonly repoName: "hono" | "httpx" | "cobra";
   readonly caps: CapsTracker;
   readonly anthropicSdk: Anthropic;
   readonly claudeBin?: string;
@@ -149,7 +149,7 @@ export async function defaultDispatch(
 }
 
 export interface RunMatrixInput {
-  readonly repoName: "hono" | "httpx";
+  readonly repoName: "hono" | "httpx" | "cobra";
   readonly conditions: readonly Condition[];
   readonly promptIds?: readonly string[];
   readonly outputRoot: string;

@@ -1,0 +1,36 @@
+# ContextAtlas config for cobra benchmark target.
+#
+# Pre-registered: committed BEFORE any CA baseline measurement to
+# prevent p-hacking. Changing this file after baseline runs
+# invalidates prior results — same policy as prompts/.
+#
+# **Extraction is blocked until main-repo step 9.** contextatlas's
+# adapter registry throws "Go adapter not yet implemented"
+# when languages contains 'go'. This config is committed now so
+# that when the Go adapter lands upstream (per main-repo ADR-14),
+# step-11 extraction runs against it unchanged. Phase 5 and Phase 6
+# reference runs validated the harness against hono (TypeScript)
+# and httpx (Python); cobra is the Step 11 cross-language target.
+#
+# All paths resolve against the benchmarks repo root (passed as
+# `configRoot`, per ADR-08). See configs/hono.yml for the detailed
+# path-resolution note.
+
+version: 1
+
+languages: [go]
+
+source:
+  root: repos/cobra/
+
+adrs:
+  path: adrs/cobra/
+
+docs:
+  # ADRs-only extraction. See configs/hono.yml for rationale.
+  include: []
+
+atlas:
+  committed: true
+  path: atlases/cobra/atlas.json
+  local_cache: atlases/cobra/index.db

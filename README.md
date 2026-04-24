@@ -14,9 +14,9 @@ in progress — see [`../contextatlas/v0.2-SCOPE.md`](../contextatlas/v0.2-SCOPE
   - **ca** — alpha + ContextAtlas MCP tools
   - **beta** — real Claude Code CLI driven headlessly
   - **beta-ca** — beta + ContextAtlas MCP server wired in
-- **`prompts/`** — Locked prompt set (24 prompts total across hono and httpx; Phase 5 reference run covered 6 per repo for hono)
-- **`configs/`** — Per-repo `.contextatlas.yml` for hono and httpx benchmark targets
-- **`adrs/`** — Fixture ADRs for the benchmark target repositories (hono and httpx)
+- **`prompts/`** — Locked prompt set (24 prompts total across hono and httpx; Phase 5 reference run covered 6 per repo for hono; cobra prompts land in Step 11)
+- **`configs/`** — Per-repo `.contextatlas.yml` for hono, httpx, and cobra benchmark targets
+- **`adrs/`** — Fixture ADRs for the benchmark target repositories (hono, httpx, cobra)
 - **`runs/reference/`** — Committed reference run artifacts (Phase 5 hono run lives here)
 - **`research/`** — Phase-by-phase research notes. See `research/phase-5-reference-run.md` for the Phase 5 synthesis.
 - **`RUBRIC.md`** — Full methodology document (Phase 5 validated)
@@ -49,6 +49,7 @@ npm install
 mkdir -p repos
 git clone --depth 1 https://github.com/honojs/hono.git repos/hono
 git clone --depth 1 https://github.com/encode/httpx.git repos/httpx
+git clone --depth 1 https://github.com/spf13/cobra.git repos/cobra
 ```
 
 These are pinned to specific commits for reproducibility. See `RUBRIC.md` for pinned SHAs.

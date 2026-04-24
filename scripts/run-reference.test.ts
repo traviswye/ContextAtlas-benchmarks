@@ -37,8 +37,12 @@ describe("parseArgs — existing flags still work", () => {
 
   it("rejects invalid --repo", () => {
     expect(() => parseArgs(["--repo", "bogus"])).toThrow(
-      /--repo must be hono or httpx/,
+      /--repo must be hono, httpx, or cobra/,
     );
+  });
+
+  it("accepts --repo cobra", () => {
+    expect(parseArgs(["--repo", "cobra"]).repo).toBe("cobra");
   });
 });
 

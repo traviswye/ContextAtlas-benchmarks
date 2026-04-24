@@ -32,7 +32,7 @@ export interface PreflightResult {
 }
 
 export interface PreflightOptions {
-  readonly repoName: "hono" | "httpx";
+  readonly repoName: "hono" | "httpx" | "cobra";
   readonly conditions: readonly Condition[];
   /** Absolute path to the benchmarks repo root. */
   readonly benchmarksRoot: string;
@@ -47,9 +47,10 @@ export interface PreflightOptions {
  * and scripts/verify-pinned-repos.mjs. When updating, update all
  * three call-sites together.
  */
-const PINNED_REPO_SHAS: Record<"hono" | "httpx", string> = {
+const PINNED_REPO_SHAS: Record<"hono" | "httpx" | "cobra", string> = {
   hono: "cf2d2b7edcf07adef2db7614557f4d7f9e2be7ba",
   httpx: "26d48e0634e6ee9cdc0533996db289ce4b430177",
+  cobra: "88b30ab89da2d0d0abb153818746c5a2d30eccec",
 };
 
 /** Pinned Claude Code CLI version per RUBRIC.md §"Tool Versions". */
@@ -97,7 +98,7 @@ async function checkApiKeyPresent(): Promise<PreflightCheck> {
 }
 
 async function checkPinnedRepoSha(
-  repoName: "hono" | "httpx",
+  repoName: "hono" | "httpx" | "cobra",
   benchmarksRoot: string,
 ): Promise<PreflightCheck> {
   const expected = PINNED_REPO_SHAS[repoName];
@@ -165,7 +166,7 @@ async function checkClaudeVersion(
 }
 
 async function checkAtlasValid(
-  repoName: "hono" | "httpx",
+  repoName: "hono" | "httpx" | "cobra",
   benchmarksRoot: string,
 ): Promise<{
   atlasCheck: PreflightCheck;
@@ -401,7 +402,7 @@ function checkContextatlasResolvable(
 }
 
 async function checkMcpConfigExists(
-  repoName: "hono" | "httpx",
+  repoName: "hono" | "httpx" | "cobra",
   benchmarksRoot: string,
   condition: "beta" | "beta-ca",
 ): Promise<PreflightCheck> {

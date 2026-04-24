@@ -53,7 +53,7 @@ export interface SummaryInput {
   readonly cells: readonly RecordWithMeta[];
   readonly conditions: readonly Condition[];
   readonly prompts: readonly PromptEntry[];
-  readonly repoName: "hono" | "httpx";
+  readonly repoName: "hono" | "httpx" | "cobra";
   readonly pinnedRepoSha: string;
   readonly contextatlasVersionLabel: string;
   readonly contextatlasCommitSha?: string;
@@ -71,7 +71,7 @@ export interface SummaryInput {
 export interface RunManifest {
   readonly manifest_version: "1.0";
   readonly generated_at: string;
-  readonly repo_name: "hono" | "httpx";
+  readonly repo_name: "hono" | "httpx" | "cobra";
   readonly pinned_repo_sha: string;
   readonly contextatlas: {
     readonly version_label: string;

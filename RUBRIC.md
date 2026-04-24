@@ -28,7 +28,7 @@ simply runs more of them with additional rigor.
 | Total prompts                 | 12 (across 2 repos)     | 24 (across 2 repos)             |
 | Runs per prompt               | 1                       | 3 (median reported)             |
 | Correctness grading           | Eyeball only            | Blind third-party               |
-| Benchmark repos               | hono, httpx             | hono, httpx                     |
+| Benchmark repos               | hono, httpx             | hono, httpx, cobra              |
 | Harness conditions            | Alpha, Alpha+CA, Beta   | Alpha, Alpha+CA, Beta           |
 | Cost caps                     | Applied                 | Applied                         |
 | Prompt locking                | Applied                 | Applied                         |
@@ -56,24 +56,29 @@ methodology nobody trusts.
 
 ## Benchmark Targets
 
-Two repositories, chosen to reflect different realistic use cases:
+Three repositories, chosen to reflect different realistic use cases:
 
 | Repo                | Language   | Source files | Role in benchmark              |
 |---------------------|------------|--------------|--------------------------------|
 | honojs/hono         | TypeScript | 186          | Mid-sized framework            |
 | encode/httpx        | Python     | 23           | Focused production library     |
+| spf13/cobra         | Go         | 19           | CLI framework (v0.2 Stream B)  |
 
-Both are actively maintained, recognizable, and have genuine
+All three are actively maintained, recognizable, and have genuine
 architectural decisions captured in ADRs we authored for this
-benchmark (stored under `adrs/hono/` and `adrs/httpx/`).
+benchmark (stored under `adrs/hono/`, `adrs/httpx/`, and
+`adrs/cobra/`).
 
-**Why this set:** The repos vary in size (23 to 186 source files) and
-domain (HTTP client, web framework). This breadth reflects how the
-tool is actually used — most real developer work happens on codebases
-in this size range, not on Django-scale monoliths.
+**Why this set:** The repos vary in size (19 to 186 source files),
+language (TypeScript / Python / Go), and domain (web framework,
+HTTP client, CLI framework). This breadth reflects how the tool is
+actually used — most real developer work happens on codebases in
+this size range, not on Django-scale monoliths.
 
-Both repos represent "mid-size unfamiliar codebase" — the scenario
-ContextAtlas is designed for.
+All three repos represent "mid-size unfamiliar codebase" — the
+scenario ContextAtlas is designed for. Cobra is the v0.2 Stream B
+target, pre-registered here and driven through Step 11's reference
+run once the Go adapter lands (main-repo step 9 per ADR-14).
 
 ---
 
@@ -87,6 +92,7 @@ before running.
 |---------|-----------|--------------------------------------------|--------------|
 | hono    | v4.12.14  | `cf2d2b7edcf07adef2db7614557f4d7f9e2be7ba` | 2026-04-15   |
 | httpx   | 0.28.1    | `26d48e0634e6ee9cdc0533996db289ce4b430177` | 2024-12-06   |
+| cobra   | v1.10.2   | `88b30ab89da2d0d0abb153818746c5a2d30eccec` | 2025-12-03   |
 
 **Clone instructions:**
 
@@ -97,6 +103,9 @@ cd repos/hono && git checkout cf2d2b7edcf07adef2db7614557f4d7f9e2be7ba && cd ../
 
 git clone https://github.com/encode/httpx.git repos/httpx
 cd repos/httpx && git checkout 26d48e0634e6ee9cdc0533996db289ce4b430177 && cd ../..
+
+git clone https://github.com/spf13/cobra.git repos/cobra
+cd repos/cobra && git checkout 88b30ab89da2d0d0abb153818746c5a2d30eccec && cd ../..
 ```
 
 The `repos/` directory is gitignored — we never commit the benchmark

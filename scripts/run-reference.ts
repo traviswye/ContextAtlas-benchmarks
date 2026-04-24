@@ -3,7 +3,7 @@
 // version), writes artifacts to runs/<timestamp>/<repo>/.
 //
 // Usage:
-//   npx tsx scripts/run-reference.ts [--repo hono|httpx]
+//   npx tsx scripts/run-reference.ts [--repo hono|httpx|cobra]
 //                                     [--ceiling <usd>]
 //                                     [--warning <usd>]
 //                                     [--no-retry]
@@ -50,7 +50,7 @@ const ROOT = path.resolve(
 // ---- CLI parsing ----
 
 export interface Args {
-  readonly repo: "hono" | "httpx";
+  readonly repo: "hono" | "httpx" | "cobra";
   readonly ceiling: number;
   readonly warning: number;
   readonly retry: boolean;
@@ -59,7 +59,7 @@ export interface Args {
 }
 
 export function parseArgs(argv: readonly string[]): Args {
-  let repo: "hono" | "httpx" = "hono";
+  let repo: "hono" | "httpx" | "cobra" = "hono";
   // Defaults calibrated from the partial reference run (see
   // research/phase-5-cost-calibration.md). Ceiling $14 gives ~50%
   // headroom over the $9.31 projection from revised priors.
@@ -72,8 +72,10 @@ export function parseArgs(argv: readonly string[]): Args {
     const a = argv[i];
     if (a === "--repo") {
       const v = argv[++i];
-      if (v !== "hono" && v !== "httpx") {
-        throw new Error(`--repo must be hono or httpx, got ${String(v)}`);
+      if (v !== "hono" && v !== "httpx" && v !== "cobra") {
+        throw new Error(
+          `--repo must be hono, httpx, or cobra, got ${String(v)}`,
+        );
       }
       repo = v;
     } else if (a === "--ceiling") {
@@ -186,9 +188,10 @@ async function resolveProvenance(): Promise<{
 
 // ---- Pinned SHAs mirror (see RUBRIC.md § "Pinned Benchmark Targets") ----
 
-const PINNED_REPO_SHAS: Record<"hono" | "httpx", string> = {
+const PINNED_REPO_SHAS: Record<"hono" | "httpx" | "cobra", string> = {
   hono: "cf2d2b7edcf07adef2db7614557f4d7f9e2be7ba",
   httpx: "26d48e0634e6ee9cdc0533996db289ce4b430177",
+  cobra: "88b30ab89da2d0d0abb153818746c5a2d30eccec",
 };
 
 // ---- Main ----

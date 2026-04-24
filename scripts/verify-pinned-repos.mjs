@@ -1,6 +1,6 @@
-// Verify that repos/hono and repos/httpx are checked out at the
-// exact commit SHAs pinned in RUBRIC.md. Exits non-zero with a
-// clear error if either repo is missing or at a different commit.
+// Verify that repos/hono, repos/httpx, and repos/cobra are checked
+// out at the exact commit SHAs pinned in RUBRIC.md. Exits non-zero
+// with a clear error if any repo is missing or at a different commit.
 // Every harness run (and every PR) should re-run this before
 // treating results as reproducible.
 
@@ -16,6 +16,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const EXPECTED = {
   hono: "cf2d2b7edcf07adef2db7614557f4d7f9e2be7ba",
   httpx: "26d48e0634e6ee9cdc0533996db289ce4b430177",
+  cobra: "88b30ab89da2d0d0abb153818746c5a2d30eccec",
 };
 
 function runGit(args, cwd) {
