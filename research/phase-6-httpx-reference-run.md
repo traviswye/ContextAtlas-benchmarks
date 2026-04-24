@@ -20,6 +20,22 @@ Full methodology recap lives in
 This document assumes Phase 5 context and references it rather
 than repeating.
 
+> **2026-04-24 amendment (Step 7 finding).** The p1–p6 beta-ca
+> cells in the original Phase 6 run (morning of 2026-04-24) were
+> measured under a harness permission bug: 100% of MCP tool calls
+> were blocked, so beta-ca answers reflected MCP-unavailable
+> fallback behavior, not CA tool effect. The bug was found and
+> fixed the same day; all six beta-ca cells were re-run
+> (afternoon of 2026-04-24) against the same httpx atlas. §4
+> table values below already reflect v2 measurements. §5.3's
+> "beta-ca used MCP directly" claim is now accurate (it was
+> retroactively wrong under v1 — the six calls were 4 blocked
+> MCP + 2 atlas.json Bash-reads); §11 below documents the v1/v2
+> diff and what the amendment does and does not change. See
+> `research/beta-ca-mcp-permission-block-finding.md` for the
+> full finding. Alpha/CA/Beta sections (§3, §5.1, §5.2) are
+> unaffected.
+
 ---
 
 ## Executive summary
@@ -46,6 +62,11 @@ than repeating.
    answer in 11 calls; beta-ca used MCP directly for a correct
    answer in 6 calls. Cross-harness *correctness differential*
    — stronger than Phase 5's efficiency-only claim.
+   *(Bullet holds under v2 — the 6-call / correct-answer
+   pattern reproduced with MCP actually working. See §11 for
+   the v1/v2 mechanism diff; the v1 "6 calls" were 4 blocked
+   MCP + 2 atlas.json Bash-reads, which happened to produce
+   the correct answer via a different path.)*
 
 4. **Cost envelope held with substantial headroom.** $8.36
    actual vs $13–16 projection (−40% to −48%). Python workload
@@ -98,23 +119,28 @@ continues to do methodological work.
 
 ## 4. Beta-CA vs Beta findings (tool effect, Claude Code CLI baseline)
 
-| prompt | bucket | beta calls | beta-ca calls | Δ calls | beta tokens | beta-ca tokens | Δ tokens |
+*Table amended 2026-04-24 to v2 beta-ca values (Step 7 re-run).
+See §11 for the v1-vs-v2 diff and interpretation.*
+
+| prompt | bucket | beta calls | beta-ca calls (v2) | Δ calls | beta tokens | beta-ca tokens (v2) | Δ tokens |
 |---|---|---:|---:|---:|---:|---:|---:|
-| p1-sync-async-split | win | 1 | 8 | +7 | 7.1k | 29k | +309% |
-| p2-http3-transport | win | 12 | 11 | −1 | 48.3k | 59.1k | +22% |
-| p3-custom-auth | win | 9 | 9 | 0 | 44.5k | 49.9k | +12% |
-| p4-stream-lifecycle | win | 15 | 17 | +2 | 87.9k | 73.3k | −17% |
-| p5-drop-anyio | tie | 11 | 13 | +2 | 53.1k | 82.5k | +55% |
-| p6-client-get-args | trick | 11 | 6 | **−5** | 57.5k | 30.9k | **−46%** |
+| p1-sync-async-split | win | 1 | 3 | +2 | 7.1k | 14.8k | +108% |
+| p2-http3-transport | win | 12 | 3 | **−9** | 48.3k | 17.8k | **−63%** |
+| p3-custom-auth | win | 9 | 7 | −2 | 44.5k | 60.3k | +35% |
+| p4-stream-lifecycle | win | 15 | 3 | **−12** | 87.9k | 17.8k | **−80%** |
+| p5-drop-anyio | tie | 11 | 3 | **−8** | 53.1k | 17.1k | **−68%** |
+| p6-client-get-args | trick | 11 | 6 | **−5** | 57.5k | 32.2k | **−44%** |
 
 *(p6's strong beta-ca win combines MCP efficiency with a
-harness-observation baseline effect — see §5.3 and §8.)*
+harness-observation baseline effect — see §5.3 and §8. Under v2,
+p2/p4/p5 also show large reductions, strengthening the
+CA-displaces-Bash pattern beyond what v1 measured.)*
 
-**p1 is an outlier, not a representative data point.** beta-1-call
-is an Opus-training-priors case (see §5.2); beta-ca's 8 calls is
-the typical Claude Code number for architectural questions.
-Reading the +7 calls delta as "CA made beta worse" misreads
-the cell — beta was the anomaly.
+**p1 is still an outlier, not a representative data point.**
+beta-1-call is an Opus-training-priors case (see §5.2); v2
+beta-ca's 3 calls approaches parity. Reading the small positive
+delta as "CA made beta worse" misreads the cell — beta was the
+anomaly.
 
 **p6 is the headline.** See §5.3 — fills the Phase 5 unmeasured
 trick-bucket cell and delivers a *correctness* finding, not
@@ -221,12 +247,24 @@ carries the `async def` prefix — so the entry corresponds to
 `AsyncClient.get`."* It answered the wrong question by accident,
 then partially corrected itself.
 
-**Beta-CA (6 calls) was clean.** Opened with
-`mcp__contextatlas__get_symbol_context` on `Client.get`,
-received a structured bundle, verified with Bash + Read against
-source, produced a correct answer citing both `Client.get`
-(line 1036) and `AsyncClient.get` (line 1751) with the correct
-sync/async distinction.
+**Beta-CA v2 (6 calls) was clean.** Opened with
+`mcp__contextatlas__get_symbol_context` on `Client.get`
+(returned `ERR not_found` — a real atlas response, not a permission
+block), retried with `symbol: "get"` + `file_hint: "httpx/_client.py"`
+and received a full structured bundle (SIG / REFS / TESTS / GIT /
+DIAG), verified with Bash + Read against source, produced a correct
+answer citing both `Client.get` (line 1036) and `AsyncClient.get`
+(line 1751) with the correct sync/async distinction.
+
+> *v1 footnote (2026-04-24):* the original p6-beta-ca measurement
+> (same 6 calls, same correct answer) was made with MCP blocked.
+> The "6 calls" decomposition was 4 blocked MCP attempts + 2
+> Bash/grep reads of `atlas.json` content — the model got the
+> correct answer by greping the atlas file directly rather than
+> via the MCP tool. Re-running with MCP enabled (v2) reproduces
+> the correct-answer outcome through the intended mechanism.
+> Both outcomes support the §4 efficiency number; the v2
+> mechanism is what §5.3 describes. See §11.
 
 **Finding:** MCP access delivered both efficiency AND
 correctness on the same trick-bucket prompt where beta struggled.
@@ -464,3 +502,92 @@ recommendation.
 thesis: **replicates on Python.** A v0.2-Step-6 deliverable
 per STEP-PLAN-V0.2.md Success Criterion 3. Step 11 Go reference
 run (cobra) continues the cross-language story.
+
+---
+
+## 11. Post-hoc correction: Step 7 beta-ca re-run (MCP-enabled)
+
+Added 2026-04-24. Phase 6 §1–10 above describes the run as
+executed that morning; this section documents the Step 7
+permission-block finding's impact on beta-ca data. §4 table
+values above already reflect the corrected v2 numbers.
+
+### Context
+
+v0.2 Step 7 (same-day investigation, afternoon) discovered that
+the harness CLI spawn was missing `--allowedTools`, causing 100%
+of MCP calls in beta-ca cells to return CLI permission-request
+messages rather than atlas data. All six Phase 6 beta-ca cells
+(p1–p6) were affected. Fix shipped in
+`src/harness/claude-code-driver.ts` (post-fix commit `04e90e05`);
+p1–p6 beta-ca re-run 2026-04-24 against the same httpx atlas.
+
+Full finding: `research/beta-ca-mcp-permission-block-finding.md`.
+
+### v1 vs v2 per-cell diff
+
+| cell | v1 calls | v1 tokens | v1 cost | v2 calls | v2 tokens | v2 cost |
+|---|---:|---:|---:|---:|---:|---:|
+| p1 | 8  | 29k   | $0.11 | 3 | 14.8k | $0.10 |
+| p2 | 11 | 59.1k | $0.12 | 3 | 17.8k | $0.08 |
+| p3 | 9  | 49.9k | $0.17 | 7 | 60.3k | $0.18 |
+| p4 | 17 | 73.3k | $0.19 | 3 | 17.8k | $0.08 |
+| p5 | 13 | 82.5k | $0.16 | 3 | 17.1k | $0.07 |
+| p6 | 6  | 30.9k | $0.08 | 6 | 32.2k | $0.09 |
+| **total** | **64** | **324k** | **$0.84** | **25** | **160k** | **$0.60** |
+
+v2 is −61% calls, −51% tokens, −29% cost. Unlike hono's v1/v2
+diff (cost went up under v2 because v1 was artificially cheap),
+httpx v2 is uniformly cheaper in both calls and cost. Mechanism:
+p1/p2/p4/p5 v1 made many blocked MCP attempts *and* fell back to
+Bash/Read exploration; v2 resolves quickly with a single MCP
+call that returns usable data.
+
+### Interpretation
+
+**§4 beta-ca vs beta pattern strengthens under v2.** Five of six
+cells (p2/p3/p4/p5/p6) show beta-ca with fewer calls than beta;
+four cells (p2/p4/p5/p6) show very large (>40%) token reductions.
+Only p1 remains an outlier (explained by beta's 1-call training-
+priors shortcut, §5.2 — still holds).
+
+**§5.3 p6-beta-ca finding survives and strengthens.** Both v1
+and v2 produce the same correct answer in 6 calls. v1 achieved
+it via atlas.json Bash-reads (MCP blocked); v2 achieves it via
+MCP as §5.3 claims. The correctness differential vs beta (which
+produced a partially-incorrect answer) holds regardless of
+mechanism, but only v2 supports §5.3's *specific* claim that
+"MCP access delivered correctness."
+
+**§5.1 p4-stream-lifecycle claim-attribution finding is
+unaffected.** That finding is an alpha-vs-ca investigation (CA
+returned atlas data with off-target claim ranking). v1 beta-ca
+couldn't hit the same bug because MCP was blocked; v2 beta-ca
+used only 3 calls / 17.8k tokens and did not drill into the
+same symbols. The §5.1 mechanism is still visible on the
+alpha-vs-ca path where it was originally surfaced.
+
+**§6 cross-repo "beta/beta-ca harness-dominated" claim
+strengthens.** Both hono v2 and httpx v2 now show beta-ca as
+cheaper than beta on the majority of measured cells, with the
+outliers (p1 training-prior, p6 atlas-spelunking) explained by
+known mechanisms. Under v1's blocked state, the picture was
+muddier.
+
+### Aggregate impact
+
+Phase 6 beta-ca total: v1 $0.84, v2 $0.60. Total reference-run
+spend: v1 $8.36, v2 $8.11. Alpha/CA sections unchanged. The §7
+cost-envelope conclusions (Python cheaper than TS, Step 11 budget
+$14–16) are unaffected — they drove off alpha/CA numbers
+primarily.
+
+### Artifacts
+
+- `runs/reference/httpx/<cell>/beta-ca.json` — v2 (post-fix).
+- `runs/reference/httpx/<cell>/beta-ca-v1-permission-blocked.json`
+  — preserved v1 for audit trail.
+- Both co-exist in every cell directory; summary.md reflects v2.
+- Provenance for v2 re-run: contextatlas commit `04e90e05`,
+  benchmarks commit `c5b9486` (harness fix), httpx pinned
+  unchanged.
