@@ -23,6 +23,8 @@ Single-run methodology per STEP-7-PLAN §1.
    7.3× cheaper at equivalent answer depth, with the CA answer
    explicitly grounded in *"governed by ADR-04"* framing that
    alpha never reaches for.
+   *(See §9 for v0.2 re-measurement on refined atlas: 3.93× on
+   this cell. Mechanism holds; magnitude varies.)*
 
 3. **CA's advantage disappears on tie and trick buckets.** h5-
    hono-generics (tie): CA 48% more expensive than alpha.
@@ -141,6 +143,9 @@ architecture, not model or tool effect.
 ---
 
 ## 3. CA vs Alpha findings (tool effect, naked Opus baseline)
+
+*All measurements use the v0.1 atlas (authoritative Phase 5
+baseline). See §9 for v0.2-atlas re-measurement of h4-ca.*
 
 | prompt | bucket | alpha calls | ca calls | Δ calls | alpha $ | ca $ | Δ $ |
 |---|---|---|---|---|---|---|---|
@@ -315,6 +320,10 @@ almost entirely from CA's `get_symbol_context` returning a fused
 bundle (symbol signature + ADR-04 claims + type chain excerpts)
 that alpha had to reconstruct file-by-file.
 
+*v0.2 re-measurement on refined atlas: 3.93×, with mechanism
+holding (`Grep` → `find_by_intent` shift) and richer answers.
+See §9.*
+
 ### 5.2 h2-router-contract — the beta-ca call-count anomaly
 
 **Prompt** (paraphrased): what contract does a `Router<T>`
@@ -417,6 +426,11 @@ numbers support this:
 - **Cross-harness**: the effect replicates under both alpha-SDK
   and Claude-Code-CLI harnesses, with the direction preserved
   even where the CLI harness has its own aggressive caching.
+- **v0.2 adapter-refinement nuance (see §9):** the h4-ca ratio
+  dropped from 7.3× to 3.93× on re-measurement against a refined
+  atlas, with richer answer output at higher cost. Thesis
+  survives; exact numerical ratios on specific cells are
+  sensitive to atlas quality.
 
 ### 6.2 Bucket-aware framing is empirically justified
 
@@ -545,3 +559,176 @@ supported on hono's win-bucket prompts; the quality-axis story
 requires blind grading at step 13; cross-repo validation requires
 httpx's reference run. v0.2 work (broader signal fusion) proceeds
 on a measured foundation rather than a speculative one.
+
+---
+
+## 9. Post-hoc verification: v0.2 adapter refinement impact on h4
+
+Added 2026-04-24. Phase 5 (§1–8 above) is historical record; this
+section appends re-measurement findings without revising the
+original analysis.
+
+### Context
+
+Phase 5 measured against the v0.1 hono atlas, extracted by a
+TypeScriptAdapter that did not surface class methods, namespace
+children, or correctly handle generic-default class signatures.
+These gaps were fixed in v0.2 Step 4 (contextatlas commits
+`36b2c87`, `7646243`, `1aca8bf`, `79228b1`). The hono atlas was
+re-extracted against the refined adapter at benchmarks-repo
+commit `352b22e` (symbol count 1923 → 2154, +12%).
+
+Step 4c re-ran h4-ca against the refined atlas to verify Phase 5's
+thesis survives. h4-**alpha** was not re-run: the minimal-baseline
+agent has no MCP connection and does not consume the atlas, so
+Phase 5's h4-alpha measurement (21 calls / $2.95) stands as
+unchanged baseline.
+
+### Re-measurement: quantitative
+
+| Metric | Phase 5 (v0.1 atlas) | Step 4c (v0.2 atlas) | Δ |
+|---|---:|---:|---:|
+| tool_calls | 6 | 10 | +67% |
+| input_tokens | 22,127 | 34,819 | +57% |
+| output_tokens | 2,455 | 3,049 | +24% |
+| wall_clock_ms | 68,189 | 57,835 | −15% (faster) |
+| cost_usd | $0.52 | $0.75 | +44% |
+| **ca/alpha cost ratio** | **7.3×** | **3.93×** | **−3.4×** |
+
+### Mechanism validation
+
+This is arguably the most important finding in this section —
+more than the numerical ratio. Step 4c shows CA with the refined
+atlas **uses intent-query tools (`find_by_intent`) in place of
+source-code rediscovery tools (`Grep`)**. Tool trace comparison:
+
+**Phase 5 (6 calls):**
+1. `Grep "zod"` → 2. `Grep "validator"` → 3. `get_symbol_context validator`
+→ 4. `find_by_intent` → 5. `Read validator.ts` → 6. `Read types.ts`
+
+**Step 4c (10 calls):**
+1. `LS` → 2. `find_by_intent` → 3. `find_by_intent` →
+4-7. `get_symbol_context` × 4 (validator, ToSchema, Client, HandlerInterface)
+→ 8-10. `Read` × 3 (focused)
+
+Phase 5's two opening `Grep` calls were replaced by two
+`find_by_intent` queries. Exploration relocated from source-code
+(Bash/Grep) to the atlas layer (MCP). This is CA being used for
+what it's designed for — the exploration-pattern shift validates
+the architectural thesis at the mechanism level, which is what
+future versions (signal fusion v0.3, semantic layer v0.4,
+task-shaped queries v0.5) depend on. Numerical efficiency on any
+specific prompt is downstream of mechanism; mechanism is what
+generalizes.
+
+### Qualitative comparison
+
+Both answers open with explicit ADR-04 framing and enumerate the
+4-segment inference chain (validator → Context → Schema → client).
+Both cite the ADR-04 invariant text. Step 4c's answer adds:
+
+- **More specific file:line locations**: `ToSchema` at
+  `src/types.ts:2210`, `Client` at `src/client/types.ts:311`,
+  `createProxy` at `src/client/client.ts:15`, `hc` at
+  `src/client/client.ts:133`. Phase 5 cited fewer specific
+  locations.
+- **ASCII flow diagram** of the end-to-end inference chain.
+- **Git-signal observation**: "22+ recent commits on `ToSchema`"
+  — hot-path annotation pulled from the atlas's git layer;
+  absent from Phase 5's answer.
+- Richer generic-parameter semantics discussion.
+
+Both answers correctly describe the mechanical flow. Step 4c's
+is substantively richer, not merely longer.
+
+### Interpretation — (A) with nuance
+
+Two framings for the +44% cost increase were considered:
+
+- **(A) Richer atlas enabled deeper investigation** — more
+  `get_symbol_context` walks through the inference chain, richer
+  answer at higher cost.
+- **(B) Same answer, more tokens per call** — efficiency
+  regression with no quality gain.
+
+The qualitative comparison confirms **(A) with nuance**.
+Specifically, the refined atlas did not *force* more work — the 4
+symbols Step 4c walked (`validator`, `ToSchema`, `Client`,
+`HandlerInterface`) are all top-level type aliases that v0.1 also
+surfaced. What the v0.2 atlas *does* provide for these symbols is
+**cleaner signatures** (Gaps 3 and 5 fixed signature-bleed and
+generic-default truncation). The model had better material to
+work with and elected more thoroughness.
+
+Additionally: mechanism shifted (two `Grep` → two
+`find_by_intent`), wall-clock went *down* despite more calls
+(parallelism), and the answer is materially richer. "Richer
+atlas enabled + model elected thoroughness" explains all three.
+
+### Updated directional-asymmetry framing
+
+The original framing from STEP-PLAN-V0.2.md revision history:
+> *"Gap most plausibly affected modest-win cells (h2, h3) more
+> than showcase cells (h4)."*
+
+That framing is refined by Step 4c's finding. Two updates:
+
+1. **Showcase cells weren't inflated by the gap** (original
+   framing stands) — h4's 7.3× gain came from ADR-04
+   intent-surfacing; that claim is in the atlas regardless of
+   adapter completeness.
+2. **Showcase cells had their cost suppressed** because richer
+   bundles weren't available for deeper investigation. With the
+   refined atlas, CA elects more thoroughness, producing better
+   answers at higher cost.
+
+Phase 5's 7.3× (v0.1 atlas: efficient, thinner answers) and
+Step 4c's 3.93× (v0.2 atlas: less efficient, richer answers) are
+both "CA dominating alpha via intent-first exploration" — just
+at different points on the efficiency/depth curve. Neither is
+"right"; they're different points on the same curve. The
+architectural thesis holds at both points.
+
+### Implication for v0.3+ thesis
+
+**CA's value scales with atlas richness rather than being a fixed
+efficiency boost.** v0.3 signal fusion (docstrings, README mining)
+should be framed as "more depth at similar cost" or "similar
+depth at lower cost" depending on design choices — not as a
+single-number efficiency delta.
+
+Future benchmarks should measure **both** efficiency delta AND
+answer quality, since these can trade off in ways efficiency-only
+metrics miss. Phase 5's single-axis (efficiency) measurement
+likely understates the full CA value proposition on
+showcase-class cells — Step 13's blind grading (run post-v0.3
+per Phase 5 §7.5) becomes more important as the quality axis
+gets formalized.
+
+If Step 4c's finding generalizes — that v0.2+ adapter
+improvements enable CA to trade efficiency for depth — then
+Step 13's grading methodology should specifically measure answer
+quality at **matched cost budgets**, not just at matched prompt
+inputs. A grader comparing "alpha with $N to spend" vs "CA with
+$N to spend" captures the quality-at-cost curve in a way
+"alpha on prompt X" vs "CA on prompt X" does not.
+
+### Caveats + artifact
+
+**n=1 vs n=1.** Run-to-run variance on a single prompt-condition
+cell is uncontrolled for. The +44% cost difference could be
+±20-30% model-stochasticity plus a smaller genuine effect from
+the refined atlas. Multi-run medians (step-13 scope) are needed
+to decompose. This section reports directional evidence, not a
+statistically isolated measurement.
+
+**Artifact:** `runs/spotchecks/step-4c/hono/h4-validator-typeflow/ca.json`
+— full trace, answer, metrics. Run manifest metadata in the file:
+contextatlas commit `79228b1` (Step 4 shipped), hono pinned
+`cf2d2b7edcf07adef2db7614557f4d7f9e2be7ba`, benchmarks commit
+`351d0a3` (Phase A of Step 4c: run-reference filters).
+
+### Decision
+
+Thesis survives. v0.2 execution continues to Step 5 (httpx
+reference run) per STEP-PLAN-V0.2.md. No pause triggered.
