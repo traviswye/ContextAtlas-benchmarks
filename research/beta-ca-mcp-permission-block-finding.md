@@ -157,12 +157,23 @@ preflight running before the matrix loop. Part of v0.2 Step 11
 
 ## Scope of invalidation
 
-**Affected (beta-ca numbers reflect MCP-blocked state, not
-MCP-enabled):**
+**Affected (beta-ca numbers or narrative reflect MCP-blocked
+state, not MCP-enabled):**
 
 - Phase 5 §4 beta-ca column for h1–h5 (call counts, token counts,
   cost, wall-clock). h6-beta-ca was not measured.
+- Phase 5 §4.1 ("beta-ca cheaper than beta on every measured
+  prompt") — directional claim survives under v2; numbers need
+  re-measurement.
+- Phase 5 §4.2 ("h3 and h4: the cleanest wins") — the specific
+  ranking shifts under v2 (h4 largest, h2 joins the strong-win
+  list; h3 narrows).
 - Phase 5 §4.3 (the entire hypothesis this note replaces).
+- Phase 5 §5.2 h2-router-contract "atlas-fanout exploration"
+  narrative — v1 pattern was MCP-blocked artifact; v2 shows fewer
+  calls, not more.
+- Phase 5 §5.3 h5-hono-generics "answer quality weakened by
+  disclaimer preamble" caveat — no longer applies under v2.
 - Phase 5 §7.2 (the v0.2+ follow-up framing — resolved by this
   note, not deferred).
 - Phase 6 §4 beta-ca column for p1–p6.
@@ -179,9 +190,13 @@ MCP-enabled):**
 - All alpha numbers (SDK path, no CLI permission layer).
 - All ca numbers (SDK path).
 - All beta numbers (CLI path without MCP — baseline Claude Code).
-- Phase 5 §4.1/§4.2 alpha-vs-ca tool-effect thesis (win-bucket
-  wins, tie/trick behavior). The CA tool-effect is measured via
-  alpha-vs-ca, not beta-vs-beta-ca.
+- Phase 5 §3 CA vs Alpha findings — the primary efficiency
+  thesis. Measured via alpha-vs-ca (SDK path), independent of CLI
+  permission layer.
+- Phase 5 §5.1 h4-validator-typeflow showcase (alpha-vs-ca).
+- Phase 5 §5.4 h6-fetch-signature trick-bucket analysis
+  (alpha/ca/beta; h6-beta-ca was never measured).
+- Phase 5 §9 Step-4c v0.2 re-measurement (alpha/ca only).
 - Phase 6 §5.1 p4-stream-lifecycle mechanism analysis
   (claim-attribution + ranking precision gap). This is an
   alpha-vs-ca finding.

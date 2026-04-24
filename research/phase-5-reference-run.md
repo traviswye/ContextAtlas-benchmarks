@@ -9,6 +9,18 @@ of that run — the narrative output of Phase 5 per STEP-7-PLAN §4.
 `cf2d2b7edcf0`; atlas schema v1.1 (1923 symbols / 80 claims).
 Single-run methodology per STEP-7-PLAN §1.
 
+> **2026-04-24 amendment (Step 7 finding).** The beta-ca cells in
+> the original Phase 5 run were measured under a harness permission
+> bug: 100% of MCP tool calls were blocked, so beta-ca answers
+> reflected MCP-unavailable fallback behavior, not CA tool effect.
+> The bug is fixed; h1–h5 beta-ca cells were re-run on 2026-04-24.
+> New §10 supersedes §4 table values and §4.3 / §7.2 analyses.
+> Original §4.1, §4.2, §5.2, §5.3 narratives describe the
+> MCP-blocked v1 behavior and are preserved as historical record
+> — their quantitative claims about beta-ca no longer apply. See
+> `research/beta-ca-mcp-permission-block-finding.md` for the full
+> finding. Alpha/CA/Beta sections (§3, §5.1, §5.4) are unaffected.
+
 ---
 
 ## Executive summary
@@ -33,15 +45,18 @@ Single-run methodology per STEP-7-PLAN §1.
    architectural-intent prompts, not TS-compiler-space or
    micro-lookup prompts.
 
-4. **Beta-CA cheaper than Beta on 5 of 5 measured prompts**, with
-   a strong cap-prevention story on h5: Beta hit the 200k-token
-   cap on both attempts (retry fired, also capped — zero useful
-   answer); Beta-CA completed the retry in 8 calls / 39k tokens.
+4. **Beta-CA cheaper than Beta on 4 of 4 measured non-capped
+   prompts** (h1 −30%, h2 −51%, h3 −23%, h4 −54%; h5 beta
+   capped both times, beta-ca completed). h5 cap-prevention
+   story holds directionally: Beta hit the 200k-token cap on
+   both attempts; Beta-CA v2 completed in 6 calls / 48.2k tokens.
+   *(v2 numbers from 2026-04-24 re-run per the Step 7 amendment
+   — see §10. Original bullet cited v1 MCP-blocked values.)*
 
 5. **Aggregate costs.** Alpha $7.25, CA $4.50 (−38%) over six
-   prompts. Beta $1.43, Beta-CA $0.68 (−52%) over five prompts
+   prompts. Beta $1.43, Beta-CA v2 $0.84 (−41%) over five prompts
    (h6/beta-ca missing; see §2.2). Total reference-run spend
-   $14.05.
+   $14.21 (v2 amendment).
 
 **Efficiency axis is empirically supported.** Quality axis
 requires follow-up blind grading (step-13 scope); Phase 5
@@ -215,15 +230,18 @@ as expected.
 
 ## 4. Beta-CA vs Beta findings (tool effect, Claude Code CLI baseline)
 
-| prompt | bucket | beta calls | beta-ca calls | Δ calls | beta $ | beta-ca $ | Δ $ |
+*Table amended 2026-04-24 to v2 beta-ca values (Step 7 re-run).
+See §10 for the v1-vs-v2 diff and interpretation.*
+
+| prompt | bucket | beta calls | beta-ca calls (v2) | Δ calls | beta $ | beta-ca $ (v2) | Δ $ |
 |---|---|---|---|---|---|---|---|
-| h1-context-runtime | win | 12 | 13 | +8% | $0.29 | $0.22 | −24% |
-| h2-router-contract | win | 8 | 16 | +100% | $0.25 | $0.22 | −13% |
-| h3-middleware-onion | win | 12 | 6 | −50% | $0.25 | $0.07 | −73% |
-| h4-validator-typeflow | win | 15 | 8 | −47% | $0.29 | $0.10 | −66% |
-| h5-hono-generics | tie | capped ×2 | 8 (retry) | — | $0.09 | $0.07 | see §5.3 |
+| h1-context-runtime | win | 12 | 8 | −33% | $0.29 | $0.20 | −30% |
+| h2-router-contract | win | 8 | 3 | −63% | $0.25 | $0.12 | −51% |
+| h3-middleware-onion | win | 12 | 9 | −25% | $0.25 | $0.19 | −23% |
+| h4-validator-typeflow | win | 15 | 5 | −67% | $0.29 | $0.13 | −54% |
+| h5-hono-generics | tie | capped ×2 | 6 | — | $0.09 | $0.19 | see §5.3 + §10 |
 | h6-fetch-signature | trick | 15 | — | — | $0.25 | — | — |
-| **total (5 prompts)** | | **capped+62** | **51** | | **$1.43** | **$0.68** | **−52%** |
+| **total (5 prompts)** | | **capped+62** | **31** | | **$1.43** | **$0.84** | **−41%** |
 
 ### 4.1 The headline: Beta-CA is cheaper on every measured prompt
 
@@ -244,32 +262,30 @@ h4: beta 15 / 120k / $0.29 vs beta-ca 8 / 31k / $0.10 — 66% cost
 reduction. Matches the alpha-vs-ca 83% reduction directionally,
 demonstrating the CA tool-effect is not a harness artifact.
 
-### 4.3 A nuance affecting the beta-ca quality axis
+### 4.3 [SUPERSEDED 2026-04-24] — Permission-disclaimer quirk was a harness bug
 
-Four of five beta-ca answers (h1, h3, h4, h5) open with a
-disclaimer along the lines of *"I don't have permission to use
-the ContextAtlas tools"* — despite the trace clearly showing
-MCP tool calls executing and returning useful responses. h1
-beta-ca is the clearest example: the model uses 5 MCP responses
-to produce a substantively correct answer citing ADR-01 and
-specific line numbers, while prefacing all of that with a claim
-that it lacked access.
+*Original content replaced. The section originally hypothesized
+that Claude Code's model was mis-labeling successful MCP tool
+calls as permission-denied. That hypothesis was wrong.*
 
-Leading hypothesis: Claude Code's model sometimes interprets
-certain MCP response shapes as permission-denial signals and
-emits the preamble defensively, even when the underlying tool
-data is present and later used. Secondary hypothesis: a headless
-`--bare` + `--strict-mcp-config` interaction quirk. Either way,
-this is a CLI/MCP behavior issue, not a ContextAtlas bug —
-ContextAtlas returned the data; the model just mis-labeled its
-own access to it. Follow-up tracked at
-`research/claude-cli-mcp-disclaimer-quirk.md` if we pursue
-investigation.
+Investigation during v0.2 Step 7 established that the
+"permission-denied" preamble reflected an actual 100% block rate:
+every MCP call across all beta-ca cells returned a CLI
+permission-request message rather than atlas data, because the
+harness spawn did not pass `--allowedTools`. Under `--bare`,
+Claude Code still enforces the permission system, so
+config-declared tools must be explicitly allow-listed.
 
-This does **not** invalidate the efficiency numbers in §4's
-table (those come from metrics, not answer text) but it does
-mean the beta-ca answers in v0.1 are a weaker quality-axis
-signal than they otherwise would be. Flag for v0.2+ (§7.2).
+The v1 beta-ca answers were not "ContextAtlas + Claude Code CLI"
+measurements — they were "Claude Code CLI with MCP tools visible
+but unavailable" measurements. The v1 efficiency numbers in §4's
+original table also conflated this: low beta-ca cost on some
+cells reflected the model producing short answers from training
+priors when MCP was unavailable, not CA's efficiency.
+
+Full finding and scope of invalidation:
+`research/beta-ca-mcp-permission-block-finding.md`.
+Re-measured v2 numbers: §10 of this document.
 
 ---
 
@@ -326,12 +342,21 @@ See §9.*
 
 ### 5.2 h2-router-contract — the beta-ca call-count anomaly
 
+> *Amendment pointer (2026-04-24):* this section describes v1
+> beta-ca behavior measured under the permission-block bug
+> (§4.3 superseded). The "beta-ca doubles calls, still cheaper"
+> narrative does not hold under v2 re-measurement: v2 h2-beta-ca
+> uses 3 calls / 36.9k tokens, strictly fewer than v1. The
+> "atlas-fanout exploration" interpretation below reflects what
+> the model did when MCP was unavailable, not CA tool effect.
+> See §10.
+
 **Prompt** (paraphrased): what contract does a `Router<T>`
 implementation have to satisfy?
 
 Beta: 8 calls (7 Bash, 1 Read), 73k tokens, $0.25.
-Beta-CA: 16 calls (7 `get_symbol_context`, 4 Bash, 4 Read, 1
-other), 106k tokens, $0.22.
+Beta-CA (v1, MCP-blocked): 16 calls (7 `get_symbol_context` attempts
+— all blocked, 4 Bash, 4 Read, 1 other), 106k tokens, $0.22.
 
 Beta-CA made twice as many tool calls as Beta and ended up
 cheaper anyway. Mechanism:
@@ -361,16 +386,25 @@ metric alone undersells CA's value on beta-class cells.
 
 ### 5.3 h5-hono-generics — cap prevention, with caveats
 
+> *Amendment pointer (2026-04-24):* h5-beta-ca was re-run in Step 7;
+> v2 completed in 6 calls / 48.2k tokens without needing a retry.
+> The v1 "retry fired" story below reflects model behavior under
+> MCP-blocked conditions; the "CA prevents cap" directional claim
+> still holds (v2 completed first try; beta capped both times).
+> Caveat (2) below, about answer quality being weakened by
+> permission-disclaimer preamble, no longer applies in v2 — the
+> v2 answer uses atlas data substantively. See §10.
+
 **Prompt** (paraphrased): what downstream types break if Hono's
 generic parameters change?
 
 Beta (first attempt): 19 Bash calls, 208k tokens, capped on
 tokens. Retried.
 Beta (retry): also capped on tokens. Zero useful answer.
-Beta-CA (first attempt): 21 calls (6 MCP + 15 Bash/Read), 210k
-tokens, capped on tokens. Retried.
-Beta-CA (retry): 8 calls (4 MCP + 4 Bash), 39k tokens, completed
-without capping.
+Beta-CA v1 (first attempt, MCP-blocked): 21 calls (6 MCP attempts
+— all blocked, 15 Bash/Read), 210k tokens, capped on tokens. Retried.
+Beta-CA v1 (retry, MCP-blocked): 8 calls (4 MCP attempts — all
+blocked, 4 Bash), 39k tokens, completed without capping.
 
 On the surface this is a clean "CA prevents cap" story. The
 efficiency numbers support it — Beta-CA completed in 39k tokens
@@ -483,18 +517,14 @@ on trick too, the "CA prevents cap" story generalizes into a
 broader "CA tools displace expensive Bash exploration even when
 architectural intent isn't central."
 
-### 7.2 The Claude-Code-CLI permission-disclaimer quirk
+### 7.2 [RESOLVED 2026-04-24] — Was the permission-disclaimer quirk
 
-Four of five beta-ca cells preface their answer with a claim of
-lacking MCP permission, despite clearly successful tool calls in
-the trace. This is not a ContextAtlas bug but it directly
-weakens the readability/usability of CA through the CLI today.
-Worth investigating upstream (Claude Code's headless policy
-around MCP, or our `--bare --strict-mcp-config` spawn flags) —
-`research/claude-cli-mcp-disclaimer-quirk.md` would be a natural
-follow-up note if we pursue this (content-named rather than
-phase-numbered because the investigation scope may not fit the
-phase cadence).
+*Originally posed as a v0.2+ follow-up. Resolved during v0.2
+Step 7: the "quirk" was a harness bug (missing `--allowedTools`
+on CLI spawn), not upstream Claude Code behavior. Fixed in
+`src/harness/claude-code-driver.ts` (buildClaudeSpawnArgs).
+Beta-ca cells re-run 2026-04-24. See
+`research/beta-ca-mcp-permission-block-finding.md` and §10 below.*
 
 ### 7.3 Is the CA two-axes pattern (quality-axis when calls tie)
 reproducible?
@@ -732,3 +762,87 @@ contextatlas commit `79228b1` (Step 4 shipped), hono pinned
 
 Thesis survives. v0.2 execution continues to Step 5 (httpx
 reference run) per STEP-PLAN-V0.2.md. No pause triggered.
+
+---
+
+## 10. Post-hoc correction: Step 7 beta-ca re-run (MCP-enabled)
+
+Added 2026-04-24. Phase 5 (§1–9 above) is historical record; this
+section documents the Step 7 permission-block finding's impact on
+Phase 5 beta-ca data. §4 table values above already reflect the
+corrected v2 numbers; this section explains the diff and the
+interpretation change.
+
+### Context
+
+v0.2 Step 7 discovered that the harness CLI spawn was missing
+`--allowedTools`, causing 100% of MCP calls in beta-ca cells to
+return CLI permission-request messages rather than atlas data.
+All Phase 5 beta-ca cells (h1–h5) were affected. Fix shipped in
+`src/harness/claude-code-driver.ts` (post-fix commit `04e90e05`);
+h1–h5 beta-ca re-run 2026-04-24 against the same hono atlas.
+
+Full finding: `research/beta-ca-mcp-permission-block-finding.md`.
+
+### v1 vs v2 per-cell diff
+
+| cell | v1 calls | v1 tokens | v1 cost | v2 calls | v2 tokens | v2 cost |
+|---|---:|---:|---:|---:|---:|---:|
+| h1 | 13 | 67.7k | $0.22 | 8 | 75.3k | $0.20 |
+| h2 | 16 | 106k  | $0.22 | 3 | 36.9k | $0.12 |
+| h3 | 6  | 29.7k | $0.07 | 9 | 83.3k | $0.19 |
+| h4 | 8  | 31.5k | $0.10 | 5 | 25.1k | $0.13 |
+| h5 | 8  | 38.8k | $0.07 | 6 | 48.2k | $0.19 |
+| **total** | **51** | **274k** | **$0.67** | **31** | **269k** | **$0.84** |
+
+v2 is −39% calls, −2% tokens, +25% cost relative to v1. The cost
+increase reflects v2 doing genuine work — MCP responses include
+atlas bundle content (INTENT, REFS, GIT, DIAG), which is larger
+than the "permission denied" sentinel strings v1 received. v1 was
+artificially cheap because the model was producing answers from
+priors + Read/Grep, not from atlas data.
+
+### Interpretation
+
+**§4.1 "beta-ca cheaper than beta" claim survives under v2.** On
+all four non-capped cells (h1/h2/h3/h4), v2 beta-ca is cheaper
+than beta (−30% to −54%). h5 beta capped both times, v2 beta-ca
+completed — the cap-prevention story holds.
+
+**§4.2 "h3 and h4: the cleanest wins" claim shifts.** Under v1,
+h3 and h4 showed the biggest beta-vs-beta-ca gaps (−73%, −66%).
+Under v2, h4 remains the largest percentage win (−54%) but h2
+joins as a new strong performer (−51%). h3 narrows to −23%
+because v2 beta-ca actually used atlas tools (more work = more
+tokens) whereas v1 h3-beta-ca was short-circuited by the block.
+
+**§5.2 "atlas-fanout exploration" narrative is invalid.** The
+"beta-ca uses 16 calls, still cheaper" pattern was an MCP-blocked
+artifact — the model made many blocked calls and fell back to
+Read. Under v2, h2-beta-ca uses 3 calls and completes. The real
+story is simpler: when MCP works, beta-ca is uniformly efficient.
+
+**§5.3 "h5 answer quality weakened by disclaimer preamble" no
+longer applies.** The v2 h5-beta-ca answer uses atlas data
+substantively, with no permission disclaimer (because there is
+no block to disclaim).
+
+### Aggregate impact
+
+Phase 5 beta-ca total: v1 $0.68, v2 $0.84. Total reference-run
+spend: v1 $14.05, v2 $14.21. Alpha/CA sections unchanged. The
+efficiency headline of Phase 5 — CA wins on win-bucket prompts —
+is an alpha-vs-ca finding (§3) that was not affected. The
+beta-vs-beta-ca headline gets stronger: v1's $0.68 beta-ca was
+partly artificial (MCP-blocked cells shortcutting); v2's $0.84 is
+real CA tool effect and still beats beta $1.43 by 41%.
+
+### Artifacts
+
+- `runs/reference/hono/<cell>/beta-ca.json` — v2 (post-fix).
+- `runs/reference/hono/<cell>/beta-ca-v1-permission-blocked.json` —
+  preserved v1 for audit trail.
+- Both co-exist in every cell directory; summary.md reflects v2.
+- Provenance for v2 re-run: contextatlas commit `04e90e05`,
+  benchmarks commit `c5b9486` (harness fix), hono pinned
+  unchanged.
