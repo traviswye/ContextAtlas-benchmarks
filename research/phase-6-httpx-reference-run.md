@@ -8,7 +8,12 @@ of that run, produced per STEP-PLAN-V0.2.md Step 6 ship criteria.
 `0e6a932` (promotion commit); httpx pinned at
 `26d48e0634e6`; atlas schema v1.1 (1179 symbols / 78 claims).
 Single-run methodology per STEP-7-PLAN §1. Reference-run cost:
-$8.36 over 24 cells (0 errors, 1 retry).
+$8.36 over 24 cells (0 errors, 1 retry). **Compute time:
+~15 min for p1–p5; p6's finalization timestamp is post-resume
+due to a hibernation event mid-run** — see §7 for compute
+envelope analysis and
+[`reference-run-hibernation-gotcha.md`](reference-run-hibernation-gotcha.md)
+for the methodology observation.
 
 Full methodology recap lives in
 [`phase-5-reference-run.md`](phase-5-reference-run.md) §2.
@@ -271,7 +276,7 @@ Step 11 extends the cross-language story.
 
 ---
 
-## 7. Cost envelope observations
+## 7. Cost and compute envelope observations
 
 Two data points on reference-run cost now exist:
 
@@ -298,6 +303,40 @@ Cost estimation methodology is still calibrating. Variance
 column shows the projection prior remains wide. Step 13 will
 re-estimate with three-run medians if step-13 proceeds
 post-v0.3.
+
+**Compute time.** httpx's matrix executed in ~15 min of compute
+for p1–p5 (per directory timestamps of cell-artifact writes).
+p6 is ambiguous — a hibernation event occurred between p5 and
+p6, and p6's artifacts finalized on resume. Total compute
+likely 15–20 min. See
+[`reference-run-hibernation-gotcha.md`](reference-run-hibernation-gotcha.md)
+for detection heuristic and prevention; the short version is
+that hibernating mid-run causes orchestrator writes to cluster
+at resume time, making directory timestamps misleading for
+any cell bracketing the hibernation point.
+
+Cross-repo comparison:
+
+| Run | Files | Compute time | Min/file |
+|---|---:|---:|---:|
+| Phase 5 hono | 186 | ~75 min | 0.40 |
+| Step 6 httpx | 23 | ~15 min | 0.65 |
+
+**httpx per-file time (0.65 min/file) is higher than hono's
+(0.40) but not dramatically so.** Baseline orchestrator overhead
+— preflight, provenance resolution, adapter warmup, per-cell
+MCP server spawn — exists but doesn't dominate. Closer to
+"mostly linear with some constant overhead" than "substantial
+per-file overhead on small repos."
+
+**Implication for Step 11 (Go cobra).** Cobra's ~30k LOC source
+tree sits between hono (186 files) and httpx (23 files) on
+source-file count. Wall-clock projection: 40–60 min compute,
+plus supervisory buffer. Combined with the $14–16 ceiling
+proposal above, Step 11 should budget ~1 hour of supervised
+attention per run — with `powercfg` standby-timeout set to 0
+for the duration to prevent the hibernation gotcha documented
+in the methodology note.
 
 ---
 
@@ -395,6 +434,15 @@ genuine effects.
 complicate raw cross-harness comparisons on those cells.
 Readers of §4 should weight §5.2 and §8 when interpreting
 deltas on p1 and p6.
+
+**Wall-clock timing on this run is not directly comparable to
+Phase 5's.** A hibernation event mid-matrix caused p6's
+timestamps to reflect post-resume finalization rather than
+actual compute. The ~15-min compute figure in §1 and §7 is
+the honest reading of p1–p5 timings; p6 adds some ambiguity.
+See [`reference-run-hibernation-gotcha.md`](reference-run-hibernation-gotcha.md).
+Future reference runs should set `powercfg` standby-timeout
+to 0 before launching.
 
 **Reference artifacts:** `runs/reference/httpx/`
 - `summary.md` — matrix + delta tables + diagnostics
