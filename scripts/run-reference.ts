@@ -7,12 +7,22 @@
 //                                     [--ceiling <usd>]
 //                                     [--warning <usd>]
 //                                     [--no-retry]
+//                                     [--prompts <id,id,...>]
+//                                     [--conditions <cond,cond,...>]
 //
 // Defaults:
 //   --repo hono
 //   --ceiling 14.00   (was 5.00; recalibrated per phase-5-cost-calibration)
 //   --warning 11.00   (was 4.00; 80% of ceiling)
 //   --retry ON (pass --no-retry to disable)
+//   --prompts   (unset = full prompt set for the repo)
+//   --conditions alpha,ca,beta,beta-ca
+//
+// Cell filtering: --prompts and --conditions restrict which cells
+// execute. Useful for targeted re-runs (e.g., v0.2 Step 4c
+// spot-check: one prompt x one condition) without the full matrix
+// cost. When both are set, the run executes the Cartesian product
+// of the two subsets.
 //
 // Phase 5 keeps this under runs/<timestamp>/ (gitignored).
 // Phase 6 promotes runs/<timestamp>/ → runs/reference/ after review.
@@ -22,8 +32,15 @@ import { stat } from "node:fs/promises";
 import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { generateRunRootDir } from "../src/harness/metrics.js";
+import { type Condition, generateRunRootDir } from "../src/harness/metrics.js";
 import { runMatrix } from "../src/harness/run.js";
+
+const VALID_CONDITIONS: readonly Condition[] = [
+  "alpha",
+  "ca",
+  "beta",
+  "beta-ca",
+];
 
 const ROOT = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -32,14 +49,16 @@ const ROOT = path.resolve(
 
 // ---- CLI parsing ----
 
-interface Args {
+export interface Args {
   readonly repo: "hono" | "httpx";
   readonly ceiling: number;
   readonly warning: number;
   readonly retry: boolean;
+  readonly promptIds?: readonly string[];
+  readonly conditions: readonly Condition[];
 }
 
-function parseArgs(argv: readonly string[]): Args {
+export function parseArgs(argv: readonly string[]): Args {
   let repo: "hono" | "httpx" = "hono";
   // Defaults calibrated from the partial reference run (see
   // research/phase-5-cost-calibration.md). Ceiling $14 gives ~50%
@@ -47,6 +66,8 @@ function parseArgs(argv: readonly string[]): Args {
   let ceiling = 14.0;
   let warning = 11.0;
   let retry = true;
+  let promptIds: readonly string[] | undefined;
+  let conditions: readonly Condition[] = VALID_CONDITIONS;
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === "--repo") {
@@ -63,6 +84,32 @@ function parseArgs(argv: readonly string[]): Args {
       if (!Number.isFinite(warning)) throw new Error(`invalid --warning`);
     } else if (a === "--no-retry") {
       retry = false;
+    } else if (a === "--prompts") {
+      const raw = argv[++i];
+      if (!raw) {
+        throw new Error(`--prompts requires a comma-separated list of prompt IDs`);
+      }
+      promptIds = parseCsv(raw);
+      if (promptIds.length === 0) {
+        throw new Error(`--prompts requires at least one prompt ID`);
+      }
+    } else if (a === "--conditions") {
+      const raw = argv[++i];
+      if (!raw) {
+        throw new Error(`--conditions requires a comma-separated list of conditions`);
+      }
+      const parsed = parseCsv(raw);
+      if (parsed.length === 0) {
+        throw new Error(`--conditions requires at least one condition`);
+      }
+      for (const c of parsed) {
+        if (!VALID_CONDITIONS.includes(c as Condition)) {
+          throw new Error(
+            `--conditions: unknown condition '${c}'. Valid: ${VALID_CONDITIONS.join(", ")}`,
+          );
+        }
+      }
+      conditions = parsed as readonly Condition[];
     } else {
       throw new Error(`unknown argument: ${a}`);
     }
@@ -72,7 +119,15 @@ function parseArgs(argv: readonly string[]): Args {
       `--warning (${warning}) must be less than --ceiling (${ceiling})`,
     );
   }
-  return { repo, ceiling, warning, retry };
+  const out: Args = { repo, ceiling, warning, retry, conditions };
+  return promptIds === undefined ? out : { ...out, promptIds };
+}
+
+function parseCsv(raw: string): string[] {
+  return raw
+    .split(",")
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
 }
 
 // ---- Provenance resolution ----
@@ -156,7 +211,8 @@ async function main(): Promise<void> {
 
   const result = await runMatrix({
     repoName: args.repo,
-    conditions: ["alpha", "ca", "beta", "beta-ca"],
+    conditions: args.conditions,
+    ...(args.promptIds ? { promptIds: args.promptIds } : {}),
     outputRoot,
     budgetCeilingUsd: args.ceiling,
     warningGateUsd: args.warning,
@@ -190,8 +246,18 @@ async function main(): Promise<void> {
   );
 }
 
-main().catch((err) => {
-  // eslint-disable-next-line no-console
-  console.error(err);
-  process.exit(1);
-});
+// Guard so that importing this module (e.g., from the adjacent
+// test file) does not trigger a real run. Only execute `main()`
+// when this file is invoked as the script entrypoint. Path
+// normalization via path.resolve handles Windows drive-letter
+// casing + mixed separators cleanly.
+const invokedAsScript =
+  path.resolve(fileURLToPath(import.meta.url)) ===
+  path.resolve(process.argv[1] ?? "");
+if (invokedAsScript) {
+  main().catch((err) => {
+    // eslint-disable-next-line no-console
+    console.error(err);
+    process.exit(1);
+  });
+}
