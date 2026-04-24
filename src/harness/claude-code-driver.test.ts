@@ -4,12 +4,78 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   CLAUDE_PREVIEW_MAX,
+  CONTEXTATLAS_MCP_ALLOWED_TOOLS,
   INTERRUPTED_PREVIEW,
   StreamJsonParser,
   TERMINAL_REASON_SIGTERM_CAPPED,
+  buildClaudeSpawnArgs,
   extractToolResultText,
   resolveMcpConfig,
 } from "./claude-code-driver.js";
+
+// -------- buildClaudeSpawnArgs --------
+
+describe("buildClaudeSpawnArgs", () => {
+  const baseInput = {
+    prompt: "test prompt",
+    model: "opus",
+    addDir: "/tmp/repo",
+    sessionId: "session-123",
+    mcpConfigPath: "/tmp/mcp.json",
+  };
+
+  it("includes --allowedTools immediately before --strict-mcp-config", () => {
+    const args = buildClaudeSpawnArgs(baseInput);
+    const allowedIdx = args.indexOf("--allowedTools");
+    const strictIdx = args.indexOf("--strict-mcp-config");
+    expect(allowedIdx).toBeGreaterThanOrEqual(0);
+    expect(strictIdx).toBeGreaterThanOrEqual(0);
+    // --allowedTools must be followed by its value, then --strict-mcp-config
+    expect(strictIdx).toBe(allowedIdx + 2);
+  });
+
+  it("allow-lists the three ContextAtlas MCP tool names as a space-separated value", () => {
+    const args = buildClaudeSpawnArgs(baseInput);
+    const allowedIdx = args.indexOf("--allowedTools");
+    const value = args[allowedIdx + 1];
+    expect(value).toBe(
+      "mcp__contextatlas__find_by_intent mcp__contextatlas__get_symbol_context mcp__contextatlas__impact_of_change",
+    );
+  });
+
+  it("exposes the allowed-tools list as a frozen constant for other callers", () => {
+    expect(CONTEXTATLAS_MCP_ALLOWED_TOOLS).toEqual([
+      "mcp__contextatlas__find_by_intent",
+      "mcp__contextatlas__get_symbol_context",
+      "mcp__contextatlas__impact_of_change",
+    ]);
+  });
+
+  it("preserves the existing flag set (prompt, --bare, --model, --mcp-config, etc.)", () => {
+    const args = buildClaudeSpawnArgs(baseInput);
+    expect(args[0]).toBe("-p");
+    expect(args[1]).toBe("test prompt");
+    expect(args).toContain("--bare");
+    expect(args).toContain("--model");
+    expect(args).toContain("opus");
+    expect(args).toContain("--output-format");
+    expect(args).toContain("stream-json");
+    expect(args).toContain("--session-id");
+    expect(args).toContain("session-123");
+    expect(args).toContain("--add-dir");
+    expect(args).toContain("/tmp/repo");
+    expect(args).toContain("--mcp-config");
+    expect(args).toContain("/tmp/mcp.json");
+  });
+
+  it("places --add-dir value before --allowedTools so config-layer flags stay grouped at the end", () => {
+    const args = buildClaudeSpawnArgs(baseInput);
+    const addDirIdx = args.indexOf("--add-dir");
+    const allowedIdx = args.indexOf("--allowedTools");
+    expect(addDirIdx).toBeGreaterThanOrEqual(0);
+    expect(allowedIdx).toBeGreaterThan(addDirIdx);
+  });
+});
 
 // -------- extractToolResultText --------
 

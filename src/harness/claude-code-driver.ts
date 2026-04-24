@@ -432,6 +432,56 @@ export async function resolveMcpConfig(
 }
 
 /**
+ * MCP tool names the benchmark harness must allow-list for beta-ca
+ * cells. Under --bare, Claude Code still enforces the permission
+ * system; without --allowedTools (or equivalent), every MCP call is
+ * gated on an interactive prompt the headless process cannot satisfy
+ * and returns a "Claude requested permissions to use …" result.
+ * See research/beta-ca-mcp-permission-block-finding.md.
+ */
+export const CONTEXTATLAS_MCP_ALLOWED_TOOLS = [
+  "mcp__contextatlas__find_by_intent",
+  "mcp__contextatlas__get_symbol_context",
+  "mcp__contextatlas__impact_of_change",
+] as const;
+
+/**
+ * Build the argv list for a `claude -p` spawn. Extracted as a pure
+ * function so tests can verify flag composition without spawning.
+ */
+export function buildClaudeSpawnArgs(input: {
+  prompt: string;
+  model: string;
+  addDir: string;
+  sessionId: string;
+  mcpConfigPath: string;
+}): string[] {
+  return [
+    "-p",
+    input.prompt,
+    "--bare",
+    "--model",
+    input.model,
+    "--output-format",
+    "stream-json",
+    "--verbose",
+    "--include-hook-events",
+    "--setting-sources",
+    "",
+    "--no-session-persistence",
+    "--session-id",
+    input.sessionId,
+    "--add-dir",
+    input.addDir,
+    "--allowedTools",
+    CONTEXTATLAS_MCP_ALLOWED_TOOLS.join(" "),
+    "--strict-mcp-config",
+    "--mcp-config",
+    input.mcpConfigPath,
+  ];
+}
+
+/**
  * Spawn claude -p with the fixed benchmark flag set, stream events
  * through the parser, enforce caps by SIGTERM, return a RunOutput.
  *
@@ -458,27 +508,13 @@ export async function runClaudeCode(
     await new Promise<void>((resolve, reject) => {
       const child = spawn(
         claudeBin,
-        [
-          "-p",
-          input.prompt,
-          "--bare",
-          "--model",
-          input.model,
-          "--output-format",
-          "stream-json",
-          "--verbose",
-          "--include-hook-events",
-          "--setting-sources",
-          "",
-          "--no-session-persistence",
-          "--session-id",
+        buildClaudeSpawnArgs({
+          prompt: input.prompt,
+          model: input.model,
+          addDir: input.addDir,
           sessionId,
-          "--add-dir",
-          input.addDir,
-          "--strict-mcp-config",
-          "--mcp-config",
           mcpConfigPath,
-        ],
+        }),
         { stdio: ["ignore", "pipe", "pipe"], windowsHide: true },
       );
 
