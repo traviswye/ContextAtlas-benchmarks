@@ -1,0 +1,132 @@
+{
+  "prompt_id": "p2-http3-transport",
+  "repo": "httpx",
+  "condition": "beta-ca",
+  "target_symbol": "BaseTransport",
+  "bucket": "win",
+  "metrics": {
+    "tool_calls": 11,
+    "input_tokens": 17,
+    "output_tokens": 2773,
+    "total_tokens": 59107,
+    "wall_clock_ms": 54447
+  },
+  "capped": null,
+  "answer": "Based on the httpx atlas, here's what you need to subclass for your HTTP/3 transport:\n\n## Base interfaces\n\nBoth live in **`httpx/_transports/base.py`**:\n\n| Class | Line | Use when |\n|---|---|---|\n| `BaseTransport` | 14 | Building a **sync** HTTP/3 transport (used by `httpx.Client`) |\n| `AsyncBaseTransport` | 65 | Building an **async** HTTP/3 transport (used by `httpx.AsyncClient`) |\n\nSince HTTP/3 over QUIC is almost always driven by an async event loop (e.g. `aioquic`), you'll most likely implement **`AsyncBaseTransport`** — and optionally a thin sync wrapper on top if you also want to support `httpx.Client`.\n\n## Methods to implement\n\n- **`handle_request(self, request: Request) -> Response`** (sync) — the single core method on `BaseTransport`.\n- **`handle_async_request(self, request: Request) -> Response`** (async) — the core method on `AsyncBaseTransport`.\n- **`aclose()` / `close()`** — release QUIC connections / UDP sockets.\n- The context-manager dunders (`__enter__`/`__exit__` or `__aenter__`/`__aexit__`) are already implemented on the base class and just delegate to `close`/`aclose`, so you typically don't need to override them.\n\n## Skeleton\n\n```python\nimport httpx\n\nclass HTTP3Transport(httpx.AsyncBaseTransport):\n    def __init__(self, ...):\n        # set up aioquic / QUIC connection pool here\n        ...\n\n    async def handle_async_request(self, request: httpx.Request) -> httpx.Response:\n        # 1. open/reuse a QUIC connection to request.url.host:port\n        # 2. send request.method, request.url, request.headers, request.stream\n        # 3. build an httpx.Response with an async byte stream\n        return httpx.Response(\n            status_code=...,\n            headers=...,\n            stream=...,        # an AsyncByteStream\n            extensions={\"http_version\": b\"HTTP/3\", \"reason_phrase\": b\"\", ...},\n            request=request,\n        )\n\n    async def aclose(self) -> None:\n        # tear down QUIC sessions / UDP endpoint\n        ...\n```\n\nThen plug it in:\n\n```python\nasync with httpx.AsyncClient(transport=HTTP3Transport(...)) as client:\n    r = await client.get(\"https://example.com/\")\n```\n\n## A couple of implementation notes worth checking before you start\n\n1. **Mounts for protocol negotiation.** If you want HTTP/3 only for specific origins, use `httpx.AsyncClient(mounts={\"https://\": HTTP3Transport(...), \"all://\": httpx.AsyncHTTPTransport()})` rather than hardcoding it as the single transport — `httpx`'s existing `HTTPTransport`/`AsyncHTTPTransport` don't speak HTTP/3, so you don't want to route plaintext `http://` through QUIC.\n2. **`extensions` on the Response.** Existing transports set `http_version`, `reason_phrase`, and `network_stream`. Setting `http_version=b\"HTTP/3\"` is the convention; anything consuming `response.http_version` will just work.\n3. **Stream semantics.** The body you attach must be an `AsyncByteStream` whose `__aiter__` yields `bytes` and whose `aclose()` releases the underlying QUIC stream — mirror what `AsyncHTTPTransport` does with the `httpcore` response stream.\n\nIf you'd like, I can pull the full signatures of `handle_request` / `handle_async_request` (including the default `NotImplementedError` behavior) so you can see exactly what the contract expects — just say the word.",
+  "trace": [
+    {
+      "tool": "mcp__contextatlas__find_by_intent",
+      "args": {
+        "query": "base transport interface for implementing custom HTTP transports"
+      },
+      "result_preview": "Claude requested permissions to use mcp__contextatlas__find_by_intent, but you haven't granted it yet."
+    },
+    {
+      "tool": "mcp__contextatlas__find_by_intent",
+      "args": {
+        "query": "base transport interface for implementing custom HTTP transports"
+      },
+      "result_preview": "Claude requested permissions to use mcp__contextatlas__find_by_intent, but you haven't granted it yet."
+    },
+    {
+      "tool": "mcp__contextatlas__find_by_intent",
+      "args": {
+        "query": "base transport interface for implementing custom HTTP transports in httpx"
+      },
+      "result_preview": "Claude requested permissions to use mcp__contextatlas__find_by_intent, but you haven't granted it yet."
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "ls atlases/httpx/",
+        "description": "List httpx atlas directory"
+      },
+      "result_preview": "atlas.json\nindex.db\nindex.db-shm\nindex.db-wal"
+    },
+    {
+      "tool": "mcp__contextatlas__find_by_intent",
+      "args": {
+        "query": "base transport interface subclass custom transport"
+      },
+      "result_preview": "Claude requested permissions to use mcp__contextatlas__find_by_intent, but you haven't granted it yet."
+    },
+    {
+      "tool": "mcp__contextatlas__get_symbol_context",
+      "args": {
+        "symbol": "BaseTransport"
+      },
+      "result_preview": "Claude requested permissions to use mcp__contextatlas__get_symbol_context, but you haven't granted it yet."
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "find . -path ./node_modules -prune -o -name \"*.py\" -print 2>/dev/null | xargs grep -l \"BaseTransport\" 2>/dev/null | head -20",
+        "description": "Find Python files mentioning BaseTransport"
+      },
+      "result_preview": "This Bash command contains multiple operations. The following part requires approval: xargs grep -l \"BaseTransport\""
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -r \"class BaseTransport\" atlases/httpx/ 2>/dev/null | head -5",
+        "description": "Search for BaseTransport class in httpx atlas"
+      },
+      "result_preview": "atlases/httpx/atlas.json:      \"signature\": \"class BaseTransport\",\nBinary file atlases/httpx/index.db matches"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -A 20 '\"signature\": \"class BaseTransport\"' atlases/httpx/atlas.json | head -60",
+        "description": "Show BaseTransport atlas entry context"
+      },
+      "result_preview": "      \"signature\": \"class BaseTransport\",\n      \"file_sha\": \"96e98f1da0ab25b6d5e950cfa6c7e1750d35e8c2a5f427be09309203eae44725\"\n    },\n    {\n      \"id\": \"sym:py:httpx/_transports/base.py:T\",\n      \"name\": \"T\",\n      \"kind\": \"variable\",\n      \"path\": \"httpx/_transports/base.py\",\n      \"line\": 8,\n      \"file_sha\": \"96e98f1da0ab25b6d5e950cfa6c7e1750d35e8c2a5f427be09309203eae44725\"\n    },\n    {\n      \"id\": \"sym:py:httpx/_transports/base.py:__aenter__\",\n      \"name\": \"__aenter__\",\n      \"kind\": \"method\",\n      \"path\": \"httpx/_transports/base.py\",\n      \"line\": 66,\n      \"signature\": \"async def __aenter__(self: A) -> A\",\n      \"file_sha\": \"96e98f1da0ab25b6d5e950cfa6c7e1750d35e8c2a5f427be09309203eae44725\"\n    },\n    {"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -B 2 -A 30 '\"name\": \"BaseTransport\"' atlases/httpx/atlas.json | head -80",
+        "description": "Show BaseTransport class details"
+      },
+      "result_preview": "    {\n      \"id\": \"sym:py:httpx/_transports/base.py:BaseTransport\",\n      \"name\": \"BaseTransport\",\n      \"kind\": \"class\",\n      \"path\": \"httpx/_transports/base.py\",\n      \"line\": 14,\n      \"signature\": \"class BaseTransport\",\n      \"file_sha\": \"96e98f1da0ab25b6d5e950cfa6c7e1750d35e8c2a5f427be09309203eae44725\"\n    },\n    {\n      \"id\": \"sym:py:httpx/_transports/base.py:T\",\n      \"name\": \"T\",\n      \"kind\": \"variable\",\n      \"path\": \"httpx/_transports/base.py\",\n      \"line\": 8,\n      \"file_sha\": \"96e98f1da0ab25b6d5e950cfa6c7e1750d35e8c2a5f427be09309203eae44725\"\n    },\n    {\n      \"id\": \"sym:py:httpx/_transports/base.py:__aenter__\",\n      \"name\": \"__aenter__\",\n      \"kind\": \"method\",\n      \"path\": \"httpx/_transports/base.py\",\n      \"line\": 66,\n      \"signature\": \"async def __aenter__(self: A) -> A\",\n      \"file_sha\": \"96e98f1da0ab25b6d5e950cfa6c7e1750d35e8c2a5f427be09309203eae44725\"\n    },\n    {\n      \"id\": \"sym:py:httpx/_transports/base.py:__aexit__\",\n      \"name\": \"__aexit__\",\n      \"kind\": \"method\",\n      \"path\": \"httpx/_transports/base.py\",\n      \"line\": 69,\n      \"signature\": \"async def __aexit__( self, exc_type: type[BaseException] | None = None, exc_value: BaseException | None = None, traceback: TracebackType | None = None, ) -> None\","
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -B 2 -A 10 '\"name\": \"AsyncBaseTransport\"' atlases/httpx/atlas.json | head -40",
+        "description": "Look up AsyncBaseTransport"
+      },
+      "result_preview": "    {\n      \"id\": \"sym:py:httpx/_transports/base.py:AsyncBaseTransport\",\n      \"name\": \"AsyncBaseTransport\",\n      \"kind\": \"class\",\n      \"path\": \"httpx/_transports/base.py\",\n      \"line\": 65,\n      \"signature\": \"class AsyncBaseTransport\",\n      \"file_sha\": \"96e98f1da0ab25b6d5e950cfa6c7e1750d35e8c2a5f427be09309203eae44725\"\n    },\n    {\n      \"id\": \"sym:py:httpx/_transports/base.py:BaseTransport\",\n      \"name\": \"BaseTransport\",\n      \"kind\": \"class\","
+    }
+  ],
+  "diagnostics": {
+    "claudeCodeVersion": "2.1.118",
+    "totalCostUsd": 0.12331025000000001,
+    "numTurns": 12,
+    "isError": false,
+    "terminalReason": "completed",
+    "modelUsage": {
+      "claude-haiku-4-5-20251001": {
+        "inputTokens": 356,
+        "outputTokens": 16,
+        "cacheReadInputTokens": 0,
+        "cacheCreationInputTokens": 0,
+        "webSearchRequests": 0,
+        "costUSD": 0.00043599999999999997,
+        "contextWindow": 200000,
+        "maxOutputTokens": 32000
+      },
+      "claude-opus-4-7": {
+        "inputTokens": 17,
+        "outputTokens": 2773,
+        "cacheReadInputTokens": 51916,
+        "cacheCreationInputTokens": 4401,
+        "webSearchRequests": 0,
+        "costUSD": 0.12287424999999999,
+        "contextWindow": 1000000,
+        "maxOutputTokens": 64000
+      }
+    }
+  },
+  "cost_usd": 0.12331025000000001,
+  "written_at": "2026-04-24T02:39:10.267Z"
+}

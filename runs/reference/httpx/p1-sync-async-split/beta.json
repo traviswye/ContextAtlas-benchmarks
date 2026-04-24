@@ -1,0 +1,57 @@
+{
+  "prompt_id": "p1-sync-async-split",
+  "repo": "httpx",
+  "condition": "beta",
+  "target_symbol": "Client/AsyncClient",
+  "bucket": "win",
+  "metrics": {
+    "tool_calls": 1,
+    "input_tokens": 7,
+    "output_tokens": 1679,
+    "total_tokens": 7096,
+    "wall_clock_ms": 30953
+  },
+  "capped": null,
+  "answer": "## Why httpx ships both `Client` and `AsyncClient`\n\nThis isn't a stylistic choice — it's forced by Python's async model. The two classes exist because \"sync\" and \"async\" are different function colors at the language level, and httpx is a thin wrapper over a transport layer that itself has two distinct implementations.\n\n**The concrete reasons:**\n\n1. **Function coloring.** `def get(...)` and `async def get(...)` cannot be the same function. One returns a `Response`; the other returns a coroutine that must be `await`ed. You can't overload on that — the caller site has to know which it's getting.\n\n2. **Two different transports underneath.** httpx delegates to `httpcore`, which exposes `httpcore.ConnectionPool` (blocking sockets) and `httpcore.AsyncConnectionPool` (asyncio/trio via `anyio`). Connection reuse, pool locking, and timeouts are implemented differently in each — a threading `Lock` vs. an `anyio.Lock`, `socket.recv` vs. `await stream.receive`, etc.\n\n3. **Different context-manager protocols.** `Client` implements `__enter__/__exit__`; `AsyncClient` implements `__aenter__/__aexit__`. `with` vs. `async with` are not interchangeable.\n\n4. **They already share as much as they can.** If you look at httpx internals, both classes inherit from a `BaseClient` that holds everything non-I/O: header merging, cookie jar, auth handling, URL resolution, redirect logic, `build_request`. The split only happens at the points where bytes actually move.\n\n**Can you merge them?**\n\nNot in a way that's better than what httpx already does. Your options, and why each falls short:\n\n- **One class, sync methods only, run async via `asyncio.run()` internally.** Kills async usage entirely — you can't call `asyncio.run()` from inside a running event loop, so you've just broken every async caller.\n- **One class, async methods only, wrap with `asgiref.sync.async_to_sync` for sync callers.** Works, but every sync call spins up an event loop or thread, which is slower and has surprising behavior around signals, contextvars, and nested loops. This is the approach `httpx` explicitly rejected.\n- **One class with dual methods (`get` and `aget`).** This is the `redis-py` / `pymongo` style. It's legal but uglier — you end up with parallel method surfaces on one object, and the sync/async transport state still has to live side by side. httpx's two-class split is effectively the same thing with cleaner namespacing.\n\n**What you probably actually want:**\n\n- If your codebase is sync, use `Client` everywhere.\n- If it's async, use `AsyncClient` everywhere.\n- If it's mixed, keep them separate — don't try to unify. A small factory like `get_client(is_async: bool)` that returns the right one is as far as you should go.\n\nThe duplication you're seeing is real but unavoidable given Python's concurrency model. It's the same reason `sqlite3` vs. `aiosqlite`, `requests` vs. `aiohttp`, and `psycopg` vs. `asyncpg` all exist as separate surfaces.",
+  "trace": [
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "ls atlases/httpx/ 2>/dev/null | head -30",
+        "description": "List httpx atlas contents"
+      },
+      "result_preview": "atlas.json\nindex.db\nindex.db-shm\nindex.db-wal"
+    }
+  ],
+  "diagnostics": {
+    "claudeCodeVersion": "2.1.118",
+    "totalCostUsd": 0.06263225,
+    "numTurns": 2,
+    "isError": false,
+    "terminalReason": "completed",
+    "modelUsage": {
+      "claude-haiku-4-5-20251001": {
+        "inputTokens": 358,
+        "outputTokens": 17,
+        "cacheReadInputTokens": 0,
+        "cacheCreationInputTokens": 0,
+        "webSearchRequests": 0,
+        "costUSD": 0.000443,
+        "contextWindow": 200000,
+        "maxOutputTokens": 32000
+      },
+      "claude-opus-4-7": {
+        "inputTokens": 7,
+        "outputTokens": 1679,
+        "cacheReadInputTokens": 2371,
+        "cacheCreationInputTokens": 3039,
+        "webSearchRequests": 0,
+        "costUSD": 0.06218925,
+        "contextWindow": 1000000,
+        "maxOutputTokens": 64000
+      }
+    }
+  },
+  "cost_usd": 0.06263225,
+  "written_at": "2026-04-24T02:36:11.080Z"
+}

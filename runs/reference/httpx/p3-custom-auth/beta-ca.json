@@ -1,0 +1,121 @@
+{
+  "prompt_id": "p3-custom-auth",
+  "repo": "httpx",
+  "condition": "beta-ca",
+  "target_symbol": "Auth.auth_flow",
+  "bucket": "win",
+  "metrics": {
+    "tool_calls": 9,
+    "input_tokens": 13,
+    "output_tokens": 3956,
+    "total_tokens": 49854,
+    "wall_clock_ms": 65482
+  },
+  "capped": null,
+  "answer": "# How httpx handles authentication\n\nhttpx's auth model is documented in **ADR-04** (`adrs/httpx/ADR-04-generator-based-auth-flow.md`) and implemented in `repos/httpx/httpx/_auth.py`. The key insight is that **auth is a generator**, not a \"mutate-the-request\" callback. This lets it cleanly express single-leg (Basic/Bearer), two-leg (Digest), and N-leg (NTLM, OAuth refresh-on-401) schemes with one uniform protocol.\n\n## The core contract (`Auth` base class)\n\n```python\nclass Auth:\n    requires_request_body = False\n    requires_response_body = False\n\n    def auth_flow(self, request) -> Generator[Request, Response, None]:\n        # yield request            -> client sends it\n        # response = yield request -> client sends response back in\n        # return / end of gen     -> done, return last response\n        yield request\n```\n\n- The generator **yields** a `Request`; the client calls `.send()` and **sends the `Response` back in** (standard Python generator `send()` protocol — see ADR-04 §Rationale, \"The Python generator protocol is already a coroutine\").\n- `sync_auth_flow` / `async_auth_flow` are thin adapters that call `request.read()` / `aread()` and `response.read()` / `aread()` based on the `requires_*_body` flags before resuming the generator (`_auth.py:62-110`).\n- Because `auth_flow` is a plain generator (not a coroutine), **one implementation works for both `Client` and `AsyncClient`**. You only override `sync_auth_flow` / `async_auth_flow` when your auth scheme itself does I/O (disk, network, lock) whose shape differs between sync and async — which is exactly your case for token refresh.\n\n## Building blocks already there\n\n- `BasicAuth` — one-liner: sets `Authorization: Basic …`, yields once.\n- `FunctionAuth` — wraps a `Request -> Request` callable; sugar for trivial cases.\n- `DigestAuth` — `requires_response_body = True`, yields once, inspects 401 challenge, computes digest, yields again. This is the template you want for refresh-on-401.\n- `NetRCAuth` — looks up creds from `~/.netrc`.\n\n## Implementing a token-refresh auth scheme\n\nFor OAuth-style refresh-on-401, you want the **digest-auth shape**: send the request, if it comes back 401, refresh the token, resend. The twist is that refreshing is I/O, so you need separate sync and async versions.\n\n```python\nimport threading\nimport asyncio\nimport httpx\n\nclass RefreshingTokenAuth(httpx.Auth):\n    \"\"\"\n    Attaches a bearer token. On 401, refreshes the token once and retries.\n    \"\"\"\n    # We don't need to inspect response bodies; status code is enough.\n    requires_response_body = False\n\n    def __init__(self, access_token: str, refresh_token: str, refresh_url: str):\n        self._access_token = access_token\n        self._refresh_token = refresh_token\n        self._refresh_url = refresh_url\n        self._sync_lock = threading.Lock()\n        self._async_lock = asyncio.Lock()\n\n    # ---- sync path --------------------------------------------------------\n    def sync_auth_flow(self, request):\n        request.headers[\"Authorization\"] = f\"Bearer {self._access_token}\"\n        response = yield request\n\n        if response.status_code != 401:\n            return\n\n        # Refresh under a lock so concurrent requests don't refresh N times.\n        with self._sync_lock:\n            stale = request.headers.get(\"Authorization\", \"\")\n            if stale == f\"Bearer {self._access_token}\":\n                # Still the same token we just used -> actually refresh.\n                refresh_response = yield self._build_refresh_request()\n                self._apply_refresh(refresh_response)\n\n        request.headers[\"Authorization\"] = f\"Bearer {self._access_token}\"\n        yield request\n\n    # ---- async path -------------------------------------------------------\n    async def async_auth_flow(self, request):\n        request.headers[\"Authorization\"] = f\"Bearer {self._access_token}\"\n        response = yield request\n\n        if response.status_code != 401:\n            return\n\n        async with self._async_lock:\n            stale = request.headers.get(\"Authorization\", \"\")\n            if stale == f\"Bearer {self._access_token}\":\n                refresh_response = yield self._build_refresh_request()\n                self._apply_refresh(refresh_response)\n\n        request.headers[\"Authorization\"] = f\"Bearer {self._access_token}\"\n        yield request\n\n    # ---- helpers ----------------------------------------------------------\n    def _build_refresh_request(self):\n        return httpx.Request(\n            \"POST\",\n            self._refresh_url,\n            data={\"grant_type\": \"refresh_token\",\n                  \"refresh_token\": self._refresh_token},\n        )\n\n    def _apply_refresh(self, response):\n        response.read()  # ensure body is loaded regardless of runtime\n        if response.status_code != 200:\n            raise httpx.HTTPStatusError(\n                \"Token refresh failed\", request=response.request, response=response\n            )\n        payload = response.json()\n        self._access_token = payload[\"access_token\"]\n        if \"refresh_token\" in payload:\n            self._refresh_token = payload[\"refresh_token\"]\n```\n\nUsage:\n\n```python\nauth = RefreshingTokenAuth(access_token=..., refresh_token=..., refresh_url=...)\nclient = httpx.Client(auth=auth)            # or AsyncClient\nclient.get(\"https://api.example.com/me\")    # auto-refreshes on 401\n```\n\n## Gotchas that ADR-04 explicitly calls out (§Consequences — all apply to your design)\n\n1. **Generator semantics are subtle.** `yield` must be in `sync_auth_flow` / `async_auth_flow` itself, not in a helper. If you factor out \"do the refresh\" into a regular method that calls `yield`, it silently becomes a no-op. That's why `_build_refresh_request` / `_apply_refresh` above are plain functions and the `yield` stays in the flow method.\n2. **Flows must be finite.** There's no framework-level retry limit. If you want \"refresh then retry at most once,\" encode it (the code above does — after the refresh branch we yield once and return).\n3. **Concurrency requires locking.** Stateful auth objects shared across concurrent requests must lock their mutable state. `DigestAuth` is the in-tree precedent — see ADR-04: \"Reusing a stateful auth object across concurrent requests requires locking.\" That's why `RefreshingTokenAuth` uses separate `threading.Lock` and `asyncio.Lock` (you cannot share one across runtimes).\n4. **Double-check the token under the lock.** The \"stale == current\" check prevents the thundering-herd refresh when many parallel requests all see a 401 for the same old token.\n5. **`requires_response_body` costs you streaming.** You don't need the body to see a 401 status, so leave it `False`. Only flip it on if you need to parse a JSON error payload to decide whether to refresh.\n6. **Per-request override works out of the box.** Callers can still pass `auth=SomeOtherAuth()` to `client.get(...)` to bypass your default for one call; the `USE_CLIENT_DEFAULT` sentinel in `_client.py` handles it.\n7. **Treat the generator protocol as stable API.** Third-party libraries like `httpx-auth` and `httpx-oauth` rely on exactly this contract — so does your code, and it will keep working across httpx versions.\n\n## If you'd rather not roll your own\n\nBefore implementing, check `httpx-auth` (PyPI) — it already ships an `OAuth2ResourceOwnerPasswordCredentials` / refresh implementation built on this same `Auth` protocol. But the pattern above is the canonical shape if you need a bespoke scheme.",
+  "trace": [
+    {
+      "tool": "mcp__contextatlas__find_by_intent",
+      "args": {
+        "query": "authentication flow and custom auth schemes with token refresh",
+        "limit": 8
+      },
+      "result_preview": "Claude requested permissions to use mcp__contextatlas__find_by_intent, but you haven't granted it yet."
+    },
+    {
+      "tool": "mcp__contextatlas__find_by_intent",
+      "args": {
+        "query": "authentication flow and custom auth schemes with token refresh",
+        "limit": 8
+      },
+      "result_preview": "Claude requested permissions to use mcp__contextatlas__find_by_intent, but you haven't granted it yet."
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "ls atlases/httpx/",
+        "description": "List httpx atlas contents"
+      },
+      "result_preview": "atlas.json\nindex.db\nindex.db-shm\nindex.db-wal"
+    },
+    {
+      "tool": "mcp__contextatlas__find_by_intent",
+      "args": {
+        "query": "authentication custom auth scheme token refresh",
+        "limit": 8
+      },
+      "result_preview": "Claude requested permissions to use mcp__contextatlas__find_by_intent, but you haven't granted it yet."
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "find . -type d -name \"httpx*\" 2>/dev/null | head -20",
+        "description": "Find httpx source directories"
+      },
+      "result_preview": "./adrs/httpx\n./atlases/httpx\n./repos/httpx\n./repos/httpx/httpx\n./runs/2026-04-24T02-34-33-355Z/httpx"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "ls atlases/httpx/atlas.json 2>/dev/null && head -c 2000 atlases/httpx/atlas.json",
+        "description": "Preview atlas metadata"
+      },
+      "result_preview": "atlases/httpx/atlas.json\n{\n  \"version\": \"1.1\",\n  \"generated_at\": \"2026-04-24T02:15:47.496Z\",\n  \"extracted_at_sha\": \"26d48e0634e6ee9cdc0533996db289ce4b430177\",\n  \"generator\": {\n    \"contextatlas_version\": \"0.0.1\",\n    \"extraction_model\": \"claude-opus-4-7\"\n  },\n  \"source_shas\": {\n    \"ADR-01-parallel-sync-async-clients.md\": \"fda10a8a31e0605ce321f9610598ed5b9e62856b0ffdd8a15853bcf7081be409\",\n    \"ADR-02-httpcore-anyio-layering.md\": \"343b53a5059928bfdb4fa1ee4f551d0bf81309037f1bf8546586725c3f41989f\",\n    \"ADR-03-transport-abstraction.md\": \"505bccedd57974b6c5f76f503861fcb55656d1b0929b915dc22fa65cbbcab1d2\",\n    \"ADR-04-generator-based-auth-flow.md\": \"28337fe40674ffc8962b453cc23aa252d89634e793daa8ee58489b155159a6dc\",\n    \"ADR-05-explicit-streaming.md\": \"8d3c1f401ba389355703fae0b34655a4adbd4b41eeafc16b120dd2353c90c1df\"\n  },\n  \"symbols\": [\n    {\n      \"id\": \"sym:py:httpx/__init__.py:__all__\",\n      \"name\": \"__all__\",\n      \"kind\": \"variable\",\n      \"path\": \"httpx/__init__.py\",\n      \"line\": 29,\n      \"file_sha\": \"4fa3160a66ce47265690b2b0502c6d4da4d9e77de05ad0c7cacab3c0af4c8935\"\n    },\n    {\n      \"id\": \"sym:py:httpx/__init__.py:__locals\",\n      \"name\": \"__locals\",\n      \"kind\": \"variable\",\n      \"path\": \"httpx/__init__.py\",\n      \"line\": 102,\n      \"file_sha\": \"4fa3160a66ce47265690b2b0502c6d4da4d9e77de05ad0c7cacab3c0af4c8935\"\n    },\n    {\n      \"id\": \"sym:py:httpx/__init__.py:main\",\n      \"name\": \"main\",\n      \"kind\": \"function\",\n      \"path\": \"httpx/__init__.py\",\n      \"line\": 18,\n      \"signature\": \"def main() -> None\",\n      \"file_sha\": \"4fa3160a66ce47265690b2b0502c6d4da4d9e77de05ad0c7cacab3c0af4c8935\"\n    },\n    {\n      \"id\": \"sym:py:httpx/__version__.py:__description__\",\n      \"name\": \"__description__\",\n      \"kind\": \"variable\",\n      \"path\": \"httpx/__version__.py\",\n      \"line\": 2,\n      \"file_sha\": \"fbbecde0a559094201ca3e78fc2c2e325ad0f604c37f3299087f62a0488b990c\"\n    },\n    {\n      \"id\": \"sym:py:httpx/__version__.py:__title__\",\n      \"name\": \"__title__\",\n      \"kind\": \"variable\",\n      \"path\""
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "cat \"adrs/httpx/ADR-04-generator-based-auth-flow.md\"",
+        "description": "Read the auth-flow ADR"
+      },
+      "result_preview": "---\nid: ADR-04\ntitle: Authentication is a generator-based flow that may yield multiple requests and inspect responses\nstatus: accepted\nseverity: hard\nsymbols:\n  - Auth\n  - Auth.auth_flow\n  - Auth.sync_auth_flow\n  - Auth.async_auth_flow\n  - BasicAuth\n  - DigestAuth\n  - FunctionAuth\n  - NetRCAuth\n  - requires_request_body\n  - requires_response_body\n---\n\n# ADR-04: Authentication is a generator-based flow that may yield multiple requests and inspect responses\n\n## Context\n\nHTTP authentication is not uniform. Different schemes have fundamentally\ndifferent shapes:\n\n- **Basic auth** — attach an `Authorization: Basic ...` header to every\n  request. Stateless, single-request.\n- **Bearer auth** — attach a bearer token. Same shape as basic, different\n  credential.\n- **Digest auth** — the server responds to the first request with\n  `401 Unauthorized` and a challenge (nonce, realm, qop); the client must\n  compute a hash over the nonce + request body + credentials, then resend\n  the request with the digest response. Two-leg, stateful per-request.\n- **NTLM / Kerberos** — three-leg handshake: send initial request,\n  receive `WWW-Authenticate: Negotiate <token>`, compute next token,\n  resend with `Authorization: Negotiate <token>`, receive next challenge\n  or success. N-leg, stateful.\n- **OAuth-style refresh-on-401** — send request; if response is 401 and\n  the token is refreshable, refresh it, then resend the request with the\n  new credential.\n\nCommon auth models in the ecosystem fall short:\n\n- **\"Add a header\" callback** (`requests`' default `auth` parameter in\n  its simplest form): works for Basic and Bearer. Cannot express digest\n  because the callback has no access to the server's challenge.\n- **Subclass the session / transport**: heavy; auth becomes a global\n  concern rather than a per-request configuration; mixing auth schemes\n  in one client is awkward.\n- **Interceptor chain with mutation**: can express retry-with-new-auth\n  but the mental model is convoluted — mutable state across an interceptor\n  stack, unclear ordering.\n\nhttpx needed an auth model that:\n\n1. Handles the simple case (Basic, Bearer) with minimal boilerplate.\n2. Handles the multi-leg case (Digest, NTLM) without ad-hoc hooks.\n3. Works identically under sync and async (with minimal duplication).\n4. Does not require the transport or client to know about any specific\n   auth scheme.\n\n## Decision\n\n**Auth is a generator.** The `Auth` base class\n(`httpx/_auth.py:22-110`) defines a single conceptual method:\n\n```python\nclass Auth:\n    requires_request_body = False\n    requires_response_body = False\n\n    def auth_flow(\n        self, request: Request\n    ) -> typing.Generator[Request, Response, None]:\n        \"\"\"\n        Execute the authentication flow.\n\n        To dispatch a request, `yield` it:\n            yield request\n\n        The client will `.send()` the response back into the flow:\n            response = yield request\n\n        A `return` (or reaching generator end) finishes the flow with\n        the last response obtained.\n\n        You can dispatch as many requests as necessary.\n        \"\"\"\n        yield request\n```\n\nThe generator **yields** requests and **receives** responses via\ngenerator `send`. This is the Python `send()`-into-generator protocol\nstandard. A two-line `BasicAuth` subclass is:\n\n```python\nclass BasicAuth(Auth):\n    def auth_flow(self, request):\n        request.headers[\"Authorization\"] = self._auth_header\n        yield request\n```\n\nA digest auth implementation (`httpx/_auth.py:175+`) looks approximately:\n\n```python\nclass DigestAuth(Auth):\n    requires_response_body = True  # needs full 401 response body\n\n    def auth_flow(self, request):\n        response = yield request          # send unauthenticated request\n        if response.status_code != 401:\n            return                        # no challenge; we're done\n        # Parse WWW-Authenticate, compute digest, set Authorization header\n        request.headers[\"Authorization\"] = self._build_auth_header(\n            request, response\n        )\n        yield request                     # resend with digest header\n```\n\nThe generator's control flow is the protocol — there is no separate\n\"callback after response\" mechanism. This works uniformly for\narbitrarily many legs.\n\n**Sync/async adapters sit above `auth_flow`.** Because `Auth.auth_flow`\nis a plain generator (not a coroutine), the same generator works under\nboth sync and async drivers. `Auth.sync_auth_flow`\n(`httpx/_auth.py:62-85`) and `Auth.async_auth_flow`\n(`httpx/_auth.py:87-110`) wrap the base generator and handle\n`requires_request_body` / `requires_response_body` via sync `read()` or\nasync `aread()` respectively. Users subclass `auth_flow` once; both\nruntimes work.\n\nAuthors of auth schemes that do their own I/O (e.g., fetching a token\nfrom disk, calling a remote OAuth endpoint) override\n`sync_auth_flow` / `async_auth_flow` directly because the I/O shape\ndiffers per runtime.\n\n**Body-read declarations are explicit.** An auth scheme t\n\n[truncated: 4511 additional bytes not shown]"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "ls repos/httpx/httpx/ | head -30; echo \"---\"; ls repos/httpx/httpx/_auth.py 2>/dev/null || find repos/httpx -name \"*auth*\" 2>/dev/null | head",
+        "description": "Locate the auth module"
+      },
+      "result_preview": "__init__.py\n__version__.py\n_api.py\n_auth.py\n_client.py\n_config.py\n_content.py\n_decoders.py\n_exceptions.py\n_main.py\n_models.py\n_multipart.py\n_status_codes.py\n_transports\n_types.py\n_urlparse.py\n_urls.py\n_utils.py\npy.typed\n---\nrepos/httpx/httpx/_auth.py"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "sed -n '1,150p' repos/httpx/httpx/_auth.py",
+        "description": "Read Auth base + sync/async wrappers"
+      },
+      "result_preview": "from __future__ import annotations\n\nimport hashlib\nimport os\nimport re\nimport time\nimport typing\nfrom base64 import b64encode\nfrom urllib.request import parse_http_list\n\nfrom ._exceptions import ProtocolError\nfrom ._models import Cookies, Request, Response\nfrom ._utils import to_bytes, to_str, unquote\n\nif typing.TYPE_CHECKING:  # pragma: no cover\n    from hashlib import _Hash\n\n\n__all__ = [\"Auth\", \"BasicAuth\", \"DigestAuth\", \"NetRCAuth\"]\n\n\nclass Auth:\n    \"\"\"\n    Base class for all authentication schemes.\n\n    To implement a custom authentication scheme, subclass `Auth` and override\n    the `.auth_flow()` method.\n\n    If the authentication scheme does I/O such as disk access or network calls, or uses\n    synchronization primitives such as locks, you should override `.sync_auth_flow()`\n    and/or `.async_auth_flow()` instead of `.auth_flow()` to provide specialized\n    implementations that will be used by `Client` and `AsyncClient` respectively.\n    \"\"\"\n\n    requires_request_body = False\n    requires_response_body = False\n\n    def auth_flow(self, request: Request) -> typing.Generator[Request, Response, None]:\n        \"\"\"\n        Execute the authentication flow.\n\n        To dispatch a request, `yield` it:\n\n        ```\n        yield request\n        ```\n\n        The client will `.send()` the response back into the flow generator. You can\n        access it like so:\n\n        ```\n        response = yield request\n        ```\n\n        A `return` (or reaching the end of the generator) will result in the\n        client returning the last response obtained from the server.\n\n        You can dispatch as many requests as is necessary.\n        \"\"\"\n        yield request\n\n    def sync_auth_flow(\n        self, request: Request\n    ) -> typing.Generator[Request, Response, None]:\n        \"\"\"\n        Execute the authentication flow synchronously.\n\n        By default, this defers to `.auth_flow()`. You should override this method\n        when the authentication scheme does I/O and/or uses concurrency primitives.\n        \"\"\"\n        if self.requires_request_body:\n            request.read()\n\n        flow = self.auth_flow(request)\n        request = next(flow)\n\n        while True:\n            response = yield request\n            if self.requires_response_body:\n                response.read()\n\n            try:\n                request = flow.send(response)\n            except StopIteration:\n                break\n\n    async def async_auth_flow(\n        self, request: Request\n    ) -> typing.AsyncGenerator[Request, Response]:\n        \"\"\"\n        Execute the authentication flow asynchronously.\n\n        By default, this defers to `.auth_flow()`. You should override this method\n        when the authentication scheme does I/O and/or uses concurrency primitives.\n        \"\"\"\n        if self.requires_request_body:\n            await request.aread()\n\n        flow = self.auth_flow(request)\n        request = next(flow)\n\n        while True:\n            response = yield request\n            if self.requires_response_body:\n                await response.aread()\n\n            try:\n                request = flow.send(response)\n            except StopIteration:\n                break\n\n\nclass FunctionAuth(Auth):\n    \"\"\"\n    Allows the 'auth' argument to be passed as a simple callable function,\n    that takes the request, and returns a new, modified request.\n    \"\"\"\n\n    def __init__(self, func: typing.Callable[[Request], Request]) -> None:\n        self._func = func\n\n    def auth_flow(self, request: Request) -> typing.Generator[Request, Response, None]:\n        yield self._func(request)\n\n\nclass BasicAuth(Auth):\n    \"\"\"\n    Allows the 'auth' argument to be passed as a (username, password) pair,\n    and uses HTTP Basic authentication.\n    \"\"\"\n\n    def __init__(self, username: str | bytes, password: str | bytes) -> None:\n        self._auth_header = self._build_auth_header(username, password)\n\n    def auth_flow(self, request: Request) -> typing.Generator[Request, Response, None]:\n        request.headers[\"Authorization\"] = self._auth_header\n        yield request\n\n    def _build_auth_header(self, username: str | bytes, password: str | bytes) -> str:\n        userpass = b\":\".join((to_bytes(username), to_bytes(password)))\n        token = b64encode(userpass).decode()\n        return f\"Basic {token}\"\n\n\nclass NetRCAuth(Auth):\n    \"\"\"\n    Use a 'netrc' file to lookup basic auth credentials based on the url host.\n    \"\"\"\n\n    def __init__(self, file: str | None = None) -> None:"
+    }
+  ],
+  "diagnostics": {
+    "claudeCodeVersion": "2.1.118",
+    "totalCostUsd": 0.1707285,
+    "numTurns": 10,
+    "isError": false,
+    "terminalReason": "completed",
+    "modelUsage": {
+      "claude-haiku-4-5-20251001": {
+        "inputTokens": 359,
+        "outputTokens": 14,
+        "cacheReadInputTokens": 0,
+        "cacheCreationInputTokens": 0,
+        "webSearchRequests": 0,
+        "costUSD": 0.000429,
+        "contextWindow": 200000,
+        "maxOutputTokens": 32000
+      },
+      "claude-opus-4-7": {
+        "inputTokens": 13,
+        "outputTokens": 3956,
+        "cacheReadInputTokens": 37469,
+        "cacheCreationInputTokens": 8416,
+        "webSearchRequests": 0,
+        "costUSD": 0.17029950000000002,
+        "contextWindow": 1000000,
+        "maxOutputTokens": 64000
+      }
+    }
+  },
+  "cost_usd": 0.1707285,
+  "written_at": "2026-04-24T02:42:40.160Z"
+}

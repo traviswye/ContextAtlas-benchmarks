@@ -1,0 +1,48 @@
+{
+  "prompt_id": "p2-http3-transport",
+  "repo": "httpx",
+  "condition": "alpha",
+  "target_symbol": "BaseTransport",
+  "bucket": "win",
+  "metrics": {
+    "tool_calls": 4,
+    "input_tokens": 10694,
+    "output_tokens": 1038,
+    "total_tokens": 11732,
+    "wall_clock_ms": 17183
+  },
+  "capped": null,
+  "answer": "To add an HTTP/3 transport in httpx, you implement one (or both) of the base classes defined in `httpx/_transports/base.py`:\n\n## `BaseTransport` (sync)\n\nSubclass this for a synchronous transport. You must implement:\n\n- **`handle_request(self, request: Request) -> Response`** — the only required method. Takes an `httpx.Request` and returns an `httpx.Response`.\n\nOptionally override:\n- `close(self)` — release resources (called by `__exit__`).\n- Context-manager methods are already provided.\n\n## `AsyncBaseTransport` (async)\n\nSubclass this for an asynchronous transport. You must implement:\n\n- **`async handle_async_request(self, request: Request) -> Response`** — the only required method.\n\nOptionally override:\n- `async aclose(self)` — release resources (called by `__aexit__`).\n\n## Recommendation for HTTP/3\n\nSince HTTP/3 is inherently non-blocking (QUIC/UDP), you'll likely want to implement **`AsyncBaseTransport`** primarily. If you want a sync-facing API too, you can provide a second class based on `BaseTransport` that wraps the async implementation (this is the pattern used by the built-in `HTTPTransport` / `AsyncHTTPTransport` in `httpx/_transports/default.py`, which wrap `httpcore`).\n\n### Minimal skeleton\n\n```python\nfrom httpx import AsyncBaseTransport, Request, Response\n\nclass AsyncHTTP3Transport(AsyncBaseTransport):\n    async def handle_async_request(self, request: Request) -> Response:\n        # 1. Open/reuse a QUIC connection to (request.url.host, request.url.port)\n        # 2. Send request.method, request.url, request.headers, request.stream\n        # 3. Return Response(status_code, headers=..., stream=..., extensions=...)\n        ...\n\n    async def aclose(self) -> None:\n        # close QUIC connections / pool\n        ...\n```\n\nYou can look at `httpx/_transports/default.py` for a reference implementation that bridges to an external networking library (`httpcore`) — a good template for doing the same with an HTTP/3 library like `aioquic`.",
+  "trace": [
+    {
+      "tool": "LS",
+      "args": {
+        "path": "."
+      },
+      "result_preview": ".contextatlas.yml\n.git/\n.github/\n.gitignore\nCHANGELOG.md\nLICENSE.md\nREADME.md\ndocs/\nhttpx/\nmkdocs.yml\npyproject.toml\nrequirements.txt\nscripts/\ntests/"
+    },
+    {
+      "tool": "LS",
+      "args": {
+        "path": "httpx"
+      },
+      "result_preview": "__init__.py\n__version__.py\n_api.py\n_auth.py\n_client.py\n_config.py\n_content.py\n_decoders.py\n_exceptions.py\n_main.py\n_models.py\n_multipart.py\n_status_codes.py\n_transports/\n_types.py\n_urlparse.py\n_urls.py\n_utils.py\npy.typed"
+    },
+    {
+      "tool": "LS",
+      "args": {
+        "path": "httpx/_transports"
+      },
+      "result_preview": "__init__.py\nasgi.py\nbase.py\ndefault.py\nmock.py\nwsgi.py"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "httpx/_transports/base.py"
+      },
+      "result_preview": "     1\tfrom __future__ import annotations\n     2\t\n     3\timport typing\n     4\tfrom types import TracebackType\n     5\t\n     6\tfrom .._models import Request, Response\n     7\t\n     8\tT = typing.TypeVar(\"T\", bound=\"BaseTransport\")\n     9\tA = typing.TypeVar(\"A\", bound=\"AsyncBaseTransport\")\n    10\t\n    11\t__all__ = [\"AsyncBaseTransport\", \"BaseTransport\"]\n    12\t\n    13\t\n    14\tclass BaseTransport:\n    15\t    def __enter__(self: T) -> T:\n    16\t        return self\n    17\t\n    18\t    def __exit__(\n    19\t        self,\n    20\t        exc_type: type[BaseException] | None = None,\n    21\t        exc_value: BaseException | None = None,\n    22\t        traceback: TracebackType | None = None,\n    23\t    ) -> None:\n    24\t        self.close()\n    25\t\n    26\t    def handle_request(self, request: Request) -> Response:\n    27\t        \"\"\"\n    28\t        Send a single HTTP request and return a response.\n    29\t\n    30\t        Developers shouldn't typically ever need to call into this API directly,\n    31\t        since the Client class provides all the higher level user-facing API\n    32\t        niceties.\n    33\t\n    34\t        In order to properly release any network resources, the response\n    35\t        stream should *either* be consumed immediately, with a call to\n    36\t        `response.stream.read()`, or else the `handle_request` call should\n    37\t        be followed with a try/finally block to ensuring the stream is\n    38\t        always closed.\n    39\t\n    40\t        Example usage:\n    41\t\n    42\t            with httpx.HTTPTransport() as transport:\n    43\t                req = httpx.Request(\n    44\t                    method=b\"GET\",\n    45\t                    url=(b\"https\", b\"www.example.com\", 443, b\"/\"),\n    46\t                    headers=[(b\"Host\", b\"www.example.com\")],\n    47\t                )\n    48\t                resp = transport.handle_request(req)\n    49\t                body = resp.stream.read()\n    50\t                print(resp.status_code, resp.headers, body)\n    51\t\n    52\t\n    53\t        Takes a `Request` instance as the only argument.\n    54\t\n    55\t        Returns a `Response` instance.\n    56\t        \"\"\"\n    57\t        raise NotImplementedError(\n    58\t            \"The 'handle_request' method must be implemented.\"\n    59\t        )  # pragma: no cover\n    60\t\n    61\t    def close(self) -> None:\n    62\t        pass\n    63\t\n    64\t\n    65\tclass AsyncBaseTransport:\n    66\t    async def __aenter__(self: A) -> A:\n    67\t        return self\n    68\t\n    69\t    async def __aexit__(\n    70\t        self,\n    71\t        exc_type: type[BaseException] | None = None,\n    72\t        exc_value: BaseException | None = None,\n    73\t        traceback: TracebackType | None = None,\n    74\t    ) -> None:\n    75\t        await self.aclose()\n    76\t\n    77\t    async def handle_async_request(\n    78\t        self,\n    79\t        request: Request,\n    80\t    ) -> Response:\n    81\t        raise NotImplementedError(\n    82\t            \"The 'handle_async_request' method must be implemented.\"\n    83\t        )  # pragma: no cover\n    84\t\n    85\t    async def aclose(self) -> None:\n    86\t        pass"
+    }
+  ],
+  "cost_usd": 0.23826,
+  "written_at": "2026-04-24T02:37:11.581Z"
+}

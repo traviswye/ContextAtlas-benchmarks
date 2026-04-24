@@ -1,0 +1,138 @@
+{
+  "prompt_id": "p5-drop-anyio",
+  "repo": "httpx",
+  "condition": "beta",
+  "target_symbol": "(module-level)",
+  "bucket": "tie",
+  "metrics": {
+    "tool_calls": 11,
+    "input_tokens": 17,
+    "output_tokens": 2480,
+    "total_tokens": 53089,
+    "wall_clock_ms": 43490
+  },
+  "capped": null,
+  "answer": "No — dropping `anyio` and swapping in raw `asyncio` would violate one of httpx's hard architectural invariants. Here's what the httpx atlas (ADR-02: httpcore/anyio layering) says:\n\n## Why you can't just drop anyio\n\n**1. Trio support is a tested commitment, not an accident.**\nhttpx's `pyproject.toml` declares both `\"Framework :: AsyncIO\"` and `\"Framework :: Trio\"` classifiers, and the test suite runs on both runtimes. ADR-02 calls this out explicitly: \"Committing to asyncio-only would fragment the encode stack which ships Trio-based deployments.\" Raw `asyncio` would break every Trio user.\n\n**2. There is an explicit review rule against direct `asyncio.*`.**\nADR-02 (hard invariant): *\"Direct `asyncio.*` use (create_task, sleep, Lock) is not allowed outside asyncio-only code paths; prefer anyio abstractions in cross-runtime code.\"* Reviewers are instructed to flag any PR that does this. So even mechanically, the substitution is blocked at code review.\n\n**3. ASGITransport in particular must work under both runtimes.**\n`_transports/asgi.py` is required to run on asyncio *and* Trio. Runtime primitives (events, locks) there are chosen via `sniffio` detection + dual-import patterns (see `create_event`, `is_running_trio`). Those helpers exist precisely because raw `asyncio` primitives don't work under Trio.\n\n## The nuance worth knowing\n\n`anyio` in httpx is **not** a full abstraction layer over every call path — that's a common misconception. ADR-02 clarifies:\n\n> \"httpx declares `anyio` as a dependency but does not use anyio as a full abstraction layer in every call path.\"\n\nThe actual split is:\n- **`sniffio`** — runtime *detection* at the points where primitives differ (event creation, locking). This is the minimal-invasiveness approach.\n- **`anyio`** — broader abstractions: blocking-thread dispatch, cross-runtime sleeping.\n\nSo httpx is already fairly lean about anyio usage. But \"lean\" ≠ \"removable\" — the places that do use it are the cross-runtime seams, which is exactly where raw asyncio would regress Trio.\n\n## When would it be OK?\n\nOnly if httpx's maintainers decided to drop Trio support entirely (a breaking change for the encode ecosystem and a classifier removal). That's an ADR-level decision, not a dependency cleanup.\n\n**Short answer: no, not in the current ADR-02 regime.** If you want to reduce dependency weight, the lever is trimming *incidental* anyio usage in favor of `sniffio` + dual imports — not replacing it with `asyncio`.",
+  "trace": [
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "ls atlases/httpx/",
+        "description": "List httpx atlas contents"
+      },
+      "result_preview": "atlas.json\nindex.db\nindex.db-shm\nindex.db-wal"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "cd atlases/httpx && sqlite3 index.db \".tables\"",
+        "description": "List tables in httpx atlas db"
+      },
+      "result_preview": "This Bash command contains multiple operations. The following part requires approval: sqlite3 index.db \".tables\""
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "sqlite3 atlases/httpx/index.db \".tables\"",
+        "description": "List tables in httpx atlas db"
+      },
+      "result_preview": "This command requires approval"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -ril \"anyio\" atlases/httpx/ 2>/dev/null | head -5",
+        "description": "Search atlas for anyio references"
+      },
+      "result_preview": "atlases/httpx/atlas.json\natlases/httpx/index.db"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -oiE \"[^\\\"]*anyio[^\\\"]*\" atlases/httpx/atlas.json | head -30",
+        "description": "Extract anyio references from atlas.json"
+      },
+      "result_preview": "ADR-02-httpcore-anyio-layering.md\nADR-02-httpcore-anyio-layering.md\nADR-02-httpcore-anyio-layering.md\nADR-02-httpcore-anyio-layering.md\nDirect asyncio.* use (create_task, sleep, Lock) is not allowed outside asyncio-only code paths; prefer anyio abstractions in cross-runtime code\nReviewers must flag direct `asyncio.*` use outside of asyncio-only code paths. Prefer `anyio` abstractions when synchronization is needed in cross-runtime code.\nADR-02-httpcore-anyio-layering.md\nADR-02-httpcore-anyio-layering.md\nADR-02-httpcore-anyio-layering.md\nADR-02-httpcore-anyio-layering.md\nADR-02-httpcore-anyio-layering.md\nADR-02-httpcore-anyio-layering.md\nADR-02-httpcore-anyio-layering.md\nanyio is used for broader abstractions like blocking-thread dispatch or cross-runtime sleeping, not as a full abstraction layer in every call path\nClarifies role of anyio versus sniffio in the codebase\nhttpx declares `anyio` as a dependency but does not use anyio as a full abstraction layer in every call path.\nADR-02-httpcore-anyio-layering.md\nADR-02-httpcore-anyio-layering.md\nADR-02-httpcore-anyio-layering.md\nADR-02-httpcore-anyio-layering.md\nADR-02-httpcore-anyio-layering.md\nreplace pytest-asyncio and pytest-trio with anyio (#2512)\n[Docs] Add AnyIO under \\"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -oE \".{150}anyio.{150}\" atlases/httpx/atlas.json | head -20",
+        "description": "Extract context around anyio references"
+      },
+      "result_preview": "(Bash completed with no output)"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "python -c \"import json; d=json.load(open('atlases/httpx/atlas.json')); import sys; \nfor k,v in d.items(): \n    if isinstance(v, (list,dict)): print(k, type(v).__name__, len(v))\n    else: print(k, type(v).__name__)\"",
+        "description": "Print top-level atlas.json structure"
+      },
+      "result_preview": "This command requires approval"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "python -c \"import json; d=json.load(open('atlases/httpx/atlas.json')); print(list(d.keys())[:20])\"",
+        "description": "Print top level atlas keys"
+      },
+      "result_preview": "This command requires approval"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "head -c 500 atlases/httpx/atlas.json",
+        "description": "Peek at start of atlas.json"
+      },
+      "result_preview": "{\n  \"version\": \"1.1\",\n  \"generated_at\": \"2026-04-24T02:15:47.496Z\",\n  \"extracted_at_sha\": \"26d48e0634e6ee9cdc0533996db289ce4b430177\",\n  \"generator\": {\n    \"contextatlas_version\": \"0.0.1\",\n    \"extraction_model\": \"claude-opus-4-7\"\n  },\n  \"source_shas\": {\n    \"ADR-01-parallel-sync-async-clients.md\": \"fda10a8a31e0605ce321f9610598ed5b9e62856b0ffdd8a15853bcf7081be409\",\n    \"ADR-02-httpcore-anyio-layering.md\": \"343b53a5059928bfdb4fa1ee4f551d0bf81309037f1bf8546586725c3f41989f\",\n    \"ADR-03-transport-ab"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -n \"ADR-02-httpcore-anyio-layering\" atlases/httpx/atlas.json | head -5",
+        "description": "Find line numbers of ADR-02 references"
+      },
+      "result_preview": "11:    \"ADR-02-httpcore-anyio-layering.md\": \"343b53a5059928bfdb4fa1ee4f551d0bf81309037f1bf8546586725c3f41989f\",\n10760:      \"source_path\": \"ADR-02-httpcore-anyio-layering.md\",\n10778:      \"source_path\": \"ADR-02-httpcore-anyio-layering.md\",\n10792:      \"source_path\": \"ADR-02-httpcore-anyio-layering.md\",\n10806:      \"source_path\": \"ADR-02-httpcore-anyio-layering.md\","
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "C:\\CodeWork\\ContextAtlas-benchmarks\\atlases\\httpx\\atlas.json",
+        "offset": 10740,
+        "limit": 220
+      },
+      "result_preview": "10740\t      ]\n10741\t    },\n10742\t    {\n10743\t      \"source\": \"ADR-01\",\n10744\t      \"source_path\": \"ADR-01-parallel-sync-async-clients.md\",\n10745\t      \"source_sha\": \"fda10a8a31e0605ce321f9610598ed5b9e62856b0ffdd8a15853bcf7081be409\",\n10746\t      \"severity\": \"hard\",\n10747\t      \"claim\": \"httpx provides two parallel concrete client classes (sync Client and async AsyncClient) instead of a single polymorphic client or sync-only with adapter.\",\n10748\t      \"rationale\": \"Python lacks native async/sync polymorphism; parallel classes preserve type inference and make the sync/async choice explicit at instantiation.\",\n10749\t      \"excerpt\": \"httpx ships two concrete client classes with matched API surfaces\",\n10750\t      \"symbol_ids\": [\n10751\t        \"sym:py:httpx/_client.py:AsyncClient\",\n10752\t        \"sym:py:httpx/_client.py:BaseClient\",\n10753\t        \"sym:py:httpx/_client.py:Client\",\n10754\t        \"sym:py:httpx/_client.py:ClientState\",\n10755\t        \"sym:py:httpx/_client.py:USE_CLIENT_DEFAULT\"\n10756\t      ]\n10757\t    },\n10758\t    {\n10759\t      \"source\": \"ADR-02\",\n10760\t      \"source_path\": \"ADR-02-httpcore-anyio-layering.md\",\n10761\t      \"source_sha\": \"343b53a5059928bfdb4fa1ee4f551d0bf81309037f1bf8546586725c3f41989f\",\n10762\t      \"severity\": \"hard\",\n10763\t      \"claim\": \"httpcore exceptions must be mapped to httpx exceptions via HTTPCORE_EXC_MAP; adding a new httpcore exception without mapping leaks httpcore.*Error to users\",\n10764\t      \"rationale\": \"Exception translation is the single source of truth for user-facing errors\",\n10765\t      \"excerpt\": \"The mapping at `_transports/default.py:71-82` is the single source of truth; adding a new httpcore exception without mapping it leaks `httpcore.*Error` to users.\",\n10766\t      \"symbol_ids\": [\n10767\t        \"sym:py:httpx/_exceptions.py:ConnectTimeout\",\n10768\t        \"sym:py:httpx/_exceptions.py:ReadError\",\n10769\t        \"sym:py:httpx/_exceptions.py:RemoteProtocolError\",\n10770\t        \"sym:py:httpx/_transports/asgi.py:ASGITransport\",\n10771\t        \"sym:py:httpx/_transports/default.py:AsyncHTTPTransport\",\n10772\t        \"sym:py:httpx/_transports/default.py:HTTPCORE_EXC_MAP\",\n10773\t        \"sym:py:httpx/_transports/default.py:HTTPTransport\"\n10774\t      ]\n10775\t    },\n10776\t    {\n10777\t      \"source\": \"ADR-02\",\n10778\t      \"source_path\": \"ADR-02-httpcore-anyio-layering.md\",\n10779\t      \"source_sha\": \"343b53a5059928bfdb4fa1ee4f551d0bf81309037f1bf8546586725c3f41989f\",\n10780\t      \"severity\": \"hard\",\n10781\t      \"claim\": \"ASGITransport must work under both asyncio and Trio\",\n10782\t      \"rationale\": \"ASGI transport extends the runtime contract and tests verify both runtimes\",\n10783\t      \"excerpt\": \"`ASGITransport` must work under both asyncio and Trio (`_transports/asgi.py`)\",\n10784\t      \"symbol_ids\": [\n10785\t        \"sym:py:httpx/_transports/asgi.py:ASGITransport\",\n10786\t        \"sym:py:httpx/_transports/default.py:AsyncHTTPTransport\",\n10787\t        \"sym:py:httpx/_transports/default.py:HTTPTransport\"\n10788\t      ]\n10789\t    },\n10790\t    {\n10791\t      \"source\": \"ADR-02\",\n10792\t      \"source_path\": \"ADR-02-httpcore-anyio-layering.md\",\n10793\t      \"source_sha\": \"343b53a5059928bfdb4fa1ee4f551d0bf81309037f1bf8546586725c3f41989f\",\n10794\t      \"severity\": \"hard\",\n10795\t      \"claim\": \"Direct asyncio.* use (create_task, sleep, Lock) is not allowed outside asyncio-only code paths; prefer anyio abstractions in cross-runtime code\",\n10796\t      \"rationale\": \"Direct asyncio use in cross-runtime paths is a Trio regression\",\n10797\t      \"excerpt\": \"Reviewers must flag direct `asyncio.*` use outside of asyncio-only code paths. Prefer `anyio` abstractions when synchronization is needed in cross-runtime code.\",\n10798\t      \"symbol_ids\": [\n10799\t        \"sym:py:httpx/_transports/asgi.py:ASGITransport\",\n10800\t        \"sym:py:httpx/_transports/default.py:AsyncHTTPTransport\",\n10801\t        \"sym:py:httpx/_transports/default.py:HTTPTransport\"\n10802\t      ]\n10803\t    },\n10804\t    {\n10805\t      \"source\": \"ADR-02\",\n10806\t      \"source_path\": \"ADR-02-httpcore-anyio-layering.md\",\n10807\t      \"source_sha\": \"343b53a5059928bfdb4fa1ee4f551d0bf81309037f1bf8546586725c3f41989f\",\n10808\t      \"severity\": \"soft\",\n10809\t      \"claim\": \"Documentation should acknowledge the layering so users can file connection-level bugs against httpcore\",\n10810\t      \"rationale\": \"Hiding the layering misleads users troubleshooting connection issues\",\n10811\t      \"excerpt\": \"The troubleshooting docs should acknowledge this rather than pretending httpx is a single library.\",\n10812\t      \"symbol_ids\": [\n10813\t        \"sym:py:httpx/_transports/asgi.py:ASGITransport\",\n10814\t        \"sym:py:httpx/_transports/default.py:AsyncHTTPTransport\",\n10815\t        \"sym:py:httpx/_transports/default.py:HTTPTransport\"\n10816\t      ]\n10817\t    },\n10818\t    {\n10819\t      \"source\": \"ADR-02\",\n10820\t      \"source_path\": \"ADR-02-httpcore-anyio-layering.md\",\n10821\t      \"source_sha\": \"343b53a5059928bfdb4fa1ee4f551d0bf81309037f1bf8546586725c3f41989f\",\n10822\t  \n\n[truncated: 8344 additional bytes not shown]"
+    }
+  ],
+  "diagnostics": {
+    "claudeCodeVersion": "2.1.118",
+    "totalCostUsd": 0.15719700000000003,
+    "numTurns": 12,
+    "isError": false,
+    "terminalReason": "completed",
+    "modelUsage": {
+      "claude-haiku-4-5-20251001": {
+        "inputTokens": 353,
+        "outputTokens": 19,
+        "cacheReadInputTokens": 0,
+        "cacheCreationInputTokens": 0,
+        "webSearchRequests": 0,
+        "costUSD": 0.00044800000000000005,
+        "contextWindow": 200000,
+        "maxOutputTokens": 32000
+      },
+      "claude-opus-4-7": {
+        "inputTokens": 17,
+        "outputTokens": 2480,
+        "cacheReadInputTokens": 38528,
+        "cacheCreationInputTokens": 12064,
+        "webSearchRequests": 0,
+        "costUSD": 0.15674900000000003,
+        "contextWindow": 1000000,
+        "maxOutputTokens": 64000
+      }
+    }
+  },
+  "cost_usd": 0.15719700000000003,
+  "written_at": "2026-04-24T02:49:36.598Z"
+}

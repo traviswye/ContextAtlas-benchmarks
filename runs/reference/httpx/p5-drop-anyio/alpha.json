@@ -1,0 +1,100 @@
+{
+  "prompt_id": "p5-drop-anyio",
+  "repo": "httpx",
+  "condition": "alpha",
+  "target_symbol": "(module-level)",
+  "bucket": "tie",
+  "metrics": {
+    "tool_calls": 9,
+    "input_tokens": 12273,
+    "output_tokens": 1947,
+    "total_tokens": 14220,
+    "wall_clock_ms": 25078
+  },
+  "capped": null,
+  "answer": "Here's the full picture:\n\n## Short answer: Yes, for **your own code** — but httpx itself still requires `anyio` as a dependency.\n\n### What the codebase shows\n\n**1. `httpx` source code does not import `anyio` anywhere.**\nA grep for `anyio` across the `httpx/` package returns nothing. The actual async I/O is delegated to [`httpcore`](https://github.com/encode/httpcore) (see line 32 of `_client.py`: `from ._transports.default import AsyncHTTPTransport`), and httpcore is what actually talks to the network.\n\n**2. `anyio` is declared as a runtime dependency in `pyproject.toml`:**\n```toml\n# pyproject.toml, lines 30-35\ndependencies = [\n    \"certifi\",\n    \"httpcore==1.*\",\n    \"anyio\",\n    \"idna\",\n]\n```\nSo even though the httpx source doesn't import it, `pip install httpx` will still pull `anyio` in. It's used by httpx's **test suite** (see the test files that matched the grep: `test_asgi.py`, `test_timeouts.py`, `test_async_client.py`, etc.) and indirectly by the Trio-compatibility path through httpcore.\n\n**3. From the user's perspective, `asyncio` works out of the box.** `docs/async.md` shows three supported entry points:\n\n- **Plain asyncio** (lines ~140-153):\n  ```python\n  import httpx, asyncio\n  async def main():\n      async with httpx.AsyncClient() as client:\n          response = await client.get('https://www.example.com/')\n  asyncio.run(main())\n  ```\n- **Trio** (lines 155-173)\n- **AnyIO** (lines 176-190)\n\nYou don't need to `import anyio` in your code — `asyncio.run(...)` with `httpx.AsyncClient` is fully supported and is shown as the primary example.\n\n### Summary\n\n| Question | Answer |\n|---|---|\n| Do I need to `import anyio` in my code? | No — just use `asyncio.run()` with `AsyncClient`. |\n| Can I uninstall `anyio` from the environment? | No — it's a declared dependency of the `httpx` package (`pyproject.toml` line 33), and is also used for Trio-backend support and the test suite. |\n| Does httpx's source use anyio? | No — the `httpx/` package has zero `anyio` imports. Networking is delegated to `httpcore`. |\n\nSo if your question is \"can I write my async httpx code with raw asyncio instead of anyio?\" — absolutely yes, that's the default and recommended style. If you're asking \"can I remove the `anyio` dependency from the install tree?\" — no, not without patching `pyproject.toml` and accepting that Trio support would likely break.",
+  "trace": [
+    {
+      "tool": "Grep",
+      "args": {
+        "pattern": "anyio",
+        "output_mode": "files_with_matches"
+      },
+      "result_preview": "C:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\pyproject.toml\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\tests\\test_asgi.py\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\tests\\client\\test_event_hooks.py\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\tests\\test_timeouts.py\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\tests\\client\\test_redirects.py\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\docs\\async.md\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\tests\\models\\test_responses.py\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\tests\\models\\test_requests.py\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\tests\\client\\test_async_client.py\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\tests\\client\\test_auth.py\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\tests\\client\\test_proxies.py\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\tests\\test_decoders.py\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\tests\\test_content.py\n"
+    },
+    {
+      "tool": "LS",
+      "args": {
+        "path": "."
+      },
+      "result_preview": ".contextatlas.yml\n.git/\n.github/\n.gitignore\nCHANGELOG.md\nLICENSE.md\nREADME.md\ndocs/\nhttpx/\nmkdocs.yml\npyproject.toml\nrequirements.txt\nscripts/\ntests/"
+    },
+    {
+      "tool": "Grep",
+      "args": {
+        "pattern": "anyio",
+        "path": "httpx",
+        "output_mode": "content"
+      },
+      "result_preview": ""
+    },
+    {
+      "tool": "Grep",
+      "args": {
+        "pattern": "anyio",
+        "path": "pyproject.toml",
+        "output_mode": "content"
+      },
+      "result_preview": "33:    \"anyio\",\r\n122:  # See: https://github.com/agronholm/anyio/issues/508\r\n"
+    },
+    {
+      "tool": "Grep",
+      "args": {
+        "pattern": "anyio",
+        "path": "docs/async.md",
+        "output_mode": "content",
+        "-i": true
+      },
+      "result_preview": "176:### [AnyIO](https://github.com/agronholm/anyio)\r\n178:AnyIO is an [asynchronous networking and concurrency library](https://anyio.readthedocs.io/) that works on top of either `asyncio` or `trio`. It blends in with native libraries of your chosen backend (defaults to `asyncio`).\r\n182:import anyio\r\n189:anyio.run(main, backend='trio')\r\n"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "pyproject.toml",
+        "offset": 25,
+        "limit": 15
+      },
+      "result_preview": "    25\t    \"Programming Language :: Python :: 3.10\",\n    26\t    \"Programming Language :: Python :: 3.11\",\n    27\t    \"Programming Language :: Python :: 3.12\",\n    28\t    \"Topic :: Internet :: WWW/HTTP\",\n    29\t]\n    30\tdependencies = [\n    31\t    \"certifi\",\n    32\t    \"httpcore==1.*\",\n    33\t    \"anyio\",\n    34\t    \"idna\",\n    35\t]\n    36\tdynamic = [\"readme\", \"version\"]\n    37\t\n    38\t[project.optional-dependencies]\n    39\tbrotli = ["
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "pyproject.toml",
+        "offset": 115,
+        "limit": 15
+      },
+      "result_preview": "   115\tcheck_untyped_defs = true\n   116\t\n   117\t[tool.pytest.ini_options]\n   118\taddopts = \"-rxXs\"\n   119\tfilterwarnings = [\n   120\t  \"error\",\n   121\t  \"ignore: You seem to already have a custom sys.excepthook handler installed. I'll skip installing Trio's custom handler, but this means MultiErrors will not show full tracebacks.:RuntimeWarning\",\n   122\t  # See: https://github.com/agronholm/anyio/issues/508\n   123\t  \"ignore: trio.MultiError is deprecated since Trio 0.22.0:trio.TrioDeprecationWarning\"\n   124\t]\n   125\tmarkers = [\n   126\t  \"copied_from(source, changes=None): mark test as copied from somewhere else, along with a description of changes made to accodomate e.g. our test setup\",\n   127\t  \"network: marks tests which require network connection. Used in 3rd-party build environments that have network disabled.\"\n   128\t]\n   129\t"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "docs/async.md",
+        "offset": 150,
+        "limit": 50
+      },
+      "result_preview": "   150\t        print(response)\n   151\t\n   152\tasyncio.run(main())\n   153\t```\n   154\t\n   155\t### [Trio](https://github.com/python-trio/trio)\n   156\t\n   157\tTrio is [an alternative async library](https://trio.readthedocs.io/en/stable/),\n   158\tdesigned around the [the principles of structured concurrency](https://en.wikipedia.org/wiki/Structured_concurrency).\n   159\t\n   160\t```python\n   161\timport httpx\n   162\timport trio\n   163\t\n   164\tasync def main():\n   165\t    async with httpx.AsyncClient() as client:\n   166\t        response = await client.get('https://www.example.com/')\n   167\t        print(response)\n   168\t\n   169\ttrio.run(main)\n   170\t```\n   171\t\n   172\t!!! important\n   173\t    The `trio` package must be installed to use the Trio backend.\n   174\t\n   175\t\n   176\t### [AnyIO](https://github.com/agronholm/anyio)\n   177\t\n   178\tAnyIO is an [asynchronous networking and concurrency library](https://anyio.readthedocs.io/) that works on top of either `asyncio` or `trio`. It blends in with native libraries of your chosen backend (defaults to `asyncio`).\n   179\t\n   180\t```python\n   181\timport httpx\n   182\timport anyio\n   183\t\n   184\tasync def main():\n   185\t    async with httpx.AsyncClient() as client:\n   186\t        response = await client.get('https://www.example.com/')\n   187\t        print(response)\n   188\t\n   189\tanyio.run(main, backend='trio')\n   190\t```\n   191\t\n   192\t## Calling into Python Web Apps\n   193\t\n   194\tFor details on calling directly into ASGI applications, see [the `ASGITransport` docs](../advanced/transports#asgitransport)."
+    },
+    {
+      "tool": "Grep",
+      "args": {
+        "pattern": "import",
+        "path": "httpx/_client.py",
+        "output_mode": "content",
+        "-i": false
+      },
+      "result_preview": "1:from __future__ import annotations\r\n3:import datetime\r\n4:import enum\r\n5:import logging\r\n6:import time\r\n7:import typing\r\n8:import warnings\r\n9:from contextlib import asynccontextmanager, contextmanager\r\n10:from types import TracebackType\r\n12:from .__version__ import __version__\r\n13:from ._auth import Auth, BasicAuth, FunctionAuth\r\n14:from ._config import (\r\n22:from ._decoders import SUPPORTED_DECODERS\r\n23:from ._exceptions import (\r\n29:from ._models import Cookies, Headers, Request, Response\r\n30:from ._status_codes import codes\r\n31:from ._transports.base import AsyncBaseTransport, BaseTransport\r\n32:from ._transports.default import AsyncHTTPTransport, HTTPTransport\r\n33:from ._types import (\r\n48:from ._urls import URL, QueryParams\r\n49:from ._utils import URLPattern, get_environment_proxies\r\n52:    import ssl  # pragma: no cover\r\n678:                import h2  # noqa\r\n1392:                import h2  # noqa\r\n"
+    }
+  ],
+  "cost_usd": 0.33012,
+  "written_at": "2026-04-24T02:48:08.690Z"
+}

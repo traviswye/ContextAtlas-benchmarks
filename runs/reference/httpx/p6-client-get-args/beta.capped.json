@@ -1,0 +1,23 @@
+{
+  "prompt_id": "p6-client-get-args",
+  "repo": "httpx",
+  "condition": "beta",
+  "target_symbol": "Client.get",
+  "bucket": "trick",
+  "metrics": {
+    "tool_calls": 0,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "total_tokens": 0,
+    "wall_clock_ms": 3241395
+  },
+  "capped": "wall_clock",
+  "answer": "",
+  "trace": [],
+  "diagnostics": {
+    "claudeCodeVersion": "2.1.118",
+    "terminalReason": "sigterm_capped"
+  },
+  "cost_usd": 0,
+  "written_at": "2026-04-24T03:45:07.157Z"
+}

@@ -1,0 +1,388 @@
+{
+  "manifest_version": "1.0",
+  "generated_at": "2026-04-24T03:46:38.896Z",
+  "repo_name": "httpx",
+  "pinned_repo_sha": "26d48e0634e6ee9cdc0533996db289ce4b430177",
+  "contextatlas": {
+    "version_label": "ContextAtlas v0.1 (atlas schema v1.1)",
+    "commit_sha": "026ff4e870d219b7278bfc1aef48813dd4f16c18",
+    "dist_mtime": "2026-04-23T23:12:06.708Z"
+  },
+  "benchmarks": {
+    "commit_sha": "ac71be9db8816884d1ff8e6b51de2cac4815787c"
+  },
+  "claude_cli_version": "2.1.118",
+  "model": "claude-opus-4-7",
+  "conditions": [
+    "alpha",
+    "ca",
+    "beta",
+    "beta-ca"
+  ],
+  "budget_ceiling_usd": 18,
+  "total_cost_usd": 8.35933975,
+  "halted": null,
+  "cells": [
+    {
+      "prompt_id": "p1-sync-async-split",
+      "condition": "alpha",
+      "bucket": "win",
+      "artifact_path": "httpx/p1-sync-async-split/alpha.json",
+      "metrics": {
+        "tool_calls": 8,
+        "input_tokens": 26062,
+        "output_tokens": 2656,
+        "total_tokens": 28718,
+        "wall_clock_ms": 43778
+      },
+      "capped": null,
+      "cost_usd": 0.59013
+    },
+    {
+      "prompt_id": "p1-sync-async-split",
+      "condition": "ca",
+      "bucket": "win",
+      "artifact_path": "httpx/p1-sync-async-split/ca.json",
+      "metrics": {
+        "tool_calls": 2,
+        "input_tokens": 9487,
+        "output_tokens": 1420,
+        "total_tokens": 10907,
+        "wall_clock_ms": 22637
+      },
+      "capped": null,
+      "cost_usd": 0.248805
+    },
+    {
+      "prompt_id": "p1-sync-async-split",
+      "condition": "beta",
+      "bucket": "win",
+      "artifact_path": "httpx/p1-sync-async-split/beta.json",
+      "metrics": {
+        "tool_calls": 1,
+        "input_tokens": 7,
+        "output_tokens": 1679,
+        "total_tokens": 7096,
+        "wall_clock_ms": 30953
+      },
+      "capped": null,
+      "cost_usd": 0.06263225
+    },
+    {
+      "prompt_id": "p1-sync-async-split",
+      "condition": "beta-ca",
+      "bucket": "win",
+      "artifact_path": "httpx/p1-sync-async-split/beta-ca.json",
+      "metrics": {
+        "tool_calls": 8,
+        "input_tokens": 11,
+        "output_tokens": 2522,
+        "total_tokens": 29049,
+        "wall_clock_ms": 43310
+      },
+      "capped": null,
+      "cost_usd": 0.110846
+    },
+    {
+      "prompt_id": "p2-http3-transport",
+      "condition": "alpha",
+      "bucket": "win",
+      "artifact_path": "httpx/p2-http3-transport/alpha.json",
+      "metrics": {
+        "tool_calls": 4,
+        "input_tokens": 10694,
+        "output_tokens": 1038,
+        "total_tokens": 11732,
+        "wall_clock_ms": 17183
+      },
+      "capped": null,
+      "cost_usd": 0.23826
+    },
+    {
+      "prompt_id": "p2-http3-transport",
+      "condition": "ca",
+      "bucket": "win",
+      "artifact_path": "httpx/p2-http3-transport/ca.json",
+      "metrics": {
+        "tool_calls": 3,
+        "input_tokens": 14018,
+        "output_tokens": 1087,
+        "total_tokens": 15105,
+        "wall_clock_ms": 18255
+      },
+      "capped": null,
+      "cost_usd": 0.291795
+    },
+    {
+      "prompt_id": "p2-http3-transport",
+      "condition": "beta",
+      "bucket": "win",
+      "artifact_path": "httpx/p2-http3-transport/beta.json",
+      "metrics": {
+        "tool_calls": 12,
+        "input_tokens": 18,
+        "output_tokens": 2696,
+        "total_tokens": 48287,
+        "wall_clock_ms": 45976
+      },
+      "capped": null,
+      "cost_usd": 0.1252355
+    },
+    {
+      "prompt_id": "p2-http3-transport",
+      "condition": "beta-ca",
+      "bucket": "win",
+      "artifact_path": "httpx/p2-http3-transport/beta-ca.json",
+      "metrics": {
+        "tool_calls": 11,
+        "input_tokens": 17,
+        "output_tokens": 2773,
+        "total_tokens": 59107,
+        "wall_clock_ms": 54447
+      },
+      "capped": null,
+      "cost_usd": 0.12331025000000001
+    },
+    {
+      "prompt_id": "p3-custom-auth",
+      "condition": "alpha",
+      "bucket": "win",
+      "artifact_path": "httpx/p3-custom-auth/alpha.json",
+      "metrics": {
+        "tool_calls": 8,
+        "input_tokens": 36990,
+        "output_tokens": 2433,
+        "total_tokens": 39423,
+        "wall_clock_ms": 39241
+      },
+      "capped": null,
+      "cost_usd": 0.737325
+    },
+    {
+      "prompt_id": "p3-custom-auth",
+      "condition": "ca",
+      "bucket": "win",
+      "artifact_path": "httpx/p3-custom-auth/ca.json",
+      "metrics": {
+        "tool_calls": 5,
+        "input_tokens": 27955,
+        "output_tokens": 2739,
+        "total_tokens": 30694,
+        "wall_clock_ms": 50930
+      },
+      "capped": null,
+      "cost_usd": 0.62475
+    },
+    {
+      "prompt_id": "p3-custom-auth",
+      "condition": "beta",
+      "bucket": "win",
+      "artifact_path": "httpx/p3-custom-auth/beta.json",
+      "metrics": {
+        "tool_calls": 9,
+        "input_tokens": 11,
+        "output_tokens": 3848,
+        "total_tokens": 44543,
+        "wall_clock_ms": 54229
+      },
+      "capped": null,
+      "cost_usd": 0.191469
+    },
+    {
+      "prompt_id": "p3-custom-auth",
+      "condition": "beta-ca",
+      "bucket": "win",
+      "artifact_path": "httpx/p3-custom-auth/beta-ca.json",
+      "metrics": {
+        "tool_calls": 9,
+        "input_tokens": 13,
+        "output_tokens": 3956,
+        "total_tokens": 49854,
+        "wall_clock_ms": 65482
+      },
+      "capped": null,
+      "cost_usd": 0.1707285
+    },
+    {
+      "prompt_id": "p4-stream-lifecycle",
+      "condition": "alpha",
+      "bucket": "win",
+      "artifact_path": "httpx/p4-stream-lifecycle/alpha.json",
+      "metrics": {
+        "tool_calls": 11,
+        "input_tokens": 60428,
+        "output_tokens": 2676,
+        "total_tokens": 63104,
+        "wall_clock_ms": 67988
+      },
+      "capped": null,
+      "cost_usd": 1.10712
+    },
+    {
+      "prompt_id": "p4-stream-lifecycle",
+      "condition": "ca",
+      "bucket": "win",
+      "artifact_path": "httpx/p4-stream-lifecycle/ca.json",
+      "metrics": {
+        "tool_calls": 14,
+        "input_tokens": 58050,
+        "output_tokens": 2776,
+        "total_tokens": 60826,
+        "wall_clock_ms": 106029
+      },
+      "capped": null,
+      "cost_usd": 1.07895
+    },
+    {
+      "prompt_id": "p4-stream-lifecycle",
+      "condition": "beta",
+      "bucket": "win",
+      "artifact_path": "httpx/p4-stream-lifecycle/beta.json",
+      "metrics": {
+        "tool_calls": 15,
+        "input_tokens": 21,
+        "output_tokens": 3402,
+        "total_tokens": 87948,
+        "wall_clock_ms": 66501
+      },
+      "capped": null,
+      "cost_usd": 0.21147849999999999
+    },
+    {
+      "prompt_id": "p4-stream-lifecycle",
+      "condition": "beta-ca",
+      "bucket": "win",
+      "artifact_path": "httpx/p4-stream-lifecycle/beta-ca.json",
+      "metrics": {
+        "tool_calls": 17,
+        "input_tokens": 17,
+        "output_tokens": 4131,
+        "total_tokens": 73255,
+        "wall_clock_ms": 62919
+      },
+      "capped": null,
+      "cost_usd": 0.19288525
+    },
+    {
+      "prompt_id": "p5-drop-anyio",
+      "condition": "alpha",
+      "bucket": "tie",
+      "artifact_path": "httpx/p5-drop-anyio/alpha.json",
+      "metrics": {
+        "tool_calls": 9,
+        "input_tokens": 12273,
+        "output_tokens": 1947,
+        "total_tokens": 14220,
+        "wall_clock_ms": 25078
+      },
+      "capped": null,
+      "cost_usd": 0.33012
+    },
+    {
+      "prompt_id": "p5-drop-anyio",
+      "condition": "ca",
+      "bucket": "tie",
+      "artifact_path": "httpx/p5-drop-anyio/ca.json",
+      "metrics": {
+        "tool_calls": 12,
+        "input_tokens": 46659,
+        "output_tokens": 2431,
+        "total_tokens": 49090,
+        "wall_clock_ms": 44414
+      },
+      "capped": null,
+      "cost_usd": 0.88221
+    },
+    {
+      "prompt_id": "p5-drop-anyio",
+      "condition": "beta",
+      "bucket": "tie",
+      "artifact_path": "httpx/p5-drop-anyio/beta.json",
+      "metrics": {
+        "tool_calls": 11,
+        "input_tokens": 17,
+        "output_tokens": 2480,
+        "total_tokens": 53089,
+        "wall_clock_ms": 43490
+      },
+      "capped": null,
+      "cost_usd": 0.15719700000000003
+    },
+    {
+      "prompt_id": "p5-drop-anyio",
+      "condition": "beta-ca",
+      "bucket": "tie",
+      "artifact_path": "httpx/p5-drop-anyio/beta-ca.json",
+      "metrics": {
+        "tool_calls": 13,
+        "input_tokens": 19,
+        "output_tokens": 2941,
+        "total_tokens": 82481,
+        "wall_clock_ms": 58006
+      },
+      "capped": null,
+      "cost_usd": 0.16061124999999998
+    },
+    {
+      "prompt_id": "p6-client-get-args",
+      "condition": "alpha",
+      "bucket": "trick",
+      "artifact_path": "httpx/p6-client-get-args/alpha.json",
+      "metrics": {
+        "tool_calls": 3,
+        "input_tokens": 6773,
+        "output_tokens": 1074,
+        "total_tokens": 7847,
+        "wall_clock_ms": 15204
+      },
+      "capped": null,
+      "cost_usd": 0.182145
+    },
+    {
+      "prompt_id": "p6-client-get-args",
+      "condition": "ca",
+      "bucket": "trick",
+      "artifact_path": "httpx/p6-client-get-args/ca.json",
+      "metrics": {
+        "tool_calls": 4,
+        "input_tokens": 13228,
+        "output_tokens": 1260,
+        "total_tokens": 14488,
+        "wall_clock_ms": 16151
+      },
+      "capped": null,
+      "cost_usd": 0.29292
+    },
+    {
+      "prompt_id": "p6-client-get-args",
+      "condition": "beta",
+      "bucket": "trick",
+      "artifact_path": "httpx/p6-client-get-args/beta.json",
+      "metrics": {
+        "tool_calls": 11,
+        "input_tokens": 17,
+        "output_tokens": 3316,
+        "total_tokens": 57506,
+        "wall_clock_ms": 63443
+      },
+      "capped": null,
+      "cost_usd": 0.163994,
+      "retried": true
+    },
+    {
+      "prompt_id": "p6-client-get-args",
+      "condition": "beta-ca",
+      "bucket": "trick",
+      "artifact_path": "httpx/p6-client-get-args/beta-ca.json",
+      "metrics": {
+        "tool_calls": 6,
+        "input_tokens": 12,
+        "output_tokens": 1460,
+        "total_tokens": 30901,
+        "wall_clock_ms": 28290
+      },
+      "capped": null,
+      "cost_usd": 0.08442225
+    }
+  ]
+}

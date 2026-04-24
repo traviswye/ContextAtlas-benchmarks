@@ -1,0 +1,144 @@
+{
+  "prompt_id": "p2-http3-transport",
+  "repo": "httpx",
+  "condition": "beta",
+  "target_symbol": "BaseTransport",
+  "bucket": "win",
+  "metrics": {
+    "tool_calls": 12,
+    "input_tokens": 18,
+    "output_tokens": 2696,
+    "total_tokens": 48287,
+    "wall_clock_ms": 45976
+  },
+  "capped": null,
+  "answer": "To add a new transport in `httpx`, you implement one (or both) of the base classes defined in `httpx/_transports/base.py`:\n\n## Base interfaces\n\n### `BaseTransport` — for sync transports\nImplement:\n- `handle_request(self, request: Request) -> Response` — the required method (the base raises `NotImplementedError`).\n- `close(self) -> None` — optional; default is a no-op.\n- Context manager support (`__enter__` / `__exit__`) is already provided; `__exit__` calls `self.close()`.\n\n### `AsyncBaseTransport` — for async transports\nImplement:\n- `handle_async_request(self, request: Request) -> Response` — the required method.\n- `aclose(self) -> None` — optional; default is a no-op.\n- `__aenter__` / `__aexit__` are already provided; `__aexit__` calls `self.aclose()`.\n\nFor an HTTP/3 transport, you'd almost certainly want **both**, mirroring how `HTTPTransport` and `AsyncHTTPTransport` are paired in `_transports/default.py`. A sketch:\n\n```python\nfrom httpx import AsyncBaseTransport, BaseTransport, Request, Response\n\nclass HTTP3Transport(BaseTransport):\n    def handle_request(self, request: Request) -> Response:\n        ...  # dispatch via your QUIC/HTTP/3 engine (e.g., aioquic)\n    def close(self) -> None:\n        ...\n\nclass AsyncHTTP3Transport(AsyncBaseTransport):\n    async def handle_async_request(self, request: Request) -> Response:\n        ...\n    async def aclose(self) -> None:\n        ...\n```\n\n## Things to mirror from the existing transports\nLooking at `_transports/default.py` will be useful because the \"real\" network transport does more than the minimum contract:\n\n- **Request translation**: `request.method`, `request.url.raw_scheme/raw_host/port/raw_path`, `request.headers.raw`, and `request.stream` need to be passed to your HTTP/3 engine. (`HTTPTransport` maps these onto `httpcore.Request`.)\n- **Streaming response body**: wrap the engine's body iterator in a class exposing `__iter__` / `__aiter__` and `close()` / `aclose()`, then pass it as `Response(..., stream=ResponseStream(...))`. See `ResponseStream` / `AsyncResponseStream` in `default.py`.\n- **Extensions**: populate `response.extensions` with at least `http_version` (e.g., `b\"HTTP/3\"`), `reason_phrase`, and `network_stream` if applicable — consumers rely on these.\n- **Exception mapping**: catch your engine's exceptions and re-raise as the appropriate `httpx` exceptions (`ConnectError`, `ReadTimeout`, `RemoteProtocolError`, etc.) so the client layer behaves consistently.\n\n## Wiring it up\nOnce implemented, users pass it via the `transport=` argument to `httpx.Client` / `httpx.AsyncClient`, or register it in a `mounts={...}` dict keyed by URL scheme/pattern — no changes to `Client` are required because everything is dispatched through the `BaseTransport` / `AsyncBaseTransport` contract.\n\n**TL;DR:** implement `httpx.BaseTransport` (sync) and `httpx.AsyncBaseTransport` (async) from `httpx/_transports/base.py`; the only required methods are `handle_request` and `handle_async_request`.",
+  "trace": [
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "ls atlases/httpx/",
+        "description": "List httpx atlas contents"
+      },
+      "result_preview": "atlas.json\nindex.db\nindex.db-shm\nindex.db-wal"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "cd atlases/httpx && sqlite3 index.db \".tables\"",
+        "description": "List tables in httpx atlas"
+      },
+      "result_preview": "This Bash command contains multiple operations. The following part requires approval: sqlite3 index.db \".tables\""
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "sqlite3 atlases/httpx/index.db \".tables\"",
+        "description": "List tables in httpx atlas"
+      },
+      "result_preview": "This command requires approval"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "which sqlite3; sqlite3 --version",
+        "description": "Check sqlite3 availability"
+      },
+      "result_preview": "This Bash command contains multiple operations. The following part requires approval: sqlite3 --version"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "sqlite3 --version",
+        "description": "Check sqlite3 version"
+      },
+      "result_preview": "This command requires approval"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "python -c \"import sqlite3; conn=sqlite3.connect('atlases/httpx/index.db'); print([r[0] for r in conn.execute(\\\"SELECT name FROM sqlite_master WHERE type='table'\\\")])\"",
+        "description": "List tables in httpx atlas via Python"
+      },
+      "result_preview": "This command requires approval"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "python3 -c \"import sqlite3; conn=sqlite3.connect('atlases/httpx/index.db'); print([r[0] for r in conn.execute(\\\"SELECT name FROM sqlite_master WHERE type='table'\\\")])\"",
+        "description": "List tables in httpx atlas via python3"
+      },
+      "result_preview": "This command requires approval"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "ls",
+        "description": "List files"
+      },
+      "result_preview": "CLAUDE.md\nLICENSE\nREADME.md\nRUBRIC.md\nSTEP-7-PLAN.md\nadrs\natlases\nconfigs\nnode_modules\npackage-lock.json\npackage.json\nprompts\nrepos\nresearch\nruns\nscripts\nsrc\ntsconfig.json\nvitest.config.ts"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "ls repos/httpx 2>/dev/null || ls repos/",
+        "description": "Check repos directory"
+      },
+      "result_preview": "CHANGELOG.md\nLICENSE.md\nREADME.md\ndocs\nhttpx\nmkdocs.yml\npyproject.toml\nrequirements.txt\nscripts\ntests"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "ls repos/httpx/_transports/ 2>/dev/null; ls repos/httpx/",
+        "description": "Explore httpx transport directory"
+      },
+      "result_preview": "CHANGELOG.md\nLICENSE.md\nREADME.md\ndocs\nhttpx\nmkdocs.yml\npyproject.toml\nrequirements.txt\nscripts\ntests"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "ls repos/httpx/httpx/_transports/",
+        "description": "List httpx _transports directory"
+      },
+      "result_preview": "__init__.py\nasgi.py\nbase.py\ndefault.py\nmock.py\nwsgi.py"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "C:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\httpx\\_transports\\base.py"
+      },
+      "result_preview": "1\tfrom __future__ import annotations\n2\t\n3\timport typing\n4\tfrom types import TracebackType\n5\t\n6\tfrom .._models import Request, Response\n7\t\n8\tT = typing.TypeVar(\"T\", bound=\"BaseTransport\")\n9\tA = typing.TypeVar(\"A\", bound=\"AsyncBaseTransport\")\n10\t\n11\t__all__ = [\"AsyncBaseTransport\", \"BaseTransport\"]\n12\t\n13\t\n14\tclass BaseTransport:\n15\t    def __enter__(self: T) -> T:\n16\t        return self\n17\t\n18\t    def __exit__(\n19\t        self,\n20\t        exc_type: type[BaseException] | None = None,\n21\t        exc_value: BaseException | None = None,\n22\t        traceback: TracebackType | None = None,\n23\t    ) -> None:\n24\t        self.close()\n25\t\n26\t    def handle_request(self, request: Request) -> Response:\n27\t        \"\"\"\n28\t        Send a single HTTP request and return a response.\n29\t\n30\t        Developers shouldn't typically ever need to call into this API directly,\n31\t        since the Client class provides all the higher level user-facing API\n32\t        niceties.\n33\t\n34\t        In order to properly release any network resources, the response\n35\t        stream should *either* be consumed immediately, with a call to\n36\t        `response.stream.read()`, or else the `handle_request` call should\n37\t        be followed with a try/finally block to ensuring the stream is\n38\t        always closed.\n39\t\n40\t        Example usage:\n41\t\n42\t            with httpx.HTTPTransport() as transport:\n43\t                req = httpx.Request(\n44\t                    method=b\"GET\",\n45\t                    url=(b\"https\", b\"www.example.com\", 443, b\"/\"),\n46\t                    headers=[(b\"Host\", b\"www.example.com\")],\n47\t                )\n48\t                resp = transport.handle_request(req)\n49\t                body = resp.stream.read()\n50\t                print(resp.status_code, resp.headers, body)\n51\t\n52\t\n53\t        Takes a `Request` instance as the only argument.\n54\t\n55\t        Returns a `Response` instance.\n56\t        \"\"\"\n57\t        raise NotImplementedError(\n58\t            \"The 'handle_request' method must be implemented.\"\n59\t        )  # pragma: no cover\n60\t\n61\t    def close(self) -> None:\n62\t        pass\n63\t\n64\t\n65\tclass AsyncBaseTransport:\n66\t    async def __aenter__(self: A) -> A:\n67\t        return self\n68\t\n69\t    async def __aexit__(\n70\t        self,\n71\t        exc_type: type[BaseException] | None = None,\n72\t        exc_value: BaseException | None = None,\n73\t        traceback: TracebackType | None = None,\n74\t    ) -> None:\n75\t        await self.aclose()\n76\t\n77\t    async def handle_async_request(\n78\t        self,\n79\t        request: Request,\n80\t    ) -> Response:\n81\t        raise NotImplementedError(\n82\t            \"The 'handle_async_request' method must be implemented.\"\n83\t        )  # pragma: no cover\n84\t\n85\t    async def aclose(self) -> None:\n86\t        pass\n87\t"
+    }
+  ],
+  "diagnostics": {
+    "claudeCodeVersion": "2.1.118",
+    "totalCostUsd": 0.1252355,
+    "numTurns": 13,
+    "isError": false,
+    "terminalReason": "completed",
+    "modelUsage": {
+      "claude-haiku-4-5-20251001": {
+        "inputTokens": 356,
+        "outputTokens": 16,
+        "cacheReadInputTokens": 0,
+        "cacheCreationInputTokens": 0,
+        "webSearchRequests": 0,
+        "costUSD": 0.00043599999999999997,
+        "contextWindow": 200000,
+        "maxOutputTokens": 32000
+      },
+      "claude-opus-4-7": {
+        "inputTokens": 18,
+        "outputTokens": 2696,
+        "cacheReadInputTokens": 39569,
+        "cacheCreationInputTokens": 6004,
+        "webSearchRequests": 0,
+        "costUSD": 0.12479950000000001,
+        "contextWindow": 1000000,
+        "maxOutputTokens": 64000
+      }
+    }
+  },
+  "cost_usd": 0.1252355,
+  "written_at": "2026-04-24T02:38:15.815Z"
+}
