@@ -31,10 +31,15 @@ Thumbs.db
 .env.*.local
 
 # Benchmark harness specifics
-# Reference runs are committed; iterative runs are not
+# Reference runs are committed; iterative runs are not.
+# Spotcheck artifacts (targeted verification — e.g., v0.2 Step 4c)
+# are also committed, under runs/spotchecks/, distinct from the
+# canonical reference/ tree.
 runs/*
 !runs/reference/
 !runs/reference/**
+!runs/spotchecks/
+!runs/spotchecks/**
 
 # Cloned benchmark repositories
 repos/
