@@ -5,126 +5,44 @@
   "target_symbol": "(module-level)",
   "bucket": "tie",
   "metrics": {
-    "tool_calls": 13,
-    "input_tokens": 19,
-    "output_tokens": 2941,
-    "total_tokens": 82481,
-    "wall_clock_ms": 58006
+    "tool_calls": 3,
+    "input_tokens": 8,
+    "output_tokens": 1104,
+    "total_tokens": 17057,
+    "wall_clock_ms": 21930
   },
   "capped": null,
-  "answer": "Short answer: **No, not cleanly — and the savings are smaller than they look.** Here's what the httpx repo actually shows:\n\n## What anyio is (and isn't) doing in httpx\n\n**It's declared as a runtime dep** (`repos/httpx/pyproject.toml:33`):\n```toml\ndependencies = [\n    \"certifi\",\n    \"httpcore==1.*\",\n    \"anyio\",\n    \"idna\",\n]\n```\n\n**But the `httpx/` source tree itself doesn't import anyio.** A `grep -rn \"import anyio\\|from anyio\" repos/httpx/httpx/` returns **zero hits**. So httpx's own code is already written against raw asyncio primitives — the anyio dependency is almost entirely pulled in for:\n\n1. **Trio-compatibility of the public API.** `docs/async.md` (lines 155–190) documents three supported event loops: asyncio, Trio, and AnyIO. `AsyncClient` is expected to work under all three. That compatibility flows through `httpcore` (a hard dep, `httpcore==1.*`), which is the layer actually doing the networking I/O abstraction.\n2. **Test infrastructure.** Tests use `@pytest.mark.anyio` pervasively (`tests/client/test_async_client.py` — dozens of occurrences) so the same test body runs under both asyncio and trio backends, and `tests/client/test_auth.py:145` uses `anyio.Lock()` to write a lock-based auth flow that works on either backend.\n\n## What dropping anyio would actually cost you\n\n- **You'd lose Trio support as a public contract.** The docs explicitly promise it; removing it is a breaking change for users running under `trio.run(...)` or `anyio.run(main, backend='trio')`.\n- **You'd still have the transitive dependency via `httpcore`** unless you also rework that layer — which is where the real async abstraction lives.\n- **You'd have to rewrite the test matrix.** The `@pytest.mark.anyio` parametrization is how the suite proves the client is loop-agnostic; replacing it with `@pytest.mark.asyncio` gives up coverage rather than adding it.\n- **You'd need an asyncio replacement for `anyio.Lock()`** in `test_auth.py` — trivial (`asyncio.Lock`), but a signal of where user code may also rely on anyio primitives inside `auth_flow` generators.\n\n## If your goal is reducing deps\n\nThe `anyio` package itself is tiny and pure-Python; the weight in httpx's dep tree comes from `httpcore`, `certifi`, and `idna`. Dropping anyio wouldn't meaningfully shrink install size, and it would regress a documented capability. I'd leave it.\n\nIf your goal is something else (e.g., you're vendoring httpx into a constrained environment that only runs on asyncio and you want to prune unused code), say more about the constraint and I can sketch what a fork would need to touch — but on mainline httpx the answer is: keep anyio, it's pulling its weight on the Trio-compat and test axes even though the `httpx/` source doesn't import it directly.",
+  "answer": "**Short answer: No — dropping `anyio` would be a breaking architectural change, not a refactor.**\n\nPer httpx's architectural intents (captured in ADR-01 and ADR-02), runtime-agnosticism is a **hard constraint**, not an implementation detail:\n\n## The binding constraints\n\n1. **ADR-02 (hard):** *\"httpx must support both asyncio and Trio runtimes using sniffio detection and dual-import patterns.\"* This applies to `AsyncHTTPTransport`, `ASGITransport`, and `HTTPTransport`.\n\n2. **ADR-02 (hard):** *\"Direct `asyncio.*` use (`create_task`, `sleep`, `Lock`) is not allowed outside asyncio-only code paths; prefer anyio abstractions in cross-runtime code.\"* — so the current rule is literally the opposite of what you're proposing.\n\n3. **ADR-01 (context) on `AsyncClient` / `Client` / `BaseClient`:** *\"Sync-only with async adapter was rejected because blocking I/O in a thread pool is not true async and **locks out trio-native code paths**.\"* — Trio compatibility was an explicit design decision, not incidental.\n\n## What you *could* do\n\nThe ADR-02 rationale also notes: *\"anyio is used for broader abstractions like blocking-thread dispatch or cross-runtime sleeping, **not as a full abstraction layer in every call path**.\"* So anyio's footprint is already intentionally narrow — most of the real I/O goes through `httpcore`. You're unlikely to get meaningful wins by ripping it out.\n\n## Bottom line\n\nIf you're maintaining a fork for an asyncio-only environment and are willing to drop Trio users, it's technically feasible — replace anyio's `to_thread`, locks, and sleep helpers with asyncio equivalents. But in upstream httpx, this would violate a hard ADR constraint and break every Trio-native consumer (e.g., users on `trio`, `quart-trio`, or `hypercorn --worker-class trio`). It's not a drop-in substitution.",
   "trace": [
     {
       "tool": "mcp__contextatlas__find_by_intent",
       "args": {
-        "query": "anyio usage and why it's required instead of raw asyncio",
-        "limit": 10
+        "query": "Why does httpx use anyio instead of asyncio directly?",
+        "limit": 8
       },
-      "result_preview": "Claude requested permissions to use mcp__contextatlas__find_by_intent, but you haven't granted it yet."
-    },
-    {
-      "tool": "Bash",
-      "args": {
-        "command": "ls atlases/httpx/",
-        "description": "List httpx atlas contents"
-      },
-      "result_preview": "atlas.json\nindex.db\nindex.db-shm\nindex.db-wal"
+      "result_preview": "MATCHES 8 [query=\"Why does httpx use anyio instead of asyncio directly?\"]\n  SYM sym:py:httpx/_transports/asgi.py:ASGITransport httpx/_transports/asgi.py:63 class\n    SIG class ASGITransport(AsyncBaseTransport)\n    INTENT ADR-02 hard \"Direct asyncio.* use (create_task, sleep, Lock) is not allowed outside asyncio-only code paths; prefer anyio abstractions in cross-runtime code\"\n  SYM sym:py:httpx/_transports/default.py:AsyncHTTPTransport httpx/_transports/default.py:279 class\n    SIG class AsyncHTTPTransport(AsyncBaseTransport)\n    INTENT ADR-02 hard \"Direct asyncio.* use (create_task, sleep, Lock) is not allowed outside asyncio-only code paths; prefer anyio abstractions in cross-runtime code\"\n  SYM sym:py:httpx/_transports/default.py:HTTPTransport httpx/_transports/default.py:135 class\n    SIG class HTTPTransport(BaseTransport)\n    INTENT ADR-02 hard \"Direct asyncio.* use (create_task, sleep, Lock) is not allowed outside asyncio-only code paths; prefer anyio abstractions in cross-runtime code\"\n  SYM sym:py:httpx/_transports/base.py:AsyncBaseTransport httpx/_transports/base.py:65 class\n    SIG class AsyncBaseTransport\n    INTENT ADR-02 context \"httpx's transport abstraction exists independently of httpcore to allow ASGI, WSGI, mocks, or custom transports\"\n  SYM sym:py:httpx/_transports/base.py:BaseTransport httpx/_transports/base.py:14 class\n    SIG class BaseTransport\n    INTENT ADR-02 context \"httpx's transport abstraction exists independently of httpcore to allow ASGI, WSGI, mocks, or custom transports\"\n  SYM sym:py:httpx/_transports/mock.py:MockTransport httpx/_transports/mock.py:15 class\n    SIG class MockTransport(AsyncBaseTransport, BaseTransport)\n    INTENT ADR-03 hard \"Third-party transports must raise httpx exception types (or subclasses), not httpcore errors directly\"\n  SYM sym:py:httpx/_transports/wsgi.py:WSGITransport httpx/_transports/wsgi.py:44 class\n    SIG class WSGITransport(BaseTransport)\n    INTENT ADR-03 hard \"Third-party transports must raise httpx exception types (or subclasses), not httpcore errors directly\"\n  SYM sym:py:httpx/_client.py:BoundAsyncStream httpx/_client.py:162 class\n    SIG class BoundAsyncStream(AsyncByteStream)\n    INTENT ADR-05 context \"Response bodies track read-state as Unread, Read, or Closed.\"\n"
     },
     {
       "tool": "mcp__contextatlas__find_by_intent",
       "args": {
-        "query": "anyio usage and why it's required instead of raw asyncio",
-        "limit": 10
+        "query": "anyio async backend abstraction trio support",
+        "limit": 8
       },
-      "result_preview": "Claude requested permissions to use mcp__contextatlas__find_by_intent, but you haven't granted it yet."
+      "result_preview": "MATCHES 8 [query=\"anyio async backend abstraction trio support\"]\n  SYM sym:py:httpx/_transports/default.py:AsyncHTTPTransport httpx/_transports/default.py:279 class\n    SIG class AsyncHTTPTransport(AsyncBaseTransport)\n    INTENT ADR-02 context \"anyio is used for broader abstractions like blocking-thread dispatch or cross-runtime sleeping, not as a full abstraction layer in every call path\"\n  SYM sym:py:httpx/_transports/asgi.py:ASGITransport httpx/_transports/asgi.py:63 class\n    SIG class ASGITransport(AsyncBaseTransport)\n    INTENT ADR-02 context \"anyio is used for broader abstractions like blocking-thread dispatch or cross-runtime sleeping, not as a full abstraction layer in every call path\"\n  SYM sym:py:httpx/_transports/default.py:HTTPTransport httpx/_transports/default.py:135 class\n    SIG class HTTPTransport(BaseTransport)\n    INTENT ADR-02 context \"anyio is used for broader abstractions like blocking-thread dispatch or cross-runtime sleeping, not as a full abstraction layer in every call path\"\n  SYM sym:py:httpx/_client.py:AsyncClient httpx/_client.py:1307 class\n    SIG class AsyncClient(BaseClient)\n    INTENT ADR-01 context \"Sync-only with async adapter was rejected because blocking I/O in a thread pool is not true async and locks out trio-native code paths.\"\n  SYM sym:py:httpx/_client.py:BaseClient httpx/_client.py:188 class\n    SIG class BaseClient\n    INTENT ADR-01 context \"Sync-only with async adapter was rejected because blocking I/O in a thread pool is not true async and locks out trio-native code paths.\"\n  SYM sym:py:httpx/_client.py:Client httpx/_client.py:594 class\n    SIG class Client(BaseClient)\n    INTENT ADR-01 context \"Sync-only with async adapter was rejected because blocking I/O in a thread pool is not true async and locks out trio-native code paths.\"\n  SYM sym:py:httpx/_client.py:ClientState httpx/_client.py:125 class\n    SIG class ClientState(enum.Enum)\n    INTENT ADR-01 context \"Sync-only with async adapter was rejected because blocking I/O in a thread pool is not true async and locks out trio-native code paths.\"\n  SYM sym:py:httpx/_client.py:USE_CLIENT_DEFAULT httpx/_client.py:114 variable\n    INTENT ADR-01 context \"Sync-only with async adapter was rejected because blocking I/O in a thread pool is not true async and locks out trio-native code paths.\"\n"
     },
     {
-      "tool": "Bash",
+      "tool": "mcp__contextatlas__find_by_intent",
       "args": {
-        "command": "find . -name \"*.py\" -path \"*httpx*\" 2>/dev/null | head -20; echo \"---\"; ls",
-        "description": "Find httpx python files and list root"
+        "query": "trio asyncio support multiple async runtimes httpx",
+        "limit": 5
       },
-      "result_preview": "./repos/httpx/httpx/_api.py\n./repos/httpx/httpx/_auth.py\n./repos/httpx/httpx/_client.py\n./repos/httpx/httpx/_config.py\n./repos/httpx/httpx/_content.py\n./repos/httpx/httpx/_decoders.py\n./repos/httpx/httpx/_exceptions.py\n./repos/httpx/httpx/_main.py\n./repos/httpx/httpx/_models.py\n./repos/httpx/httpx/_multipart.py\n./repos/httpx/httpx/_status_codes.py\n./repos/httpx/httpx/_transports/asgi.py\n./repos/httpx/httpx/_transports/base.py\n./repos/httpx/httpx/_transports/default.py\n./repos/httpx/httpx/_transports/mock.py\n./repos/httpx/httpx/_transports/wsgi.py\n./repos/httpx/httpx/_transports/__init__.py\n./repos/httpx/httpx/_types.py\n./repos/httpx/httpx/_urlparse.py\n./repos/httpx/httpx/_urls.py\n---\nCLAUDE.md\nLICENSE\nREADME.md\nRUBRIC.md\nSTEP-7-PLAN.md\nadrs\natlases\nconfigs\nnode_modules\npackage-lock.json\npackage.json\nprompts\nrepos\nresearch\nruns\nscripts\nsrc\ntsconfig.json\nvitest.config.ts"
-    },
-    {
-      "tool": "Bash",
-      "args": {
-        "command": "grep -rn \"anyio\" repos/httpx/httpx/ | head -30",
-        "description": "Search for anyio usage in httpx"
-      },
-      "result_preview": "(Bash completed with no output)"
-    },
-    {
-      "tool": "Bash",
-      "args": {
-        "command": "grep -rln \"anyio\" repos/httpx/ 2>/dev/null | head -20",
-        "description": "Find anyio references in httpx repo"
-      },
-      "result_preview": "repos/httpx/docs/async.md\nrepos/httpx/pyproject.toml\nrepos/httpx/tests/client/test_async_client.py\nrepos/httpx/tests/client/test_auth.py\nrepos/httpx/tests/client/test_event_hooks.py\nrepos/httpx/tests/client/test_proxies.py\nrepos/httpx/tests/client/test_redirects.py\nrepos/httpx/tests/models/test_requests.py\nrepos/httpx/tests/models/test_responses.py\nrepos/httpx/tests/test_asgi.py\nrepos/httpx/tests/test_content.py\nrepos/httpx/tests/test_decoders.py\nrepos/httpx/tests/test_timeouts.py"
-    },
-    {
-      "tool": "Bash",
-      "args": {
-        "command": "grep -n \"anyio\" repos/httpx/docs/async.md",
-        "description": "Check anyio references in async docs"
-      },
-      "result_preview": "176:### [AnyIO](https://github.com/agronholm/anyio)\n178:AnyIO is an [asynchronous networking and concurrency library](https://anyio.readthedocs.io/) that works on top of either `asyncio` or `trio`. It blends in with native libraries of your chosen backend (defaults to `asyncio`).\n182:import anyio\n189:anyio.run(main, backend='trio')"
-    },
-    {
-      "tool": "Read",
-      "args": {
-        "file_path": "repos/httpx/docs/async.md",
-        "offset": 140,
-        "limit": 60
-      },
-      "result_preview": "140\tAsyncIO is Python's [built-in library](https://docs.python.org/3/library/asyncio.html)\n141\tfor writing concurrent code with the async/await syntax.\n142\t\n143\t```python\n144\timport asyncio\n145\timport httpx\n146\t\n147\tasync def main():\n148\t    async with httpx.AsyncClient() as client:\n149\t        response = await client.get('https://www.example.com/')\n150\t        print(response)\n151\t\n152\tasyncio.run(main())\n153\t```\n154\t\n155\t### [Trio](https://github.com/python-trio/trio)\n156\t\n157\tTrio is [an alternative async library](https://trio.readthedocs.io/en/stable/),\n158\tdesigned around the [the principles of structured concurrency](https://en.wikipedia.org/wiki/Structured_concurrency).\n159\t\n160\t```python\n161\timport httpx\n162\timport trio\n163\t\n164\tasync def main():\n165\t    async with httpx.AsyncClient() as client:\n166\t        response = await client.get('https://www.example.com/')\n167\t        print(response)\n168\t\n169\ttrio.run(main)\n170\t```\n171\t\n172\t!!! important\n173\t    The `trio` package must be installed to use the Trio backend.\n174\t\n175\t\n176\t### [AnyIO](https://github.com/agronholm/anyio)\n177\t\n178\tAnyIO is an [asynchronous networking and concurrency library](https://anyio.readthedocs.io/) that works on top of either `asyncio` or `trio`. It blends in with native libraries of your chosen backend (defaults to `asyncio`).\n179\t\n180\t```python\n181\timport httpx\n182\timport anyio\n183\t\n184\tasync def main():\n185\t    async with httpx.AsyncClient() as client:\n186\t        response = await client.get('https://www.example.com/')\n187\t        print(response)\n188\t\n189\tanyio.run(main, backend='trio')\n190\t```\n191\t\n192\t## Calling into Python Web Apps\n193\t\n194\tFor details on calling directly into ASGI applications, see [the `ASGITransport` docs](../advanced/transports#asgitransport)."
-    },
-    {
-      "tool": "Bash",
-      "args": {
-        "command": "grep -n \"anyio\\|trio\\|asyncio\" repos/httpx/pyproject.toml | head -20",
-        "description": "Check dependencies in pyproject.toml"
-      },
-      "result_preview": "33:    \"anyio\",\n122:  # See: https://github.com/agronholm/anyio/issues/508\n123:  \"ignore: trio.MultiError is deprecated since Trio 0.22.0:trio.TrioDeprecationWarning\""
-    },
-    {
-      "tool": "Read",
-      "args": {
-        "file_path": "repos/httpx/pyproject.toml",
-        "offset": 20,
-        "limit": 30
-      },
-      "result_preview": "20\t    \"Operating System :: OS Independent\",\n21\t    \"Programming Language :: Python :: 3\",\n22\t    \"Programming Language :: Python :: 3 :: Only\",\n23\t    \"Programming Language :: Python :: 3.8\",\n24\t    \"Programming Language :: Python :: 3.9\",\n25\t    \"Programming Language :: Python :: 3.10\",\n26\t    \"Programming Language :: Python :: 3.11\",\n27\t    \"Programming Language :: Python :: 3.12\",\n28\t    \"Topic :: Internet :: WWW/HTTP\",\n29\t]\n30\tdependencies = [\n31\t    \"certifi\",\n32\t    \"httpcore==1.*\",\n33\t    \"anyio\",\n34\t    \"idna\",\n35\t]\n36\tdynamic = [\"readme\", \"version\"]\n37\t\n38\t[project.optional-dependencies]\n39\tbrotli = [\n40\t    \"brotli; platform_python_implementation == 'CPython'\",\n41\t    \"brotlicffi; platform_python_implementation != 'CPython'\",\n42\t]\n43\tcli = [\n44\t    \"click==8.*\",\n45\t    \"pygments==2.*\",\n46\t    \"rich>=10,<14\",\n47\t]\n48\thttp2 = [\n49\t    \"h2>=3,<5\","
-    },
-    {
-      "tool": "Bash",
-      "args": {
-        "command": "grep -rn \"import anyio\\|from anyio\" repos/httpx/httpx/ 2>/dev/null; echo \"---tests---\"; grep -rn \"import anyio\\|from anyio\" repos/httpx/tests/ 2>/dev/null | head -10",
-        "description": "Check anyio imports in httpx source and tests"
-      },
-      "result_preview": "---tests---\nrepos/httpx/tests/client/test_auth.py:15:import anyio"
-    },
-    {
-      "tool": "Bash",
-      "args": {
-        "command": "grep -rn \"anyio\" repos/httpx/tests/client/test_async_client.py repos/httpx/tests/test_timeouts.py | head -20",
-        "description": "Check anyio usage pattern in tests"
-      },
-      "result_preview": "repos/httpx/tests/client/test_async_client.py:11:@pytest.mark.anyio\nrepos/httpx/tests/client/test_async_client.py:32:@pytest.mark.anyio\nrepos/httpx/tests/client/test_async_client.py:39:@pytest.mark.anyio\nrepos/httpx/tests/client/test_async_client.py:54:@pytest.mark.anyio\nrepos/httpx/tests/client/test_async_client.py:62:@pytest.mark.anyio\nrepos/httpx/tests/client/test_async_client.py:70:@pytest.mark.anyio\nrepos/httpx/tests/client/test_async_client.py:81:@pytest.mark.anyio\nrepos/httpx/tests/client/test_async_client.py:92:@pytest.mark.anyio\nrepos/httpx/tests/client/test_async_client.py:103:@pytest.mark.anyio\nrepos/httpx/tests/client/test_async_client.py:114:@pytest.mark.anyio\nrepos/httpx/tests/client/test_async_client.py:130:@pytest.mark.anyio\nrepos/httpx/tests/client/test_async_client.py:138:@pytest.mark.anyio\nrepos/httpx/tests/client/test_async_client.py:146:@pytest.mark.anyio\nrepos/httpx/tests/client/test_async_client.py:153:@pytest.mark.anyio\nrepos/httpx/tests/client/test_async_client.py:160:@pytest.mark.anyio\nrepos/httpx/tests/client/test_async_client.py:168:@pytest.mark.anyio\nrepos/httpx/tests/client/test_async_client.py:182:@pytest.mark.anyio\nrepos/httpx/tests/client/test_async_client.py:214:@pytest.mark.anyio\nrepos/httpx/tests/client/test_async_client.py:259:@pytest.mark.anyio\nrepos/httpx/tests/client/test_async_client.py:280:@pytest.mark.anyio"
-    },
-    {
-      "tool": "Bash",
-      "args": {
-        "command": "grep -n \"anyio\" repos/httpx/tests/client/test_auth.py | head",
-        "description": "Check anyio usage in test_auth"
-      },
-      "result_preview": "15:import anyio\n145:        self._async_lock = anyio.Lock()\n162:@pytest.mark.anyio\n175:@pytest.mark.anyio\n194:@pytest.mark.anyio\n206:@pytest.mark.anyio\n221:@pytest.mark.anyio\n288:@pytest.mark.anyio\n310:@pytest.mark.anyio\n322:@pytest.mark.anyio"
+      "result_preview": "MATCHES 5 [query=\"trio asyncio support multiple async runtimes httpx\"]\n  SYM sym:py:httpx/_transports/default.py:AsyncHTTPTransport httpx/_transports/default.py:279 class\n    SIG class AsyncHTTPTransport(AsyncBaseTransport)\n    INTENT ADR-02 hard \"httpx must support both asyncio and Trio runtimes using sniffio detection and dual-import patterns\"\n  SYM sym:py:httpx/_transports/asgi.py:ASGITransport httpx/_transports/asgi.py:63 class\n    SIG class ASGITransport(AsyncBaseTransport)\n    INTENT ADR-02 hard \"httpx must support both asyncio and Trio runtimes using sniffio detection and dual-import patterns\"\n  SYM sym:py:httpx/_transports/default.py:HTTPTransport httpx/_transports/default.py:135 class\n    SIG class HTTPTransport(BaseTransport)\n    INTENT ADR-02 hard \"httpx must support both asyncio and Trio runtimes using sniffio detection and dual-import patterns\"\n  SYM sym:py:httpx/_transports/base.py:AsyncBaseTransport httpx/_transports/base.py:65 class\n    SIG class AsyncBaseTransport\n    INTENT ADR-03 hard \"ASGITransport supports dual-runtime (asyncio and Trio) via sniffio to uphold runtime-agnosticism\"\n  SYM sym:py:httpx/_transports/base.py:BaseTransport httpx/_transports/base.py:14 class\n    SIG class BaseTransport\n    INTENT ADR-03 hard \"ASGITransport supports dual-runtime (asyncio and Trio) via sniffio to uphold runtime-agnosticism\"\n"
     }
   ],
   "diagnostics": {
     "claudeCodeVersion": "2.1.118",
-    "totalCostUsd": 0.16061124999999998,
-    "numTurns": 14,
+    "totalCostUsd": 0.0710385,
+    "numTurns": 4,
     "isError": false,
     "terminalReason": "completed",
     "modelUsage": {
@@ -139,17 +57,17 @@
         "maxOutputTokens": 32000
       },
       "claude-opus-4-7": {
-        "inputTokens": 19,
-        "outputTokens": 2941,
-        "cacheReadInputTokens": 71384,
-        "cacheCreationInputTokens": 8137,
+        "inputTokens": 8,
+        "outputTokens": 1104,
+        "cacheReadInputTokens": 9861,
+        "cacheCreationInputTokens": 6084,
         "webSearchRequests": 0,
-        "costUSD": 0.16016825,
+        "costUSD": 0.0705955,
         "contextWindow": 1000000,
         "maxOutputTokens": 64000
       }
     }
   },
-  "cost_usd": 0.16061124999999998,
-  "written_at": "2026-04-24T02:50:34.607Z"
+  "cost_usd": 0.0710385,
+  "written_at": "2026-04-24T17:18:12.910Z"
 }

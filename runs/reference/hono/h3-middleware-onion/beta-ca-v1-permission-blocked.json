@@ -1,0 +1,95 @@
+{
+  "prompt_id": "h3-middleware-onion",
+  "repo": "hono",
+  "condition": "beta-ca",
+  "target_symbol": "compose",
+  "bucket": "win",
+  "metrics": {
+    "tool_calls": 6,
+    "input_tokens": 12,
+    "output_tokens": 1709,
+    "total_tokens": 29678,
+    "wall_clock_ms": 37133
+  },
+  "capped": null,
+  "answer": "I need permission to use the ContextAtlas tools to answer this question properly. Let me retry:It appears I don't have permission to invoke the ContextAtlas tools in this session. Could you grant permission for `mcp__contextatlas__find_by_intent` and `mcp__contextatlas__get_symbol_context` so I can trace this properly?\n\nIn the meantime, here's what I can tell you from the repo layout (there's a `atlases/hono/` directory, which suggests an indexed atlas exists) and general knowledge of Hono's architecture — I'll verify and refine once the tools are unblocked:\n\n### Expected answer (pending tool verification)\n\nHono's middleware onion is **not** composed inline inside the router or the app. It lives in a dedicated utility, typically:\n\n- **`src/compose.ts`** — exports a `compose<C>(middleware, onError?, onNotFound?)` function.\n\n`Hono.fetch` → `dispatch(...)` builds the handler stack from matched routes, then calls `compose(handlers)(context, executionContext)`. That returned function is what actually walks the onion.\n\n### What `next()` mechanically does\n\nInside `compose`, there's a `dispatch(i)` function, one entry per middleware index. Each middleware receives:\n\n```ts\n(c, next) => { /* pre */ await next(); /* post */ }\n```\n\nMechanically:\n\n1. **`dispatch(i)`** checks `i <= index` (the high-water mark) to catch **double-`next()` calls** — that's where the classic \"next() called multiple times\" invariant is enforced.\n2. It advances `index = i`, picks `handlers[i]`, and if there's no handler left it uses the terminal \"not found\" or the already-set `c.res`.\n3. It invokes the middleware as `handler(context, () => dispatch(i + 1))`. That closure **is** `next`.\n4. The middleware's `await next()` suspends at the pre-phase, lets deeper handlers run, resolves when they unwind, and then executes the post-phase — hence the onion shape.\n5. The return value of the outer `dispatch(0)` is a Promise that resolves once every post-phase has unwound; `Hono.fetch` awaits it and returns `context.res`.\n\nThe \"composition\" is therefore **lazy and stack-based**, not an array reduce at registration time. Handlers are assembled per-request by the router match, then wrapped by `compose` into nested closures on demand.\n\n### To confirm in your tree\n\nOnce tool permission is granted I'd run:\n\n- `find_by_intent(\"middleware chain dispatch next invariant\")`\n- `get_symbol_context(\"compose\", file_hint=\"src/compose.ts\", depth=\"deep\")`\n- `get_symbol_context(\"dispatch\")` (scoped inside compose)\n- `get_symbol_context(\"Hono.fetch\")` to show the call site that kicks off `dispatch(0)`\n\nWant me to proceed with those calls once permissions are available, or should I fall back to reading `atlases/hono/` and the Hono source directly with `Read`/`Bash`?",
+  "trace": [
+    {
+      "tool": "mcp__contextatlas__find_by_intent",
+      "args": {
+        "query": "middleware onion composition next() dispatch chain",
+        "limit": 8
+      },
+      "result_preview": "Claude requested permissions to use mcp__contextatlas__find_by_intent, but you haven't granted it yet."
+    },
+    {
+      "tool": "mcp__contextatlas__find_by_intent",
+      "args": {
+        "query": "middleware onion composition next() dispatch chain",
+        "limit": 8
+      },
+      "result_preview": "Claude requested permissions to use mcp__contextatlas__find_by_intent, but you haven't granted it yet."
+    },
+    {
+      "tool": "mcp__contextatlas__find_by_intent",
+      "args": {
+        "query": "middleware onion composition next() dispatch chain in Hono",
+        "limit": 8
+      },
+      "result_preview": "Claude requested permissions to use mcp__contextatlas__find_by_intent, but you haven't granted it yet."
+    },
+    {
+      "tool": "mcp__contextatlas__find_by_intent",
+      "args": {
+        "query": "Hono middleware composition next dispatch"
+      },
+      "result_preview": "Claude requested permissions to use mcp__contextatlas__find_by_intent, but you haven't granted it yet."
+    },
+    {
+      "tool": "mcp__contextatlas__find_by_intent",
+      "args": {
+        "query": "Hono middleware onion composition where next() is implemented",
+        "limit": 6
+      },
+      "result_preview": "Claude requested permissions to use mcp__contextatlas__find_by_intent, but you haven't granted it yet."
+    },
+    {
+      "tool": "mcp__contextatlas__find_by_intent",
+      "args": {
+        "query": "middleware compose next function Hono onion model"
+      },
+      "result_preview": "Claude requested permissions to use mcp__contextatlas__find_by_intent, but you haven't granted it yet."
+    }
+  ],
+  "diagnostics": {
+    "claudeCodeVersion": "2.1.118",
+    "totalCostUsd": 0.06905675,
+    "numTurns": 7,
+    "isError": false,
+    "terminalReason": "completed",
+    "modelUsage": {
+      "claude-haiku-4-5-20251001": {
+        "inputTokens": 364,
+        "outputTokens": 18,
+        "cacheReadInputTokens": 0,
+        "cacheCreationInputTokens": 0,
+        "webSearchRequests": 0,
+        "costUSD": 0.00045400000000000003,
+        "contextWindow": 200000,
+        "maxOutputTokens": 32000
+      },
+      "claude-opus-4-7": {
+        "inputTokens": 12,
+        "outputTokens": 1709,
+        "cacheReadInputTokens": 25898,
+        "cacheCreationInputTokens": 2059,
+        "webSearchRequests": 0,
+        "costUSD": 0.06860275,
+        "contextWindow": 1000000,
+        "maxOutputTokens": 64000
+      }
+    }
+  },
+  "cost_usd": 0.06905675,
+  "written_at": "2026-04-23T16:29:07.543Z"
+}

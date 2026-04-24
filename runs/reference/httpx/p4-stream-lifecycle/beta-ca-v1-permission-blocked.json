@@ -1,0 +1,191 @@
+{
+  "prompt_id": "p4-stream-lifecycle",
+  "repo": "httpx",
+  "condition": "beta-ca",
+  "target_symbol": "Response.stream",
+  "bucket": "win",
+  "metrics": {
+    "tool_calls": 17,
+    "input_tokens": 17,
+    "output_tokens": 4131,
+    "total_tokens": 73255,
+    "wall_clock_ms": 62919
+  },
+  "capped": null,
+  "answer": "Tooling permissions aren't granted for contextatlas — I'll fall back to inspecting the httpx source directly.# `response.content` on a streaming response\n\n## What the property actually does\n\n`Response.content` is a **pure accessor**, not a reader. From `httpx/_models.py:635-639`:\n\n```python\n@property\ndef content(self) -> bytes:\n    if not hasattr(self, \"_content\"):\n        raise ResponseNotRead()\n    return self._content\n```\n\nSo if you got the response via `client.stream(...)` (which calls `send(..., stream=True)` — see `_client.py:868-873`), the body has **not** been buffered into `_content`, and `response.content` will raise `httpx.ResponseNotRead`:\n\n> \"Attempted to access streaming response content, without having called `read()`.\" (`_exceptions.py:340-350`)\n\nThe same applies to `response.text`, which is implemented on top of `.content` (`_models.py:642-650`).\n\n## The lifecycle you must respect\n\nThe `client.stream()` context manager is a `try/yield/finally: response.close()` (`_client.py:827-877`). Inside that block, exactly one pass over the body is allowed, guarded by two flags in `iter_raw` (`_models.py:935-959`):\n\n```python\nif self.is_stream_consumed:\n    raise StreamConsumed()\nif self.is_closed:\n    raise StreamClosed()\n...\nself.is_stream_consumed = True\n...\nself.close()   # auto-close once fully drained\n```\n\nSo the permitted lifecycle is:\n\n1. **Enter** `with client.stream(...) as response:` — you get headers and a live, un-read body.\n2. **Consume the body exactly once**, via one of:\n   - `response.read()` — drains `iter_bytes()` into `_content` (`_models.py:876-882`). **This is the call that makes `response.content` legal afterwards.**\n   - `response.iter_bytes()` / `iter_text()` / `iter_lines()` / `iter_raw()` — streaming iteration; content is **not** cached, so `.content` will still raise after.\n3. **Exit the block** — `response.close()` is called in `finally`, setting `is_closed = True`.\n\n## The three errors that enforce it\n\n| Violation | Exception | Where |\n|---|---|---|\n| Touch `.content`/`.text` before calling `.read()` | `ResponseNotRead` | `_models.py:637-638` |\n| Iterate a second time | `StreamConsumed` | `_models.py:939-940` / `1043-1044` |\n| Iterate after `close()` / after leaving the `with` block | `StreamClosed` | `_models.py:941-942` / `1045-1046` |\n\n## Practical rules\n\n- If you want `.content` on a streaming response, **call `response.read()` inside the `with` block first**. After that, `.content`, `.text`, and `.json()` all work as normal (content is cached in `_content`; subsequent `iter_bytes()` re-chunks from cache rather than the wire — see `_models.py:889-892`).\n- If you're streaming for memory reasons, consume via `iter_*` and don't touch `.content` at all.\n- Don't hold the `Response` past the `with` block expecting to read later — the stream is closed and you'll get `StreamClosed` on iterators (or `ResponseNotRead` on `.content` if you never called `.read()`).\n- Async mirrors sync: use `await response.aread()` / `aiter_bytes()` inside `async with client.stream(...)`; same flag checks live at `_models.py:1043-1059`.",
+  "trace": [
+    {
+      "tool": "mcp__contextatlas__find_by_intent",
+      "args": {
+        "query": "streaming response content access lifecycle",
+        "limit": 8
+      },
+      "result_preview": "Claude requested permissions to use mcp__contextatlas__find_by_intent, but you haven't granted it yet."
+    },
+    {
+      "tool": "mcp__contextatlas__find_by_intent",
+      "args": {
+        "query": "streaming response content access lifecycle",
+        "limit": 8
+      },
+      "result_preview": "Claude requested permissions to use mcp__contextatlas__find_by_intent, but you haven't granted it yet."
+    },
+    {
+      "tool": "mcp__contextatlas__get_symbol_context",
+      "args": {
+        "symbol": "content",
+        "file_hint": "httpx/_models.py",
+        "depth": "deep"
+      },
+      "result_preview": "Claude requested permissions to use mcp__contextatlas__get_symbol_context, but you haven't granted it yet."
+    },
+    {
+      "tool": "mcp__contextatlas__get_symbol_context",
+      "args": {
+        "symbol": "content",
+        "file_hint": "httpx/_models.py",
+        "depth": "deep"
+      },
+      "result_preview": "Claude requested permissions to use mcp__contextatlas__get_symbol_context, but you haven't granted it yet."
+    },
+    {
+      "tool": "mcp__contextatlas__find_by_intent",
+      "args": {
+        "query": "streaming response content access lifecycle ResponseNotRead",
+        "limit": 8
+      },
+      "result_preview": "Claude requested permissions to use mcp__contextatlas__find_by_intent, but you haven't granted it yet."
+    },
+    {
+      "tool": "mcp__contextatlas__get_symbol_context",
+      "args": {
+        "symbol": "Response.content",
+        "depth": "deep"
+      },
+      "result_preview": "Claude requested permissions to use mcp__contextatlas__get_symbol_context, but you haven't granted it yet."
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "find atlases -maxdepth 3 -type d 2>nul | head -20",
+        "description": "List atlases directories"
+      },
+      "result_preview": "Output redirection to 'C:\\CodeWork\\ContextAtlas-benchmarks\\nul' was blocked. For security, Claude Code may only write to files in the allowed working directories for this session: 'C:\\CodeWork\\ContextAtlas-benchmarks'."
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "find . -path ./node_modules -prune -o -type f -name \"_models.py\" -print 2>nul | head -5",
+        "description": "Locate httpx _models.py"
+      },
+      "result_preview": "<tool_use_error>Cancelled: parallel tool call Bash(find atlases -maxdepth 3 -type d 2>nul |…) errored</tool_use_error>"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "find atlases -maxdepth 3 -type d | head -20",
+        "description": "List atlases directories"
+      },
+      "result_preview": "atlases\natlases/hono\natlases/httpx"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "find . -type f -name \"_models.py\" | head -5",
+        "description": "Locate httpx _models.py"
+      },
+      "result_preview": "./repos/httpx/httpx/_models.py"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -n \"def content\\|ResponseNotRead\\|StreamConsumed\\|StreamClosed\\|def read\\|def iter_bytes\\|_stream\\|is_stream_consumed\" repos/httpx/httpx/_models.py | head -60",
+        "description": "Find content/stream lifecycle methods"
+      },
+      "result_preview": "28:    ResponseNotRead,\n29:    StreamClosed,\n30:    StreamConsumed,\n463:    def content(self) -> bytes:\n468:    def read(self) -> bytes:\n544:        self.is_stream_consumed = False\n636:    def content(self) -> bytes:\n638:            raise ResponseNotRead()\n876:    def read(self) -> bytes:\n884:    def iter_bytes(self, chunk_size: int | None = None) -> typing.Iterator[bytes]:\n939:        if self.is_stream_consumed:\n940:            raise StreamConsumed()\n942:            raise StreamClosed()\n946:        self.is_stream_consumed = True\n951:            for raw_stream_bytes in self.stream:\n952:                self._num_bytes_downloaded += len(raw_stream_bytes)\n953:                for chunk in chunker.decode(raw_stream_bytes):\n1043:        if self.is_stream_consumed:\n1044:            raise StreamConsumed()\n1046:            raise StreamClosed()\n1050:        self.is_stream_consumed = True\n1055:            async for raw_stream_bytes in self.stream:\n1056:                self._num_bytes_downloaded += len(raw_stream_bytes)\n1057:                for chunk in chunker.decode(raw_stream_bytes):"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "C:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\httpx\\_models.py",
+        "offset": 620,
+        "limit": 40
+      },
+      "result_preview": "620\t    def reason_phrase(self) -> str:\n621\t        try:\n622\t            reason_phrase: bytes = self.extensions[\"reason_phrase\"]\n623\t        except KeyError:\n624\t            return codes.get_reason_phrase(self.status_code)\n625\t        else:\n626\t            return reason_phrase.decode(\"ascii\", errors=\"ignore\")\n627\t\n628\t    @property\n629\t    def url(self) -> URL:\n630\t        \"\"\"\n631\t        Returns the URL for which the request was made.\n632\t        \"\"\"\n633\t        return self.request.url\n634\t\n635\t    @property\n636\t    def content(self) -> bytes:\n637\t        if not hasattr(self, \"_content\"):\n638\t            raise ResponseNotRead()\n639\t        return self._content\n640\t\n641\t    @property\n642\t    def text(self) -> str:\n643\t        if not hasattr(self, \"_text\"):\n644\t            content = self.content\n645\t            if not content:\n646\t                self._text = \"\"\n647\t            else:\n648\t                decoder = TextDecoder(encoding=self.encoding or \"utf-8\")\n649\t                self._text = \"\".join([decoder.decode(self.content), decoder.flush()])\n650\t        return self._text\n651\t\n652\t    @property\n653\t    def encoding(self) -> str | None:\n654\t        \"\"\"\n655\t        Return an encoding to use for decoding the byte content into text.\n656\t        The priority for determining this is given by...\n657\t\n658\t        * `.encoding = <>` has been set explicitly.\n659\t        * The encoding as specified by the charset parameter in the Content-Type header."
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "C:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\httpx\\_models.py",
+        "offset": 870,
+        "limit": 100
+      },
+      "result_preview": "870\t        for name, value in state.items():\n871\t            setattr(self, name, value)\n872\t        self.is_closed = True\n873\t        self.extensions = {}\n874\t        self.stream = UnattachedStream()\n875\t\n876\t    def read(self) -> bytes:\n877\t        \"\"\"\n878\t        Read and return the response content.\n879\t        \"\"\"\n880\t        if not hasattr(self, \"_content\"):\n881\t            self._content = b\"\".join(self.iter_bytes())\n882\t        return self._content\n883\t\n884\t    def iter_bytes(self, chunk_size: int | None = None) -> typing.Iterator[bytes]:\n885\t        \"\"\"\n886\t        A byte-iterator over the decoded response content.\n887\t        This allows us to handle gzip, deflate, brotli, and zstd encoded responses.\n888\t        \"\"\"\n889\t        if hasattr(self, \"_content\"):\n890\t            chunk_size = len(self._content) if chunk_size is None else chunk_size\n891\t            for i in range(0, len(self._content), max(chunk_size, 1)):\n892\t                yield self._content[i : i + chunk_size]\n893\t        else:\n894\t            decoder = self._get_content_decoder()\n895\t            chunker = ByteChunker(chunk_size=chunk_size)\n896\t            with request_context(request=self._request):\n897\t                for raw_bytes in self.iter_raw():\n898\t                    decoded = decoder.decode(raw_bytes)\n899\t                    for chunk in chunker.decode(decoded):\n900\t                        yield chunk\n901\t                decoded = decoder.flush()\n902\t                for chunk in chunker.decode(decoded):\n903\t                    yield chunk  # pragma: no cover\n904\t                for chunk in chunker.flush():\n905\t                    yield chunk\n906\t\n907\t    def iter_text(self, chunk_size: int | None = None) -> typing.Iterator[str]:\n908\t        \"\"\"\n909\t        A str-iterator over the decoded response content\n910\t        that handles both gzip, deflate, etc but also detects the content's\n911\t        string encoding.\n912\t        \"\"\"\n913\t        decoder = TextDecoder(encoding=self.encoding or \"utf-8\")\n914\t        chunker = TextChunker(chunk_size=chunk_size)\n915\t        with request_context(request=self._request):\n916\t            for byte_content in self.iter_bytes():\n917\t                text_content = decoder.decode(byte_content)\n918\t                for chunk in chunker.decode(text_content):\n919\t                    yield chunk\n920\t            text_content = decoder.flush()\n921\t            for chunk in chunker.decode(text_content):\n922\t                yield chunk  # pragma: no cover\n923\t            for chunk in chunker.flush():\n924\t                yield chunk\n925\t\n926\t    def iter_lines(self) -> typing.Iterator[str]:\n927\t        decoder = LineDecoder()\n928\t        with request_context(request=self._request):\n929\t            for text in self.iter_text():\n930\t                for line in decoder.decode(text):\n931\t                    yield line\n932\t            for line in decoder.flush():\n933\t                yield line\n934\t\n935\t    def iter_raw(self, chunk_size: int | None = None) -> typing.Iterator[bytes]:\n936\t        \"\"\"\n937\t        A byte-iterator over the raw response content.\n938\t        \"\"\"\n939\t        if self.is_stream_consumed:\n940\t            raise StreamConsumed()\n941\t        if self.is_closed:\n942\t            raise StreamClosed()\n943\t        if not isinstance(self.stream, SyncByteStream):\n944\t            raise RuntimeError(\"Attempted to call a sync iterator on an async stream.\")\n945\t\n946\t        self.is_stream_consumed = True\n947\t        self._num_bytes_downloaded = 0\n948\t        chunker = ByteChunker(chunk_size=chunk_size)\n949\t\n950\t        with request_context(request=self._request):\n951\t            for raw_stream_bytes in self.stream:\n952\t                self._num_bytes_downloaded += len(raw_stream_bytes)\n953\t                for chunk in chunker.decode(raw_stream_bytes):\n954\t                    yield chunk\n955\t\n956\t        for chunk in chunker.flush():\n957\t            yield chunk\n958\t\n959\t        self.close()\n960\t\n961\t    def close(self) -> None:\n962\t        \"\"\"\n963\t        Close the response and release the connection.\n964\t        Automatically called if the response body is read to completion.\n965\t        \"\"\"\n966\t        if not isinstance(self.stream, SyncByteStream):\n967\t            raise RuntimeError(\"Attempted to call an sync close on an async stream.\")\n968\t\n969\t        if not self.is_closed:"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -n \"ResponseNotRead\\|StreamConsumed\\|StreamClosed\" repos/httpx/httpx/_exceptions.py | head -20",
+        "description": "Find exception definitions"
+      },
+      "result_preview": "28:  x StreamConsumed\n29:  x StreamClosed\n30:  x ResponseNotRead\n61:    \"ResponseNotRead\",\n62:    \"StreamClosed\",\n63:    \"StreamConsumed\",\n309:class StreamConsumed(StreamError):\n327:class StreamClosed(StreamError):\n340:class ResponseNotRead(StreamError):"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -rn \"def stream\\b\\|@contextmanager\\|client.stream\" repos/httpx/httpx/_client.py | head -20",
+        "description": "Find client stream context manager"
+      },
+      "result_preview": "827:    @contextmanager\n828:    def stream(\n1543:    async def stream("
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "C:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\httpx\\_exceptions.py",
+        "offset": 305,
+        "limit": 50
+      },
+      "result_preview": "305\t    def __init__(self, message: str) -> None:\n306\t        super().__init__(message)\n307\t\n308\t\n309\tclass StreamConsumed(StreamError):\n310\t    \"\"\"\n311\t    Attempted to read or stream content, but the content has already\n312\t    been streamed.\n313\t    \"\"\"\n314\t\n315\t    def __init__(self) -> None:\n316\t        message = (\n317\t            \"Attempted to read or stream some content, but the content has \"\n318\t            \"already been streamed. For requests, this could be due to passing \"\n319\t            \"a generator as request content, and then receiving a redirect \"\n320\t            \"response or a secondary request as part of an authentication flow.\"\n321\t            \"For responses, this could be due to attempting to stream the response \"\n322\t            \"content more than once.\"\n323\t        )\n324\t        super().__init__(message)\n325\t\n326\t\n327\tclass StreamClosed(StreamError):\n328\t    \"\"\"\n329\t    Attempted to read or stream response content, but the request has been\n330\t    closed.\n331\t    \"\"\"\n332\t\n333\t    def __init__(self) -> None:\n334\t        message = (\n335\t            \"Attempted to read or stream content, but the stream has \" \"been closed.\"\n336\t        )\n337\t        super().__init__(message)\n338\t\n339\t\n340\tclass ResponseNotRead(StreamError):\n341\t    \"\"\"\n342\t    Attempted to access streaming response content, without having called `read()`.\n343\t    \"\"\"\n344\t\n345\t    def __init__(self) -> None:\n346\t        message = (\n347\t            \"Attempted to access streaming response content,\"\n348\t            \" without having called `read()`.\"\n349\t        )\n350\t        super().__init__(message)\n351\t\n352\t\n353\tclass RequestNotRead(StreamError):\n354\t    \"\"\""
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "C:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\httpx\\_client.py",
+        "offset": 827,
+        "limit": 60
+      },
+      "result_preview": "827\t    @contextmanager\n828\t    def stream(\n829\t        self,\n830\t        method: str,\n831\t        url: URL | str,\n832\t        *,\n833\t        content: RequestContent | None = None,\n834\t        data: RequestData | None = None,\n835\t        files: RequestFiles | None = None,\n836\t        json: typing.Any | None = None,\n837\t        params: QueryParamTypes | None = None,\n838\t        headers: HeaderTypes | None = None,\n839\t        cookies: CookieTypes | None = None,\n840\t        auth: AuthTypes | UseClientDefault | None = USE_CLIENT_DEFAULT,\n841\t        follow_redirects: bool | UseClientDefault = USE_CLIENT_DEFAULT,\n842\t        timeout: TimeoutTypes | UseClientDefault = USE_CLIENT_DEFAULT,\n843\t        extensions: RequestExtensions | None = None,\n844\t    ) -> typing.Iterator[Response]:\n845\t        \"\"\"\n846\t        Alternative to `httpx.request()` that streams the response body\n847\t        instead of loading it into memory at once.\n848\t\n849\t        **Parameters**: See `httpx.request`.\n850\t\n851\t        See also: [Streaming Responses][0]\n852\t\n853\t        [0]: /quickstart#streaming-responses\n854\t        \"\"\"\n855\t        request = self.build_request(\n856\t            method=method,\n857\t            url=url,\n858\t            content=content,\n859\t            data=data,\n860\t            files=files,\n861\t            json=json,\n862\t            params=params,\n863\t            headers=headers,\n864\t            cookies=cookies,\n865\t            timeout=timeout,\n866\t            extensions=extensions,\n867\t        )\n868\t        response = self.send(\n869\t            request=request,\n870\t            auth=auth,\n871\t            follow_redirects=follow_redirects,\n872\t            stream=True,\n873\t        )\n874\t        try:\n875\t            yield response\n876\t        finally:\n877\t            response.close()\n878\t\n879\t    def send(\n880\t        self,\n881\t        request: Request,\n882\t        *,\n883\t        stream: bool = False,\n884\t        auth: AuthTypes | UseClientDefault | None = USE_CLIENT_DEFAULT,\n885\t        follow_redirects: bool | UseClientDefault = USE_CLIENT_DEFAULT,\n886\t    ) -> Response:"
+    }
+  ],
+  "diagnostics": {
+    "claudeCodeVersion": "2.1.118",
+    "totalCostUsd": 0.19288525,
+    "numTurns": 18,
+    "isError": false,
+    "terminalReason": "completed",
+    "modelUsage": {
+      "claude-haiku-4-5-20251001": {
+        "inputTokens": 363,
+        "outputTokens": 14,
+        "cacheReadInputTokens": 0,
+        "cacheCreationInputTokens": 0,
+        "webSearchRequests": 0,
+        "costUSD": 0.000433,
+        "contextWindow": 200000,
+        "maxOutputTokens": 32000
+      },
+      "claude-opus-4-7": {
+        "inputTokens": 17,
+        "outputTokens": 4131,
+        "cacheReadInputTokens": 59622,
+        "cacheCreationInputTokens": 9485,
+        "webSearchRequests": 0,
+        "costUSD": 0.19245225,
+        "contextWindow": 1000000,
+        "maxOutputTokens": 64000
+      }
+    }
+  },
+  "cost_usd": 0.19288525,
+  "written_at": "2026-04-24T02:47:43.611Z"
+}

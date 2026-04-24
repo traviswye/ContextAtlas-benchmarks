@@ -1,0 +1,173 @@
+{
+  "prompt_id": "h2-router-contract",
+  "repo": "hono",
+  "condition": "beta-ca",
+  "target_symbol": "RegExpRouter",
+  "bucket": "win",
+  "metrics": {
+    "tool_calls": 16,
+    "input_tokens": 21,
+    "output_tokens": 3462,
+    "total_tokens": 106426,
+    "wall_clock_ms": 68967
+  },
+  "capped": null,
+  "answer": "You have everything you need. Here's the contract to satisfy.\n\n## The Interface\n\nDefined in `src/router.ts:29-52`:\n\n```ts\nexport interface Router<T> {\n  name: string\n  add(method: string, path: string, handler: T): void\n  match(method: string, path: string): Result<T>\n}\n```\n\nThat's the whole surface. Three members, no lifecycle hooks, no optional methods. `RegExpRouter<T> implements Router<T>` (`src/router/reg-exp-router/router.ts:122`) and sets `name = 'RegExpRouter'` — your replacement picks its own name string and is otherwise interchangeable.\n\n## The Result Shape (the non-obvious part)\n\n```ts\ntype Result<T> = [[T, ParamIndexMap][], ParamStash] | [[T, Params][]]\n```\n\nThis dual shape is deliberate and part of the public contract (ADR-02, \"Consequences\"):\n\n- **Shape A** — `[[T, ParamIndexMap][], ParamStash]`: handlers are paired with an index map (`{id: 0}`), and params live in a shared stash array (`['123', 'abc']`). Lets you defer string allocation — only pay for params actually read.\n- **Shape B** — `[[T, Params][]]`: handlers paired with resolved `Record<string, string>` objects.\n\nYou may return **either** shape per match. `RegExpRouter` returns shape A; `TrieRouter` returns shape B. Downstream consumers (`compose()`, context construction) already handle both.\n\n## Behavioral Constraints (from ADR-02)\n\nThese are the \"hard\" constraints — ADR-02 is marked `severity: hard`:\n\n1. **Full path grammar.** You must accept every path shape at least one existing router accepts. Partial implementations are explicitly disallowed — otherwise swapping presets silently changes which routes work.\n2. **`UnsupportedPathError` is the one legal rejection.** Throw `UnsupportedPathError` (from `src/router.ts:103`) for paths you truly can't encode. `SmartRouter` catches exactly this error to fall back to the next router. Any other throw breaks preset composition.\n3. **`METHOD_NAME_ALL === 'ALL'`** (`src/router.ts:9`) is the wildcard method. You must route a request with method `'GET'` against both `'GET'` entries and `'ALL'` entries, in registration order across the two sets.\n4. **`MESSAGE_MATCHER_IS_ALREADY_BUILT`** (`src/router.ts:21-22`). If your router has a build-once phase (like RegExpRouter does — it nulls out `#middleware` and `#routes` after `buildAllMatchers`), `add()` after build must throw an `Error` with this exact message. Some tests grep for it.\n5. **Registration order must be preserved in the returned handler list.** Middleware + route handlers come back in the order they were `add`-ed, matching onion composition semantics (ADR-03).\n\n## What You *Don't* Owe\n\n- No `build()` method on the interface — RegExpRouter builds lazily inside `match`. You can be eager, lazy, or streaming. Internal.\n- No removal/update. `add` + `match` only. The router is effectively append-only from the framework's view.\n- No specific param syntax parser. `checkOptionalParameter` in `src/utils/url.ts` is a helper RegExpRouter uses; you can reuse it or roll your own.\n\n## How to Wire It In\n\n```ts\nnew Hono({ router: new MyRouter() })   // src/hono-base.ts:46-65\n```\n\nThe `hono`, `hono/quick`, `hono/tiny` entry points are just presets wrapping `SmartRouter` with different router lists. If you want yours to participate in preset-style fallback, put it first in a `SmartRouter([new MyRouter(), new TrieRouter()])` — it'll be tried first, and any `UnsupportedPathError` falls through to TrieRouter.\n\n## Minimum Test Surface\n\n`src/router/reg-exp-router/router.test.ts` is your oracle — run the same suite against your implementation. At minimum also hit the shared conformance patterns: static paths, `:param`, `:param?` optional, `/*` wildcards, method-overlap with `ALL`, and the \"add after build\" error path.",
+  "trace": [
+    {
+      "tool": "mcp__contextatlas__get_symbol_context",
+      "args": {
+        "symbol": "RegExpRouter",
+        "depth": "deep"
+      },
+      "result_preview": "Claude requested permissions to use mcp__contextatlas__get_symbol_context, but you haven't granted it yet."
+    },
+    {
+      "tool": "mcp__contextatlas__get_symbol_context",
+      "args": {
+        "symbol": "RegExpRouter",
+        "depth": "deep"
+      },
+      "result_preview": "Claude requested permissions to use mcp__contextatlas__get_symbol_context, but you haven't granted it yet."
+    },
+    {
+      "tool": "mcp__contextatlas__get_symbol_context",
+      "args": {
+        "symbol": "RegExpRouter",
+        "depth": "deep"
+      },
+      "result_preview": "Claude requested permissions to use mcp__contextatlas__get_symbol_context, but you haven't granted it yet."
+    },
+    {
+      "tool": "mcp__contextatlas__get_symbol_context",
+      "args": {
+        "symbol": "RegExpRouter"
+      },
+      "result_preview": "Claude requested permissions to use mcp__contextatlas__get_symbol_context, but you haven't granted it yet."
+    },
+    {
+      "tool": "mcp__contextatlas__get_symbol_context",
+      "args": {
+        "symbol": "Router"
+      },
+      "result_preview": "Claude requested permissions to use mcp__contextatlas__get_symbol_context, but you haven't granted it yet."
+    },
+    {
+      "tool": "mcp__contextatlas__get_symbol_context",
+      "args": {
+        "symbol": "RegExpRouter"
+      },
+      "result_preview": "Claude requested permissions to use mcp__contextatlas__get_symbol_context, but you haven't granted it yet."
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "ls atlases/hono/",
+        "description": "List hono atlas files"
+      },
+      "result_preview": "atlas.json\nindex.db\nindex.db-shm\nindex.db-wal"
+    },
+    {
+      "tool": "mcp__contextatlas__get_symbol_context",
+      "args": {
+        "symbol": "RegExpRouter",
+        "depth": "deep"
+      },
+      "result_preview": "Claude requested permissions to use mcp__contextatlas__get_symbol_context, but you haven't granted it yet."
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "find . -path ./node_modules -prune -o -type d -name \"hono\" -print 2>/dev/null | head -20",
+        "description": "Find hono source directories"
+      },
+      "result_preview": "./adrs/hono\n./atlases/hono\n./repos/hono\n./runs/2026-04-23T01-20-18-813Z/hono\n./runs/2026-04-23T15-06-43-625Z/hono\n./runs/2026-04-23T15-22-54-678Z_ANTHROPIC_529_OUTAGE/hono\n./runs/2026-04-23T16-13-40-713Z/hono"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "find repos/hono -type d -name \"router\" 2>/dev/null | head -10; echo ---; find repos/hono -type f -name \"*.ts\" -path \"*router*\" | grep -v test | grep -v node_modules | head -30",
+        "description": "Find router files in hono repo"
+      },
+      "result_preview": "repos/hono/src/router\n---\nrepos/hono/src/router/linear-router/index.ts\nrepos/hono/src/router/linear-router/router.ts\nrepos/hono/src/router/pattern-router/index.ts\nrepos/hono/src/router/pattern-router/router.ts\nrepos/hono/src/router/reg-exp-router/index.ts\nrepos/hono/src/router/reg-exp-router/matcher.ts\nrepos/hono/src/router/reg-exp-router/node.ts\nrepos/hono/src/router/reg-exp-router/prepared-router.ts\nrepos/hono/src/router/reg-exp-router/router.ts\nrepos/hono/src/router/reg-exp-router/trie.ts\nrepos/hono/src/router/smart-router/index.ts\nrepos/hono/src/router/smart-router/router.ts\nrepos/hono/src/router/trie-router/index.ts\nrepos/hono/src/router/trie-router/node.ts\nrepos/hono/src/router/trie-router/router.ts\nrepos/hono/src/router.ts"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "C:\\CodeWork\\ContextAtlas-benchmarks\\repos\\hono\\src\\router.ts"
+      },
+      "result_preview": "1\t/**\n2\t * @module\n3\t * This module provides types definitions and variables for the routers.\n4\t */\n5\t\n6\t/**\n7\t * Constant representing all HTTP methods in uppercase.\n8\t */\n9\texport const METHOD_NAME_ALL = 'ALL' as const\n10\t/**\n11\t * Constant representing all HTTP methods in lowercase.\n12\t */\n13\texport const METHOD_NAME_ALL_LOWERCASE = 'all' as const\n14\t/**\n15\t * Array of supported HTTP methods.\n16\t */\n17\texport const METHODS = ['get', 'post', 'put', 'delete', 'options', 'patch'] as const\n18\t/**\n19\t * Error message indicating that a route cannot be added because the matcher is already built.\n20\t */\n21\texport const MESSAGE_MATCHER_IS_ALREADY_BUILT =\n22\t  'Can not add a route since the matcher is already built.'\n23\t\n24\t/**\n25\t * Interface representing a router.\n26\t *\n27\t * @template T - The type of the handler.\n28\t */\n29\texport interface Router<T> {\n30\t  /**\n31\t   * The name of the router.\n32\t   */\n33\t  name: string\n34\t\n35\t  /**\n36\t   * Adds a route to the router.\n37\t   *\n38\t   * @param method - The HTTP method (e.g., 'get', 'post').\n39\t   * @param path - The path for the route.\n40\t   * @param handler - The handler for the route.\n41\t   */\n42\t  add(method: string, path: string, handler: T): void\n43\t\n44\t  /**\n45\t   * Matches a route based on the given method and path.\n46\t   *\n47\t   * @param method - The HTTP method (e.g., 'get', 'post').\n48\t   * @param path - The path to match.\n49\t   * @returns The result of the match.\n50\t   */\n51\t  match(method: string, path: string): Result<T>\n52\t}\n53\t\n54\t/**\n55\t * Type representing a map of parameter indices.\n56\t */\n57\texport type ParamIndexMap = Record<string, number>\n58\t/**\n59\t * Type representing a stash of parameters.\n60\t */\n61\texport type ParamStash = string[]\n62\t/**\n63\t * Type representing a map of parameters.\n64\t */\n65\texport type Params = Record<string, string>\n66\t/**\n67\t * Type representing the result of a route match.\n68\t *\n69\t * The result can be in one of two formats:\n70\t * 1. An array of handlers with their corresponding parameter index maps, followed by a parameter stash.\n71\t * 2. An array of handlers with their corresponding parameter maps.\n72\t *\n73\t * Example:\n74\t *\n75\t * [[handler, paramIndexMap][], paramArray]\n76\t * ```typescript\n77\t * [\n78\t *   [\n79\t *     [middlewareA, {}],                     // '*'\n80\t *     [funcA,       {'id': 0}],              // '/user/:id/*'\n81\t *     [funcB,       {'id': 0, 'action': 1}], // '/user/:id/:action'\n82\t *   ],\n83\t *   ['123', 'abc']\n84\t * ]\n85\t * ```\n86\t *\n87\t * [[handler, params][]]\n88\t * ```typescript\n89\t * [\n90\t *   [\n91\t *     [middlewareA, {}],                             // '*'\n92\t *     [funcA,       {'id': '123'}],                  // '/user/:id/*'\n93\t *     [funcB,       {'id': '123', 'action': 'abc'}], // '/user/:id/:action'\n94\t *   ]\n95\t * ]\n96\t * ```\n97\t */\n98\texport type Result<T> = [[T, ParamIndexMap][], ParamStash] | [[T, Params][]]\n99\t\n100\t/**\n101\t * Error class representing an unsupported path error.\n102\t */\n103\texport class UnsupportedPathError extends Error {}\n104\t"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "C:\\CodeWork\\ContextAtlas-benchmarks\\repos\\hono\\src\\router\\reg-exp-router\\router.ts",
+        "limit": 80
+      },
+      "result_preview": "1\timport type { ParamIndexMap, Router } from '../../router'\n2\timport {\n3\t  MESSAGE_MATCHER_IS_ALREADY_BUILT,\n4\t  METHOD_NAME_ALL,\n5\t  UnsupportedPathError,\n6\t} from '../../router'\n7\timport { checkOptionalParameter } from '../../utils/url'\n8\timport type { HandlerData, StaticMap, Matcher, MatcherMap } from './matcher'\n9\timport { match, emptyParam } from './matcher'\n10\timport { PATH_ERROR } from './node'\n11\timport type { ParamAssocArray } from './node'\n12\timport { Trie } from './trie'\n13\t\n14\ttype HandlerWithMetadata<T> = [T, number] // [handler, paramCount]\n15\t\n16\t// eslint-disable-next-line @typescript-eslint/no-explicit-any\n17\tconst nullMatcher: Matcher<any> = [/^$/, [], Object.create(null)]\n18\t\n19\tlet wildcardRegExpCache: Record<string, RegExp> = Object.create(null)\n20\tfunction buildWildcardRegExp(path: string): RegExp {\n21\t  return (wildcardRegExpCache[path] ??= new RegExp(\n22\t    path === '*'\n23\t      ? ''\n24\t      : `^${path.replace(/\\/\\*$|([.\\\\+*[^\\]$()])/g, (_, metaChar) =>\n25\t          metaChar ? `\\\\${metaChar}` : '(?:|/.*)'\n26\t        )}$`\n27\t  ))\n28\t}\n29\t\n30\tfunction clearWildcardRegExpCache() {\n31\t  wildcardRegExpCache = Object.create(null)\n32\t}\n33\t\n34\tfunction buildMatcherFromPreprocessedRoutes<T>(\n35\t  routes: [string, HandlerWithMetadata<T>[]][]\n36\t): Matcher<T> {\n37\t  const trie = new Trie()\n38\t  const handlerData: HandlerData<T>[] = []\n39\t  if (routes.length === 0) {\n40\t    return nullMatcher\n41\t  }\n42\t\n43\t  const routesWithStaticPathFlag = routes\n44\t    .map(\n45\t      (route) => [!/\\*|\\/:/.test(route[0]), ...route] as [boolean, string, HandlerWithMetadata<T>[]]\n46\t    )\n47\t    .sort(([isStaticA, pathA], [isStaticB, pathB]) =>\n48\t      isStaticA ? 1 : isStaticB ? -1 : pathA.length - pathB.length\n49\t    )\n50\t\n51\t  const staticMap: StaticMap<T> = Object.create(null)\n52\t  for (let i = 0, j = -1, len = routesWithStaticPathFlag.length; i < len; i++) {\n53\t    const [pathErrorCheckOnly, path, handlers] = routesWithStaticPathFlag[i]\n54\t    if (pathErrorCheckOnly) {\n55\t      staticMap[path] = [handlers.map(([h]) => [h, Object.create(null)]), emptyParam]\n56\t    } else {\n57\t      j++\n58\t    }\n59\t\n60\t    let paramAssoc: ParamAssocArray\n61\t    try {\n62\t      paramAssoc = trie.insert(path, j, pathErrorCheckOnly)\n63\t    } catch (e) {\n64\t      throw e === PATH_ERROR ? new UnsupportedPathError(path) : e\n65\t    }\n66\t\n67\t    if (pathErrorCheckOnly) {\n68\t      continue\n69\t    }\n70\t\n71\t    handlerData[j] = handlers.map(([h, paramCount]) => {\n72\t      const paramIndexMap: ParamIndexMap = Object.create(null)\n73\t      paramCount -= 1\n74\t      for (; paramCount >= 0; paramCount--) {\n75\t        const [key, value] = paramAssoc[paramCount]\n76\t        paramIndexMap[key] = value\n77\t      }\n78\t      return [h, paramIndexMap]\n79\t    })\n80\t  }"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -n \"class RegExpRouter\\|name =\\|add(\\|match(\" repos/hono/src/router/reg-exp-router/router.ts | head -30",
+        "description": "Find RegExpRouter class signature"
+      },
+      "result_preview": "122:export class RegExpRouter<T> implements Router<T> {\n132:  add(method: string, path: string, handler: T) {\n153:    const paramCount = (path.match(/\\/:/g) || []).length"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "C:\\CodeWork\\ContextAtlas-benchmarks\\repos\\hono\\src\\router\\reg-exp-router\\router.ts",
+        "offset": 120,
+        "limit": 100
+      },
+      "result_preview": "120\t}\n121\t\n122\texport class RegExpRouter<T> implements Router<T> {\n123\t  name: string = 'RegExpRouter'\n124\t  #middleware?: Record<string, Record<string, HandlerWithMetadata<T>[]>>\n125\t  #routes?: Record<string, Record<string, HandlerWithMetadata<T>[]>>\n126\t\n127\t  constructor() {\n128\t    this.#middleware = { [METHOD_NAME_ALL]: Object.create(null) }\n129\t    this.#routes = { [METHOD_NAME_ALL]: Object.create(null) }\n130\t  }\n131\t\n132\t  add(method: string, path: string, handler: T) {\n133\t    const middleware = this.#middleware\n134\t    const routes = this.#routes\n135\t\n136\t    if (!middleware || !routes) {\n137\t      throw new Error(MESSAGE_MATCHER_IS_ALREADY_BUILT)\n138\t    }\n139\t\n140\t    if (!middleware[method]) {\n141\t      ;[middleware, routes].forEach((handlerMap) => {\n142\t        handlerMap[method] = Object.create(null)\n143\t        Object.keys(handlerMap[METHOD_NAME_ALL]).forEach((p) => {\n144\t          handlerMap[method][p] = [...handlerMap[METHOD_NAME_ALL][p]]\n145\t        })\n146\t      })\n147\t    }\n148\t\n149\t    if (path === '/*') {\n150\t      path = '*'\n151\t    }\n152\t\n153\t    const paramCount = (path.match(/\\/:/g) || []).length\n154\t\n155\t    if (/\\*$/.test(path)) {\n156\t      const re = buildWildcardRegExp(path)\n157\t      if (method === METHOD_NAME_ALL) {\n158\t        Object.keys(middleware).forEach((m) => {\n159\t          middleware[m][path] ||=\n160\t            findMiddleware(middleware[m], path) ||\n161\t            findMiddleware(middleware[METHOD_NAME_ALL], path) ||\n162\t            []\n163\t        })\n164\t      } else {\n165\t        middleware[method][path] ||=\n166\t          findMiddleware(middleware[method], path) ||\n167\t          findMiddleware(middleware[METHOD_NAME_ALL], path) ||\n168\t          []\n169\t      }\n170\t      Object.keys(middleware).forEach((m) => {\n171\t        if (method === METHOD_NAME_ALL || method === m) {\n172\t          Object.keys(middleware[m]).forEach((p) => {\n173\t            re.test(p) && middleware[m][p].push([handler, paramCount])\n174\t          })\n175\t        }\n176\t      })\n177\t\n178\t      Object.keys(routes).forEach((m) => {\n179\t        if (method === METHOD_NAME_ALL || method === m) {\n180\t          Object.keys(routes[m]).forEach(\n181\t            (p) => re.test(p) && routes[m][p].push([handler, paramCount])\n182\t          )\n183\t        }\n184\t      })\n185\t\n186\t      return\n187\t    }\n188\t\n189\t    const paths = checkOptionalParameter(path) || [path]\n190\t    for (let i = 0, len = paths.length; i < len; i++) {\n191\t      const path = paths[i]\n192\t\n193\t      Object.keys(routes).forEach((m) => {\n194\t        if (method === METHOD_NAME_ALL || method === m) {\n195\t          routes[m][path] ||= [\n196\t            ...(findMiddleware(middleware[m], path) ||\n197\t              findMiddleware(middleware[METHOD_NAME_ALL], path) ||\n198\t              []),\n199\t          ]\n200\t          routes[m][path].push([handler, paramCount - len + i + 1])\n201\t        }\n202\t      })\n203\t    }\n204\t  }\n205\t\n206\t  match: typeof match<Router<T>, T> = match\n207\t\n208\t  protected buildAllMatchers(): MatcherMap<T> {\n209\t    const matchers: MatcherMap<T> = Object.create(null)\n210\t\n211\t    Object.keys(this.#routes!)\n212\t      .concat(Object.keys(this.#middleware!))\n213\t      .forEach((method) => {\n214\t        matchers[method] ||= this.#buildMatcher(method)\n215\t      })\n216\t\n217\t    // Release cache\n218\t    this.#middleware = this.#routes = undefined\n219\t    clearWildcardRegExpCache()"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "ls adrs/hono/ 2>/dev/null | head -20; echo ---; grep -rl -i \"router\\|regexp\" adrs/hono/ 2>/dev/null | head -10",
+        "description": "Look for router-related ADRs"
+      },
+      "result_preview": "ADR-01-web-standards-zero-deps.md\nADR-02-router-interface-and-presets.md\nADR-03-onion-middleware-compose.md\nADR-04-type-inference-to-typed-client.md\nADR-05-dual-jsx-backends.md\n---\nadrs/hono/ADR-01-web-standards-zero-deps.md\nadrs/hono/ADR-02-router-interface-and-presets.md"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "C:\\CodeWork\\ContextAtlas-benchmarks\\adrs\\hono\\ADR-02-router-interface-and-presets.md"
+      },
+      "result_preview": "1\t---\n2\tid: ADR-02\n3\ttitle: Router is an interface with multiple implementations behind a chooser and performance-shaped presets\n4\tstatus: accepted\n5\tseverity: hard\n6\tsymbols:\n7\t  - Router\n8\t  - RegExpRouter\n9\t  - TrieRouter\n10\t  - SmartRouter\n11\t  - LinearRouter\n12\t  - PatternRouter\n13\t  - UnsupportedPathError\n14\t  - hono\n15\t  - hono/tiny\n16\t  - hono/quick\n17\t---\n18\t\n19\t# ADR-02: Router is an interface with multiple implementations behind a chooser and performance-shaped presets\n20\t\n21\t## Context\n22\t\n23\tNo single routing algorithm wins on every axis a web framework cares about:\n24\t\n25\t| Router         | Match speed | Build cost  | Path coverage | Bundle size |\n26\t|----------------|-------------|-------------|---------------|-------------|\n27\t| RegExpRouter   | Fastest     | High        | Limited       | Medium      |\n28\t| TrieRouter     | Good        | Low         | Full          | Medium      |\n29\t| LinearRouter   | O(n)        | Near-zero   | Good          | Small       |\n30\t| PatternRouter  | Varies      | Low         | Full          | Smallest    |\n31\t\n32\t- **RegExpRouter** compiles all routes into one combined regex for fast\n33\t  matching, but throws `UnsupportedPathError` on path shapes it can't encode\n34\t  and pays a non-trivial up-front build cost.\n35\t- **TrieRouter** supports every path shape Hono allows but is slower per\n36\t  match than RegExpRouter.\n37\t- **LinearRouter** does near-zero work at build time and walks routes in\n38\t  order at match time. Ideal for very short-lived workers where the router\n39\t  is built once per request and route count is modest.\n40\t- **PatternRouter** wraps the platform's `URLPattern` — it ships the smallest\n41\t  code because the regex engine is the runtime's, not the framework's.\n42\t\n43\tPicking one of these as the framework's only router forces users to optimize\n44\tfor one use case. Hono targets three distinct ones:\n45\t\n46\t- Long-running servers (Node, Bun, Deno standalone) — match speed dominates.\n47\t- Edge / cold-start workers (Workers, Lambda) — per-request build cost\n48\t  matters because the router may be constructed on every invocation.\n49\t- Minimum-bundle deploys (tiny edge workloads, constrained environments) —\n50\t  bundle size dominates.\n51\t\n52\t## Decision\n53\t\n54\t**All router implementations implement `Router<T>`** defined in\n55\t`src/router.ts`:\n56\t\n57\t```ts\n58\texport interface Router<T> {\n59\t  name: string\n60\t  add(method: string, path: string, handler: T): void\n61\t  match(method: string, path: string): Result<T>\n62\t}\n63\t```\n64\t\n65\tNew router implementations must implement the full interface. Partial\n66\timplementations (e.g., a router that throws on certain HTTP methods, or\n67\tdoesn't support a subset of path patterns the other routers accept) are not\n68\tallowed.\n69\t\n70\tThe `Result<T>` shape is deliberately dual — `[[T, ParamIndexMap][],\n71\tParamStash] | [[T, Params][]]` (`src/router.ts:98`). Implementations may pick\n72\twhichever representation suits their algorithm; consumers of router output\n73\tmust handle both.\n74\t\n75\t**A `SmartRouter` chooses between routers at first match**\n76\t(`src/router/smart-router/router.ts`). It is constructed with an ordered\n77\tlist of routers. On first `match()`, it tries each router in order, catches\n78\t`UnsupportedPathError`, locks to the first router that succeeds, and\n79\thot-swaps its own `match` method to the winner's bound method:\n80\t\n81\t```ts\n82\tthis.match = router.match.bind(router)\n83\tthis.#routers = [router]\n84\tthis.#routes = undefined\n85\t```\n86\t\n87\tSubsequent requests bypass SmartRouter entirely — the selection cost is paid\n88\tonce.\n89\t\n90\t**Three presets ship as separate entry points:**\n91\t\n92\t| Import           | Router strategy                              | Optimized for             |\n93\t|------------------|----------------------------------------------|---------------------------|\n94\t| `hono` (default) | `SmartRouter([RegExpRouter, TrieRouter])`    | Long-running servers      |\n95\t| `hono/quick`     | `SmartRouter([LinearRouter, TrieRouter])`    | Edge / cold-start workers |\n96\t| `hono/tiny`      | `PatternRouter` alone                        | Minimum bundle size       |\n97\t\n98\tAdvanced users may bypass presets by passing any `Router<T>` directly:\n99\t`new Hono({ router: new RegExpRouter() })` (`src/hono-base.ts:46-65`).\n100\t\n101\t## Rationale\n102\t\n103\t- **The interface is what makes everything downstream possible.** Presets,\n104\t  user-supplied routers, the SmartRouter chooser, future router\n105\t  implementations — none of these work without a shared contract. A single\n106\t  canonical router would remove the interface, and remove every useful\n107\t  thing downstream of it.\n108\t\n109\t- **SmartRouter trades a tiny one-time cost for avoiding a hard choice.**\n110\t  The try-each-router cost is paid on the first match and never again —\n111\t  `match` is rebound to the winner, so subsequent requests go straight to\n112\t  the chosen router with no intermediate dispatch.\n113\t\n114\t- **Presets encode performance shape, not fea\n\n[truncated: 2961 additional bytes not shown]"
+    }
+  ],
+  "diagnostics": {
+    "claudeCodeVersion": "2.1.118",
+    "totalCostUsd": 0.21515550000000003,
+    "numTurns": 17,
+    "isError": false,
+    "terminalReason": "completed",
+    "modelUsage": {
+      "claude-haiku-4-5-20251001": {
+        "inputTokens": 359,
+        "outputTokens": 16,
+        "cacheReadInputTokens": 0,
+        "cacheCreationInputTokens": 0,
+        "webSearchRequests": 0,
+        "costUSD": 0.000439,
+        "contextWindow": 200000,
+        "maxOutputTokens": 32000
+      },
+      "claude-opus-4-7": {
+        "inputTokens": 21,
+        "outputTokens": 3462,
+        "cacheReadInputTokens": 89623,
+        "cacheCreationInputTokens": 13320,
+        "webSearchRequests": 0,
+        "costUSD": 0.2147165,
+        "contextWindow": 1000000,
+        "maxOutputTokens": 64000
+      }
+    }
+  },
+  "cost_usd": 0.21515550000000003,
+  "written_at": "2026-04-23T16:26:09.628Z"
+}

@@ -5,91 +5,117 @@
   "target_symbol": "compose",
   "bucket": "win",
   "metrics": {
-    "tool_calls": 6,
-    "input_tokens": 12,
-    "output_tokens": 1709,
-    "total_tokens": 29678,
-    "wall_clock_ms": 37133
+    "tool_calls": 9,
+    "input_tokens": 15,
+    "output_tokens": 2708,
+    "total_tokens": 83305,
+    "wall_clock_ms": 53523
   },
   "capped": null,
-  "answer": "I need permission to use the ContextAtlas tools to answer this question properly. Let me retry:It appears I don't have permission to invoke the ContextAtlas tools in this session. Could you grant permission for `mcp__contextatlas__find_by_intent` and `mcp__contextatlas__get_symbol_context` so I can trace this properly?\n\nIn the meantime, here's what I can tell you from the repo layout (there's a `atlases/hono/` directory, which suggests an indexed atlas exists) and general knowledge of Hono's architecture — I'll verify and refine once the tools are unblocked:\n\n### Expected answer (pending tool verification)\n\nHono's middleware onion is **not** composed inline inside the router or the app. It lives in a dedicated utility, typically:\n\n- **`src/compose.ts`** — exports a `compose<C>(middleware, onError?, onNotFound?)` function.\n\n`Hono.fetch` → `dispatch(...)` builds the handler stack from matched routes, then calls `compose(handlers)(context, executionContext)`. That returned function is what actually walks the onion.\n\n### What `next()` mechanically does\n\nInside `compose`, there's a `dispatch(i)` function, one entry per middleware index. Each middleware receives:\n\n```ts\n(c, next) => { /* pre */ await next(); /* post */ }\n```\n\nMechanically:\n\n1. **`dispatch(i)`** checks `i <= index` (the high-water mark) to catch **double-`next()` calls** — that's where the classic \"next() called multiple times\" invariant is enforced.\n2. It advances `index = i`, picks `handlers[i]`, and if there's no handler left it uses the terminal \"not found\" or the already-set `c.res`.\n3. It invokes the middleware as `handler(context, () => dispatch(i + 1))`. That closure **is** `next`.\n4. The middleware's `await next()` suspends at the pre-phase, lets deeper handlers run, resolves when they unwind, and then executes the post-phase — hence the onion shape.\n5. The return value of the outer `dispatch(0)` is a Promise that resolves once every post-phase has unwound; `Hono.fetch` awaits it and returns `context.res`.\n\nThe \"composition\" is therefore **lazy and stack-based**, not an array reduce at registration time. Handlers are assembled per-request by the router match, then wrapped by `compose` into nested closures on demand.\n\n### To confirm in your tree\n\nOnce tool permission is granted I'd run:\n\n- `find_by_intent(\"middleware chain dispatch next invariant\")`\n- `get_symbol_context(\"compose\", file_hint=\"src/compose.ts\", depth=\"deep\")`\n- `get_symbol_context(\"dispatch\")` (scoped inside compose)\n- `get_symbol_context(\"Hono.fetch\")` to show the call site that kicks off `dispatch(0)`\n\nWant me to proceed with those calls once permissions are available, or should I fall back to reading `atlases/hono/` and the Hono source directly with `Read`/`Bash`?",
+  "answer": "Here's the mechanical answer, pulled from the atlas + ADR-03:\n\n## Where composition lives\n\n**`src/compose.ts`** — a ~74-line file modeled on `koa-compose`, with additions for `onError` and `onNotFound`. That's the *only* place the onion is actually built. But there's a twist…\n\n## Two dispatch paths (this matters)\n\nThere are **two** paths out of the router, and only one of them calls `compose()`:\n\n1. **Fast-path** (`src/hono-base.ts:424-442`): when `matchResult[0].length === 1`, Hono invokes the single matched handler directly with an inline `next` that just triggers the not-found handler if `c.finalized` stays false. No `compose()`, no closure allocations, no outer promise, no microtask. The inline comment at `src/hono-base.ts:423` reads `// Do not compose if it has only one handler`.\n2. **compose() path**: any route with **2+ handlers** (middleware chain + terminal, or any chain) goes through `compose()` normally.\n\nThis is an **invariant, not a dedup opportunity** — ADR-03 explicitly warns against removing it because `compose()` unconditionally allocates closures/promises that the fast-path avoids. Also implies: if you write a test meant to exercise middleware composition with a single handler, **you're not actually hitting `compose()`**.\n\n## What `next()` is mechanically doing\n\nThe signature (`src/types.ts:35`) is simply:\n```ts\ntype Next = () => Promise<void>\n```\n\nInside `compose()`:\n\n- Each middleware in the stack is wrapped so that its `next` argument is a bound function that **recursively dispatches the next index** in the handler array and returns that promise.\n- Calling `await next()` therefore means \"return a promise that resolves after every downstream middleware has finished its own `await next()` and run its post-next code.\" That's the onion: your code before `next()` runs on the way in, your code after `next()` runs on the way out.\n- **Double-advance guard** (`src/compose.ts:33-35`): calling `next()` twice from the same middleware throws `'next() called multiple times'`. A per-invocation index guards against re-entry.\n- **Error handling** (`src/compose.ts:52-59`): the whole chain is wrapped in a try/catch that delegates to the app's `onError`. Because `next()` returns a promise, ordinary `try { await next() } catch {}` inside middleware works — error propagation is lexical.\n- **Not-found fallback** (`src/compose.ts:62-65`): if we reach the tail and `c.finalized === false`, `onNotFound` runs.\n- **Per-compose onError** (`src/hono-base.ts:208-232`): sub-apps mounted via `app.route()` with a non-default error handler are wrapped in their own `compose([], subApp.errorHandler)(...)` so their errors stay with them. `onError` is **per-compose-invocation**, not global.\n\n## The gotcha you should internalize\n\n`await` on `next()` is **not** type-checked and **not** enforced by `compose()`. `Next` is just `() => Promise<void>`. If you write `next()` without `await`, the downstream chain runs **concurrently** with your continuation — the onion is broken silently. ADR-03 flags this as a recognized bug class; `no-floating-promises` / `require-await` lints help but aren't foolproof.\n\n## Minimal mental model\n\n```\ncompose(handlers, onNotFound, onError)(context, inputNext?)\n  → dispatch(0)\n      dispatch(i):\n        if (i <= lastCalled) throw 'next() called multiple times'\n        lastCalled = i\n        handler = handlers[i] ?? inputNext ?? onNotFound-trigger\n        return Promise.resolve(handler(context, () => dispatch(i+1)))\n          .catch(err => onError(err, context))\n```\n\nThat's the entire model. The file being small enough to read in one sitting is itself called out in ADR-03 as a feature — dispatch bugs are diagnosed by reading `compose.ts` end-to-end, not by tracing a scheduler.\n\n## If you're going to modify it\n\n`compose.ts` is flagged **high blast radius** — every 2+ handler route on every Hono deployment flows through it. The ADR requires micro-benchmarks in review. Git shows it's cold (last touch 2025-03-16, 4 commits recently), so regressions would be very visible. And remember: changes here must be validated against **both** dispatch paths.",
   "trace": [
     {
       "tool": "mcp__contextatlas__find_by_intent",
       "args": {
-        "query": "middleware onion composition next() dispatch chain",
-        "limit": 8
-      },
-      "result_preview": "Claude requested permissions to use mcp__contextatlas__find_by_intent, but you haven't granted it yet."
-    },
-    {
-      "tool": "mcp__contextatlas__find_by_intent",
-      "args": {
-        "query": "middleware onion composition next() dispatch chain",
-        "limit": 8
-      },
-      "result_preview": "Claude requested permissions to use mcp__contextatlas__find_by_intent, but you haven't granted it yet."
-    },
-    {
-      "tool": "mcp__contextatlas__find_by_intent",
-      "args": {
-        "query": "middleware onion composition next() dispatch chain in Hono",
-        "limit": 8
-      },
-      "result_preview": "Claude requested permissions to use mcp__contextatlas__find_by_intent, but you haven't granted it yet."
-    },
-    {
-      "tool": "mcp__contextatlas__find_by_intent",
-      "args": {
-        "query": "Hono middleware composition next dispatch"
-      },
-      "result_preview": "Claude requested permissions to use mcp__contextatlas__find_by_intent, but you haven't granted it yet."
-    },
-    {
-      "tool": "mcp__contextatlas__find_by_intent",
-      "args": {
-        "query": "Hono middleware onion composition where next() is implemented",
+        "query": "Hono middleware onion composition, how next() chains handlers",
         "limit": 6
       },
-      "result_preview": "Claude requested permissions to use mcp__contextatlas__find_by_intent, but you haven't granted it yet."
+      "result_preview": "MATCHES 6 [query=\"Hono middleware onion composition, how next() chains handlers\"]\n  SYM sym:ts:src/hono-base.ts:Hono src/hono-base.ts:98 class\n    SIG class Hono< E extends Env = Env, S extends Schema = {}, BasePath extends string = '/', CurrentPath extends string = BasePath, >\n    INTENT ADR-03 context \"Forgetting await on next() is a silent bug class not caught by types or compose()\"\n  SYM sym:ts:src/hono.ts:Hono src/hono.ts:16 class\n    SIG class Hono< E extends Env = BlankEnv, S extends Schema = BlankSchema, BasePath extends string = '/', > extends HonoBase<E, S, BasePath>\n    INTENT ADR-03 context \"Forgetting await on next() is a silent bug class not caught by types or compose()\"\n  SYM sym:ts:src/preset/quick.ts:Hono src/preset/quick.ts:13 class\n    SIG class Hono< E extends Env = BlankEnv, S extends Schema = BlankSchema, BasePath extends string = '/', > extends HonoBase<E, S, BasePath>\n    INTENT ADR-03 context \"Forgetting await on next() is a silent bug class not caught by types or compose()\"\n  SYM sym:ts:src/preset/tiny.ts:Hono src/preset/tiny.ts:11 class\n    SIG class Hono< E extends Env = BlankEnv, S extends Schema = BlankSchema, BasePath extends string = '/', > extends HonoBase<E, S, BasePath>\n    INTENT ADR-03 context \"Forgetting await on next() is a silent bug class not caught by types or compose()\"\n  SYM sym:ts:src/types.ts:MiddlewareHandler src/types.ts:83 type\n    SIG type MiddlewareHandler< E extends Env = any, P extends string = string, I extends Input = {}, R extends HandlerResponse<any> = Response, > = (c: Context<E, P, I>, next: Next) => Promise<R | void>\n    INTENT ADR-03 context \"Forgetting await on next() is a silent bug class not caught by types or compose()\"\n  SYM sym:ts:src/types.ts:Next src/types.ts:35 type\n    SIG type Next = () => Promise<void>\n    INTENT ADR-03 context \"Forgetting await on next() is a silent bug class not caught by types or compose()\"\n"
     },
     {
       "tool": "mcp__contextatlas__find_by_intent",
       "args": {
-        "query": "middleware compose next function Hono onion model"
+        "query": "compose function middleware chain implementation",
+        "limit": 5
       },
-      "result_preview": "Claude requested permissions to use mcp__contextatlas__find_by_intent, but you haven't granted it yet."
+      "result_preview": "MATCHES 5 [query=\"compose function middleware chain implementation\"]\n  SYM sym:ts:src/compose.ts:compose src/compose.ts:15 variable\n    INTENT ADR-03 context \"Hono uses Koa-style onion middleware composition implemented in src/compose.ts\"\n  SYM sym:ts:src/types.ts:MiddlewareHandler src/types.ts:83 type\n    SIG type MiddlewareHandler< E extends Env = any, P extends string = string, I extends Input = {}, R extends HandlerResponse<any> = Response, > = (c: Context<E, P, I>, next: Next) => Promise<R | void>\n    INTENT ADR-03 context \"Hono uses Koa-style onion middleware composition implemented in src/compose.ts\"\n  SYM sym:ts:src/adapter/aws-lambda/types.ts:Handler src/adapter/aws-lambda/types.ts:52 type\n    SIG type Handler<TEvent = any, TResult = any> = ( event: TEvent, context: LambdaContext, callback: Callback<TResult> ) => void | Promise<TResult>\n    INTENT ADR-03 context \"Hono uses Koa-style onion middleware composition implemented in src/compose.ts\"\n  SYM sym:ts:src/adapter/service-worker/handler.ts:Handler src/adapter/service-worker/handler.ts:10 type\n    SIG type Handler = (evt: FetchEvent) => void\n    INTENT ADR-03 context \"Hono uses Koa-style onion middleware composition implemented in src/compose.ts\"\n  SYM sym:ts:src/context.ts:Context src/context.ts:293 class\n    INTENT ADR-03 context \"Hono uses Koa-style onion middleware composition implemented in src/compose.ts\"\n"
+    },
+    {
+      "tool": "mcp__contextatlas__get_symbol_context",
+      "args": {
+        "symbol": "compose",
+        "file_hint": "src/compose.ts",
+        "depth": "deep"
+      },
+      "result_preview": "SYM compose@src/compose.ts:15 variable\n  INTENT ADR-02 hard \"Consumers such as compose(), context construction, and app.routes introspection must handle both Result<T> representations.\"\n    RATIONALE \"The dual Result shape is part of the public contract; assuming one form breaks when the active router uses the other.\"\n    EXCERPT \"Anything consuming router output (`compose()`, context construction, `app.routes` introspection) must handle both representations.\"\n  INTENT ADR-03 hard \"Middleware signature is (c: Context, next: Next) => Promise<Response | void>\"\n    RATIONALE \"Defines the contract all middleware must implement\"\n    EXCERPT \"type MiddlewareHandler<E, P, I> = (\n  c: Context<E, P, I>,\n  next: Next\n) => Promise<Response | void>\"\n  INTENT ADR-03 hard \"Routes with exactly one matched handler bypass compose() and are invoked directly via a fast-path in src/hono-base.ts:424-442\"\n    RATIONALE \"Performance optimization to save closure/promise/microtask allocations on edge deploys\"\n    EXCERPT \"routes that matched exactly one handler do NOT flow through `compose()`**. The dispatch code in `src/hono-base.ts:424-442` detects `matchResult[0].length === 1` and invokes the single handler directly\"\n  INTENT ADR-03 hard \"Routes with two or more handlers go through compose() normally\"\n    RATIONALE \"Only single-handler routes take the fast path\"\n    EXCERPT \"Routes with two or more handlers (middleware + terminal handler, or any chain) go through `compose()` normally.\"\n  INTENT ADR-03 hard \"Middleware must call await next() at most once; calling next() twice throws 'next() called multiple times'\"\n    RATIONALE \"Prevents bugs where middleware accidentally advances the chain twice\"\n    EXCERPT \"calling `next()` twice triggers `'next() called multiple times'` (`src/compose.ts:33-35`)\"\n  INTENT ADR-03 hard \"Tests exercising middleware composition must use routes with at least two handlers to actually invoke compose()\"\n    RATIONALE \"Single-handler routes skip compose() entirely via the fast-path\"\n    EXCERPT \"Tests that exercise middleware composition MUST have at least two handlers in the route; otherwise they don't exercise `compose()` at all.\"\n  INTENT ADR-03 hard \"Bug fixes in compose.ts must verify the one-handler fast-path still works, and vice versa\"\n    RATIONALE \"Two distinct dispatch paths exist that can diverge\"\n    EXCERPT \"Fixing a bug in `compose.ts` without verifying the one-handler path still works (or vice versa) is a trap.\"\n  INTENT ADR-03 hard \"The single-handler fast-path is an invariant and must not be removed as duplicated logic\"\n    RATIONALE \"Fast-path is not equivalent to compose() with one middleware because compose() allocates closures and promises unconditionally\"\n    EXCERPT \"**The fast-path is an invariant, not an optimization.** Removing it \\\"because it duplicates compose logic\\\" is a subtle regression\"\n  INTENT ADR-03 soft \"compose.ts is high blast radius; changes should include micro-benchmarks in review\"\n    RATIONALE \"Every 2+ handler route on every deployment flows through this file; regressions affect the entire ecosystem\"\n    EXCERPT \"Reviews of `compose.ts` changes should include micro-benchmarks.\"\n  INTENT ADR-03 soft \"compose.ts should remain small and auditable (~74 lines)\"\n    RATIONALE \"Fitting on one screen enables diagnosing dispatch bugs by reading the whole file\"\n    EXCERPT \"**Small file = auditable.** `compose.ts` is 74 lines... The fact that it fits on one screen is itself a feature\"\n  INTENT ADR-03 context \"Hono uses Koa-style onion middleware composition implemented in src/compose.ts\"\n    RATIONALE \"Foundational middleware model choice; wrapping logic is natural and errors propagate via promise rejection\"\n    EXCERPT \"Hono uses **Koa-style onion composition**. The implementation is `src/compose.ts` — 74 lines modeled on `koa-compose` with additions for `onError` and `onNotFound` handlers.\"\n  INTENT ADR-03 context \"Errors thrown in the chain are caught by compose() and delegated to the app's onError handler\"\n    RATIONALE \"Defines error propagation behavior in the middleware chain\"\n    EXCERPT \"Errors thrown anywhere in the chain are caught by `compose()` and delegated to the app's `onError` handler (`src/compose.ts:52-59`).\"\n  INTENT ADR-03 context \"If a handler returns nothing and c.finalized is false at the tail, the onNotFound handler runs\"\n    RATIONALE \"Defines not-found fallback behavior\"\n    EXCERPT \"If a handler returns nothing and `c.finalized` is false at the tail of the chain, the `onNotFound` handler runs (`src/compose.ts:62-65`).\"\n  INTENT ADR-03 context \"Forgetting await on next() is a silent bug class not caught by types or compose()\"\n    RATIONALE \"Non-awaited next() causes downstream handlers to run concurrently with continuation, violating the onion model\"\n    EXCERPT \"Middleware that calls `next()` without `await` will let downstream handlers run concurrently with its own continuation, violating the onion model.\"\n  INTENT ADR-03 context \"onError\n\n[truncated: 2177 additional bytes not shown]"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "find C:/CodeWork -type d -name \"hono\" 2>/dev/null | head -5",
+        "description": "Locate Hono source directory"
+      },
+      "result_preview": "This Bash command contains multiple operations. The following part requires approval: find C:/CodeWork -type d -name \"hono\""
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "dir C:\\CodeWork\\ContextAtlas-benchmarks\\atlases\\hono",
+        "description": "List hono atlas directory"
+      },
+      "result_preview": "This command requires approval"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "ls atlases/hono/",
+        "description": "List hono atlas directory"
+      },
+      "result_preview": "atlas.json\nindex.db\nindex.db-shm\nindex.db-wal"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "cat atlases/hono/atlas.json | head -30",
+        "description": "Inspect atlas.json metadata"
+      },
+      "result_preview": "{\n  \"version\": \"1.1\",\n  \"generated_at\": \"2026-04-23T23:36:42.397Z\",\n  \"extracted_at_sha\": \"cf2d2b7edcf07adef2db7614557f4d7f9e2be7ba\",\n  \"generator\": {\n    \"contextatlas_version\": \"0.0.1\",\n    \"extraction_model\": \"claude-opus-4-7\"\n  },\n  \"source_shas\": {\n    \"ADR-01-web-standards-zero-deps.md\": \"f0859390aa48e8cb056f926a6ae36a8d30c7cb233bac1553b82649543607fa6b\",\n    \"ADR-02-router-interface-and-presets.md\": \"611b65231bd15a6e7fa7de69e287ad2dfe48c3e419e52d0f5d4606031a762e49\",\n    \"ADR-03-onion-middleware-compose.md\": \"ff0af54899bc79db0167348a1c898512c7a10f9a7696821ec766bb10ba1d362e\",\n    \"ADR-04-type-inference-to-typed-client.md\": \"c48cd13c3a58c91330dfc7bbc227adddb8d785a559c002707e5ec9d8be6d0564\",\n    \"ADR-05-dual-jsx-backends.md\": \"85ca7513ba55ce5eee8e66e6139105044f28033e1e4f4fc7d09cf22c25f02a32\"\n  },\n  \"symbols\": [\n    {\n      \"id\": \"sym:ts:benchmarks/deno/fast.ts:app\",\n      \"name\": \"app\",\n      \"kind\": \"variable\",\n      \"path\": \"benchmarks/deno/fast.ts\",\n      \"line\": 4,\n      \"file_sha\": \"f7057eff513855e0a52f14b90070f7751725e14d52d30a07c9f489fe6f393a58\"\n    },\n    {\n      \"id\": \"sym:ts:benchmarks/deno/fast.ts:app.get('/event/:id') callback\",\n      \"name\": \"app.get('/event/:id') callback\",\n      \"kind\": \"function\",\n      \"path\": \"benchmarks/deno/fast.ts\",\n      \"line\": 10,"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "find . -name \"ADR-03*\" -type f 2>/dev/null",
+        "description": "Locate ADR-03 markdown file"
+      },
+      "result_preview": "./adrs/hono/ADR-03-onion-middleware-compose.md\n./adrs/httpx/ADR-03-transport-abstraction.md"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "C:\\CodeWork\\ContextAtlas-benchmarks\\adrs\\hono\\ADR-03-onion-middleware-compose.md"
+      },
+      "result_preview": "1\t---\n2\tid: ADR-03\n3\ttitle: Koa-style onion middleware via compose(); single-handler fast path\n4\tstatus: accepted\n5\tseverity: hard\n6\tsymbols:\n7\t  - compose\n8\t  - MiddlewareHandler\n9\t  - Handler\n10\t  - Next\n11\t  - Context\n12\t  - Hono\n13\t  - HonoBase\n14\t---\n15\t\n16\t# ADR-03: Koa-style onion middleware via compose(); single-handler fast path\n17\t\n18\t## Context\n19\t\n20\tA web framework's middleware model is a foundational choice with many\n21\tdownstream consequences. It dictates what middleware can do, how errors\n22\tpropagate, whether wrapping logic (timing, tracing, error boundaries, CORS,\n23\tretries) is natural or awkward, and how framework-level composition\n24\tprimitives like `app.route()` and `app.mount()` behave across nested apps.\n25\t\n26\tThree common models exist:\n27\t\n28\t- **Express-style callback pipeline**: middleware signature is\n29\t  `(req, res, next) => void`; middleware calls `next(err?)` to advance the\n30\t  pipeline. To run code *after* downstream handlers, middleware must attach\n31\t  listeners (`res.on('finish')`) or wrap `res.end`. Wrapping logic is\n32\t  awkward; async error handling is manual.\n33\t\n34\t- **Koa-style onion composition**: middleware signature is\n35\t  `(ctx, next) => Promise<void>`; middleware `await`s `next()` to invoke\n36\t  the rest of the chain, then continues. Wrapping is natural — the\n37\t  middleware holds execution between `before-next` and `after-next`.\n38\t  Errors propagate via promise rejection and are caught at the outer layer.\n39\t\n40\t- **Fastify-style encapsulation**: middleware is registered within scopes;\n41\t  each scope has its own lifecycle hooks; more isolation, stricter plugin\n42\t  contracts, less dynamic composition.\n43\t\n44\t## Decision\n45\t\n46\tHono uses **Koa-style onion composition**. The implementation is\n47\t`src/compose.ts` — 74 lines modeled on `koa-compose` with additions for\n48\t`onError` and `onNotFound` handlers.\n49\t\n50\tThe middleware signature is:\n51\t\n52\t```ts\n53\ttype MiddlewareHandler<E, P, I> = (\n54\t  c: Context<E, P, I>,\n55\t  next: Next\n56\t) => Promise<Response | void>\n57\t```\n58\t\n59\tMiddleware calls `await next()` to invoke the rest of the chain, then may\n60\tinspect or modify `c.res` afterward. Errors thrown anywhere in the chain are\n61\tcaught by `compose()` and delegated to the app's `onError` handler\n62\t(`src/compose.ts:52-59`). If a handler returns nothing and `c.finalized` is\n63\tfalse at the tail of the chain, the `onNotFound` handler runs\n64\t(`src/compose.ts:62-65`).\n65\t\n66\tAs a performance carve-out, **routes that matched exactly one handler do\n67\tNOT flow through `compose()`**. The dispatch code in\n68\t`src/hono-base.ts:424-442` detects `matchResult[0].length === 1` and invokes\n69\tthe single handler directly with an inline `next` that triggers the\n70\tnot-found handler if the handler doesn't finalize. Routes with two or more\n71\thandlers (middleware + terminal handler, or any chain) go through `compose()`\n72\tnormally.\n73\t\n74\tWithin `compose()`, each middleware call is guarded against double-advance:\n75\tcalling `next()` twice triggers `'next() called multiple times'`\n76\t(`src/compose.ts:33-35`), preventing the class of bugs where a middleware\n77\taccidentally calls `next` in both a happy path and an error path.\n78\t\n79\t## Rationale\n80\t\n81\t- **Wrapping is the dominant middleware pattern.** Logger, timing, request-id,\n82\t  CORS, secure-headers, body-limit, compress, etag, timeout, pretty-json —\n83\t  nearly every middleware in `src/middleware/**` does work before AND after\n84\t  `next()`. Onion composition makes this trivial:\n85\t\n86\t  ```ts\n87\t  const timing: MiddlewareHandler = async (c, next) => {\n88\t    const start = performance.now()\n89\t    await next()\n90\t    c.header('X-Response-Time', `${performance.now() - start}ms`)\n91\t  }\n92\t  ```\n93\t\n94\t  The same pattern in Express requires either a `res.on('finish')` listener\n95\t  or monkey-patching `res.end` — both error-prone.\n96\t\n97\t- **Error propagation is lexical.** Because `next()` returns a promise,\n98\t  ordinary `try { await next() } catch (e) {}` works. Middleware that needs\n99\t  to catch and transform errors from downstream (e.g., converting\n100\t  `HTTPException` to JSON) reads like normal async code. The framework's\n101\t  own error handler is a parameter to `compose()`, not a global pipeline\n102\t  stage, so sub-apps composed via `app.route()` can carry their own error\n103\t  handlers scoped to their route group.\n104\t\n105\t- **The fast-path matters at the edge.** Many routes have exactly one\n106\t  handler — the terminal handler, with no middleware — especially on edge\n107\t  deploys that minimize middleware to keep cold start fast. Skipping\n108\t  `compose()` for these routes saves one closure allocation, one outer\n109\t  promise, and one microtask per request. On Workers, where cold start and\n110\t  per-request overhead are measured in milliseconds, this is not\n111\t  theoretical.\n112\t\n113\t- **Small file = auditable.** `compose.ts` is 74 lines. Every 2+ handler\n114\t  request on every Hono deployment flows through \n\n[truncated: 2905 additional bytes not shown]"
     }
   ],
   "diagnostics": {
     "claudeCodeVersion": "2.1.118",
-    "totalCostUsd": 0.06905675,
-    "numTurns": 7,
+    "totalCostUsd": 0.19097424999999998,
+    "numTurns": 10,
     "isError": false,
     "terminalReason": "completed",
     "modelUsage": {
       "claude-haiku-4-5-20251001": {
         "inputTokens": 364,
-        "outputTokens": 18,
+        "outputTokens": 19,
         "cacheReadInputTokens": 0,
         "cacheCreationInputTokens": 0,
         "webSearchRequests": 0,
-        "costUSD": 0.00045400000000000003,
+        "costUSD": 0.000459,
         "contextWindow": 200000,
         "maxOutputTokens": 32000
       },
       "claude-opus-4-7": {
-        "inputTokens": 12,
-        "outputTokens": 1709,
-        "cacheReadInputTokens": 25898,
-        "cacheCreationInputTokens": 2059,
+        "inputTokens": 15,
+        "outputTokens": 2708,
+        "cacheReadInputTokens": 66243,
+        "cacheCreationInputTokens": 14339,
         "webSearchRequests": 0,
-        "costUSD": 0.06860275,
+        "costUSD": 0.19051525,
         "contextWindow": 1000000,
         "maxOutputTokens": 64000
       }
     }
   },
-  "cost_usd": 0.06905675,
-  "written_at": "2026-04-23T16:29:07.543Z"
+  "cost_usd": 0.19097424999999998,
+  "written_at": "2026-04-24T17:04:45.742Z"
 }
