@@ -1,0 +1,118 @@
+{
+  "prompt_id": "c2-persistent-flag-scope",
+  "repo": "cobra",
+  "condition": "beta-ca",
+  "target_symbol": "Command",
+  "bucket": "win",
+  "metrics": {
+    "tool_calls": 9,
+    "input_tokens": 11,
+    "output_tokens": 2522,
+    "total_tokens": 51699,
+    "wall_clock_ms": 41637
+  },
+  "capped": null,
+  "answer": "# Declaring `--verbose` (root) and `--dry-run` (child)\n\n## Root: persistent flag\nRegister on `PersistentFlags()` of the root command. Persistent flags are inherited by every descendant in the tree.\n\n```go\nvar verbose bool\n\nrootCmd := &cobra.Command{Use: \"myapp\", /* ... */}\nrootCmd.PersistentFlags().BoolVarP(&verbose, \"verbose\", \"v\", false,\n    \"enable verbose output\")\n```\n\nAny nested subcommand can read `--verbose` via `cmd.Flags().GetBool(\"verbose\")` once parsing is done — the flag is merged into the executing command's `Flags()` set during `execute()`.\n\n## Child: local-to-subtree flag\nRegister on the child's own `Flags()` if you want it scoped to that command, or on its `PersistentFlags()` if you want descendants of that child to inherit it too. For \"only that child and its descendants\":\n\n```go\nvar dryRun bool\n\napplyCmd := &cobra.Command{Use: \"apply\", /* ... */}\napplyCmd.PersistentFlags().BoolVar(&dryRun, \"dry-run\", false,\n    \"show what would happen without doing it\")\n\nrootCmd.AddCommand(applyCmd)\n```\n\nIf `apply` has no children and you don't want any descendants to inherit it, use `applyCmd.Flags()` instead of `PersistentFlags()` — this scopes the flag to `apply` alone.\n\n---\n\n# The four FlagSet accessors\n\nPer the cobra source (ADR-02), a `Command` owns **five** internal `pflag.FlagSet`s — `flags`, `pflags`, `lflags`, `iflags`, and `parentsPflags` — each with a distinct role. The four public accessors are views over those:\n\n| Method | What it returns | When you use it |\n|---|---|---|\n| **`Flags()`** | The fully-resolved flag set for *this* command after persistent flags from ancestors have been merged in. This is what argument parsing uses, and what you read at runtime inside `Run`/`RunE`. | Reading flag values during execution; registering a flag local to this command. |\n| **`PersistentFlags()`** | Flags declared on this command that are inherited by all descendants. Stored separately from `Flags()` — they only show up in `Flags()` after the merge during `execute()`. | Declaring inheritable flags like `--verbose` on the root. |\n| **`LocalFlags()`** | A computed view of flags that *belong to this command* — i.e. its own `Flags()` plus its own `PersistentFlags()`, but **excluding** flags inherited from ancestors. | Help/usage templates that show \"Flags:\" vs \"Global Flags:\". This is part of the public template API (ADR-05), so renaming would be breaking. |\n| **`InheritedFlags()`** | A computed view of only the persistent flags inherited from ancestor commands. The complement of `LocalFlags()`. | Help/usage templates that render the \"Global Flags:\" section. |\n\n### Two important consequences from ADR-02 / ADR-06\n\n1. **`PersistentFlags()` and `Flags()` are separate sets.** A flag you put on `PersistentFlags()` will *not* appear in `Flags()` until cobra merges it during command execution. If you call something like `MarkFlagRequired` from your own setup code that needs an ancestor's persistent flag visible, cobra's flag-group machinery deliberately calls `mergePersistentFlags()` first (ADR-06) — you may need the same trick.\n\n2. **Flag groups can't cross command boundaries** (ADR-06): all flags in a `MarkFlagsMutuallyExclusive` / `MarkFlagsRequiredTogether` group must be visible on a single `Command`'s merged flag set. You can't group a parent-persistent flag with a sibling's local flag.\n\n### Mental model\n\n- Define on **`PersistentFlags()`** → inherited downward.\n- Define on **`Flags()`** → visible only to this command.\n- Read with **`Flags()`** at runtime.\n- Use **`LocalFlags()`** / **`InheritedFlags()`** only when you're customizing help or usage templates.",
+  "trace": [
+    {
+      "tool": "mcp__contextatlas__get_symbol_context",
+      "args": {
+        "symbol": "PersistentFlags"
+      },
+      "result_preview": "ERR not_found\n  MESSAGE Symbol 'PersistentFlags' not found. Try find_by_intent if you're searching by concept rather than name."
+    },
+    {
+      "tool": "mcp__contextatlas__get_symbol_context",
+      "args": {
+        "symbol": "LocalFlags"
+      },
+      "result_preview": "ERR not_found\n  MESSAGE Symbol 'LocalFlags' not found. Try find_by_intent if you're searching by concept rather than name."
+    },
+    {
+      "tool": "mcp__contextatlas__get_symbol_context",
+      "args": {
+        "symbol": "InheritedFlags"
+      },
+      "result_preview": "ERR not_found\n  MESSAGE Symbol 'InheritedFlags' not found. Try find_by_intent if you're searching by concept rather than name."
+    },
+    {
+      "tool": "mcp__contextatlas__get_symbol_context",
+      "args": {
+        "symbol": "Flags"
+      },
+      "result_preview": "ERR not_found\n  MESSAGE Symbol 'Flags' not found. Try find_by_intent if you're searching by concept rather than name."
+    },
+    {
+      "tool": "mcp__contextatlas__find_by_intent",
+      "args": {
+        "query": "persistent flags inherited by subcommands vs local flags",
+        "limit": 10
+      },
+      "result_preview": "MATCHES 10 [query=\"persistent flags inherited by subcommands vs local flags\"]\n  SYM sym:go:command.go:Command command.go:54 class\n    SIG struct{...}\n    INTENT ADR-02 context \"The Command struct owns five pflag FlagSets: flags, pflags, lflags, iflags, and parentsPflags, each with a specific role.\"\n  SYM sym:go:command.go:FParseErrWhitelist command.go:42 class\n    SIG flag.ParseErrorsAllowlist\n    INTENT ADR-02 context \"The Command struct owns five pflag FlagSets: flags, pflags, lflags, iflags, and parentsPflags, each with a specific role.\"\n  SYM sym:go:flag_groups.go:mutuallyExclusiveAnnotation flag_groups.go:28 variable\n    INTENT ADR-06 hard \"Every MarkFlags* method must call mergePersistentFlags() before flag lookup so persistent flags from ancestors are visible.\"\n  SYM sym:go:flag_groups.go:oneRequiredAnnotation flag_groups.go:27 variable\n    INTENT ADR-06 hard \"Every MarkFlags* method must call mergePersistentFlags() before flag lookup so persistent flags from ancestors are visible.\"\n  SYM sym:go:flag_groups.go:processFlagForGroupAnnotation flag_groups.go:121 function\n    SIG func(flags *flag.FlagSet, pflag *flag.Flag, annotation string, groupStatus map[string]map[string]bool)\n    INTENT ADR-06 hard \"Every MarkFlags* method must call mergePersistentFlags() before flag lookup so persistent flags from ancestors are visible.\"\n  SYM sym:go:flag_groups.go:requiredAsGroupAnnotation flag_groups.go:26 variable\n    INTENT ADR-06 hard \"Every MarkFlags* method must call mergePersistentFlags() before flag lookup so persistent flags from ancestors are visible.\"\n  SYM sym:go:flag_groups.go:validateExclusiveFlagGroups flag_groups.go:188 function\n    SIG func(data map[string]map[string]bool) error\n    INTENT ADR-06 hard \"Every MarkFlags* method must call mergePersistentFlags() before flag lookup so persistent flags from ancestors are visible.\"\n  SYM sym:go:flag_groups.go:validateOneRequiredFlagGroups flag_groups.go:167 function\n    SIG func(data map[string]map[string]bool) error\n    INTENT ADR-06 hard \"Every MarkFlags* method must call mergePersistentFlags() before flag lookup so persistent flags from ancestors are visible.\"\n  SYM sym:go:flag_groups.go:validateRequiredFlagGroups flag_groups.go:144 function\n    SIG func(data map[string]map[string]bool) error\n    INTENT ADR-06 hard \"Every MarkFlags* method must call mergePersistentFlags() before flag lookup so persistent flags from ancestors are visible.\"\n  SYM sym:go:args.go:legacyArgs args.go:28 function\n    SIG func(cmd *Command, args []string) error\n    INTENT ADR-04 context \"When TraverseChildren is true, cobra uses Traverse instead of Find, parsing flags as it descends rather than only at the leaf.\"\n"
+    },
+    {
+      "tool": "mcp__contextatlas__find_by_intent",
+      "args": {
+        "query": "difference between Flags LocalFlags InheritedFlags PersistentFlags",
+        "limit": 10
+      },
+      "result_preview": "MATCHES 10 [query=\"difference between Flags LocalFlags InheritedFlags PersistentFlags\"]\n  SYM sym:go:command.go:FParseErrWhitelist command.go:42 class\n    SIG flag.ParseErrorsAllowlist\n    INTENT ADR-02 context \"PersistentFlags() and Flags() are separate FlagSets; flags registered on PersistentFlags() only appear in Flags() after the merge during execute().\"\n  SYM sym:go:completions.go:CompletionOptions completions.go:107 class\n    SIG struct{...}\n    INTENT ADR-07 hard \"`ValidArgs` and `ValidArgsFunction` cannot be used together on the same command.\"\n  SYM sym:go:completions.go:ShellCompDirective completions.go:45 class\n    SIG int\n    INTENT ADR-07 hard \"`ValidArgs` and `ValidArgsFunction` cannot be used together on the same command.\"\n  SYM sym:go:completions.go:ShellCompDirectiveKeepOrder completions.go:84 variable\n    INTENT ADR-07 hard \"`ValidArgs` and `ValidArgsFunction` cannot be used together on the same command.\"\n  SYM sym:go:cobra.go:AddTemplateFunc cobra.go:85 function\n    SIG func(name string, tmplFunc interface{})\n    INTENT ADR-05 hard \"The Command struct's method and field surface (e.g., .Commands, .LocalFlags, .HasAvailableSubCommands) is part of the public template API; renaming is a breaking change.\"\n  SYM sym:go:cobra.go:AddTemplateFuncs cobra.go:91 function\n    SIG func(tmplFuncs template.FuncMap)\n    INTENT ADR-05 hard \"The Command struct's method and field surface (e.g., .Commands, .LocalFlags, .HasAvailableSubCommands) is part of the public template API; renaming is a breaking change.\"\n  SYM sym:go:command.go:Command command.go:54 class\n    SIG struct{...}\n    INTENT ADR-05 hard \"The Command struct's method and field surface (e.g., .Commands, .LocalFlags, .HasAvailableSubCommands) is part of the public template API; renaming is a breaking change.\"\n  SYM sym:go:command.go:Group command.go:45 class\n    SIG struct{...}\n    INTENT ADR-05 hard \"The Command struct's method and field surface (e.g., .Commands, .LocalFlags, .HasAvailableSubCommands) is part of the public template API; renaming is a breaking change.\"\n  SYM sym:go:command.go:tmplFunc command.go:1937 class\n    SIG struct{...}\n    INTENT ADR-05 hard \"The Command struct's method and field surface (e.g., .Commands, .LocalFlags, .HasAvailableSubCommands) is part of the public template API; renaming is a breaking change.\"\n  SYM sym:go:flag_groups.go:mutuallyExclusiveAnnotation flag_groups.go:28 variable\n    INTENT ADR-06 hard \"Adding a new group type means adding a new annotation key and validator in flag_groups.go, not changing pflag.\"\n"
+    },
+    {
+      "tool": "mcp__contextatlas__get_symbol_context",
+      "args": {
+        "symbol": "Command",
+        "file_hint": "command.go",
+        "depth": "deep"
+      },
+      "result_preview": "SYM Command@command.go:54 class\n  SIG struct{...}\n  INTENT ADR-01 hard \"Cobra's core type must be a concrete struct with public fields, not an interface.\"\n    RATIONALE \"Struct-oriented shape enables declarative literal construction, which is the dominant idiom in Go and determines usability at scale.\"\n    EXCERPT \"Cobra's core type is a concrete `struct Command` declared in `command.go:54-260`. ... There is **no `Commander` interface** anywhere in the codebase.\"\n  INTENT ADR-01 hard \"No Commander interface may be introduced for user command types.\"\n    RATIONALE \"Interface-based dispatch would force users into a second idiom and require optional-method detection via type assertions.\"\n    EXCERPT \"There is **no `Commander` interface** anywhere in the codebase.\"\n  INTENT ADR-01 hard \"Behavior is attached via ten nilable function-valued public fields on Command, not via methods.\"\n    RATIONALE \"Nilable function fields model optional hooks with zero boilerplate in the common case.\"\n    EXCERPT \"Behavior is attached via **ten function-valued public fields** on the struct (`command.go:128-146`)\"\n  INTENT ADR-01 hard \"Registration is direct slice append/mutation via AddCommand/RemoveCommand; no registration hook, factory, or builder.\"\n    RATIONALE \"Direct struct mutation keeps registration simple and consistent with the data-oriented model.\"\n    EXCERPT \"Registration is **slice append**, not interface assertion. ... There is no registration hook, no factory, no builder — direct struct mutation.\"\n  INTENT ADR-01 hard \"Dispatch must be a nil check on the field followed by a direct function call, not a method call on an interface value.\"\n    RATIONALE \"Direct function-field invocation avoids interface vtable overhead and matches the data model.\"\n    EXCERPT \"There is no `v.Run(args)` method call on an interface value. There is a nil check on a field, then a direct function call.\"\n  INTENT ADR-01 hard \"Runnability is derived from data (Run != nil || RunE != nil), not declared through a type/interface.\"\n    RATIONALE \"Availability of behavior is computed from fields, preserving the data-oriented model.\"\n    EXCERPT \"`Runnable()` (`command.go:1596-1597`) is literally `return c.Run != nil || c.RunE != nil`. There is no `type Runnable interface`\"\n  INTENT ADR-01 hard \"Moving field access behind methods, introducing a Commander interface, or adding a registration contract is a breaking redesign, not a refactor.\"\n    RATIONALE \"Such changes would force every user of cobra to rewrite their command definitions.\"\n    EXCERPT \"Any change that moves field access behind methods ... introduces a `Commander` interface ... is a **regression of this ADR** and must be treated as a breaking redesign, not a refactor.\"\n  INTENT ADR-01 hard \"Evolution of Command must proceed by adding new fields, not changing or hiding existing ones.\"\n    RATIONALE \"Public fields are part of the semantic contract; renaming or hiding breaks every user.\"\n    EXCERPT \"The escape valve is to add new fields (`RunContext`, etc.) alongside, not to move the existing ones.\"\n  INTENT ADR-01 hard \"Deprecated fields remain on the struct rather than being removed or renamed.\"\n    RATIONALE \"Renames are breaking changes to every user; deprecation proceeds by addition.\"\n    EXCERPT \"deprecations must proceed by adding new fields rather than changing old ones. See the legacy `BashCompletionFunction` field at `command.go:102`, which remains on the struct after the V2 completion system superseded it.\"\n  INTENT ADR-03 hard \"By default (EnableTraverseRunHooks=false), only the nearest ancestor with a PersistentPreRun(E) hook fires; the chain walks child-to-root and breaks at the first defined hook.\"\n    RATIONALE \"Preserves backward compatibility with users who depended on override (not augment) semantics; running all ancestors would double-execute side effects.\"\n    EXCERPT \"Walk from child to root. The **first command in the chain with a PersistentPreRun(E)** is the only one that runs.\"\n  INTENT ADR-05 hard \"The Command struct's method and field surface (e.g., .Commands, .LocalFlags, .HasAvailableSubCommands) is part of the public template API; renaming is a breaking change.\"\n    RATIONALE \"Templates reference these names directly; downstream custom templates would break on rename.\"\n    EXCERPT \"Renaming any of these methods is a breaking change to every custom template in every downstream project.\"\n  INTENT ADR-06 hard \"All flags in a group must be visible to a single Command; flag groups cannot cross-reference parent and child subcommands.\"\n    RATIONALE \"Group validation operates on a single Command's flag set after merging persistent flags.\"\n    EXCERPT \"Flag groups cannot cross-reference subcommands. All flags in a group must be visible to a single `Command`\"\n  INTENT ADR-08 hard \"Each Command carries three private IO fields (inReader, outWriter, errWriter) that are not directly accessible by users.\"\n    RATIONALE \"Private fields enforce the nil-means-inherit contrac\n\n[truncated: 6333 additional bytes not shown]"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -n \"func (c \\*Command) \\(Flags\\|PersistentFlags\\|LocalFlags\\|InheritedFlags\\|LocalNonPersistentFlags\\)\" atlases/cobra/repo/command.go 2>/dev/null | head -30",
+        "description": "Find flag accessor method signatures in command.go"
+      },
+      "result_preview": "(Bash completed with no output)"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "find atlases/cobra -name \"command.go\" 2>/dev/null | head -5",
+        "description": "Locate cobra command.go file"
+      },
+      "result_preview": "(Bash completed with no output)"
+    }
+  ],
+  "diagnostics": {
+    "claudeCodeVersion": "2.1.118",
+    "totalCostUsd": 0.13846350000000002,
+    "numTurns": 10,
+    "isError": false,
+    "terminalReason": "completed",
+    "modelUsage": {
+      "claude-haiku-4-5-20251001": {
+        "inputTokens": 424,
+        "outputTokens": 17,
+        "cacheReadInputTokens": 0,
+        "cacheCreationInputTokens": 0,
+        "webSearchRequests": 0,
+        "costUSD": 0.000509,
+        "contextWindow": 200000,
+        "maxOutputTokens": 32000
+      },
+      "claude-opus-4-7": {
+        "inputTokens": 11,
+        "outputTokens": 2522,
+        "cacheReadInputTokens": 40424,
+        "cacheCreationInputTokens": 8742,
+        "webSearchRequests": 0,
+        "costUSD": 0.1379545,
+        "contextWindow": 1000000,
+        "maxOutputTokens": 64000
+      }
+    }
+  },
+  "cost_usd": 0.13846350000000002,
+  "written_at": "2026-04-25T02:58:56.237Z"
+}

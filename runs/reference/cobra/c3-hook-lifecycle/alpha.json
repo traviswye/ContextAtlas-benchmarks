@@ -1,0 +1,55 @@
+{
+  "prompt_id": "c3-hook-lifecycle",
+  "repo": "cobra",
+  "condition": "alpha",
+  "target_symbol": "Command.execute",
+  "bucket": "win",
+  "metrics": {
+    "tool_calls": 4,
+    "input_tokens": 10760,
+    "output_tokens": 1636,
+    "total_tokens": 12396,
+    "wall_clock_ms": 25961
+  },
+  "capped": null,
+  "answer": "I have enough to give you a precise answer grounded in the source (`command.go`, lines 975–1044, and the doc comment at lines 118–146).\n\n## The guaranteed hook ordering\n\nPer the doc comment on `Command` (lines 118–122) and confirmed by `execute()`:\n\n1. `PersistentPreRun(E)`\n2. `PreRun(E)`\n3. `RunE` / `Run`\n4. `PostRun(E)`\n5. `PersistentPostRun(E)`\n\n### The subtle part: which `PersistentPreRun` runs?\n\nBy default, cobra walks up the parent chain and **runs only the first `PersistentPreRun(E)` it finds** — it does *not* execute every ancestor's persistent hook. Look at lines 984–998: the loop `break`s after the first hit unless `EnableTraverseRunHooks` is set.\n\nThat means in your setup:\n\n- Root has `PersistentPreRun` → initializes logger\n- Child has `PreRun` → uses logger\n\nThis works fine, because the child doesn't define its own `PersistentPreRun`, so cobra walks up to the root and runs root's. But if you ever add a `PersistentPreRun` to the child (or any intermediate command), **the root's will be shadowed** and your logger won't get initialized. The fix is either:\n\n- Set the package-level `cobra.EnableTraverseRunHooks = true` (lines 975–978 comment: \"Execute all persistent pre-runs from the root parent till this command\"), or\n- Have the child's `PersistentPreRun` call the parent's explicitly.\n\nThere's a second subtlety (lines 124–126 in the doc comment): *\"The *PreRun and *PostRun functions will only be executed if the Run function of the current command has been declared.\"* If the command being invoked has no `Run`/`RunE`, none of the hooks fire at all.\n\n## Does `PostRun` fire if `RunE` returns an error?\n\n**No.** Look at lines 1014–1020:\n\n```go\nif c.RunE != nil {\n    if err := c.RunE(c, argWoFlags); err != nil {\n        return err   // <-- bails out immediately\n    }\n}\n```\n\nAs soon as `RunE` returns a non-nil error, `execute()` returns that error directly. `PostRun`, `PostRunE`, `PersistentPostRun`, and `PersistentPostRunE` are **all skipped**.\n\nThe same is true for every other step in the chain — if `PersistentPreRunE`, `PreRunE`, `ValidateRequiredFlags`, `ValidateFlagGroups`, `PostRunE`, or `PersistentPostRunE` returns an error, execution stops immediately and remaining hooks don't run.\n\n### Practical implication\n\nCobra's hooks are **not** `defer`-style cleanup. If you need teardown that must always run (flushing the logger, closing a DB handle, etc.), don't put it in `PostRun` — put it in a `defer` inside `PersistentPreRunE` after the resource is acquired, or wrap `Execute()` in your `main()` and do cleanup there. Something like:\n\n```go\nfunc main() {\n    defer logger.Sync()\n    if err := rootCmd.Execute(); err != nil {\n        os.Exit(1)\n    }\n}\n```\n\nThat's the only way to guarantee cleanup on the error path.",
+  "trace": [
+    {
+      "tool": "Grep",
+      "args": {
+        "pattern": "PersistentPreRun|PersistentPostRun|PreRun|PostRun",
+        "glob": "command.go",
+        "output_mode": "files_with_matches"
+      },
+      "result_preview": "C:\\CodeWork\\ContextAtlas-benchmarks\\repos\\cobra\\command.go\n"
+    },
+    {
+      "tool": "Glob",
+      "args": {
+        "pattern": "**/command.go"
+      },
+      "result_preview": "command.go"
+    },
+    {
+      "tool": "Grep",
+      "args": {
+        "pattern": "PersistentPreRun|PersistentPostRun|PreRun|PostRun",
+        "path": "command.go",
+        "output_mode": "content",
+        "-i": false
+      },
+      "result_preview": "118:\t//   * PersistentPreRun()\r\n119:\t//   * PreRun()\r\n121:\t//   * PostRun()\r\n122:\t//   * PersistentPostRun()\r\n124:\t// The *PreRun and *PostRun functions will only be executed if the Run function of the current\r\n127:\t// PersistentPreRun: children of this command will inherit and execute.\r\n128:\tPersistentPreRun func(cmd *Command, args []string)\r\n129:\t// PersistentPreRunE: PersistentPreRun but returns an error.\r\n130:\tPersistentPreRunE func(cmd *Command, args []string) error\r\n131:\t// PreRun: children of this command will not inherit.\r\n132:\tPreRun func(cmd *Command, args []string)\r\n133:\t// PreRunE: PreRun but returns an error.\r\n134:\tPreRunE func(cmd *Command, args []string) error\r\n139:\t// PostRun: run after the Run command.\r\n140:\tPostRun func(cmd *Command, args []string)\r\n141:\t// PostRunE: PostRun but returns an error.\r\n142:\tPostRunE func(cmd *Command, args []string) error\r\n143:\t// PersistentPostRun: children of this command will inherit and execute after PostRun.\r\n144:\tPersistentPostRun func(cmd *Command, args []string)\r\n145:\t// PersistentPostRunE: PersistentPostRun but returns an error.\r\n146:\tPersistentPostRunE func(cmd *Command, args []string) error\r\n985:\t\tif p.PersistentPreRunE != nil {\r\n986:\t\t\tif err := p.PersistentPreRunE(c, argWoFlags); err != nil {\r\n992:\t\t} else if p.PersistentPreRun != nil {\r\n993:\t\t\tp.PersistentPreRun(c, argWoFlags)\r\n999:\tif c.PreRunE != nil {\r\n1000:\t\tif err := c.PreRunE(c, argWoFlags); err != nil {\r\n1003:\t} else if c.PreRun != nil {\r\n1004:\t\tc.PreRun(c, argWoFlags)\r\n1021:\tif c.PostRunE != nil {\r\n1022:\t\tif err := c.PostRunE(c, argWoFlags); err != nil {\r\n1025:\t} else if c.PostRun != nil {\r\n1026:\t\tc.PostRun(c, argWoFlags)\r\n1029:\t\tif p.PersistentPostRunE != nil {\r\n1030:\t\t\tif err := p.PersistentPostRunE(c, argWoFlags); err != nil {\r\n1036:\t\t} else if p.PersistentPostRun != nil {\r\n1037:\t\t\tp.PersistentPostRun(c, argWoFlags)\r\n"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "command.go",
+        "offset": 975,
+        "limit": 75
+      },
+      "result_preview": "   975\t\t\t\t// When EnableTraverseRunHooks is set:\n   976\t\t\t\t// - Execute all persistent pre-runs from the root parent till this command.\n   977\t\t\t\t// - Execute all persistent post-runs from this command till the root parent.\n   978\t\t\t\tparents = append([]*Command{p}, parents...)\n   979\t\t\t} else {\n   980\t\t\t\t// Otherwise, execute only the first found persistent hook.\n   981\t\t\t\tparents = append(parents, p)\n   982\t\t\t}\n   983\t\t}\n   984\t\tfor _, p := range parents {\n   985\t\t\tif p.PersistentPreRunE != nil {\n   986\t\t\t\tif err := p.PersistentPreRunE(c, argWoFlags); err != nil {\n   987\t\t\t\t\treturn err\n   988\t\t\t\t}\n   989\t\t\t\tif !EnableTraverseRunHooks {\n   990\t\t\t\t\tbreak\n   991\t\t\t\t}\n   992\t\t\t} else if p.PersistentPreRun != nil {\n   993\t\t\t\tp.PersistentPreRun(c, argWoFlags)\n   994\t\t\t\tif !EnableTraverseRunHooks {\n   995\t\t\t\t\tbreak\n   996\t\t\t\t}\n   997\t\t\t}\n   998\t\t}\n   999\t\tif c.PreRunE != nil {\n  1000\t\t\tif err := c.PreRunE(c, argWoFlags); err != nil {\n  1001\t\t\t\treturn err\n  1002\t\t\t}\n  1003\t\t} else if c.PreRun != nil {\n  1004\t\t\tc.PreRun(c, argWoFlags)\n  1005\t\t}\n  1006\t\n  1007\t\tif err := c.ValidateRequiredFlags(); err != nil {\n  1008\t\t\treturn err\n  1009\t\t}\n  1010\t\tif err := c.ValidateFlagGroups(); err != nil {\n  1011\t\t\treturn err\n  1012\t\t}\n  1013\t\n  1014\t\tif c.RunE != nil {\n  1015\t\t\tif err := c.RunE(c, argWoFlags); err != nil {\n  1016\t\t\t\treturn err\n  1017\t\t\t}\n  1018\t\t} else {\n  1019\t\t\tc.Run(c, argWoFlags)\n  1020\t\t}\n  1021\t\tif c.PostRunE != nil {\n  1022\t\t\tif err := c.PostRunE(c, argWoFlags); err != nil {\n  1023\t\t\t\treturn err\n  1024\t\t\t}\n  1025\t\t} else if c.PostRun != nil {\n  1026\t\t\tc.PostRun(c, argWoFlags)\n  1027\t\t}\n  1028\t\tfor p := c; p != nil; p = p.Parent() {\n  1029\t\t\tif p.PersistentPostRunE != nil {\n  1030\t\t\t\tif err := p.PersistentPostRunE(c, argWoFlags); err != nil {\n  1031\t\t\t\t\treturn err\n  1032\t\t\t\t}\n  1033\t\t\t\tif !EnableTraverseRunHooks {\n  1034\t\t\t\t\tbreak\n  1035\t\t\t\t}\n  1036\t\t\t} else if p.PersistentPostRun != nil {\n  1037\t\t\t\tp.PersistentPostRun(c, argWoFlags)\n  1038\t\t\t\tif !EnableTraverseRunHooks {\n  1039\t\t\t\t\tbreak\n  1040\t\t\t\t}\n  1041\t\t\t}\n  1042\t\t}\n  1043\t\n  1044\t\treturn nil\n  1045\t}\n  1046\t\n  1047\tfunc (c *Command) preRun() {\n  1048\t\tfor _, x := range initializers {\n  1049\t\t\tx()"
+    }
+  ],
+  "cost_usd": 0.2841,
+  "written_at": "2026-04-25T02:59:22.199Z"
+}

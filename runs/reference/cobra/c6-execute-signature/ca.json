@@ -1,0 +1,44 @@
+{
+  "prompt_id": "c6-execute-signature",
+  "repo": "cobra",
+  "condition": "ca",
+  "target_symbol": "Command.Execute",
+  "bucket": "trick",
+  "metrics": {
+    "tool_calls": 3,
+    "input_tokens": 8914,
+    "output_tokens": 888,
+    "total_tokens": 9802,
+    "wall_clock_ms": 17305
+  },
+  "capped": null,
+  "answer": "Here are the relevant signatures from `cobra/command.go`:\n\n```go\nfunc (c *Command) Execute() error                                       // line 1070\nfunc (c *Command) ExecuteContext(ctx context.Context) error             // line 1062\nfunc (c *Command) ExecuteC() (cmd *Command, err error)                  // line 1084\nfunc (c *Command) ExecuteContextC(ctx context.Context) (*Command, error) // line 1078\n```\n\nSo `Execute` itself takes no arguments and returns a single `error`:\n\n```go\nfunc (c *Command) Execute() error\n```\n\n**For a test harness, though, `Execute()` is usually the wrong choice** — it reads from `os.Args` and writes to `os.Stdout`/`os.Stderr`, which makes assertions awkward. Two better patterns:\n\n1. **Use `ExecuteC` (or set args + buffers manually)** so you can capture output and inject args:\n   ```go\n   buf := new(bytes.Buffer)\n   cmd.SetOut(buf)\n   cmd.SetErr(buf)\n   cmd.SetArgs([]string{\"subcmd\", \"--flag\", \"value\"})\n   _, err := cmd.ExecuteC()\n   ```\n2. **Use `ExecuteContext(ctx)`** if your test needs cancellation/timeout — it's the same as `Execute()` but threads a `context.Context` through to the `RunE` handlers via `cmd.Context()`.\n\n`ExecuteC` returns the actual `*Command` that ran (useful when subcommands are dispatched), which is handy in tests for inspecting which command Cobra resolved to.\n\nNote: the symbol lookup tool didn't index these (likely because the benchmark repo set excludes vendored Go stdlib-style packages from the intent registry), so I fell back to a direct grep on `command.go`.",
+  "trace": [
+    {
+      "tool": "get_symbol_context",
+      "args": {
+        "symbol": "Command.Execute",
+        "depth": "summary"
+      },
+      "result_preview": "ERROR: ERR not_found\n  MESSAGE Symbol 'Command.Execute' not found. Try find_by_intent if you're searching by concept rather than name.\n"
+    },
+    {
+      "tool": "get_symbol_context",
+      "args": {
+        "symbol": "Execute",
+        "depth": "summary"
+      },
+      "result_preview": "ERROR: ERR not_found\n  MESSAGE Symbol 'Execute' not found. Try find_by_intent if you're searching by concept rather than name.\n"
+    },
+    {
+      "tool": "Grep",
+      "args": {
+        "pattern": "func \\(c \\*Command\\) Execute",
+        "output_mode": "content"
+      },
+      "result_preview": "C:\\CodeWork\\ContextAtlas-benchmarks\\repos\\cobra\\command.go:1062:func (c *Command) ExecuteContext(ctx context.Context) error {\r\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\cobra\\command.go:1070:func (c *Command) Execute() error {\r\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\cobra\\command.go:1078:func (c *Command) ExecuteContextC(ctx context.Context) (*Command, error) {\r\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\cobra\\command.go:1084:func (c *Command) ExecuteC() (cmd *Command, err error) {\r\n"
+    }
+  ],
+  "cost_usd": 0.20031,
+  "written_at": "2026-04-25T03:05:40.821Z"
+}

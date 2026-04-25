@@ -1,0 +1,96 @@
+{
+  "prompt_id": "c4-subcommand-resolution",
+  "repo": "cobra",
+  "condition": "beta",
+  "target_symbol": "Find",
+  "bucket": "win",
+  "metrics": {
+    "tool_calls": 6,
+    "input_tokens": 12,
+    "output_tokens": 2474,
+    "total_tokens": 42082,
+    "wall_clock_ms": 47955
+  },
+  "capped": null,
+  "answer": "## Short answer\n\n**No, `myapp db inst` will not resolve out of the box.** Both `db` and `inst` would fail unless they exactly match a command name or alias.\n\n## Cobra's actual resolution algorithm\n\nResolution lives in `Command.Find` → `findNext` (`command.go:757-779`, `798-817`). For each token, `findNext` walks `c.commands` once and applies this priority:\n\n1. **Exact name match** — returns immediately.\n2. **Exact alias match** (`cmd.HasAlias(next)`) — returns immediately, with `commandCalledAs.name` set to the typed string. Aliases are indistinguishable from canonical names at this stage.\n3. **Prefix match** — *only if* `cobra.EnablePrefixMatching == true`. Prefix candidates are collected into a slice; they don't short-circuit.\n4. After the loop:\n   - exactly **one** prefix match → return it,\n   - **zero or ≥2** prefix matches → return `nil` (ambiguity is a failure, not a guess).\n\n`Find` recurses on the resolved child via an `innerfind` closure, calling `stripFlags` first so `--opt val` tokens are transparent during descent. When resolution finally fails, `legacyArgs` (`args.go:28-39`) generates the \"unknown command\" error, calling `findSuggestions` → `SuggestionsFor` for the \"Did you mean…\" line.\n\nSo for `myapp db inst`:\n- `findNext(\"db\")` looks for a command literally named `db` or with alias `db`. It does **not** see `database` unless prefix matching is on.\n- Even with prefix matching on, you need `db` to be unambiguous among siblings (no `dbg`, `dbutil`, etc.).\n- Then `findNext(\"inst\")` repeats the same logic against `database`'s children.\n\n## What you have to opt into\n\nTo get `db inst` → `database install`, you need to flip the package-level global **before** `Execute()`:\n\n```go\ncobra.EnablePrefixMatching = true\n```\n\nThis is defined at `cobra.go:52-55` and defaults to `false`. A few things to know:\n\n- **It's a global, not per-command.** Affects the entire tree.\n- **Aliases participate in prefix matching too**, via `hasNameOrAliasPrefix`.\n- **Ambiguity is silent UX damage.** If you ship `database` today and someone adds `dbinit` next quarter, every user's `db` muscle memory breaks with \"unknown command.\" Kubernetes deliberately does *not* enable this. The ADR explicitly calls out the rejected alternative of \"longest-common-prefix disambiguation\" — cobra refuses to guess.\n- **If you want case-insensitivity too** (e.g., `DB INST`), there's a separate global: `cobra.EnableCaseInsensitive = true`.\n\n## A note on the \"like git does\" framing\n\nGit's \"did you mean\" is closer to cobra's **suggestion** path, not its prefix-matching path. The classic prefix-matching CLI is the `go` tool (`go bui` → `go build`). Cobra already gives you git-style suggestions for free via `findSuggestions` — three independent strategies run on every failed resolution:\n\n1. **Levenshtein distance ≤ `SuggestionsMinimumDistance`** (default 2, via `ld` in `cobra.go:192-223`),\n2. **Case-insensitive prefix** of the canonical name,\n3. **Explicit `SuggestFor: []string{...}`** on the command (the escape hatch for synonyms like `checkout` ↔ `co`).\n\nSo even without `EnablePrefixMatching`, typing `myapp database inst` would already produce a \"Did you mean `install`?\" suggestion (prefix strategy hits regardless of the resolution global). To get **silent acceptance** of `db inst`, you need `EnablePrefixMatching = true`.\n\n## One footgun worth flagging\n\nThe ADR notes this directly: if you set `Args: cobra.ArbitraryArgs` on your root command, **you lose \"unknown command\" detection at root entirely** — `legacyArgs` is what produces that error, and overriding `Args` bypasses it. So if `myapp totally-bogus` silently does nothing instead of erroring, that's why.",
+  "trace": [
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "ls atlases/cobra/",
+        "description": "List cobra atlas directory"
+      },
+      "result_preview": "atlas.json\nindex.db\nindex.db-shm\nindex.db-wal"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "cd atlases/cobra && sqlite3 index.db \".tables\"",
+        "description": "List tables in cobra atlas index"
+      },
+      "result_preview": "This Bash command contains multiple operations. The following part requires approval: sqlite3 index.db \".tables\""
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "sqlite3 atlases/cobra/index.db \".tables\"",
+        "description": "List tables in cobra atlas index"
+      },
+      "result_preview": "This command requires approval"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "ls atlases/cobra/ && head -200 atlases/cobra/atlas.json",
+        "description": "Inspect atlas.json contents"
+      },
+      "result_preview": "atlas.json\nindex.db\nindex.db-shm\nindex.db-wal\n{\n  \"version\": \"1.2\",\n  \"generated_at\": \"2026-04-25T02:41:32.251Z\",\n  \"extracted_at_sha\": \"88b30ab89da2d0d0abb153818746c5a2d30eccec\",\n  \"generator\": {\n    \"contextatlas_version\": \"0.0.1\",\n    \"extraction_model\": \"claude-opus-4-7\"\n  },\n  \"source_shas\": {\n    \"ADR-01-commands-are-data.md\": \"67824468716363fd8df11680c5ddd3a2eecb314e89616b9bbcd9d49e1fab4e1d\",\n    \"ADR-02-pflag-not-stdlib-flag.md\": \"eea403deacd75a039146d768982b5a13432ba2ac870dbdbe317bd5e4a1f11706\",\n    \"ADR-03-hook-lifecycle.md\": \"6e17fb3ccb342605c4e47f43c270e67262d1b9eadd0aa0a8edbdd09c111c84f6\",\n    \"ADR-04-resolution-and-suggestions.md\": \"5db0d3092273924f25fab6ef087b0d90633bea277a76c1dbdd23b52191ab5908\",\n    \"ADR-05-help-templates.md\": \"ed28a2f2381feb7eff75ff7521a5ef2ea66585be5a1ecfa782346dc56f8470bc\",\n    \"ADR-06-flag-groups-as-annotations.md\": \"a2e7d4e7fec6753d53ca5e56b350a6c241ca27f8656aeab649398d76ca21f364\",\n    \"ADR-07-completion-at-runtime.md\": \"b001cdabde85c501ec519b1c4f2607c7ae9a664f6e480b852ac1cfabe86ac92b\",\n    \"ADR-08-injectable-io.md\": \"aff460b0da7072e3354a063107da1bc4273278e5aa29528cba1e2f330f577264\"\n  },\n  \"symbols\": [\n    {\n      \"id\": \"sym:go:active_help.go:AppendActiveHelp\",\n      \"name\": \"AppendActiveHelp\",\n      \"kind\": \"function\",\n      \"path\": \"active_help.go\",\n      \"line\": 38,\n      \"signature\": \"func(compArray []Completion, activeHelpStr string) []Completion\",\n      \"file_sha\": \"d25e08c959824b9bfd07d1f7266bc69ad5982c6d5ac7f6e5ee897c711e30401a\"\n    },\n    {\n      \"id\": \"sym:go:active_help.go:GetActiveHelpConfig\",\n      \"name\": \"GetActiveHelpConfig\",\n      \"kind\": \"function\",\n      \"path\": \"active_help.go\",\n      \"line\": 47,\n      \"signature\": \"func(cmd *Command) string\",\n      \"file_sha\": \"d25e08c959824b9bfd07d1f7266bc69ad5982c6d5ac7f6e5ee897c711e30401a\"\n    },\n    {\n      \"id\": \"sym:go:active_help.go:activeHelpEnvVar\",\n      \"name\": \"activeHelpEnvVar\",\n      \"kind\": \"function\",\n      \"path\": \"active_help.go\",\n      \"line\": 58,\n      \"signature\": \"func(name string) string\",\n      \"file_sha\": \"d25e08c959824b9bfd07d1f7266bc69ad5982c6d5ac7f6e5ee897c711e30401a\"\n    },\n    {\n      \"id\": \"sym:go:active_help.go:activeHelpEnvVarSuffix\",\n      \"name\": \"activeHelpEnvVarSuffix\",\n      \"kind\": \"variable\",\n      \"path\": \"active_help.go\",\n      \"line\": 26,\n      \"file_sha\": \"d25e08c959824b9bfd07d1f7266bc69ad5982c6d5ac7f6e5ee897c711e30401a\"\n    },\n    {\n      \"id\": \"sym:go:active_help.go:activeHelpGlobalDisable\",\n      \"name\": \"activeHelpGlobalDisable\",\n      \"kind\": \"variable\",\n      \"path\": \"active_help.go\",\n      \"line\": 28,\n      \"file_sha\": \"d25e08c959824b9bfd07d1f7266bc69ad5982c6d5ac7f6e5ee897c711e30401a\"\n    },\n    {\n      \"id\": \"sym:go:active_help.go:activeHelpGlobalEnvVar\",\n      \"name\": \"activeHelpGlobalEnvVar\",\n      \"kind\": \"variable\",\n      \"path\": \"active_help.go\",\n      \"line\": 27,\n      \"file_sha\": \"d25e08c959824b9bfd07d1f7266bc69ad5982c6d5ac7f6e5ee897c711e30401a\"\n    },\n    {\n      \"id\": \"sym:go:active_help.go:activeHelpMarker\",\n      \"name\": \"activeHelpMarker\",\n      \"kind\": \"variable\",\n      \"path\": \"active_help.go\",\n      \"line\": 23,\n      \"file_sha\": \"d25e08c959824b9bfd07d1f7266bc69ad5982c6d5ac7f6e5ee897c711e30401a\"\n    },\n    {\n      \"id\": \"sym:go:active_help_test.go:TestActiveHelpAlone\",\n      \"name\": \"TestActiveHelpAlone\",\n      \"kind\": \"function\",\n      \"path\": \"active_help_test.go\",\n      \"line\": 29,\n      \"signature\": \"func(t *testing.T)\",\n      \"file_sha\": \"8564bf3582f7864f0f18006fd6b9924ef4fd8b7bc666f0fd4445af06bbe79c28\"\n    },\n    {\n      \"id\": \"sym:go:active_help_test.go:TestActiveHelpForFlag\",\n      \"name\": \"TestActiveHelpForFlag\",\n      \"kind\": \"function\",\n      \"path\": \"active_help_test.go\",\n      \"line\": 231,\n      \"signature\": \"func(t *testing.T)\",\n      \"file_sha\": \"8564bf3582f7864f0f18006fd6b9924ef4fd8b7bc666f0fd4445af06bbe79c28\"\n    },\n    {\n      \"id\": \"sym:go:active_help_test.go:TestActiveHelpWithComps\",\n      \"name\": \"TestActiveHelpWithComps\",\n      \"kind\": \"function\",\n      \"path\": \"active_help_test.go\",\n      \"line\": 84,\n      \"signature\": \"func(t *testing.T)\",\n      \"file_sha\": \"8564bf3582f7864f0f18006fd6b9924ef4fd8b7bc666f0fd4445af06bbe79c28\"\n    },\n    {\n      \"id\": \"sym:go:active_help_test.go:TestConfigActiveHelp\",\n      \"name\": \"TestConfigActiveHelp\",\n      \"kind\": \"function\",\n      \"path\": \"active_help_test.go\",\n      \"line\": 266,\n      \"signature\": \"func(t *testing.T)\",\n      \"file_sha\": \"8564bf3582f7864f0f18006fd6b9924ef4fd8b7bc666f0fd4445af06bbe79c28\"\n    },\n    {\n      \"id\": \"sym:go:active_help_test.go:TestDisableActiveHelp\",\n      \"name\": \"TestDisableActiveHelp\",\n      \"kind\": \"function\",\n      \"path\": \"active_help_test.go\",\n      \"line\": 319,\n      \"signature\": \"func(t *testing.T)\",\n      \"file_sha\": \"8564bf3582f7864f0f18006fd6b9924ef4fd8b7bc666f0fd4445af06bbe79c28\"\n    },\n    {\n      \"id\": \"sym:go:active_help_test.go:TestMultiActiveHelp\",\n      \"name\": \"TestMultiActiveHelp\",\n      \"kind\": \"function\",\n      \"path\": \"active_help_test.go\"\n\n[truncated: 2370 additional bytes not shown]"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "ls atlases/cobra/ ; find . -name \"ADR-04*\" -path \"*/cobra/*\" 2>/dev/null",
+        "description": "Look for the resolution ADR"
+      },
+      "result_preview": "atlas.json\nindex.db\nindex.db-shm\nindex.db-wal\n./adrs/cobra/ADR-04-resolution-and-suggestions.md"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "C:\\CodeWork\\ContextAtlas-benchmarks\\adrs\\cobra\\ADR-04-resolution-and-suggestions.md"
+      },
+      "result_preview": "1\t---\n2\tid: ADR-04\n3\ttitle: Subcommand resolution walks the tree with exact-then-alias matching; prefix matching and Levenshtein suggestions are opt-in, ambiguity returns nil\n4\tstatus: accepted\n5\tseverity: hard\n6\tsymbols:\n7\t  - Find\n8\t  - findNext\n9\t  - findSuggestions\n10\t  - SuggestionsFor\n11\t  - Traverse\n12\t  - EnablePrefixMatching\n13\t  - EnableCaseInsensitive\n14\t  - SuggestionsMinimumDistance\n15\t  - DisableSuggestions\n16\t  - SuggestFor\n17\t  - hasNameOrAliasPrefix\n18\t  - commandNameMatches\n19\t  - ld\n20\t  - TraverseChildren\n21\t  - legacyArgs\n22\t---\n23\t\n24\t# ADR-04: Subcommand resolution walks the tree with exact-then-alias matching; prefix matching and Levenshtein suggestions are opt-in, ambiguity returns nil\n25\t\n26\t## Context\n27\t\n28\tGiven a command tree and an invocation like `myapp foo bar --opt val baz`,\n29\tcobra must answer: *which `*Command` does `baz` belong to?* The possible\n30\toutcomes are:\n31\t\n32\t- `foo` is a subcommand of root; `bar` is a subcommand of `foo`; `--opt`\n33\t  is a flag; `val` is the flag's value; `baz` is a positional arg to\n34\t  `bar`. Resolution terminates at `bar`.\n35\t- `foo` exists; `bar` does not exist as a subcommand of `foo`. Then `bar`\n36\t  is a positional arg to `foo`, and `baz` is another positional arg.\n37\t- `foo` does not exist at all. Then the whole tail is positional args\n38\t  to root (or an error, depending on whether root has subcommands\n39\t  defined).\n40\t\n41\tThe policy that walks the tree and produces these answers is load-bearing\n42\tfor UX. Consider further complications:\n43\t\n44\t- **Aliases.** A command can declare `Aliases: []string{\"rm\", \"del\"}`.\n45\t  Typing `myapp rm X` should resolve as though the user typed the\n46\t  canonical name.\n47\t- **Prefix matching.** Some CLIs (Plan 9 style, `go` tool) allow\n48\t  `myapp fo bar` if `fo` uniquely identifies `foo`. Others (strict\n49\t  POSIX) do not. Which should be the default?\n50\t- **Typo suggestions.** When the user types `myapp srver`, should\n51\t  cobra say nothing? Print a generic \"unknown command\" error? Suggest\n52\t  `server` because it's edit-distance 1? This is the \"did you mean\"\n53\t  experience users see in Git.\n54\t- **Flags mixed with subcommands.** `myapp --verbose serve` — is\n55\t  `--verbose` a root flag that precedes the `serve` subcommand? Or is\n56\t  it meaningless because flag parsing happens per-command?\n57\t- **Case sensitivity.** Should `myapp SERVE` resolve to the `serve`\n58\t  subcommand?\n59\t\n60\tDifferent CLI frameworks in different languages have answered each of\n61\tthese differently. Cobra committed to specific defaults early, and the\n62\tshipping defaults reflect values that Kubernetes, Hugo, and other\n63\tdownstream users effectively chose by adopting cobra and not complaining.\n64\tMost of the configuration is opt-in globals, not per-command fields —\n65\ta consequence of the fact that these behaviors should be consistent\n66\tacross the whole tree for the UX to be coherent.\n67\t\n68\t## Decision\n69\t\n70\t**Resolution entry point.** `Command.Find(args)` at `command.go:757-779`.\n71\tThe method walks the command tree starting from the receiver, consuming\n72\tpositional arguments as subcommand names until no match is found. The\n73\timplementation uses a nested `innerfind` closure that recurses:\n74\t\n75\t```go\n76\tinnerfind = func(c *Command, innerArgs []string) (*Command, []string) {\n77\t    argsWOflags := stripFlags(innerArgs, c)\n78\t    if len(argsWOflags) == 0 {\n79\t        return c, innerArgs\n80\t    }\n81\t    nextSubCmd := argsWOflags[0]\n82\t    cmd := c.findNext(nextSubCmd)\n83\t    if cmd != nil {\n84\t        return innerfind(cmd, c.argsMinusFirstX(innerArgs, nextSubCmd))\n85\t    }\n86\t    return c, innerArgs\n87\t}\n88\t```\n89\t\n90\t`Find` returns `(resolvedCommand, remainingArgs, error)` where the error\n91\tis populated by a follow-up call to `legacyArgs` (`args.go:28-39`) if\n92\tthe resolved command has no `Args` validator — the legacy validator\n93\tproduces the \"unknown command\" error with suggestions when root has\n94\tsubcommands but the user's input didn't match.\n95\t\n96\t**Per-step matching.** `Command.findNext(next)` at `command.go:798-817`\n97\tis the gate. Its policy:\n98\t\n99\t```go\n100\tmatches := make([]*Command, 0)\n101\tfor _, cmd := range c.commands {\n102\t    if commandNameMatches(cmd.Name(), next) || cmd.HasAlias(next) {\n103\t        cmd.commandCalledAs.name = next\n104\t        return cmd                                // exact hit wins\n105\t    }\n106\t    if EnablePrefixMatching && cmd.hasNameOrAliasPrefix(next) {\n107\t        matches = append(matches, cmd)\n108\t    }\n109\t}\n110\t\n111\tif len(matches) == 1 {\n112\t    return matches[0]                             // unambiguous prefix\n113\t}\n114\treturn nil                                        // zero or ambiguous\n115\t```\n116\t\n117\tThree important consequences of this 20-line function:\n118\t\n119\t1. **Exact match wins.** A single pass checks both the canonical name and\n120\t   the aliases; the first exact hit returns immediately, before any\n121\t   prefix matching. Aliases are indistinguishable \n\n[truncated: 15028 additional bytes not shown]"
+    }
+  ],
+  "diagnostics": {
+    "claudeCodeVersion": "2.1.118",
+    "totalCostUsd": 0.19187,
+    "numTurns": 7,
+    "isError": false,
+    "terminalReason": "completed",
+    "modelUsage": {
+      "claude-haiku-4-5-20251001": {
+        "inputTokens": 390,
+        "outputTokens": 17,
+        "cacheReadInputTokens": 0,
+        "cacheCreationInputTokens": 0,
+        "webSearchRequests": 0,
+        "costUSD": 0.000475,
+        "contextWindow": 200000,
+        "maxOutputTokens": 32000
+      },
+      "claude-opus-4-7": {
+        "inputTokens": 12,
+        "outputTokens": 2474,
+        "cacheReadInputTokens": 20520,
+        "cacheCreationInputTokens": 19076,
+        "webSearchRequests": 0,
+        "costUSD": 0.191395,
+        "contextWindow": 1000000,
+        "maxOutputTokens": 64000
+      }
+    }
+  },
+  "cost_usd": 0.19187,
+  "written_at": "2026-04-25T03:03:05.722Z"
+}

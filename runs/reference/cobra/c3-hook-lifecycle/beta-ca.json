@@ -1,0 +1,78 @@
+{
+  "prompt_id": "c3-hook-lifecycle",
+  "repo": "cobra",
+  "condition": "beta-ca",
+  "target_symbol": "Command.execute",
+  "bucket": "win",
+  "metrics": {
+    "tool_calls": 4,
+    "input_tokens": 8,
+    "output_tokens": 1948,
+    "total_tokens": 19812,
+    "wall_clock_ms": 34703
+  },
+  "capped": null,
+  "answer": "# Cobra hook ordering & error semantics\n\nBoth of your questions are governed by **ADR-03**, and the answers are pretty pointed.\n\n## 1. Hook ordering — there are *two* modes, and the default surprises people\n\nCobra's behavior depends on the package-level global `cobra.EnableTraverseRunHooks` (`cobra.go:66`). It is **not** per-command — mixing modes in one tree was deemed incoherent.\n\n### Default: `EnableTraverseRunHooks = false` (nearest-ancestor-wins)\n> *\"Walk from child to root. The **first command in the chain with a `PersistentPreRun(E)`** is the only one that runs.\"*\n\nThis is the classic override trap. **If your child command defines its own `PreRun`, that's fine** — `PreRun` and `PersistentPreRun` are different hooks. But if anything between your child and the root defines a `PersistentPreRun`, your root's logger-init hook **goes dark silently**. The intermediate command would have to manually invoke the parent's hook.\n\nSo in your specific case (root `PersistentPreRun` + child `PreRun`, nothing in between), your logger init **does** fire before the child's `PreRun`.\n\n### Opt-in: `EnableTraverseRunHooks = true`\n> *\"Every ancestor that has a hook runs, root first… Post hooks execute child first, then ancestors — stack-unwinding order.\"*\n\nSymmetric setup/teardown semantics. Recommended if you have multi-level trees.\n\n### Full pipeline order (one execute() invocation)\n1. `--help` / `--version` short-circuit (no hooks fire at all)\n2. Global `OnInitialize` initializers\n3. `ValidateArgs` — *before* `PreRun`, so `PreRun` sees validated args\n4. `PersistentPreRun(E)` chain (root→leaf, per the mode above)\n5. `PreRun(E)` (the leaf command's own)\n6. `ValidateRequiredFlags` + `ValidateFlagGroups` — **after** `PreRun`, so `PreRunE` can `cmd.Flags().Set(...)` to satisfy required-flag checks\n7. `Run(E)`\n8. `PostRun(E)`\n9. `PersistentPostRun(E)` (leaf→root if traverse is on)\n10. Deferred `OnFinalize` finalizers\n\nA few sharp edges worth knowing:\n- `RunE` takes **absolute precedence** over `Run` — same shadowing for every Pre/Post E-variant pair.\n- `PreRunE` returning an error short-circuits before flag validation runs.\n- If `DisableFlagParsing` is true, `ValidateFlagGroups` early-returns nil.\n\n## 2. Does `PostRun` fire if `RunE` returns an error?\n\n**No.** Direct quote from ADR-03:\n\n> *\"`PostRun`, `PostRunE`, and `PersistentPostRun` do **NOT** execute if `Run`/`RunE` returns an error; any pipeline error short-circuits all subsequent hooks.\"*\n\n> *\"if `RunE` returns an error, `PostRun` and `PersistentPostRun` do not execute.\"*\n\nThe rationale was simplicity over defer-like semantics — they didn't want `PostRun` authors to have to defensively handle partial state.\n\n### The practical corollary (this is the #1 production bug around hooks)\n> *\"Any code that must run after `Run` regardless of success — closing files, releasing locks, writing audit logs — belongs in a `defer` inside the `RunE` closure, not in `PostRun`/`PostRunE`.\"*\n\nSo:\n\n```go\nRunE: func(cmd *cobra.Command, args []string) (err error) {\n    f, err := os.Open(...)\n    if err != nil { return err }\n    defer f.Close()           // ✅ runs on error\n    defer auditLog(&err)      // ✅ runs on error, can inspect err\n    // ...\n},\nPostRunE: func(cmd *cobra.Command, args []string) error {\n    // ❌ does NOT run if RunE returned an error\n}\n```\n\nAlso note: a `Run` (non-`E`) hook that calls `os.Exit(1)` bypasses `PostRun`, `PersistentPostRun`, **and** the global `OnFinalize` finalizers. The atlas explicitly nudges toward `RunE` for this reason.",
+  "trace": [
+    {
+      "tool": "mcp__contextatlas__find_by_intent",
+      "args": {
+        "query": "cobra command hook execution order PersistentPreRun PreRun Run PostRun PersistentPostRun",
+        "limit": 8
+      },
+      "result_preview": "MATCHES 8 [query=\"cobra command hook execution order PersistentPreRun PreRun Run PostRun PersistentPostRun\"]\n  SYM sym:go:cobra.go:EnableTraverseRunHooks cobra.go:66 variable\n    INTENT ADR-03 hard \"When EnableTraverseRunHooks=true, every ancestor's PersistentPreRun runs root-to-leaf, and PersistentPostRun runs leaf-to-root (stack-unwinding order).\"\n  SYM sym:go:flag_groups.go:mutuallyExclusiveAnnotation flag_groups.go:28 variable\n    INTENT ADR-06 hard \"ValidateFlagGroups() is called after PreRun and before Run in the execute pipeline.\"\n  SYM sym:go:flag_groups.go:oneRequiredAnnotation flag_groups.go:27 variable\n    INTENT ADR-06 hard \"ValidateFlagGroups() is called after PreRun and before Run in the execute pipeline.\"\n  SYM sym:go:flag_groups.go:processFlagForGroupAnnotation flag_groups.go:121 function\n    SIG func(flags *flag.FlagSet, pflag *flag.Flag, annotation string, groupStatus map[string]map[string]bool)\n    INTENT ADR-06 hard \"ValidateFlagGroups() is called after PreRun and before Run in the execute pipeline.\"\n  SYM sym:go:flag_groups.go:requiredAsGroupAnnotation flag_groups.go:26 variable\n    INTENT ADR-06 hard \"ValidateFlagGroups() is called after PreRun and before Run in the execute pipeline.\"\n  SYM sym:go:flag_groups.go:validateExclusiveFlagGroups flag_groups.go:188 function\n    SIG func(data map[string]map[string]bool) error\n    INTENT ADR-06 hard \"ValidateFlagGroups() is called after PreRun and before Run in the execute pipeline.\"\n  SYM sym:go:flag_groups.go:validateOneRequiredFlagGroups flag_groups.go:167 function\n    SIG func(data map[string]map[string]bool) error\n    INTENT ADR-06 hard \"ValidateFlagGroups() is called after PreRun and before Run in the execute pipeline.\"\n  SYM sym:go:flag_groups.go:validateRequiredFlagGroups flag_groups.go:144 function\n    SIG func(data map[string]map[string]bool) error\n    INTENT ADR-06 hard \"ValidateFlagGroups() is called after PreRun and before Run in the execute pipeline.\"\n"
+    },
+    {
+      "tool": "mcp__contextatlas__find_by_intent",
+      "args": {
+        "query": "PostRun fires when RunE returns error",
+        "limit": 5
+      },
+      "result_preview": "MATCHES 5 [query=\"PostRun fires when RunE returns error\"]\n  SYM sym:go:cobra.go:EnableTraverseRunHooks cobra.go:66 variable\n    INTENT ADR-03 hard \"PostRun, PostRunE, and PersistentPostRun do NOT execute if Run/RunE returns an error; any pipeline error short-circuits all subsequent hooks.\"\n  SYM sym:go:cobra.go:AddTemplateFunc cobra.go:85 function\n    SIG func(name string, tmplFunc interface{})\n    INTENT ADR-05 context \"SetErrPrefix only affects cobra-rendered errors; user-returned errors from RunE must be formatted by the user to match the prefix.\"\n  SYM sym:go:cobra.go:AddTemplateFuncs cobra.go:91 function\n    SIG func(tmplFuncs template.FuncMap)\n    INTENT ADR-05 context \"SetErrPrefix only affects cobra-rendered errors; user-returned errors from RunE must be formatted by the user to match the prefix.\"\n  SYM sym:go:command.go:Group command.go:45 class\n    SIG struct{...}\n    INTENT ADR-05 context \"SetErrPrefix only affects cobra-rendered errors; user-returned errors from RunE must be formatted by the user to match the prefix.\"\n  SYM sym:go:command.go:tmplFunc command.go:1937 class\n    SIG struct{...}\n    INTENT ADR-05 context \"SetErrPrefix only affects cobra-rendered errors; user-returned errors from RunE must be formatted by the user to match the prefix.\"\n"
+    },
+    {
+      "tool": "mcp__contextatlas",
+      "args": {},
+      "result_preview": "<tool_use_error>Error: No such tool available: mcp__contextatlas</tool_use_error>"
+    },
+    {
+      "tool": "mcp__contextatlas__get_symbol_context",
+      "args": {
+        "symbol": "EnableTraverseRunHooks",
+        "depth": "deep"
+      },
+      "result_preview": "SYM EnableTraverseRunHooks@cobra.go:66 variable\n  INTENT ADR-03 hard \"By default (EnableTraverseRunHooks=false), only the nearest ancestor with a PersistentPreRun(E) hook fires; the chain walks child-to-root and breaks at the first defined hook.\"\n    RATIONALE \"Preserves backward compatibility with users who depended on override (not augment) semantics; running all ancestors would double-execute side effects.\"\n    EXCERPT \"Walk from child to root. The **first command in the chain with a PersistentPreRun(E)** is the only one that runs.\"\n  INTENT ADR-03 hard \"When EnableTraverseRunHooks=true, every ancestor's PersistentPreRun runs root-to-leaf, and PersistentPostRun runs leaf-to-root (stack-unwinding order).\"\n    RATIONALE \"Symmetric open/close setup/teardown semantics for users who need full-chain traversal.\"\n    EXCERPT \"**Every ancestor that has a hook runs**, root first... Post hooks execute child first, then ancestors — stack-unwinding order.\"\n  INTENT ADR-03 hard \"EnableTraverseRunHooks is a package-level global, not a per-Command field.\"\n    RATIONALE \"Mixing traversal modes within a single command tree has no coherent semantics; a global makes descent behavior predictable.\"\n    EXCERPT \"The flag is a package-level global, not a per-Command field, because mixing modes in one tree is incoherent.\"\n  INTENT ADR-03 hard \"RunE takes absolute precedence over Run: if both are set, Run is never called. The same shadowing applies to every Pre/Post E-variant pair.\"\n    RATIONALE \"Error-returning variants were added later; precedence preserves old Run-using code while allowing new code to opt into error returns.\"\n    EXCERPT \"**RunE takes absolute precedence**: if both `Run` and `RunE` are set, `Run` is never called.\"\n  INTENT ADR-03 hard \"PostRun, PostRunE, and PersistentPostRun do NOT execute if Run/RunE returns an error; any pipeline error short-circuits all subsequent hooks.\"\n    RATIONALE \"Chosen for simplicity over defer-like semantics; avoids forcing PostRun code to defensively handle partial state.\"\n    EXCERPT \"if `RunE` returns an error, `PostRun` and `PersistentPostRun` do **not** execute.\"\n  INTENT ADR-03 hard \"Cleanup code that must run after Run regardless of success must use defer inside RunE, not PostRun/PostRunE.\"\n    RATIONALE \"PostRun is skipped on RunE failure; this is the most frequent source of production bugs around the hook model.\"\n    EXCERPT \"Any code that must run after `Run` regardless of success — closing files, releasing locks, writing audit logs — belongs in a `defer` inside the `RunE` closure, not in `PostRun`/`PostRunE`.\"\n  INTENT ADR-03 hard \"ValidateArgs runs before PreRun/PreRunE so that PreRun does not see unvalidated argument shapes.\"\n    RATIONALE \"PreRun may configure behavior based on arg shape; passing bad args would make PreRun semantics undefined.\"\n    EXCERPT \"`ValidateArgs` runs *before* `PreRun` (line 968-970) because `PreRun` is where users might configure behavior based on arg shape\"\n  INTENT ADR-03 hard \"ValidateRequiredFlags and ValidateFlagGroups run after PreRun, enabling PreRunE to set flag defaults programmatically and satisfy required-flag checks.\"\n    RATIONALE \"PreRun is the last chance to set flag defaults; ordering allows cmd.Flags().Set from PreRunE to satisfy validation.\"\n    EXCERPT \"`ValidateRequiredFlags`/`ValidateFlagGroups` run *after* `PreRun` (lines 1007-1012) because `PreRun` is the last chance to set flag defaults programmatically.\"\n  INTENT ADR-03 hard \"The --help check runs before ValidateArgs, so help output is emitted even with invalid args; no hooks fire for --help or --version.\"\n    RATIONALE \"Expected UX: help should always display regardless of arg validity.\"\n    EXCERPT \"A user typing `myapp subcmd --help --bogus-arg` gets help output, not an arg-validation error, because help check at line 934-936 comes before `ValidateArgs` at 968.\"\n  INTENT ADR-03 hard \"When DisableFlagParsing is true, ValidateFlagGroups is skipped (early-returns nil).\"\n    RATIONALE \"No parsed flags exist to group; but can surprise users who set MarkFlagsMutuallyExclusive and see no validation.\"\n    EXCERPT \"The flag-group validator (`flag_groups.go:82-84`) early-returns `nil` if `c.DisableFlagParsing` is true.\"\n  INTENT ADR-03 hard \"Context is retrieved via cmd.Context() inside hooks, not passed as a parameter; hook signatures are fixed at func(cmd *Command, args []string) [error].\"\n    RATIONALE \"Changing hook signatures would break all existing user code; consequence of the struct-oriented design (ADR-01).\"\n    EXCERPT \"It is *not* passed as a parameter to the hook functions — the hook signatures are fixed at `func(cmd *Command, args []string) [error]`.\"\n  INTENT ADR-03 hard \"The execute pipeline is a long-linear function; changing any step's order is a breaking change, and new hooks can only be added in places that do not shift existing steps' relative order, with nil-defaults being no-ops.\"\n    RATIONALE \"User-observable behavior and cobra's own tests depend \n\n[truncated: 3219 additional bytes not shown]"
+    }
+  ],
+  "diagnostics": {
+    "claudeCodeVersion": "2.1.118",
+    "totalCostUsd": 0.10320474999999998,
+    "numTurns": 5,
+    "isError": false,
+    "terminalReason": "completed",
+    "modelUsage": {
+      "claude-haiku-4-5-20251001": {
+        "inputTokens": 407,
+        "outputTokens": 18,
+        "cacheReadInputTokens": 0,
+        "cacheCreationInputTokens": 0,
+        "webSearchRequests": 0,
+        "costUSD": 0.000497,
+        "contextWindow": 200000,
+        "maxOutputTokens": 32000
+      },
+      "claude-opus-4-7": {
+        "inputTokens": 8,
+        "outputTokens": 1948,
+        "cacheReadInputTokens": 10023,
+        "cacheCreationInputTokens": 7833,
+        "webSearchRequests": 0,
+        "costUSD": 0.10270774999999999,
+        "contextWindow": 1000000,
+        "maxOutputTokens": 64000
+      }
+    }
+  },
+  "cost_usd": 0.10320474999999998,
+  "written_at": "2026-04-25T03:01:06.198Z"
+}

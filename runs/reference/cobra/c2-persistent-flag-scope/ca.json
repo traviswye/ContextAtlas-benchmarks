@@ -1,0 +1,70 @@
+{
+  "prompt_id": "c2-persistent-flag-scope",
+  "repo": "cobra",
+  "condition": "ca",
+  "target_symbol": "Command",
+  "bucket": "win",
+  "metrics": {
+    "tool_calls": 6,
+    "input_tokens": 17188,
+    "output_tokens": 2167,
+    "total_tokens": 19355,
+    "wall_clock_ms": 34362
+  },
+  "capped": null,
+  "answer": "The source confirms it. Here's the breakdown of the four accessors, straight from the doc comments:\n\n## The four accessors\n\n| Method | What it returns | When to use it |\n|---|---|---|\n| **`Flags()`** | \"the complete FlagSet that applies to this command (local and persistent declared here **and by all parents**)\" — `command.go:1686-1687` | **Reading** flags inside a `Run` function. This is the one you almost always want at runtime. |\n| **`PersistentFlags()`** | The flag set whose entries propagate to **this command and every descendant**. | **Declaring** a flag like `--verbose` on the root that all subcommands should see. |\n| **`LocalFlags()`** | Flags declared *on this command itself* (whether via `Flags()` or `PersistentFlags()` here), excluding any that came from parents — `command.go:1731-1738`. | Introspection / custom help output (\"what flags belong to this command?\"). |\n| **`InheritedFlags()`** | Only flags that came from **ancestor** persistent flag sets — `command.go:1760-1764`. The complement of `LocalFlags()`. | Introspection — e.g. rendering a separate \"Global Flags\" section in help. |\n\nThere's also `LocalNonPersistentFlags()` (line 1700) — local flags that won't be passed down — and `NonInheritedFlags()` which is just an alias for `LocalFlags()` (line 1770).\n\n## How the pieces fit together\n\nConceptually:\n\n```\nFlags()  ==  LocalFlags()  +  InheritedFlags()\n         ==  (own Flags() + own PersistentFlags())  +  (parents' PersistentFlags())\n```\n\nSo in your scenario:\n\n- On `rootCmd`, `--verbose` lives in `PersistentFlags()`. On `childCmd`, it shows up via `InheritedFlags()` and is also visible through `Flags()`.\n- On `childCmd`, `--dry-run` lives in `Flags()` (local-only) or `PersistentFlags()` (if grandchildren should inherit). Either way it shows up in `LocalFlags()` for that child, and is visible via `Flags()`.\n- On `rootCmd`, `--dry-run` is **not** visible from any accessor — that's the whole point of putting it on the child.\n\n## Practical advice\n\n1. **Declare** with `PersistentFlags()` (inherited) or `Flags()` (local). Pick based on scope.\n2. **Read** with `cmd.Flags().GetBool(\"...\")` inside `Run` / `RunE` — it gives you the merged view, so you don't care whether the flag was declared here or up the tree.\n3. **Reach for `LocalFlags()` / `InheritedFlags()`** only when you're customizing help templates or doing reflection over the command tree.\n\nOne subtle gotcha: persistent flag merging into a child happens lazily. `LocalFlags()` and `InheritedFlags()` both call `c.mergePersistentFlags()` first (lines 1717, 1745), and `Flags()` gets parents' pflags merged during command execution. So during `Run`, `cmd.Flags()` is fully populated — but if you poke at `cmd.Flags()` before `Execute()` runs, you may not see inherited entries yet. Use the dedicated accessors if you need a definite answer outside the execution path.",
+  "trace": [
+    {
+      "tool": "get_symbol_context",
+      "args": {
+        "symbol": "PersistentFlags",
+        "file_hint": "command.go"
+      },
+      "result_preview": "ERROR: ERR not_found\n  MESSAGE Symbol 'PersistentFlags' not found. Try find_by_intent if you're searching by concept rather than name.\n"
+    },
+    {
+      "tool": "get_symbol_context",
+      "args": {
+        "symbol": "LocalFlags",
+        "file_hint": "command.go"
+      },
+      "result_preview": "ERROR: ERR not_found\n  MESSAGE Symbol 'LocalFlags' not found. Try find_by_intent if you're searching by concept rather than name.\n"
+    },
+    {
+      "tool": "get_symbol_context",
+      "args": {
+        "symbol": "InheritedFlags",
+        "file_hint": "command.go"
+      },
+      "result_preview": "ERROR: ERR not_found\n  MESSAGE Symbol 'InheritedFlags' not found. Try find_by_intent if you're searching by concept rather than name.\n"
+    },
+    {
+      "tool": "get_symbol_context",
+      "args": {
+        "symbol": "Flags",
+        "file_hint": "command.go"
+      },
+      "result_preview": "ERROR: MCP circuit breaker tripped after 3 consecutive errors; MCP server appears unresponsive"
+    },
+    {
+      "tool": "Grep",
+      "args": {
+        "pattern": "^func \\(c \\*Command\\) (Flags|PersistentFlags|LocalFlags|InheritedFlags|LocalNonPersistentFlags)\\(",
+        "path": "command.go",
+        "output_mode": "content"
+      },
+      "result_preview": "1688:func (c *Command) Flags() *flag.FlagSet {\r\n1702:func (c *Command) LocalNonPersistentFlags() *flag.FlagSet {\r\n1716:func (c *Command) LocalFlags() *flag.FlagSet {\r\n1744:func (c *Command) InheritedFlags() *flag.FlagSet {\r\n1775:func (c *Command) PersistentFlags() *flag.FlagSet {\r\n"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "command.go",
+        "offset": 1685,
+        "limit": 110
+      },
+      "result_preview": "  1685\t\n  1686\t// Flags returns the complete FlagSet that applies\n  1687\t// to this command (local and persistent declared here and by all parents).\n  1688\tfunc (c *Command) Flags() *flag.FlagSet {\n  1689\t\tif c.flags == nil {\n  1690\t\t\tc.flags = flag.NewFlagSet(c.DisplayName(), flag.ContinueOnError)\n  1691\t\t\tif c.flagErrorBuf == nil {\n  1692\t\t\t\tc.flagErrorBuf = new(bytes.Buffer)\n  1693\t\t\t}\n  1694\t\t\tc.flags.SetOutput(c.flagErrorBuf)\n  1695\t\t}\n  1696\t\n  1697\t\treturn c.flags\n  1698\t}\n  1699\t\n  1700\t// LocalNonPersistentFlags are flags specific to this command which will NOT persist to subcommands.\n  1701\t// This function does not modify the flags of the current command, it's purpose is to return the current state.\n  1702\tfunc (c *Command) LocalNonPersistentFlags() *flag.FlagSet {\n  1703\t\tpersistentFlags := c.PersistentFlags()\n  1704\t\n  1705\t\tout := flag.NewFlagSet(c.DisplayName(), flag.ContinueOnError)\n  1706\t\tc.LocalFlags().VisitAll(func(f *flag.Flag) {\n  1707\t\t\tif persistentFlags.Lookup(f.Name) == nil {\n  1708\t\t\t\tout.AddFlag(f)\n  1709\t\t\t}\n  1710\t\t})\n  1711\t\treturn out\n  1712\t}\n  1713\t\n  1714\t// LocalFlags returns the local FlagSet specifically set in the current command.\n  1715\t// This function does not modify the flags of the current command, it's purpose is to return the current state.\n  1716\tfunc (c *Command) LocalFlags() *flag.FlagSet {\n  1717\t\tc.mergePersistentFlags()\n  1718\t\n  1719\t\tif c.lflags == nil {\n  1720\t\t\tc.lflags = flag.NewFlagSet(c.DisplayName(), flag.ContinueOnError)\n  1721\t\t\tif c.flagErrorBuf == nil {\n  1722\t\t\t\tc.flagErrorBuf = new(bytes.Buffer)\n  1723\t\t\t}\n  1724\t\t\tc.lflags.SetOutput(c.flagErrorBuf)\n  1725\t\t}\n  1726\t\tc.lflags.SortFlags = c.Flags().SortFlags\n  1727\t\tif c.globNormFunc != nil {\n  1728\t\t\tc.lflags.SetNormalizeFunc(c.globNormFunc)\n  1729\t\t}\n  1730\t\n  1731\t\taddToLocal := func(f *flag.Flag) {\n  1732\t\t\t// Add the flag if it is not a parent PFlag, or it shadows a parent PFlag\n  1733\t\t\tif c.lflags.Lookup(f.Name) == nil && f != c.parentsPflags.Lookup(f.Name) {\n  1734\t\t\t\tc.lflags.AddFlag(f)\n  1735\t\t\t}\n  1736\t\t}\n  1737\t\tc.Flags().VisitAll(addToLocal)\n  1738\t\tc.PersistentFlags().VisitAll(addToLocal)\n  1739\t\treturn c.lflags\n  1740\t}\n  1741\t\n  1742\t// InheritedFlags returns all flags which were inherited from parent commands.\n  1743\t// This function does not modify the flags of the current command, it's purpose is to return the current state.\n  1744\tfunc (c *Command) InheritedFlags() *flag.FlagSet {\n  1745\t\tc.mergePersistentFlags()\n  1746\t\n  1747\t\tif c.iflags == nil {\n  1748\t\t\tc.iflags = flag.NewFlagSet(c.DisplayName(), flag.ContinueOnError)\n  1749\t\t\tif c.flagErrorBuf == nil {\n  1750\t\t\t\tc.flagErrorBuf = new(bytes.Buffer)\n  1751\t\t\t}\n  1752\t\t\tc.iflags.SetOutput(c.flagErrorBuf)\n  1753\t\t}\n  1754\t\n  1755\t\tlocal := c.LocalFlags()\n  1756\t\tif c.globNormFunc != nil {\n  1757\t\t\tc.iflags.SetNormalizeFunc(c.globNormFunc)\n  1758\t\t}\n  1759\t\n  1760\t\tc.parentsPflags.VisitAll(func(f *flag.Flag) {\n  1761\t\t\tif c.iflags.Lookup(f.Name) == nil && local.Lookup(f.Name) == nil {\n  1762\t\t\t\tc.iflags.AddFlag(f)\n  1763\t\t\t}\n  1764\t\t})\n  1765\t\treturn c.iflags\n  1766\t}\n  1767\t\n  1768\t// NonInheritedFlags returns all flags which were not inherited from parent commands.\n  1769\t// This function does not modify the flags of the current command, it's purpose is to return the current state.\n  1770\tfunc (c *Command) NonInheritedFlags() *flag.FlagSet {\n  1771\t\treturn c.LocalFlags()\n  1772\t}\n  1773\t\n  1774\t// PersistentFlags returns the persistent FlagSet specifically set in the current command.\n  1775\tfunc (c *Command) PersistentFlags() *flag.FlagSet {\n  1776\t\tif c.pflags == nil {\n  1777\t\t\tc.pflags = flag.NewFlagSet(c.DisplayName(), flag.ContinueOnError)\n  1778\t\t\tif c.flagErrorBuf == nil {\n  1779\t\t\t\tc.flagErrorBuf = new(bytes.Buffer)\n  1780\t\t\t}\n  1781\t\t\tc.pflags.SetOutput(c.flagErrorBuf)\n  1782\t\t}\n  1783\t\treturn c.pflags\n  1784\t}\n  1785\t\n  1786\t// ResetFlags deletes all flags from command.\n  1787\tfunc (c *Command) ResetFlags() {\n  1788\t\tc.flagErrorBuf = new(bytes.Buffer)\n  1789\t\tc.flagErrorBuf.Reset()\n  1790\t\tc.flags = flag.NewFlagSet(c.DisplayName(), flag.ContinueOnError)\n  1791\t\tc.flags.SetOutput(c.flagErrorBuf)\n  1792\t\tc.pflags = flag.NewFlagSet(c.DisplayName(), flag.ContinueOnError)\n  1793\t\tc.pflags.SetOutput(c.flagErrorBuf)\n  1794\t"
+    }
+  ],
+  "cost_usd": 0.420345,
+  "written_at": "2026-04-25T02:57:27.210Z"
+}

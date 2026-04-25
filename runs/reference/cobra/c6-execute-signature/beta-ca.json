@@ -1,0 +1,74 @@
+{
+  "prompt_id": "c6-execute-signature",
+  "repo": "cobra",
+  "condition": "beta-ca",
+  "target_symbol": "Command.Execute",
+  "bucket": "trick",
+  "metrics": {
+    "tool_calls": 3,
+    "input_tokens": 8,
+    "output_tokens": 905,
+    "total_tokens": 12833,
+    "wall_clock_ms": 15883
+  },
+  "capped": null,
+  "answer": "Here are the relevant signatures from `command.go`:\n\n```go\n// command.go:1070\nfunc (c *Command) Execute() error\n\n// command.go:1062\nfunc (c *Command) ExecuteContext(ctx context.Context) error\n\n// command.go:1084\nfunc (c *Command) ExecuteC() (cmd *Command, err error)\n\n// command.go:1078\nfunc (c *Command) ExecuteContextC(ctx context.Context) (*Command, error)\n```\n\nFor a test harness, a few practical notes:\n\n- **`Execute()`** is the simplest — it just returns an `error`. It internally delegates to `ExecuteC()`.\n- **`ExecuteC()`** is usually what you want in tests because it returns the actual `*Command` that ran (useful when subcommands are dispatched), in addition to the error.\n- **`ExecuteContext(ctx)`** / **`ExecuteContextC(ctx)`** are the context-aware variants — prefer these if your test needs cancellation/timeout.\n\nTypical test-harness pattern:\n\n```go\ncmd := newRootCmd()\ncmd.SetArgs([]string{\"sub\", \"--flag\", \"value\"})\ncmd.SetOut(&outBuf)\ncmd.SetErr(&errBuf)\nerr := cmd.Execute()\n```\n\nIf you need to assert *which* subcommand actually ran, swap `Execute()` for `ExecuteC()` and inspect the returned `*Command`.",
+  "trace": [
+    {
+      "tool": "mcp__contextatlas__get_symbol_context",
+      "args": {
+        "symbol": "Execute",
+        "file_hint": "command.go",
+        "depth": "summary"
+      },
+      "result_preview": "ERR not_found\n  MESSAGE Symbol 'Execute' not found. Try find_by_intent if you're searching by concept rather than name."
+    },
+    {
+      "tool": "mcp__contextatlas__find_by_intent",
+      "args": {
+        "query": "Command.Execute entry point that runs cobra command tree",
+        "limit": 5
+      },
+      "result_preview": "MATCHES 5 [query=\"Command.Execute entry point that runs cobra command tree\"]\n  SYM sym:go:command.go:commandNameMatches command.go:1928 function\n    SIG func(s string, t string) bool\n    INTENT ADR-04 context \"Command.Find walks the command tree starting from the receiver, consuming positional arguments as subcommand names until no match is found.\"\n  SYM sym:go:args.go:legacyArgs args.go:28 function\n    SIG func(cmd *Command, args []string) error\n    INTENT ADR-04 context \"Command.Find walks the command tree starting from the receiver, consuming positional arguments as subcommand names until no match is found.\"\n  SYM sym:go:cobra.go:EnableCaseInsensitive cobra.go:62 variable\n    INTENT ADR-04 context \"Command.Find walks the command tree starting from the receiver, consuming positional arguments as subcommand names until no match is found.\"\n  SYM sym:go:cobra.go:EnablePrefixMatching cobra.go:55 variable\n    INTENT ADR-04 context \"Command.Find walks the command tree starting from the receiver, consuming positional arguments as subcommand names until no match is found.\"\n  SYM sym:go:cobra.go:ld cobra.go:192 function\n    SIG func(s, t string, ignoreCase bool) int\n    INTENT ADR-04 context \"Command.Find walks the command tree starting from the receiver, consuming positional arguments as subcommand names until no match is found.\"\n"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -n \"func (c \\*Command) Execute\" C:/CodeWork/ContextAtlas-benchmarks/repos/cobra/command.go | head -20",
+        "description": "Find Execute method signatures in cobra command.go"
+      },
+      "result_preview": "1062:func (c *Command) ExecuteContext(ctx context.Context) error {\n1070:func (c *Command) Execute() error {\n1078:func (c *Command) ExecuteContextC(ctx context.Context) (*Command, error) {\n1084:func (c *Command) ExecuteC() (cmd *Command, err error) {"
+    }
+  ],
+  "diagnostics": {
+    "claudeCodeVersion": "2.1.118",
+    "totalCostUsd": 0.042426,
+    "numTurns": 4,
+    "isError": false,
+    "terminalReason": "completed",
+    "modelUsage": {
+      "claude-haiku-4-5-20251001": {
+        "inputTokens": 363,
+        "outputTokens": 15,
+        "cacheReadInputTokens": 0,
+        "cacheCreationInputTokens": 0,
+        "webSearchRequests": 0,
+        "costUSD": 0.000438,
+        "contextWindow": 200000,
+        "maxOutputTokens": 32000
+      },
+      "claude-opus-4-7": {
+        "inputTokens": 8,
+        "outputTokens": 905,
+        "cacheReadInputTokens": 9596,
+        "cacheCreationInputTokens": 2324,
+        "webSearchRequests": 0,
+        "costUSD": 0.041988,
+        "contextWindow": 1000000,
+        "maxOutputTokens": 64000
+      }
+    }
+  },
+  "cost_usd": 0.042426,
+  "written_at": "2026-04-25T03:06:25.071Z"
+}

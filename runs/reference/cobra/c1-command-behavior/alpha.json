@@ -1,0 +1,115 @@
+{
+  "prompt_id": "c1-command-behavior",
+  "repo": "cobra",
+  "condition": "alpha",
+  "target_symbol": "Command",
+  "bucket": "win",
+  "metrics": {
+    "tool_calls": 11,
+    "input_tokens": 57311,
+    "output_tokens": 3065,
+    "total_tokens": 60376,
+    "wall_clock_ms": 48617
+  },
+  "capped": null,
+  "answer": "I have everything I need. Here's the answer:\n\n## How cobra wants you to attach behavior to a `Command`\n\nCobra exposes a fixed set of lifecycle hook fields on `cobra.Command` (defined in `command.go` around lines 117–146). For each phase there are two variants: a plain one (no return) and a `…E` one (returns `error`):\n\n| Phase | No-error variant | Error-returning variant |\n|---|---|---|\n| Persistent setup (inherited by subcommands) | `PersistentPreRun` | `PersistentPreRunE` |\n| Per-command setup | `PreRun` | `PreRunE` |\n| Main work | `Run` | `RunE` |\n| Per-command cleanup | `PostRun` | `PostRunE` |\n| Persistent cleanup (inherited by subcommands) | `PersistentPostRun` | `PersistentPostRunE` |\n\nAll of them have the signature `func(cmd *cobra.Command, args []string)` (with `error` added for the `…E` versions). They run in this order (from the doc comment in `command.go`):\n\n```\nPersistentPreRun → PreRun → Run → PostRun → PersistentPostRun\n```\n\nTwo important rules from the source comment:\n\n- **`*PreRun`/`*PostRun` only fire if the current command itself has a `Run`/`RunE` defined.**\n- **`Persistent*` hooks are inherited by children that don't define their own.** Looking at `execute()` in `command.go` (~line 985), cobra walks up the parent chain to find the nearest persistent hook — so a child's `PersistentPreRunE` overrides the parent's, it doesn't chain.\n\nSo the mapping to your question is:\n- **Set up state** → `PreRunE` (or `PersistentPreRunE` on the root if every subcommand needs it).\n- **Run main logic** → `RunE`.\n- **Clean up** → `PostRunE` / `PersistentPostRunE`. (Note: cleanup only runs if `RunE` returned `nil`. If you need cleanup that always runs even on failure, use a `defer` inside `RunE` — cobra's hook chain short-circuits on error.)\n\n## The idiomatic way to return errors\n\nFrom `site/content/user_guide.md`:\n\n> If you wish to return an error to the caller of a command, `RunE` can be used. […] The error can then be caught at the execute function call.\n\nSo the pattern is:\n\n1. Use the `…E` variants (`RunE`, `PreRunE`, etc.) and just `return err`. Don't call `os.Exit` from inside your command — it bypasses cobra's cleanup hooks and makes the command untestable.\n\n```go\nvar tryCmd = &cobra.Command{\n    Use:   \"try\",\n    Short: \"Try and possibly fail at something\",\n    RunE: func(cmd *cobra.Command, args []string) error {\n        if err := someFunc(); err != nil {\n            return err\n        }\n        return nil\n    },\n}\n```\n\n2. Catch the error at `Execute()` in `main`. `Command.Execute()` (command.go:1070) returns the error that bubbled up from any of the `…E` hooks. Cobra will already have printed it to stderr (prefixed with `Error:` and the usage), so all `main` needs to do is set the exit code:\n\n```go\nfunc main() {\n    if err := rootCmd.Execute(); err != nil {\n        os.Exit(1)\n    }\n}\n```\n\n3. For error handling **outside** the command lifecycle (e.g. in `init()` while wiring flags or reading config), cobra ships a helper in `cobra.go`:\n\n```go\n// CheckErr prints the msg with the prefix 'Error:' and exits with error code 1.\n// If the msg is nil, it does nothing.\nfunc CheckErr(msg interface{}) { ... }\n```\n\nUse `cobra.CheckErr(err)` for setup code that runs before `Execute()`, and reserve plain `return err` from `RunE` for command logic — that way the error participates in cobra's normal output and your tests can capture it.\n\n### A complete sketch\n\n```go\nvar rootCmd = &cobra.Command{\n    Use: \"mytool\",\n    PersistentPreRunE: func(cmd *cobra.Command, args []string) error {\n        return openResources() // setup shared by all subcommands\n    },\n    PersistentPostRunE: func(cmd *cobra.Command, args []string) error {\n        return closeResources() // cleanup (only on success path)\n    },\n}\n\nvar doCmd = &cobra.Command{\n    Use: \"do\",\n    RunE: func(cmd *cobra.Command, args []string) error {\n        defer alwaysCleanup() // for cleanup that must run even on error\n        return doWork(cmd.Context(), args)\n    },\n}\n\nfunc main() {\n    if err := rootCmd.Execute(); err != nil {\n        os.Exit(1)\n    }\n}\n```\n\nThat hits all four of your requirements: setup via `PersistentPreRunE`, work via `RunE`, cleanup via `PersistentPostRunE` (plus `defer` for guaranteed cleanup), and shell error signaling via the non-zero exit code from `main`.",
+  "trace": [
+    {
+      "tool": "LS",
+      "args": {
+        "path": "/"
+      },
+      "result_preview": "ERROR: path escapes repo: / resolves to C:\\, outside C:\\CodeWork\\ContextAtlas-benchmarks\\repos\\cobra"
+    },
+    {
+      "tool": "LS",
+      "args": {
+        "path": "."
+      },
+      "result_preview": ".git/\n.github/\n.gitignore\n.golangci.yml\n.mailmap\nCONDUCT.md\nCONTRIBUTING.md\nLICENSE.txt\nMAINTAINERS\nMakefile\nREADME.md\nSECURITY.md\nactive_help.go\nactive_help_test.go\nargs.go\nargs_test.go\nassets/\nbash_completions.go\nbash_completionsV2.go\nbash_completionsV2_test.go\nbash_completions_test.go\ncobra.go\ncobra_test.go\ncommand.go\ncommand_notwin.go\ncommand_test.go\ncommand_win.go\ncompletions.go\ncompletions_test.go\ndoc/\nfish_completions.go\nfish_completions_test.go\nflag_groups.go\nflag_groups_test.go\ngo.mod\ngo.sum\npowershell_completions.go\npowershell_completions_test.go\nshell_completions.go\nsite/\nzsh_completions.go\nzsh_completions_test.go"
+    },
+    {
+      "tool": "Grep",
+      "args": {
+        "pattern": "PersistentPreRun|PreRun |PreRunE|RunE|PostRun|PersistentPostRun",
+        "path": "command.go",
+        "output_mode": "content",
+        "-i": false
+      },
+      "result_preview": "118:\t//   * PersistentPreRun()\r\n121:\t//   * PostRun()\r\n122:\t//   * PersistentPostRun()\r\n124:\t// The *PreRun and *PostRun functions will only be executed if the Run function of the current\r\n127:\t// PersistentPreRun: children of this command will inherit and execute.\r\n128:\tPersistentPreRun func(cmd *Command, args []string)\r\n129:\t// PersistentPreRunE: PersistentPreRun but returns an error.\r\n130:\tPersistentPreRunE func(cmd *Command, args []string) error\r\n132:\tPreRun func(cmd *Command, args []string)\r\n133:\t// PreRunE: PreRun but returns an error.\r\n134:\tPreRunE func(cmd *Command, args []string) error\r\n137:\t// RunE: Run but returns an error.\r\n138:\tRunE func(cmd *Command, args []string) error\r\n139:\t// PostRun: run after the Run command.\r\n140:\tPostRun func(cmd *Command, args []string)\r\n141:\t// PostRunE: PostRun but returns an error.\r\n142:\tPostRunE func(cmd *Command, args []string) error\r\n143:\t// PersistentPostRun: children of this command will inherit and execute after PostRun.\r\n144:\tPersistentPostRun func(cmd *Command, args []string)\r\n145:\t// PersistentPostRunE: PersistentPostRun but returns an error.\r\n146:\tPersistentPostRunE func(cmd *Command, args []string) error\r\n985:\t\tif p.PersistentPreRunE != nil {\r\n986:\t\t\tif err := p.PersistentPreRunE(c, argWoFlags); err != nil {\r\n992:\t\t} else if p.PersistentPreRun != nil {\r\n993:\t\t\tp.PersistentPreRun(c, argWoFlags)\r\n999:\tif c.PreRunE != nil {\r\n1000:\t\tif err := c.PreRunE(c, argWoFlags); err != nil {\r\n1003:\t} else if c.PreRun != nil {\r\n1014:\tif c.RunE != nil {\r\n1015:\t\tif err := c.RunE(c, argWoFlags); err != nil {\r\n1021:\tif c.PostRunE != nil {\r\n1022:\t\tif err := c.PostRunE(c, argWoFlags); err != nil {\r\n1025:\t} else if c.PostRun != nil {\r\n1026:\t\tc.PostRun(c, argWoFlags)\r\n1029:\t\tif p.PersistentPostRunE != nil {\r\n1030:\t\t\tif err := p.PersistentPostRunE(c, argWoFlags); err != nil {\r\n1036:\t\t} else if p.PersistentPostRun != nil {\r\n1037:\t\t\tp.PersistentPostRun(c, argWoFlags)\r\n1597:\treturn c.Run != nil || c.RunE != nil\r\n"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "command.go",
+        "offset": 110,
+        "limit": 50
+      },
+      "result_preview": "   110\t\n   111\t\t// Version defines the version for this command. If this value is non-empty and the command does not\n   112\t\t// define a \"version\" flag, a \"version\" boolean flag will be added to the command and, if specified,\n   113\t\t// will print content of the \"Version\" variable. A shorthand \"v\" flag will also be added if the\n   114\t\t// command does not define one.\n   115\t\tVersion string\n   116\t\n   117\t\t// The *Run functions are executed in the following order:\n   118\t\t//   * PersistentPreRun()\n   119\t\t//   * PreRun()\n   120\t\t//   * Run()\n   121\t\t//   * PostRun()\n   122\t\t//   * PersistentPostRun()\n   123\t\t// All functions get the same args, the arguments after the command name.\n   124\t\t// The *PreRun and *PostRun functions will only be executed if the Run function of the current\n   125\t\t// command has been declared.\n   126\t\t//\n   127\t\t// PersistentPreRun: children of this command will inherit and execute.\n   128\t\tPersistentPreRun func(cmd *Command, args []string)\n   129\t\t// PersistentPreRunE: PersistentPreRun but returns an error.\n   130\t\tPersistentPreRunE func(cmd *Command, args []string) error\n   131\t\t// PreRun: children of this command will not inherit.\n   132\t\tPreRun func(cmd *Command, args []string)\n   133\t\t// PreRunE: PreRun but returns an error.\n   134\t\tPreRunE func(cmd *Command, args []string) error\n   135\t\t// Run: Typically the actual work function. Most commands will only implement this.\n   136\t\tRun func(cmd *Command, args []string)\n   137\t\t// RunE: Run but returns an error.\n   138\t\tRunE func(cmd *Command, args []string) error\n   139\t\t// PostRun: run after the Run command.\n   140\t\tPostRun func(cmd *Command, args []string)\n   141\t\t// PostRunE: PostRun but returns an error.\n   142\t\tPostRunE func(cmd *Command, args []string) error\n   143\t\t// PersistentPostRun: children of this command will inherit and execute after PostRun.\n   144\t\tPersistentPostRun func(cmd *Command, args []string)\n   145\t\t// PersistentPostRunE: PersistentPostRun but returns an error.\n   146\t\tPersistentPostRunE func(cmd *Command, args []string) error\n   147\t\n   148\t\t// groups for subcommands\n   149\t\tcommandgroups []*Group\n   150\t\n   151\t\t// args is actual args parsed from flags.\n   152\t\targs []string\n   153\t\t// flagErrorBuf contains all error messages from pflag.\n   154\t\tflagErrorBuf *bytes.Buffer\n   155\t\t// flags is full set of flags.\n   156\t\tflags *flag.FlagSet\n   157\t\t// pflags contains persistent flags.\n   158\t\tpflags *flag.FlagSet\n   159\t\t// lflags contains local flags."
+    },
+    {
+      "tool": "Grep",
+      "args": {
+        "pattern": "func CheckErr|func \\(c \\*Command\\) Execute|func \\(c \\*Command\\) ExecuteC",
+        "output_mode": "content"
+      },
+      "result_preview": "C:\\CodeWork\\ContextAtlas-benchmarks\\repos\\cobra\\cobra.go:235:func CheckErr(msg interface{}) {\r\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\cobra\\command.go:1062:func (c *Command) ExecuteContext(ctx context.Context) error {\r\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\cobra\\command.go:1070:func (c *Command) Execute() error {\r\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\cobra\\command.go:1078:func (c *Command) ExecuteContextC(ctx context.Context) (*Command, error) {\r\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\cobra\\command.go:1084:func (c *Command) ExecuteC() (cmd *Command, err error) {\r\n"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "cobra.go",
+        "offset": 230,
+        "limit": 15
+      },
+      "result_preview": "   230\t\t}\n   231\t\treturn false\n   232\t}\n   233\t\n   234\t// CheckErr prints the msg with the prefix 'Error:' and exits with error code 1. If the msg is nil, it does nothing.\n   235\tfunc CheckErr(msg interface{}) {\n   236\t\tif msg != nil {\n   237\t\t\tfmt.Fprintln(os.Stderr, \"Error:\", msg)\n   238\t\t\tos.Exit(1)\n   239\t\t}\n   240\t}\n   241\t\n   242\t// WriteStringAndCheck writes a string into a buffer, and checks if the error is not nil.\n   243\tfunc WriteStringAndCheck(b io.StringWriter, s string) {\n   244\t\t_, err := b.WriteString(s)"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "command.go",
+        "offset": 1055,
+        "limit": 40
+      },
+      "result_preview": "  1055\t\t\tx()\n  1056\t\t}\n  1057\t}\n  1058\t\n  1059\t// ExecuteContext is the same as Execute(), but sets the ctx on the command.\n  1060\t// Retrieve ctx by calling cmd.Context() inside your *Run lifecycle or ValidArgs\n  1061\t// functions.\n  1062\tfunc (c *Command) ExecuteContext(ctx context.Context) error {\n  1063\t\tc.ctx = ctx\n  1064\t\treturn c.Execute()\n  1065\t}\n  1066\t\n  1067\t// Execute uses the args (os.Args[1:] by default)\n  1068\t// and run through the command tree finding appropriate matches\n  1069\t// for commands and then corresponding flags.\n  1070\tfunc (c *Command) Execute() error {\n  1071\t\t_, err := c.ExecuteC()\n  1072\t\treturn err\n  1073\t}\n  1074\t\n  1075\t// ExecuteContextC is the same as ExecuteC(), but sets the ctx on the command.\n  1076\t// Retrieve ctx by calling cmd.Context() inside your *Run lifecycle or ValidArgs\n  1077\t// functions.\n  1078\tfunc (c *Command) ExecuteContextC(ctx context.Context) (*Command, error) {\n  1079\t\tc.ctx = ctx\n  1080\t\treturn c.ExecuteC()\n  1081\t}\n  1082\t\n  1083\t// ExecuteC executes the command.\n  1084\tfunc (c *Command) ExecuteC() (cmd *Command, err error) {\n  1085\t\tif c.ctx == nil {\n  1086\t\t\tc.ctx = context.Background()\n  1087\t\t}\n  1088\t\n  1089\t\t// Regardless of what command execute is called on, run on Root only\n  1090\t\tif c.HasParent() {\n  1091\t\t\treturn c.Root().ExecuteC()\n  1092\t\t}\n  1093\t\n  1094\t\t// windows hook"
+    },
+    {
+      "tool": "Grep",
+      "args": {
+        "pattern": "RunE|CheckErr|os\\.Exit",
+        "path": "README.md",
+        "output_mode": "content",
+        "-i": false
+      },
+      "result_preview": ""
+    },
+    {
+      "tool": "Glob",
+      "args": {
+        "pattern": "site/content/**/*.md"
+      },
+      "result_preview": "site/content/projects_using_cobra.md\nsite/content/user_guide.md\nsite/content/docgen/yaml.md\nsite/content/docgen/man.md\nsite/content/docgen/md.md\nsite/content/docgen/rest.md\nsite/content/docgen/_index.md\nsite/content/completions/zsh.md\nsite/content/completions/bash.md\nsite/content/completions/fish.md\nsite/content/completions/powershell.md\nsite/content/completions/_index.md\nsite/content/active_help.md"
+    },
+    {
+      "tool": "Grep",
+      "args": {
+        "pattern": "RunE|PreRun|PostRun|CheckErr|os\\.Exit|Execute\\(\\)",
+        "path": "site/content/user_guide.md",
+        "output_mode": "content",
+        "-n": true
+      },
+      "result_preview": "24:  cmd.Execute()\r\n58:func Execute() {\r\n59:  if err := rootCmd.Execute(); err != nil {\r\n61:    os.Exit(1)\r\n96:func Execute() error {\r\n97:\treturn rootCmd.Execute()\r\n123:\t\tcobra.CheckErr(err)\r\n152:  cmd.Execute()\r\n220:If you wish to return an error to the caller of a command, `RunE` can be used.\r\n238:  RunE: func(cmd *cobra.Command, args []string) error {\r\n555:  rootCmd.Execute()\r\n687:## PreRun and PostRun Hooks\r\n689:It is possible to run functions before or after the main `Run` function of your command. The `PersistentPreRun` and `PreRun` functions will be executed before `Run`. `PersistentPostRun` and `PostRun` will be executed after `Run`.  The `Persistent*Run` functions will be inherited by children if they do not declare their own.  The `*PreRun` and `*PostRun` functions will only be executed if the `Run` function of the current command has been declared.  These functions are run in the following order:\r\n691:- `PersistentPreRun`\r\n692:- `PreRun`\r\n694:- `PostRun`\r\n695:- `PersistentPostRun`\r\n697:An example of two commands which use all of these features is below.  When the subcommand is executed, it will run the root command's `PersistentPreRun` but not the root command's `PersistentPostRun`:\r\n713:    PersistentPreRun: func(cmd *cobra.Command, args []string) {\r\n714:      fmt.Printf(\"Inside rootCmd PersistentPreRun with args: %v\\n\", args)\r\n716:    PreRun: func(cmd *cobra.Command, args []string) {\r\n717:      fmt.Printf(\"Inside rootCmd PreRun with args: %v\\n\", args)\r\n722:    PostRun: func(cmd *cobra.Command, args []string) {\r\n723:      fmt.Printf(\"Inside rootCmd PostRun with args: %v\\n\", args)\r\n725:    PersistentPostRun: func(cmd *cobra.Command, args []string) {\r\n726:      fmt.Printf(\"Inside rootCmd PersistentPostRun with args: %v\\n\", args)\r\n733:    PreRun: func(cmd *cobra.Command, args []string) {\r\n734:      fmt.Printf(\"Inside subCmd PreRun with args: %v\\n\", args)\r\n739:    PostRun: func(cmd *cobra.Command, args []string) {\r\n740:      fmt.Printf(\"Inside subCmd PostRun with args: %v\\n\", args)\r\n742:    PersistentPostRun: func(cmd *cobra.Command, args []string) {\r\n743:      fmt.Printf(\"Inside subCmd PersistentPostRun with args: %v\\n\", args)\r\n750:  rootCmd.Execute()\r\n753:  rootCmd.Execute()\r\n759:Inside rootCmd PersistentPreRun with args: []\r\n760:Inside rootCmd PreRun with args: []\r\n762:Inside rootCmd PostRun with args: []\r\n763:Inside rootCmd PersistentPostRun with args: []\r\n765:Inside rootCmd PersistentPreRun with args: [arg1 arg2]\r\n766:Inside subCmd PreRun with args: [arg1 arg2]\r\n768:Inside subCmd PostRun with args: [arg1 arg2]\r\n769:Inside subCmd PersistentPostRun with args: [arg1 arg2]\r\n773:That is why in the above output, the `rootCmd PersistentPostRun` was not called for a child command.\r\n866:\trootCmd.Execute()\r\n"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "site/content/user_guide.md",
+        "offset": 218,
+        "limit": 35
+      },
+      "result_preview": "   218\t### Returning and handling errors\n   219\t\n   220\tIf you wish to return an error to the caller of a command, `RunE` can be used.\n   221\t\n   222\t```go\n   223\tpackage cmd\n   224\t\n   225\timport (\n   226\t  \"fmt\"\n   227\t\n   228\t  \"github.com/spf13/cobra\"\n   229\t)\n   230\t\n   231\tfunc init() {\n   232\t  rootCmd.AddCommand(tryCmd)\n   233\t}\n   234\t\n   235\tvar tryCmd = &cobra.Command{\n   236\t  Use:   \"try\",\n   237\t  Short: \"Try and possibly fail at something\",\n   238\t  RunE: func(cmd *cobra.Command, args []string) error {\n   239\t    if err := someFunc(); err != nil {\n   240\t\treturn err\n   241\t    }\n   242\t    return nil\n   243\t  },\n   244\t}\n   245\t```\n   246\t\n   247\tThe error can then be caught at the execute function call.\n   248\t\n   249\t## Working with Flags\n   250\t\n   251\tFlags provide modifiers to control how the action command operates.\n   252\t"
+    }
+  ],
+  "cost_usd": 1.08954,
+  "written_at": "2026-04-25T02:53:56.782Z"
+}

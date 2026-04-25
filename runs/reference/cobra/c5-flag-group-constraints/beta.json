@@ -1,0 +1,48 @@
+{
+  "prompt_id": "c5-flag-group-constraints",
+  "repo": "cobra",
+  "condition": "beta",
+  "target_symbol": "MarkFlagsMutuallyExclusive",
+  "bucket": "tie",
+  "metrics": {
+    "tool_calls": 0,
+    "input_tokens": 6,
+    "output_tokens": 1199,
+    "total_tokens": 3616,
+    "wall_clock_ms": 16467
+  },
+  "capped": null,
+  "answer": "# Mutually Exclusive + Required Flag Groups in Cobra\n\nThis is a **cobra** feature, not a pflag one. `pflag` only knows about individual flag parsing; it has no concept of relationships between flags. Cobra layers \"flag groups\" on top via annotations on the command.\n\n## The two helpers you need\n\nFor your \"exactly one\" constraint you actually need **two** calls working together:\n\n```go\ncmd.MarkFlagsMutuallyExclusive(\"from-file\", \"from-url\") // not both\ncmd.MarkFlagsOneRequired(\"from-file\", \"from-url\")       // not neither\n```\n\n- `MarkFlagsMutuallyExclusive` — errors out if more than one flag in the group is set.\n- `MarkFlagsOneRequired` — errors out if none of the flags in the group is set.\n\nCombined, they give you \"exactly one.\"\n\n## Full example\n\n```go\nvar (\n    fromFile string\n    fromURL  string\n)\n\ncmd := &cobra.Command{\n    Use: \"ingest\",\n    RunE: func(cmd *cobra.Command, args []string) error {\n        // At this point cobra guarantees exactly one is non-empty.\n        ...\n    },\n}\n\ncmd.Flags().StringVar(&fromFile, \"from-file\", \"\", \"path to input file\")\ncmd.Flags().StringVar(&fromURL,  \"from-url\",  \"\", \"URL to fetch input from\")\n\ncmd.MarkFlagsMutuallyExclusive(\"from-file\", \"from-url\")\ncmd.MarkFlagsOneRequired(\"from-file\", \"from-url\")\n```\n\n## Behavior / gotchas\n\n1. **Error messages are auto-generated** by cobra, e.g. `Error: if any flags in the group [from-file from-url] are set none of the others can be; [from-file from-url] were all set` and `Error: at least one of the flags in the group [from-file from-url] is required`.\n2. **Don't also call `MarkFlagRequired`** on either individual flag — that would force *both*, contradicting the mutual exclusion.\n3. The flags must already be registered on the command (`cmd.Flags().StringVar(...)`) **before** you call the group helpers; otherwise cobra panics at runtime.\n4. Groups are stored as flag annotations, so they participate in help text generation and shell completion correctly.\n5. `MarkFlagsOneRequired` was added in Cobra v1.8.0 (Dec 2023). On older versions you had to check manually in `PreRunE`. If you're pinned to anything older, upgrade or fall back to:\n\n    ```go\n    PreRunE: func(cmd *cobra.Command, args []string) error {\n        if fromFile == \"\" && fromURL == \"\" {\n            return errors.New(\"one of --from-file or --from-url is required\")\n        }\n        return nil\n    },\n    ```\n\n## Related group helpers (for completeness)\n\nCobra exposes three flag-group helpers, all on `*cobra.Command`:\n\n| Helper | Semantics |\n|---|---|\n| `MarkFlagsRequiredTogether(a, b, …)` | if any is set, all must be set |\n| `MarkFlagsMutuallyExclusive(a, b, …)` | at most one may be set |\n| `MarkFlagsOneRequired(a, b, …)` | at least one must be set |\n\n\"Exactly one\" = mutually exclusive **+** one required, which is the idiomatic cobra pattern for your case.",
+  "trace": [],
+  "diagnostics": {
+    "claudeCodeVersion": "2.1.118",
+    "totalCostUsd": 0.04554075,
+    "numTurns": 1,
+    "isError": false,
+    "terminalReason": "completed",
+    "modelUsage": {
+      "claude-haiku-4-5-20251001": {
+        "inputTokens": 392,
+        "outputTokens": 15,
+        "cacheReadInputTokens": 0,
+        "cacheCreationInputTokens": 0,
+        "webSearchRequests": 0,
+        "costUSD": 0.00046699999999999997,
+        "contextWindow": 200000,
+        "maxOutputTokens": 32000
+      },
+      "claude-opus-4-7": {
+        "inputTokens": 6,
+        "outputTokens": 1199,
+        "cacheReadInputTokens": 0,
+        "cacheCreationInputTokens": 2411,
+        "webSearchRequests": 0,
+        "costUSD": 0.045073749999999996,
+        "contextWindow": 1000000,
+        "maxOutputTokens": 64000
+      }
+    }
+  },
+  "cost_usd": 0.04554075,
+  "written_at": "2026-04-25T03:04:41.203Z"
+}

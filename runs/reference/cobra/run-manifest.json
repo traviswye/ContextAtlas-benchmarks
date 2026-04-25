@@ -1,0 +1,387 @@
+{
+  "manifest_version": "1.0",
+  "generated_at": "2026-04-25T03:06:25.072Z",
+  "repo_name": "cobra",
+  "pinned_repo_sha": "88b30ab89da2d0d0abb153818746c5a2d30eccec",
+  "contextatlas": {
+    "version_label": "ContextAtlas v0.1 (atlas schema v1.1)",
+    "commit_sha": "9f27e03ea2f66c53d9e2c6072fb5a5312e076117",
+    "dist_mtime": "2026-04-25T02:36:52.875Z"
+  },
+  "benchmarks": {
+    "commit_sha": "545a73de5981b5e1062602440d23caddf2c5946c"
+  },
+  "claude_cli_version": "2.1.118",
+  "model": "claude-opus-4-7",
+  "conditions": [
+    "alpha",
+    "ca",
+    "beta",
+    "beta-ca"
+  ],
+  "budget_ceiling_usd": 18,
+  "total_cost_usd": 7.1943865,
+  "halted": null,
+  "cells": [
+    {
+      "prompt_id": "c1-command-behavior",
+      "condition": "alpha",
+      "bucket": "win",
+      "artifact_path": "cobra/c1-command-behavior/alpha.json",
+      "metrics": {
+        "tool_calls": 11,
+        "input_tokens": 57311,
+        "output_tokens": 3065,
+        "total_tokens": 60376,
+        "wall_clock_ms": 48617
+      },
+      "capped": null,
+      "cost_usd": 1.08954
+    },
+    {
+      "prompt_id": "c1-command-behavior",
+      "condition": "ca",
+      "bucket": "win",
+      "artifact_path": "cobra/c1-command-behavior/ca.json",
+      "metrics": {
+        "tool_calls": 6,
+        "input_tokens": 43025,
+        "output_tokens": 2651,
+        "total_tokens": 45676,
+        "wall_clock_ms": 42785
+      },
+      "capped": null,
+      "cost_usd": 0.8442
+    },
+    {
+      "prompt_id": "c1-command-behavior",
+      "condition": "beta",
+      "bucket": "win",
+      "artifact_path": "cobra/c1-command-behavior/beta.json",
+      "metrics": {
+        "tool_calls": 11,
+        "input_tokens": 17,
+        "output_tokens": 3510,
+        "total_tokens": 73613,
+        "wall_clock_ms": 56883
+      },
+      "capped": null,
+      "cost_usd": 0.2578525
+    },
+    {
+      "prompt_id": "c1-command-behavior",
+      "condition": "beta-ca",
+      "bucket": "win",
+      "artifact_path": "cobra/c1-command-behavior/beta-ca.json",
+      "metrics": {
+        "tool_calls": 6,
+        "input_tokens": 9,
+        "output_tokens": 2676,
+        "total_tokens": 35717,
+        "wall_clock_ms": 43661
+      },
+      "capped": null,
+      "cost_usd": 0.14235725
+    },
+    {
+      "prompt_id": "c2-persistent-flag-scope",
+      "condition": "alpha",
+      "bucket": "win",
+      "artifact_path": "cobra/c2-persistent-flag-scope/alpha.json",
+      "metrics": {
+        "tool_calls": 4,
+        "input_tokens": 20012,
+        "output_tokens": 2233,
+        "total_tokens": 22245,
+        "wall_clock_ms": 32726
+      },
+      "capped": null,
+      "cost_usd": 0.467655
+    },
+    {
+      "prompt_id": "c2-persistent-flag-scope",
+      "condition": "ca",
+      "bucket": "win",
+      "artifact_path": "cobra/c2-persistent-flag-scope/ca.json",
+      "metrics": {
+        "tool_calls": 6,
+        "input_tokens": 17188,
+        "output_tokens": 2167,
+        "total_tokens": 19355,
+        "wall_clock_ms": 34362
+      },
+      "capped": null,
+      "cost_usd": 0.420345
+    },
+    {
+      "prompt_id": "c2-persistent-flag-scope",
+      "condition": "beta",
+      "bucket": "win",
+      "artifact_path": "cobra/c2-persistent-flag-scope/beta.json",
+      "metrics": {
+        "tool_calls": 6,
+        "input_tokens": 12,
+        "output_tokens": 2687,
+        "total_tokens": 33477,
+        "wall_clock_ms": 47383
+      },
+      "capped": null,
+      "cost_usd": 0.15055975
+    },
+    {
+      "prompt_id": "c2-persistent-flag-scope",
+      "condition": "beta-ca",
+      "bucket": "win",
+      "artifact_path": "cobra/c2-persistent-flag-scope/beta-ca.json",
+      "metrics": {
+        "tool_calls": 9,
+        "input_tokens": 11,
+        "output_tokens": 2522,
+        "total_tokens": 51699,
+        "wall_clock_ms": 41637
+      },
+      "capped": null,
+      "cost_usd": 0.13846350000000002
+    },
+    {
+      "prompt_id": "c3-hook-lifecycle",
+      "condition": "alpha",
+      "bucket": "win",
+      "artifact_path": "cobra/c3-hook-lifecycle/alpha.json",
+      "metrics": {
+        "tool_calls": 4,
+        "input_tokens": 10760,
+        "output_tokens": 1636,
+        "total_tokens": 12396,
+        "wall_clock_ms": 25961
+      },
+      "capped": null,
+      "cost_usd": 0.2841
+    },
+    {
+      "prompt_id": "c3-hook-lifecycle",
+      "condition": "ca",
+      "bucket": "win",
+      "artifact_path": "cobra/c3-hook-lifecycle/ca.json",
+      "metrics": {
+        "tool_calls": 3,
+        "input_tokens": 14324,
+        "output_tokens": 1329,
+        "total_tokens": 15653,
+        "wall_clock_ms": 20931
+      },
+      "capped": null,
+      "cost_usd": 0.314535
+    },
+    {
+      "prompt_id": "c3-hook-lifecycle",
+      "condition": "beta",
+      "bucket": "win",
+      "artifact_path": "cobra/c3-hook-lifecycle/beta.json",
+      "metrics": {
+        "tool_calls": 10,
+        "input_tokens": 16,
+        "output_tokens": 2934,
+        "total_tokens": 59987,
+        "wall_clock_ms": 48352
+      },
+      "capped": null,
+      "cost_usd": 0.19121975
+    },
+    {
+      "prompt_id": "c3-hook-lifecycle",
+      "condition": "beta-ca",
+      "bucket": "win",
+      "artifact_path": "cobra/c3-hook-lifecycle/beta-ca.json",
+      "metrics": {
+        "tool_calls": 4,
+        "input_tokens": 8,
+        "output_tokens": 1948,
+        "total_tokens": 19812,
+        "wall_clock_ms": 34703
+      },
+      "capped": null,
+      "cost_usd": 0.10320474999999998
+    },
+    {
+      "prompt_id": "c4-subcommand-resolution",
+      "condition": "alpha",
+      "bucket": "win",
+      "artifact_path": "cobra/c4-subcommand-resolution/alpha.json",
+      "metrics": {
+        "tool_calls": 7,
+        "input_tokens": 21349,
+        "output_tokens": 2189,
+        "total_tokens": 23538,
+        "wall_clock_ms": 33951
+      },
+      "capped": null,
+      "cost_usd": 0.48441
+    },
+    {
+      "prompt_id": "c4-subcommand-resolution",
+      "condition": "ca",
+      "bucket": "win",
+      "artifact_path": "cobra/c4-subcommand-resolution/ca.json",
+      "metrics": {
+        "tool_calls": 8,
+        "input_tokens": 33646,
+        "output_tokens": 2385,
+        "total_tokens": 36031,
+        "wall_clock_ms": 37614
+      },
+      "capped": null,
+      "cost_usd": 0.683565
+    },
+    {
+      "prompt_id": "c4-subcommand-resolution",
+      "condition": "beta",
+      "bucket": "win",
+      "artifact_path": "cobra/c4-subcommand-resolution/beta.json",
+      "metrics": {
+        "tool_calls": 6,
+        "input_tokens": 12,
+        "output_tokens": 2474,
+        "total_tokens": 42082,
+        "wall_clock_ms": 47955
+      },
+      "capped": null,
+      "cost_usd": 0.19187
+    },
+    {
+      "prompt_id": "c4-subcommand-resolution",
+      "condition": "beta-ca",
+      "bucket": "win",
+      "artifact_path": "cobra/c4-subcommand-resolution/beta-ca.json",
+      "metrics": {
+        "tool_calls": 5,
+        "input_tokens": 9,
+        "output_tokens": 1905,
+        "total_tokens": 32668,
+        "wall_clock_ms": 34147
+      },
+      "capped": null,
+      "cost_usd": 0.13960025
+    },
+    {
+      "prompt_id": "c5-flag-group-constraints",
+      "condition": "alpha",
+      "bucket": "tie",
+      "artifact_path": "cobra/c5-flag-group-constraints/alpha.json",
+      "metrics": {
+        "tool_calls": 3,
+        "input_tokens": 10148,
+        "output_tokens": 1513,
+        "total_tokens": 11661,
+        "wall_clock_ms": 20786
+      },
+      "capped": null,
+      "cost_usd": 0.265695
+    },
+    {
+      "prompt_id": "c5-flag-group-constraints",
+      "condition": "ca",
+      "bucket": "tie",
+      "artifact_path": "cobra/c5-flag-group-constraints/ca.json",
+      "metrics": {
+        "tool_calls": 5,
+        "input_tokens": 18541,
+        "output_tokens": 1383,
+        "total_tokens": 19924,
+        "wall_clock_ms": 24071
+      },
+      "capped": null,
+      "cost_usd": 0.38184
+    },
+    {
+      "prompt_id": "c5-flag-group-constraints",
+      "condition": "beta",
+      "bucket": "tie",
+      "artifact_path": "cobra/c5-flag-group-constraints/beta.json",
+      "metrics": {
+        "tool_calls": 0,
+        "input_tokens": 6,
+        "output_tokens": 1199,
+        "total_tokens": 3616,
+        "wall_clock_ms": 16467
+      },
+      "capped": null,
+      "cost_usd": 0.04554075
+    },
+    {
+      "prompt_id": "c5-flag-group-constraints",
+      "condition": "beta-ca",
+      "bucket": "tie",
+      "artifact_path": "cobra/c5-flag-group-constraints/beta-ca.json",
+      "metrics": {
+        "tool_calls": 5,
+        "input_tokens": 9,
+        "output_tokens": 1860,
+        "total_tokens": 26412,
+        "wall_clock_ms": 32534
+      },
+      "capped": null,
+      "cost_usd": 0.108768
+    },
+    {
+      "prompt_id": "c6-execute-signature",
+      "condition": "alpha",
+      "bucket": "trick",
+      "artifact_path": "cobra/c6-execute-signature/alpha.json",
+      "metrics": {
+        "tool_calls": 2,
+        "input_tokens": 5938,
+        "output_tokens": 723,
+        "total_tokens": 6661,
+        "wall_clock_ms": 9771
+      },
+      "capped": null,
+      "cost_usd": 0.143295
+    },
+    {
+      "prompt_id": "c6-execute-signature",
+      "condition": "ca",
+      "bucket": "trick",
+      "artifact_path": "cobra/c6-execute-signature/ca.json",
+      "metrics": {
+        "tool_calls": 3,
+        "input_tokens": 8914,
+        "output_tokens": 888,
+        "total_tokens": 9802,
+        "wall_clock_ms": 17305
+      },
+      "capped": null,
+      "cost_usd": 0.20031
+    },
+    {
+      "prompt_id": "c6-execute-signature",
+      "condition": "beta",
+      "bucket": "trick",
+      "artifact_path": "cobra/c6-execute-signature/beta.json",
+      "metrics": {
+        "tool_calls": 7,
+        "input_tokens": 13,
+        "output_tokens": 1592,
+        "total_tokens": 30168,
+        "wall_clock_ms": 28359
+      },
+      "capped": null,
+      "cost_usd": 0.10303399999999999
+    },
+    {
+      "prompt_id": "c6-execute-signature",
+      "condition": "beta-ca",
+      "bucket": "trick",
+      "artifact_path": "cobra/c6-execute-signature/beta-ca.json",
+      "metrics": {
+        "tool_calls": 3,
+        "input_tokens": 8,
+        "output_tokens": 905,
+        "total_tokens": 12833,
+        "wall_clock_ms": 15883
+      },
+      "capped": null,
+      "cost_usd": 0.042426
+    }
+  ]
+}
