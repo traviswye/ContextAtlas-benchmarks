@@ -9,6 +9,8 @@
 //                                     [--no-retry]
 //                                     [--prompts <id,id,...>]
 //                                     [--conditions <cond,cond,...>]
+//                                     [--skip-preflight]
+//                                     [--preflight-only]
 //
 // Defaults:
 //   --repo hono
@@ -17,6 +19,17 @@
 //   --retry ON (pass --no-retry to disable)
 //   --prompts   (unset = full prompt set for the repo)
 //   --conditions alpha,ca,beta,beta-ca
+//   --skip-preflight / --preflight-only both OFF
+//
+// MCP preflight (ADR-14 / Step 7 finding): when `beta-ca` is in the
+// active conditions set, a one-shot preflight probe spawns Claude
+// Code CLI with the beta-ca MCP config and scans the trace for
+// "Claude requested permissions to use" — the sentinel string the
+// Step-7 permission-block regression produced. Aborts with an
+// actionable error if the sentinel hits, preventing a full matrix
+// from running against a broken harness. `--skip-preflight` is an
+// escape hatch for debugging; `--preflight-only` runs the probe and
+// exits before the matrix loads.
 //
 // Cell filtering: --prompts and --conditions restrict which cells
 // execute. Useful for targeted re-runs (e.g., v0.2 Step 4c
@@ -32,6 +45,8 @@ import { stat } from "node:fs/promises";
 import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { CapsTracker } from "../src/harness/caps.js";
+import { runClaudeCode } from "../src/harness/claude-code-driver.js";
 import { type Condition, generateRunRootDir } from "../src/harness/metrics.js";
 import { runMatrix } from "../src/harness/run.js";
 
@@ -56,6 +71,8 @@ export interface Args {
   readonly retry: boolean;
   readonly promptIds?: readonly string[];
   readonly conditions: readonly Condition[];
+  readonly skipPreflight: boolean;
+  readonly preflightOnly: boolean;
 }
 
 export function parseArgs(argv: readonly string[]): Args {
@@ -68,6 +85,8 @@ export function parseArgs(argv: readonly string[]): Args {
   let retry = true;
   let promptIds: readonly string[] | undefined;
   let conditions: readonly Condition[] = VALID_CONDITIONS;
+  let skipPreflight = false;
+  let preflightOnly = false;
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === "--repo") {
@@ -112,6 +131,10 @@ export function parseArgs(argv: readonly string[]): Args {
         }
       }
       conditions = parsed as readonly Condition[];
+    } else if (a === "--skip-preflight") {
+      skipPreflight = true;
+    } else if (a === "--preflight-only") {
+      preflightOnly = true;
     } else {
       throw new Error(`unknown argument: ${a}`);
     }
@@ -121,7 +144,20 @@ export function parseArgs(argv: readonly string[]): Args {
       `--warning (${warning}) must be less than --ceiling (${ceiling})`,
     );
   }
-  const out: Args = { repo, ceiling, warning, retry, conditions };
+  if (skipPreflight && preflightOnly) {
+    throw new Error(
+      `--skip-preflight and --preflight-only are mutually exclusive`,
+    );
+  }
+  const out: Args = {
+    repo,
+    ceiling,
+    warning,
+    retry,
+    conditions,
+    skipPreflight,
+    preflightOnly,
+  };
   return promptIds === undefined ? out : { ...out, promptIds };
 }
 
@@ -194,6 +230,128 @@ const PINNED_REPO_SHAS: Record<"hono" | "httpx" | "cobra", string> = {
   cobra: "88b30ab89da2d0d0abb153818746c5a2d30eccec",
 };
 
+// ---- MCP preflight (Step 7 regression guard) ----
+
+/**
+ * Per-target probe prompts. Explicit instruction to force exactly
+ * one `find_by_intent` MCP call. "Exactly once" + "Do not use any
+ * other tools" keeps the probe deterministic so a permission-block
+ * failure surfaces predictably and a clean pass is cheap.
+ */
+const PROBE_PROMPTS: Record<"hono" | "httpx" | "cobra", string> = {
+  hono:
+    "Use the mcp__contextatlas__find_by_intent tool exactly once with query 'main architectural decisions'. Do not use any other tools.",
+  httpx:
+    "Use the mcp__contextatlas__find_by_intent tool exactly once with query 'main architectural decisions'. Do not use any other tools.",
+  cobra:
+    "Use the mcp__contextatlas__find_by_intent tool exactly once with query 'main architectural decisions'. Do not use any other tools.",
+};
+
+/**
+ * Sentinel string emitted by Claude Code CLI when an MCP tool call
+ * is blocked by the interactive permission layer. See
+ * `research/beta-ca-mcp-permission-block-finding.md` for the
+ * finding this guard protects against.
+ */
+const PERMISSION_BLOCK_SENTINEL = "Claude requested permissions to use";
+
+export interface McpPreflightResult {
+  readonly ok: boolean;
+  readonly message?: string;
+  readonly probeTrace?: ReadonlyArray<{ tool: string; result_preview: string }>;
+}
+
+/**
+ * Spawn one Claude Code CLI probe cell with the beta-ca MCP config
+ * and scan the resulting trace for the permission-block sentinel.
+ * Returns `{ ok: true }` on clean trace, `{ ok: false, message }`
+ * with an actionable error pointing at `--allowedTools` otherwise.
+ *
+ * Cost envelope: one short probe, capped at 3 tool calls and 30s
+ * wall-clock. Typical spend per call: $0.05–0.10.
+ */
+export async function runMcpPreflight(opts: {
+  readonly repo: "hono" | "httpx" | "cobra";
+  readonly benchmarksRoot: string;
+  readonly claudeBin?: string;
+}): Promise<McpPreflightResult> {
+  const mcpConfigTemplatePath = path.resolve(
+    opts.benchmarksRoot,
+    "configs",
+    `mcp-contextatlas-${opts.repo}.json`,
+  );
+  const addDir = path.resolve(opts.benchmarksRoot, "repos", opts.repo);
+
+  // Tight caps — the probe only needs one MCP call to surface the
+  // regression. Three tool calls gives the model room to retry if
+  // the first attempt hits an unexpected shape.
+  const caps = new CapsTracker({
+    maxToolCalls: 3,
+    maxTotalTokens: 15_000,
+    maxWallClockMs: 30_000,
+    graceMs: 5_000,
+  });
+
+  const output = await runClaudeCode({
+    prompt: PROBE_PROMPTS[opts.repo],
+    model: "opus",
+    addDir,
+    mcpConfigTemplatePath,
+    benchmarksRoot: opts.benchmarksRoot,
+    caps,
+    ...(opts.claudeBin ? { claudeBin: opts.claudeBin } : {}),
+  });
+
+  // Distill the trace to just tool name + result_preview for caller
+  // diagnostic reporting.
+  const probeTrace = output.trace.map((entry) => ({
+    tool: entry.tool,
+    result_preview: entry.result_preview ?? "",
+  }));
+
+  // Did any result_preview contain the permission-block sentinel?
+  const blocked = probeTrace.find((e) =>
+    e.result_preview.includes(PERMISSION_BLOCK_SENTINEL),
+  );
+  if (blocked) {
+    return {
+      ok: false,
+      message:
+        `MCP preflight FAILED for repo=${opts.repo}: Claude Code CLI ` +
+        `blocked the ${blocked.tool} tool call with "${PERMISSION_BLOCK_SENTINEL}". ` +
+        `This is the Step-7 permission-block regression. Verify that ` +
+        `src/harness/claude-code-driver.ts's buildClaudeSpawnArgs ` +
+        `includes the "--allowedTools" flag with ` +
+        `CONTEXTATLAS_MCP_ALLOWED_TOOLS. Running the matrix would ` +
+        `produce invalidated beta-ca data.`,
+      probeTrace,
+    };
+  }
+
+  // Did ANY MCP tool call happen? If the model silently ignored our
+  // explicit instruction and used no tools, the probe is
+  // inconclusive rather than actually-passing. Warn but don't fail
+  // — this can happen when the model interprets the prompt as a
+  // one-shot text response. Rare.
+  const mcpCallAttempted = probeTrace.some((e) =>
+    e.tool.startsWith("mcp__contextatlas__"),
+  );
+  if (!mcpCallAttempted) {
+    return {
+      ok: true,
+      message:
+        `MCP preflight INCONCLUSIVE for repo=${opts.repo}: the model ` +
+        `did not issue any MCP tool call despite the explicit probe ` +
+        `prompt. No permission block detected, but the permission ` +
+        `path was also not exercised. Proceeding — the matrix will ` +
+        `surface any regression in the first beta-ca cell.`,
+      probeTrace,
+    };
+  }
+
+  return { ok: true, probeTrace };
+}
+
 // ---- Main ----
 
 async function main(): Promise<void> {
@@ -211,6 +369,45 @@ async function main(): Promise<void> {
   const provenance = await resolveProvenance();
   // eslint-disable-next-line no-console
   console.log(`[run-reference] provenance:`, provenance);
+
+  // MCP preflight guard — Step 7 regression protection. Runs before
+  // the matrix when beta-ca is in the active conditions set, unless
+  // --skip-preflight is passed. --preflight-only exits here after
+  // reporting the result.
+  const runsBetaCa = args.conditions.includes("beta-ca");
+  const shouldPreflight = runsBetaCa && !args.skipPreflight;
+  if (shouldPreflight || args.preflightOnly) {
+    // eslint-disable-next-line no-console
+    console.log(
+      `[run-reference] running MCP preflight (repo=${args.repo})...`,
+    );
+    const preflight = await runMcpPreflight({
+      repo: args.repo,
+      benchmarksRoot: ROOT,
+    });
+    if (!preflight.ok) {
+      // eslint-disable-next-line no-console
+      console.error(`[run-reference] ${preflight.message}`);
+      process.exit(1);
+    }
+    if (preflight.message) {
+      // eslint-disable-next-line no-console
+      console.log(`[run-reference] preflight: ${preflight.message}`);
+    } else {
+      // eslint-disable-next-line no-console
+      console.log(`[run-reference] preflight OK`);
+    }
+    if (args.preflightOnly) {
+      // eslint-disable-next-line no-console
+      console.log(`[run-reference] --preflight-only set; exiting before matrix`);
+      return;
+    }
+  } else if (args.skipPreflight) {
+    // eslint-disable-next-line no-console
+    console.log(
+      `[run-reference] --skip-preflight set; MCP preflight guard bypassed`,
+    );
+  }
 
   const result = await runMatrix({
     repoName: args.repo,

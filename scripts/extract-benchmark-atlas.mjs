@@ -1,7 +1,7 @@
 // One-time extraction driver for benchmark target atlases.
 //
 // Usage:
-//   node scripts/extract-benchmark-atlas.mjs <hono|httpx|all>
+//   node scripts/extract-benchmark-atlas.mjs <hono|httpx|cobra|all>
 //
 // Reads configs/<repo>.yml and runs contextatlas's extraction
 // pipeline (ADR-08) with configRoot pointing at the benchmarks
@@ -37,10 +37,13 @@ const ROOT = resolve(fileURLToPath(new URL(".", import.meta.url)), "..");
 const SUPPORTED = {
   hono: { language: "typescript", sentinel: "Hono" },
   httpx: { language: "python", sentinel: "Client" },
+  cobra: { language: "go", sentinel: "Command" },
 };
 
 function usage() {
-  console.error("usage: node scripts/extract-benchmark-atlas.mjs <hono|httpx|all>");
+  console.error(
+    "usage: node scripts/extract-benchmark-atlas.mjs <hono|httpx|cobra|all>",
+  );
   process.exit(1);
 }
 

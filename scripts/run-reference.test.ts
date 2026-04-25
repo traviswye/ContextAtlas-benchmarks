@@ -11,6 +11,8 @@ describe("parseArgs — defaults", () => {
     expect(a.retry).toBe(true);
     expect(a.promptIds).toBeUndefined();
     expect(a.conditions).toEqual(["alpha", "ca", "beta", "beta-ca"]);
+    expect(a.skipPreflight).toBe(false);
+    expect(a.preflightOnly).toBe(false);
   });
 });
 
@@ -150,5 +152,31 @@ describe("parseArgs — filter composition", () => {
     expect(a.warning).toBe(0.8);
     expect(a.promptIds).toEqual(["h4-validator-typeflow"]);
     expect(a.conditions).toEqual(["ca"]);
+  });
+});
+
+describe("parseArgs — MCP preflight flags (Step 11)", () => {
+  it("--skip-preflight sets the flag", () => {
+    const a = parseArgs(["--skip-preflight"]);
+    expect(a.skipPreflight).toBe(true);
+    expect(a.preflightOnly).toBe(false);
+  });
+
+  it("--preflight-only sets the flag", () => {
+    const a = parseArgs(["--preflight-only"]);
+    expect(a.preflightOnly).toBe(true);
+    expect(a.skipPreflight).toBe(false);
+  });
+
+  it("rejects --skip-preflight and --preflight-only together", () => {
+    expect(() =>
+      parseArgs(["--skip-preflight", "--preflight-only"]),
+    ).toThrow(/mutually exclusive/);
+  });
+
+  it("preflight flags compose with --repo cobra", () => {
+    const a = parseArgs(["--repo", "cobra", "--preflight-only"]);
+    expect(a.repo).toBe("cobra");
+    expect(a.preflightOnly).toBe(true);
   });
 });
