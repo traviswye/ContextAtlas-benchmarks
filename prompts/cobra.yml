@@ -1,0 +1,58 @@
+# Locked prompt set for the ContextAtlas benchmark — target repo: cobra.
+#
+# Committed as pre-registration per STEP-7-PLAN.md §2: once these
+# prompts run against a baseline condition, their text is frozen.
+# Any paraphrase or reformat invalidates prior results.
+#
+# Step-7 runs ONLY entries with bucket != "held_out". Held-out
+# entries are placeholders for the step-13 extended suite — their
+# prompt text is drafted when that session begins. Do not draft
+# held-out prompt text without session-level approval.
+#
+# ADR mapping (step-7 bucket assignments):
+#   c1 → ADR-01 (commands are data)
+#   c2 → ADR-02 (pflag + 4 FlagSet views)
+#   c3 → ADR-03 (hook lifecycle)
+#   c4 → ADR-04 (resolution + prefix-opt-in)
+#   c5 → ADR-06 (flag groups; tie — annotation mechanism findable
+#                via grep as easily as via atlas)
+#   c6 → no ADR (trick — signature lookup)
+# ADR-05 (help templates), ADR-07 (completions), ADR-08 (injectable
+# IO) reserved for step-13 held-out drafting.
+
+prompts:
+  - prompt_id: c1-command-behavior
+    target_symbol: Command
+    task_category: constraint
+    bucket: win
+    prompt: "I'm building a CLI with cobra and I need to define commands that set up state, run the main logic, clean up after themselves, and signal errors back to the shell. How does cobra expect me to attach that behavior to my Command — and what's the idiomatic way to return errors from a command?"
+
+  - prompt_id: c2-persistent-flag-scope
+    target_symbol: Command
+    task_category: constraint
+    bucket: win
+    prompt: "I want a `--verbose` flag on my root command that every nested subcommand can read, and a child-specific `--dry-run` flag that only that child and its descendants see. How do I declare each one, and what's the difference between `Flags()`, `PersistentFlags()`, `LocalFlags()`, and `InheritedFlags()` on a Command?"
+
+  - prompt_id: c3-hook-lifecycle
+    target_symbol: Command.execute
+    task_category: localize+constraint
+    bucket: win
+    prompt: "I have a root command with a `PersistentPreRun` that initializes a logger, and a child command with its own `PreRun` that uses that logger. What's cobra's actual guarantee about hook ordering — and if my `RunE` returns an error, does `PostRun` still fire?"
+
+  - prompt_id: c4-subcommand-resolution
+    target_symbol: Find
+    task_category: constraint
+    bucket: win
+    prompt: "My CLI has a `database install` subcommand. If a user types `myapp db inst`, will cobra find it? What's cobra's actual resolution algorithm, and what do I have to opt into if I want prefix matching like git does?"
+
+  - prompt_id: c5-flag-group-constraints
+    target_symbol: MarkFlagsMutuallyExclusive
+    task_category: constraint
+    bucket: tie
+    prompt: "I have two flags `--from-file` and `--from-url` and the user must provide exactly one — not both, not neither. How do I express that constraint in cobra, and is it a pflag feature or something cobra adds on top?"
+
+  - prompt_id: c6-execute-signature
+    target_symbol: Command.Execute
+    task_category: localize
+    bucket: trick
+    prompt: "What's the signature of `cobra.Command.Execute`? I need to call it from inside a test harness."
