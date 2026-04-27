@@ -63,3 +63,8 @@ scripts/v0.3-step10-cobra-calibration-results.md
 # results.json is the committed empirical record; DB and .md are not.
 scripts/v0.3-step11-httpx-calibration.db
 scripts/v0.3-step11-httpx-calibration-results.md
+
+# Step 11 hono calibration: temp DB + auto-generated summary.
+# results.json is the committed empirical record; DB and .md are not.
+scripts/v0.3-step11-hono-calibration.db
+scripts/v0.3-step11-hono-calibration-results.md
