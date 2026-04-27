@@ -235,10 +235,12 @@ function buildMarkdown(
   );
   lines.push("");
   lines.push(
-    "**Scope:** v0.1 baseline measurement — ADR-backed architectural intent, LSP-grade structural " +
-      "data, and git signals, served through three MCP tools (`get_symbol_context`, `find_by_intent`, " +
-      "`impact_of_change`). Broader signal fusion (docs mining, PR descriptions, semantic search) is " +
-      "v0.3+ scope and is NOT measured here.",
+    "**Scope:** v0.3 reference measurement on sharpened atlas substrate — ADR-backed architectural " +
+      "intent, LSP-grade structural data, git signals, and Stream B docstring claims (TS/Python/Go), " +
+      "served through three MCP tools (`get_symbol_context`, `find_by_intent`, `impact_of_change`). " +
+      "Beta-vs-Beta+CA reporting carries Step 12 atlas-file-visibility methodology limit per Path 3b. " +
+      "Broader signal fusion (PR descriptions, commit messages, semantic search) remains v0.4+ scope " +
+      "and is NOT measured here.",
   );
   lines.push("");
 

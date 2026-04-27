@@ -419,7 +419,7 @@ async function main(): Promise<void> {
     retryOnCap: args.retry,
     benchmarksRoot: ROOT,
     pinnedRepoSha: PINNED_REPO_SHAS[args.repo],
-    contextatlasVersionLabel: "ContextAtlas v0.1 (atlas schema v1.1)",
+    contextatlasVersionLabel: "ContextAtlas v0.3-dev (atlas schema v1.3)",
     ...provenance,
   });
 
