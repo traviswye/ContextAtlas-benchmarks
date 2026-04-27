@@ -1,0 +1,106 @@
+[
+  {
+    "id": 1,
+    "lang": "TS",
+    "label": "TextRespond (full @-tag set)",
+    "file_line": "hono/src/context.ts:143-156",
+    "docstring_text": "Interface for responding with text.\n\n@interface TextRespond\n@template T - The type of the text content.\n@template U - The type of the status code.\n\n@param {T} text - The text content to be included in the response.\n@param {U} [status] - An optional status code for the response.\n@param {HeaderRecord} [headers] - An optional record of headers to include in the response.\n\n@returns {Response & TypedResponse<T, U, 'text'>} - The response after rendering the text content, typed with the provided text and status code types.",
+    "pre_registered_expectation": "1-2 claims, all context, flat attribution; tagged-extraction richness test. @template/@param/@returns are pure type-shape — should NOT yield claims. Over-extraction failure = 7+ claims (one per tag); under = 0."
+  },
+  {
+    "id": 2,
+    "lang": "TS",
+    "label": "createBunWebSocket (@deprecated)",
+    "file_line": "hono/src/adapter/bun/websocket.ts:104-107",
+    "docstring_text": "@deprecated Import `upgradeWebSocket` and `websocket` directly from `hono/bun` instead.\n@returns A function to create a Bun WebSocket handler.",
+    "pre_registered_expectation": "1 claim, severity=hard, flat attribution; mechanical-marker test (must produce hard from @deprecated tag); migration prose included in claim."
+  },
+  {
+    "id": 3,
+    "lang": "TS",
+    "label": "ExecutionContext (interface-level only)",
+    "file_line": "hono/src/context.ts:28-30",
+    "docstring_text": "Interface for the execution context in a web worker or similar environment.",
+    "pre_registered_expectation": "1 claim, context, flat (interface-level). Hierarchical attribution tests at pipeline-integration time, not calibration."
+  },
+  {
+    "id": 4,
+    "lang": "TS",
+    "label": "ContextVariableMap (empty-body edge case)",
+    "file_line": "hono/src/context.ts:54-57",
+    "docstring_text": "Interface for context variable mapping.",
+    "pre_registered_expectation": "0-1 claims, context (if any), flat; edge case: thin description; both 0 and 1 acceptable; ≥2 = over-extraction."
+  },
+  {
+    "id": 5,
+    "lang": "Python",
+    "label": "httpx.request (httpx-Markdown convention)",
+    "file_line": "httpx/httpx/_api.py:39-100",
+    "docstring_text": "Sends an HTTP request.\n\n**Parameters:**\n\n* **method** - HTTP method for the new `Request` object: `GET`, `OPTIONS`,\n`HEAD`, `POST`, `PUT`, `PATCH`, or `DELETE`.\n* **url** - URL for the new `Request` object.\n* **params** - *(optional)* Query parameters to include in the URL, as a\nstring, dictionary, or sequence of two-tuples.\n* **content** - *(optional)* Binary content to include in the body of the\nrequest, as bytes or a byte iterator.\n* **data** - *(optional)* Form data to include in the body of the request,\nas a dictionary.\n* **files** - *(optional)* A dictionary of upload files to include in the\nbody of the request.\n* **json** - *(optional)* A JSON serializable object to include in the body\nof the request.\n* **headers** - *(optional)* Dictionary of HTTP headers to include in the\nrequest.\n* **cookies** - *(optional)* Dictionary of Cookie items to include in the\nrequest.\n* **auth** - *(optional)* An authentication class to use when sending the\nrequest.\n* **proxy** - *(optional)* A proxy URL where all the traffic should be routed.\n* **timeout** - *(optional)* The timeout configuration to use when sending\nthe request.\n* **follow_redirects** - *(optional)* Enables or disables HTTP redirects.\n* **verify** - *(optional)* Either `True` to use an SSL context with the\ndefault CA bundle, `False` to disable verification, or an instance of\n`ssl.SSLContext` to use a custom context.\n* **trust_env** - *(optional)* Enables or disables usage of environment\nvariables for configuration.\n\n**Returns:** `Response`\n\nUsage:\n\n```\n>>> import httpx\n>>> response = httpx.request('GET', 'https://httpbin.org/get')\n>>> response\n<Response [200 OK]>\n```",
+    "pre_registered_expectation": "1-2 claims, all context, flat (function-level); MANDATORY convention plurality test. Per-parameter descriptions are type-shape (should NOT yield). Sweet spot: 1 high-level purpose + possibly 1 verify-SSL design (Refinement B positive contrast test). Over-extraction failure: 10+ claims one per parameter."
+  },
+  {
+    "id": 6,
+    "lang": "Python",
+    "label": "UseClientDefault (rich rationale)",
+    "file_line": "httpx/httpx/_client.py:94-111",
+    "docstring_text": "For some parameters such as `auth=...` and `timeout=...` we need to be able\nto indicate the default \"unset\" state, in a way that is distinctly different\nto using `None`.\n\nThe default \"unset\" state indicates that whatever default is set on the\nclient should be used. This is different to setting `None`, which\nexplicitly disables the parameter, possibly overriding a client default.\n\nFor example we use `timeout=USE_CLIENT_DEFAULT` in the `request()` signature.\nOmitting the `timeout` parameter will send a request using whatever default\ntimeout has been configured on the client. Including `timeout=None` will\nensure no timeout is used.\n\nNote that user code shouldn't need to use the `USE_CLIENT_DEFAULT` constant,\nbut it is used internally when a parameter is not included.",
+    "pre_registered_expectation": "2-4 claims, mix context + soft, flat (class-level); sentinel-pattern rationale (context); behavioral semantics (context); SOFT signal: 'user code shouldn't need to use the USE_CLIENT_DEFAULT constant' (severity=soft); soft-detection test."
+  },
+  {
+    "id": 7,
+    "lang": "Python",
+    "label": "auth property (Markdown link)",
+    "file_line": "httpx/httpx/_client.py:272-281",
+    "docstring_text": "Authentication class used when none is passed at the request-level.\n\nSee also [Authentication][0].\n\n[0]: /quickstart/#authentication",
+    "pre_registered_expectation": "1 claim, context, flat (property-level). CRITICAL link-handling test: should flatten [Authentication][0] to human-readable label, not preserve raw mkdocs-relative URL. Pre-registered: flatten."
+  },
+  {
+    "id": 8,
+    "lang": "Python",
+    "label": "is_closed (negative case)",
+    "file_line": "httpx/httpx/_client.py:223-228",
+    "docstring_text": "Check if the client being closed",
+    "pre_registered_expectation": "0 claims (output: {\"claims\": []}); NEGATIVE CASE: pure behavioral; over-extraction failure if ≥1 claim produced."
+  },
+  {
+    "id": 9,
+    "lang": "Go",
+    "label": "ExactValidArgs (Deprecated:)",
+    "file_line": "cobra/args.go:125-128",
+    "docstring_text": "ExactValidArgs returns an error if there are not exactly N positional args OR\nthere are any positional args that are not in the `ValidArgs` field of `Command`\n\nDeprecated: use MatchAll(ExactArgs(n), OnlyValidArgs) instead",
+    "pre_registered_expectation": "1 claim, severity=hard, flat; mechanical-marker test (godoc Deprecated: parity with TS @deprecated #2); migration path included in claim."
+  },
+  {
+    "id": 10,
+    "lang": "Go",
+    "label": "Command struct (API doc with 'requires')",
+    "file_line": "cobra/command.go:50-53",
+    "docstring_text": "Command is just that, a command for your application.\nE.g.  'go run ...' - 'run' is the command. Cobra requires\nyou to define the usage and description as part of your command\ndefinition to ensure usability.",
+    "pre_registered_expectation": "1-2 claims, context (NOT prose hard), flat (type-level); over-detection discipline test: 'Cobra requires...' is API documentation, not architectural assertion. If prompt produces hard, that's over-detection evidence — finding for evidence note §10."
+  },
+  {
+    "id": 11,
+    "lang": "Go",
+    "label": "EnablePrefixMatching ('dangerous thing')",
+    "file_line": "cobra/cobra.go:52-55",
+    "docstring_text": "EnablePrefixMatching allows setting automatic prefix matching. Automatic prefix matching can be a dangerous thing\nto automatically enable in CLI tools.\nSet this to true to enable it.",
+    "pre_registered_expectation": "2-3 claims, mix context + soft + soft; composite severity test: functional description (context); safety warning 'can be a dangerous thing' (soft, NOT hard — hard would over-weight 'dangerous'); activation guidance 'Set this to true' (soft procedural)."
+  },
+  {
+    "id": 12,
+    "lang": "Go",
+    "label": "Context() method (multi-paragraph)",
+    "file_line": "cobra/command.go:262-268",
+    "docstring_text": "Context returns underlying command context. If command was executed\nwith ExecuteContext or the context was set with SetContext, the\npreviously set context will be returned. Otherwise, nil is returned.\n\nNotice that a call to Execute and ExecuteC will replace a nil context of\na command with a context.Background, so a background context will be\nreturned by Context after one of these functions has been called.",
+    "pre_registered_expectation": "1-2 claims, mix context + soft, flat (method-level); behavioral spec (context); 'Notice that...' subtle interaction (soft). Soft-signal test."
+  },
+  {
+    "id": 13,
+    "lang": "Go",
+    "label": "package cobra (package-level)",
+    "file_line": "cobra/cobra.go:15-16",
+    "docstring_text": "Package cobra is a commander providing a simple interface to create powerful modern CLI interfaces.\nIn addition to providing an interface, Cobra simultaneously provides a controller to organize your application code.",
+    "pre_registered_expectation": "1-2 claims, context, flat (package-level); package purpose; possibly architectural shape (interface AND controller pattern). Cross-references deferred Python module-level SymbolId question."
+  }
+]

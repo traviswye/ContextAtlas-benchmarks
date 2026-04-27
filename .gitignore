@@ -49,3 +49,7 @@ atlases/*/index.db
 
 # Claude Code local settings
 .claude/settings.local.json
+
+# Step 9 calibration auto-generated summary (results.json is the
+# committed empirical record; .md is regenerated from it on each run).
+scripts/v0.3-step9-calibration-results.md

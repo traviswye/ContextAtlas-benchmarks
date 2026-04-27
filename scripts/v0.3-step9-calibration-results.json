@@ -1,0 +1,349 @@
+[
+  {
+    "id": 2,
+    "lang": "TS",
+    "timestamp": "2026-04-26T23:51:05.820Z",
+    "raw_response": "{\n  \"claims\": [\n    {\n      \"symbol_candidates\": [\"upgradeWebSocket\", \"websocket\", \"hono/bun\"],\n      \"claim\": \"Deprecated: import `upgradeWebSocket` and `websocket` directly from `hono/bun` instead.\",\n      \"severity\": \"hard\",\n      \"rationale\": \"Marked with @deprecated tag indicating the current export should not be used; consumers must migrate to direct imports from hono/bun.\",\n      \"excerpt\": \"@deprecated Import `upgradeWebSocket` and `websocket` directly from `hono/bun` instead.\"\n    }\n  ]\n}",
+    "parsed_claims": [
+      {
+        "symbol_candidates": [
+          "upgradeWebSocket",
+          "websocket",
+          "hono/bun"
+        ],
+        "claim": "Deprecated: import `upgradeWebSocket` and `websocket` directly from `hono/bun` instead.",
+        "severity": "hard",
+        "rationale": "Marked with @deprecated tag indicating the current export should not be used; consumers must migrate to direct imports from hono/bun.",
+        "excerpt": "@deprecated Import `upgradeWebSocket` and `websocket` directly from `hono/bun` instead."
+      }
+    ],
+    "parse_error": null,
+    "input_tokens": 1071,
+    "output_tokens": 211,
+    "latency_ms": 3034,
+    "cost_usd": 0.03189
+  },
+  {
+    "id": 8,
+    "lang": "Python",
+    "timestamp": "2026-04-26T23:51:12.340Z",
+    "raw_response": "{\"claims\": []}",
+    "parsed_claims": [],
+    "parse_error": null,
+    "input_tokens": 1022,
+    "output_tokens": 11,
+    "latency_ms": 1397,
+    "cost_usd": 0.016155
+  },
+  {
+    "id": 1,
+    "lang": "TS",
+    "timestamp": "2026-04-26T23:53:35.734Z",
+    "raw_response": "{\"claims\":[]}",
+    "parsed_claims": [],
+    "parse_error": null,
+    "input_tokens": 1171,
+    "output_tokens": 12,
+    "latency_ms": 1401,
+    "cost_usd": 0.018465000000000002
+  },
+  {
+    "id": 3,
+    "lang": "TS",
+    "timestamp": "2026-04-26T23:53:38.516Z",
+    "raw_response": "{\n  \"claims\": [\n    {\n      \"symbol_candidates\": [\"web worker\"],\n      \"claim\": \"Defines the interface for execution context in a web worker or similar environment\",\n      \"severity\": \"context\",\n      \"rationale\": \"Describes the purpose of the interface as an abstraction over worker-like execution contexts\",\n      \"excerpt\": \"Interface for the execution context in a web worker or similar environment.\"\n    }\n  ]\n}",
+    "parsed_claims": [
+      {
+        "symbol_candidates": [
+          "web worker"
+        ],
+        "claim": "Defines the interface for execution context in a web worker or similar environment",
+        "severity": "context",
+        "rationale": "Describes the purpose of the interface as an abstraction over worker-like execution contexts",
+        "excerpt": "Interface for the execution context in a web worker or similar environment."
+      }
+    ],
+    "parse_error": null,
+    "input_tokens": 1033,
+    "output_tokens": 143,
+    "latency_ms": 2781,
+    "cost_usd": 0.02622
+  },
+  {
+    "id": 4,
+    "lang": "TS",
+    "timestamp": "2026-04-26T23:53:39.515Z",
+    "raw_response": "{\n  \"claims\": []\n}",
+    "parsed_claims": [],
+    "parse_error": null,
+    "input_tokens": 1025,
+    "output_tokens": 14,
+    "latency_ms": 998,
+    "cost_usd": 0.016425000000000002
+  },
+  {
+    "id": 6,
+    "lang": "Python",
+    "timestamp": "2026-04-26T23:53:46.582Z",
+    "raw_response": "{\n\"claims\": [\n{\n\"symbol_candidates\": [\"USE_CLIENT_DEFAULT\", \"auth\", \"timeout\"],\n\"claim\": \"A sentinel USE_CLIENT_DEFAULT distinguishes 'unset' (use client default) from None (explicitly disable)\",\n\"severity\": \"context\",\n\"rationale\": \"None has semantic meaning (disable parameter), so a separate sentinel is needed to represent the unset state that defers to client defaults\",\n\"excerpt\": \"we need to be able to indicate the default \\\"unset\\\" state, in a way that is distinctly different to using `None`\"\n},\n{\n\"symbol_candidates\": [\"USE_CLIENT_DEFAULT\", \"request\", \"timeout\"],\n\"claim\": \"timeout=USE_CLIENT_DEFAULT defers to the client's configured timeout; timeout=None disables timeouts\",\n\"severity\": \"context\",\n\"rationale\": \"Illustrates the semantic difference between the sentinel and None in the request() signature\",\n\"excerpt\": \"Omitting the `timeout` parameter will send a request using whatever default timeout has been configured on the client. Including `timeout=None` will ensure no timeout is used.\"\n},\n{\n\"symbol_candidates\": [\"USE_CLIENT_DEFAULT\"],\n\"claim\": \"User code should not need to use the USE_CLIENT_DEFAULT constant; it is for internal use\",\n\"severity\": \"soft\",\n\"rationale\": \"The sentinel is an internal implementation detail used when parameters are omitted\",\n\"excerpt\": \"user code shouldn't need to use the `USE_CLIENT_DEFAULT` constant, but it is used internally when a parameter is not included\"\n}\n]\n}",
+    "parsed_claims": [
+      {
+        "symbol_candidates": [
+          "USE_CLIENT_DEFAULT",
+          "auth",
+          "timeout"
+        ],
+        "claim": "A sentinel USE_CLIENT_DEFAULT distinguishes 'unset' (use client default) from None (explicitly disable)",
+        "severity": "context",
+        "rationale": "None has semantic meaning (disable parameter), so a separate sentinel is needed to represent the unset state that defers to client defaults",
+        "excerpt": "we need to be able to indicate the default \"unset\" state, in a way that is distinctly different to using `None`"
+      },
+      {
+        "symbol_candidates": [
+          "USE_CLIENT_DEFAULT",
+          "request",
+          "timeout"
+        ],
+        "claim": "timeout=USE_CLIENT_DEFAULT defers to the client's configured timeout; timeout=None disables timeouts",
+        "severity": "context",
+        "rationale": "Illustrates the semantic difference between the sentinel and None in the request() signature",
+        "excerpt": "Omitting the `timeout` parameter will send a request using whatever default timeout has been configured on the client. Including `timeout=None` will ensure no timeout is used."
+      },
+      {
+        "symbol_candidates": [
+          "USE_CLIENT_DEFAULT"
+        ],
+        "claim": "User code should not need to use the USE_CLIENT_DEFAULT constant; it is for internal use",
+        "severity": "soft",
+        "rationale": "The sentinel is an internal implementation detail used when parameters are omitted",
+        "excerpt": "user code shouldn't need to use the `USE_CLIENT_DEFAULT` constant, but it is used internally when a parameter is not included"
+      }
+    ],
+    "parse_error": null,
+    "input_tokens": 1271,
+    "output_tokens": 567,
+    "latency_ms": 7066,
+    "cost_usd": 0.06159
+  },
+  {
+    "id": 7,
+    "lang": "Python",
+    "timestamp": "2026-04-26T23:53:50.191Z",
+    "raw_response": "{\n  \"claims\": [\n    {\n      \"symbol_candidates\": [],\n      \"claim\": \"Serves as the default Authentication class used when no authentication is passed at the request level.\",\n      \"severity\": \"context\",\n      \"rationale\": \"Describes the role of this class as the fallback authentication mechanism.\",\n      \"excerpt\": \"Authentication class used when none is passed at the request-level.\"\n    },\n    {\n      \"symbol_candidates\": [],\n      \"claim\": \"See Authentication documentation for related details.\",\n      \"severity\": \"context\",\n      \"rationale\": \"Cross-reference to broader authentication documentation.\",\n      \"excerpt\": \"See also [Authentication][0].\"\n    }\n  ]\n}",
+    "parsed_claims": [
+      {
+        "symbol_candidates": [],
+        "claim": "Serves as the default Authentication class used when no authentication is passed at the request level.",
+        "severity": "context",
+        "rationale": "Describes the role of this class as the fallback authentication mechanism.",
+        "excerpt": "Authentication class used when none is passed at the request-level."
+      },
+      {
+        "symbol_candidates": [],
+        "claim": "See Authentication documentation for related details.",
+        "severity": "context",
+        "rationale": "Cross-reference to broader authentication documentation.",
+        "excerpt": "See also [Authentication][0]."
+      }
+    ],
+    "parse_error": null,
+    "input_tokens": 1057,
+    "output_tokens": 228,
+    "latency_ms": 3608,
+    "cost_usd": 0.032955
+  },
+  {
+    "id": 9,
+    "lang": "Go",
+    "timestamp": "2026-04-26T23:53:54.283Z",
+    "raw_response": "{\"claims\":[{\"symbol_candidates\":[\"MatchAll\",\"ExactArgs\",\"OnlyValidArgs\",\"ValidArgs\",\"Command\"],\"claim\":\"ExactValidArgs is deprecated; use MatchAll(ExactArgs(n), OnlyValidArgs) instead\",\"severity\":\"hard\",\"rationale\":\"Explicit deprecation marker indicates the function should not be used in new code\",\"excerpt\":\"Deprecated: use MatchAll(ExactArgs(n), OnlyValidArgs) instead\"},{\"symbol_candidates\":[\"ValidArgs\",\"Command\"],\"claim\":\"ExactValidArgs returns an error if there are not exactly N positional args or any positional args are not in the ValidArgs field of Command\",\"severity\":\"context\",\"rationale\":\"Describes the validation behavior of the function\",\"excerpt\":\"ExactValidArgs returns an error if there are not exactly N positional args OR there are any positional args that are not in the `ValidArgs` field of `Command`\"}]}",
+    "parsed_claims": [
+      {
+        "symbol_candidates": [
+          "MatchAll",
+          "ExactArgs",
+          "OnlyValidArgs",
+          "ValidArgs",
+          "Command"
+        ],
+        "claim": "ExactValidArgs is deprecated; use MatchAll(ExactArgs(n), OnlyValidArgs) instead",
+        "severity": "hard",
+        "rationale": "Explicit deprecation marker indicates the function should not be used in new code",
+        "excerpt": "Deprecated: use MatchAll(ExactArgs(n), OnlyValidArgs) instead"
+      },
+      {
+        "symbol_candidates": [
+          "ValidArgs",
+          "Command"
+        ],
+        "claim": "ExactValidArgs returns an error if there are not exactly N positional args or any positional args are not in the ValidArgs field of Command",
+        "severity": "context",
+        "rationale": "Describes the validation behavior of the function",
+        "excerpt": "ExactValidArgs returns an error if there are not exactly N positional args OR there are any positional args that are not in the `ValidArgs` field of `Command`"
+      }
+    ],
+    "parse_error": null,
+    "input_tokens": 1100,
+    "output_tokens": 334,
+    "latency_ms": 4092,
+    "cost_usd": 0.041550000000000004
+  },
+  {
+    "id": 11,
+    "lang": "Go",
+    "timestamp": "2026-04-26T23:54:02.810Z",
+    "raw_response": "{\n  \"claims\": [\n    {\n      \"symbol_candidates\": [\"EnablePrefixMatching\"],\n      \"claim\": \"EnablePrefixMatching toggles automatic prefix matching for CLI tools\",\n      \"severity\": \"context\",\n      \"rationale\": \"Describes the purpose of the variable\",\n      \"excerpt\": \"EnablePrefixMatching allows setting automatic prefix matching.\"\n    },\n    {\n      \"symbol_candidates\": [\"EnablePrefixMatching\"],\n      \"claim\": \"Automatic prefix matching can be dangerous to enable by default in CLI tools\",\n      \"severity\": \"soft\",\n      \"rationale\": \"Cautions consumers against enabling without consideration\",\n      \"excerpt\": \"Automatic prefix matching can be a dangerous thing to automatically enable in CLI tools.\"\n    },\n    {\n      \"symbol_candidates\": [\"EnablePrefixMatching\"],\n      \"claim\": \"Set EnablePrefixMatching to true to enable automatic prefix matching\",\n      \"severity\": \"soft\",\n      \"rationale\": \"Imperative procedural guidance for opting in\",\n      \"excerpt\": \"Set this to true to enable it.\"\n    }\n  ]\n}",
+    "parsed_claims": [
+      {
+        "symbol_candidates": [
+          "EnablePrefixMatching"
+        ],
+        "claim": "EnablePrefixMatching toggles automatic prefix matching for CLI tools",
+        "severity": "context",
+        "rationale": "Describes the purpose of the variable",
+        "excerpt": "EnablePrefixMatching allows setting automatic prefix matching."
+      },
+      {
+        "symbol_candidates": [
+          "EnablePrefixMatching"
+        ],
+        "claim": "Automatic prefix matching can be dangerous to enable by default in CLI tools",
+        "severity": "soft",
+        "rationale": "Cautions consumers against enabling without consideration",
+        "excerpt": "Automatic prefix matching can be a dangerous thing to automatically enable in CLI tools."
+      },
+      {
+        "symbol_candidates": [
+          "EnablePrefixMatching"
+        ],
+        "claim": "Set EnablePrefixMatching to true to enable automatic prefix matching",
+        "severity": "soft",
+        "rationale": "Imperative procedural guidance for opting in",
+        "excerpt": "Set this to true to enable it."
+      }
+    ],
+    "parse_error": null,
+    "input_tokens": 1080,
+    "output_tokens": 400,
+    "latency_ms": 4866,
+    "cost_usd": 0.046200000000000005
+  },
+  {
+    "id": 12,
+    "lang": "Go",
+    "timestamp": "2026-04-26T23:54:07.551Z",
+    "raw_response": "{\"claims\":[{\"symbol_candidates\":[\"ExecuteContext\",\"SetContext\",\"Context\"],\"claim\":\"Context returns the underlying command context previously set via ExecuteContext or SetContext, or nil if none was set\",\"severity\":\"context\",\"rationale\":\"Documents the retrieval semantics for command context\",\"excerpt\":\"Context returns underlying command context. If command was executed with ExecuteContext or the context was set with SetContext, the previously set context will be returned. Otherwise, nil is returned.\"},{\"symbol_candidates\":[\"Execute\",\"ExecuteC\",\"Context\",\"context.Background\"],\"claim\":\"Execute and ExecuteC replace a nil command context with context.Background, so Context returns a background context after they run\",\"severity\":\"soft\",\"rationale\":\"Callers need to be aware that nil context is replaced after Execute/ExecuteC, affecting what Context returns\",\"excerpt\":\"Notice that a call to Execute and ExecuteC will replace a nil context of a command with a context.Background, so a background context will be returned by Context after one of these functions has been called.\"}]}",
+    "parsed_claims": [
+      {
+        "symbol_candidates": [
+          "ExecuteContext",
+          "SetContext",
+          "Context"
+        ],
+        "claim": "Context returns the underlying command context previously set via ExecuteContext or SetContext, or nil if none was set",
+        "severity": "context",
+        "rationale": "Documents the retrieval semantics for command context",
+        "excerpt": "Context returns underlying command context. If command was executed with ExecuteContext or the context was set with SetContext, the previously set context will be returned. Otherwise, nil is returned."
+      },
+      {
+        "symbol_candidates": [
+          "Execute",
+          "ExecuteC",
+          "Context",
+          "context.Background"
+        ],
+        "claim": "Execute and ExecuteC replace a nil command context with context.Background, so Context returns a background context after they run",
+        "severity": "soft",
+        "rationale": "Callers need to be aware that nil context is replaced after Execute/ExecuteC, affecting what Context returns",
+        "excerpt": "Notice that a call to Execute and ExecuteC will replace a nil context of a command with a context.Background, so a background context will be returned by Context after one of these functions has been called."
+      }
+    ],
+    "parse_error": null,
+    "input_tokens": 1130,
+    "output_tokens": 351,
+    "latency_ms": 4740,
+    "cost_usd": 0.043275
+  },
+  {
+    "id": 13,
+    "lang": "Go",
+    "timestamp": "2026-04-26T23:54:10.118Z",
+    "raw_response": "{\"claims\":[{\"symbol_candidates\":[\"cobra\"],\"claim\":\"cobra is a commander package providing an interface to create CLI applications and a controller to organize application code\",\"severity\":\"context\",\"rationale\":\"Describes the purpose and dual role of the package\",\"excerpt\":\"Package cobra is a commander providing a simple interface to create powerful modern CLI interfaces.\"}]}",
+    "parsed_claims": [
+      {
+        "symbol_candidates": [
+          "cobra"
+        ],
+        "claim": "cobra is a commander package providing an interface to create CLI applications and a controller to organize application code",
+        "severity": "context",
+        "rationale": "Describes the purpose and dual role of the package",
+        "excerpt": "Package cobra is a commander providing a simple interface to create powerful modern CLI interfaces."
+      }
+    ],
+    "parse_error": null,
+    "input_tokens": 1077,
+    "output_tokens": 127,
+    "latency_ms": 2566,
+    "cost_usd": 0.02568
+  },
+  {
+    "id": 5,
+    "lang": "Python",
+    "timestamp": "2026-04-27T00:00:29.762Z",
+    "raw_response": "{\"claims\":[{\"symbol_candidates\":[\"ssl.SSLContext\"],\"claim\":\"verify parameter accepts True (default CA bundle), False (disable verification), or an ssl.SSLContext instance for custom context\",\"severity\":\"context\",\"rationale\":\"The verify parameter encodes a security-relevant default for TLS verification\",\"excerpt\":\"Either `True` to use an SSL context with the default CA bundle, `False` to disable verification, or an instance of `ssl.SSLContext` to use a custom context.\"},{\"symbol_candidates\":[],\"claim\":\"trust_env controls whether environment variables are used for configuration\",\"severity\":\"context\",\"rationale\":\"Environment-variable-driven configuration is a behavioral toggle relevant to deployment context\",\"excerpt\":\"Enables or disables usage of environment variables for configuration.\"}]}",
+    "parsed_claims": [
+      {
+        "symbol_candidates": [
+          "ssl.SSLContext"
+        ],
+        "claim": "verify parameter accepts True (default CA bundle), False (disable verification), or an ssl.SSLContext instance for custom context",
+        "severity": "context",
+        "rationale": "The verify parameter encodes a security-relevant default for TLS verification",
+        "excerpt": "Either `True` to use an SSL context with the default CA bundle, `False` to disable verification, or an instance of `ssl.SSLContext` to use a custom context."
+      },
+      {
+        "symbol_candidates": [],
+        "claim": "trust_env controls whether environment variables are used for configuration",
+        "severity": "context",
+        "rationale": "Environment-variable-driven configuration is a behavioral toggle relevant to deployment context",
+        "excerpt": "Enables or disables usage of environment variables for configuration."
+      }
+    ],
+    "parse_error": null,
+    "input_tokens": 1791,
+    "output_tokens": 277,
+    "latency_ms": 4199,
+    "cost_usd": 0.04764
+  },
+  {
+    "id": 10,
+    "lang": "Go",
+    "timestamp": "2026-04-27T00:00:33.388Z",
+    "raw_response": "{\n  \"claims\": [\n    {\n      \"symbol_candidates\": [\"Cobra\"],\n      \"claim\": \"Command represents a command for an application (e.g., 'run' in 'go run ...')\",\n      \"severity\": \"context\",\n      \"rationale\": \"Defines what a Command is in the Cobra framework\",\n      \"excerpt\": \"Command is just that, a command for your application.\"\n    },\n    {\n      \"symbol_candidates\": [\"Cobra\"],\n      \"claim\": \"Cobra requires usage and description to be defined as part of a command definition\",\n      \"severity\": \"context\",\n      \"rationale\": \"Descriptive API contract of how Cobra works, intended to ensure usability\",\n      \"excerpt\": \"Cobra requires you to define the usage and description as part of your command definition to ensure usability.\"\n    }\n  ]\n}",
+    "parsed_claims": [
+      {
+        "symbol_candidates": [
+          "Cobra"
+        ],
+        "claim": "Command represents a command for an application (e.g., 'run' in 'go run ...')",
+        "severity": "context",
+        "rationale": "Defines what a Command is in the Cobra framework",
+        "excerpt": "Command is just that, a command for your application."
+      },
+      {
+        "symbol_candidates": [
+          "Cobra"
+        ],
+        "claim": "Cobra requires usage and description to be defined as part of a command definition",
+        "severity": "context",
+        "rationale": "Descriptive API contract of how Cobra works, intended to ensure usability",
+        "excerpt": "Cobra requires you to define the usage and description as part of your command definition to ensure usability."
+      }
+    ],
+    "parse_error": null,
+    "input_tokens": 1218,
+    "output_tokens": 265,
+    "latency_ms": 3625,
+    "cost_usd": 0.038145
+  }
+]
