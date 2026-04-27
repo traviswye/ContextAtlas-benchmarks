@@ -487,6 +487,49 @@ Full rationale + decision history at
 v0.2 retrospective implications at
 [`research/v0.2-beta-contamination-retrospective.md`](research/v0.2-beta-contamination-retrospective.md).
 
+### Per-language cost priors (calibration pattern)
+
+The benchmark harness's budget gate uses per-(repo, bucket, condition)
+cost priors to halt before overflow. Priors are calibrated from
+reference-run cell data per a fixed methodology — applying the
+pattern lets us add new target repos in a defensible way rather than
+retuning ad hoc.
+
+**Calibration pattern:**
+- **Anchor:** observed win-bucket averages from full reference runs
+  (`runs/reference/<repo>/run-manifest.json`).
+- **Buffer:** ×1.20 over observed win averages for unseen variance.
+- **Bucket scaling (fixed):** tie at 65% of win, trick at 45%,
+  held_out at 80%.
+
+**Per-repo seeding (v0.3):**
+- **hono (TS-baseline):** preserved at v0.1 partial-run values per
+  Step 13 ship criterion 1; full-Phase-5 recalibration out of v0.3
+  scope.
+- **httpx (Python):** calibrated from Phase 6 reference-run cell data.
+- **cobra (Go):** calibrated from Phase 7 reference-run cell data;
+  blended ~$0.38/cell with the methodology's ×1.20 buffer applied
+  (vs observed $0.30/cell empirical anchor).
+
+Full table at [`src/harness/run.ts`](src/harness/run.ts)
+`COST_PRIORS_V0_3`.
+
+**Fallback semantics:** the budget-gate lookup uses
+`lookupCostPrior(repoName, bucket, condition)` with two-layer
+fallback — unseeded `repoName` falls back to hono (TS-baseline);
+unseeded `(bucket, condition)` falls back to $0.30. Forward-compat
+for adding new target repos before priors are calibrated.
+
+**Source data:**
+- [`research/phase-5-reference-run.md`](research/phase-5-reference-run.md)
+  §7 — hono cost data (also the original $176–210 step-13 projection
+  anchor; revised to $115–150 by Phase 7 §7).
+- [`research/phase-6-httpx-reference-run.md`](research/phase-6-httpx-reference-run.md)
+  §7 — httpx cost data.
+- [`research/phase-7-cobra-reference-run.md`](research/phase-7-cobra-reference-run.md)
+  §7 + §8.4 — cobra cost data + per-language calibration finding
+  that surfaced this work item.
+
 ---
 
 ## Reporting Format

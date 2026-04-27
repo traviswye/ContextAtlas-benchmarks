@@ -58,9 +58,9 @@ painful, that's the signal to implement this.
 ## Natural trigger points for implementation
 
 - **Step 13 execution** (post-contextatlas v0.3): 288-cell matrix at
-  ~$176–210. If ceiling estimation is off by even 10%, a
-  prompt-on-approach would save either a premature halt or an
-  overrun.
+  ~$115–150 (revised from earlier $176–210 per Phase 7 §7). If
+  ceiling estimation is off by even 10%, a prompt-on-approach would
+  save either a premature halt or an overrun.
 - **Any full-matrix run** that crosses ~4 hours of wall-clock or $50+
   of budget, where the restart cost justifies interactivity.
 - **Composite scale-up** — if v0.3+ adds an automation loop that runs
