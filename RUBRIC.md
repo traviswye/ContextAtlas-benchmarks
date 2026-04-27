@@ -430,6 +430,65 @@ to eliminate primacy bias.
 
 ---
 
+## Methodology Hardening (v0.3+)
+
+This section documents methodology additions adopted in v0.3 and
+applied to v0.3+ reference runs. Pre-registration discipline
+(per §"Pre-Registration Commitments" below) treats these as
+methodology additions, not prompt or rubric changes — the locked
+prompt sets and scoring rubrics remain unchanged.
+
+### Atlas-file-visibility filter (trace-time pass)
+
+A trace-time post-run pass detects benchmark cells where any
+condition's trace references v0.2-committed atlas artifacts in the
+workspace (`atlases/<repo>/atlas.json`, `atlases/<repo>/index.db`,
+or its `-shm` / `-wal` SQLite siblings). Implementation:
+[`src/harness/atlas-visibility-filter.ts`](src/harness/atlas-visibility-filter.ts).
+
+The filter output (contaminated cells flagged with per-cell evidence
++ aggregate contamination rate) is the canonical reporting shape
+alongside per-bucket metrics. Backwards-apply on v0.2 reference data
+(71 cells across hono / httpx / cobra) found 23.94% overall
+contamination, concentrated in the `beta` condition (15 of 17
+flagged cells); details in
+[`research/atlas-file-visibility-benchmark-methodology.md`](research/atlas-file-visibility-benchmark-methodology.md).
+
+### Beta-vs-Beta+CA reporting under v0.3 documented limit
+
+Per the methodology note above, v0.3 ships under a documented
+methodology limit on the Beta-vs-Beta+CA comparison: beta substrate
+in v0.2 reference data was contaminated by raw atlas-file access,
+producing **conservative bias** (published Beta-vs-Beta+CA deltas
+understate the clean-workspace counterfactual; not over-claims).
+
+Synthesis documents that surface the Beta-vs-Beta+CA comparison
+cite the methodology note inline. Stream D's Phase 8 synthesis
+(Step 15) carries the caveat as part of the comparison's standard
+reporting shape.
+
+Stream D headline findings (Theme 1.2 fix validation, Stream B
+docstring source value, Theme 1.1 multi-symbol API exercise) are
+computed on CA / beta-ca substrate where contamination is
+structurally absent; headlines retain full pre-registered rigor.
+
+### Clean-workspace mode (v0.4 direction, conditional)
+
+Clean-workspace mode — running benchmark cells with `atlases/<repo>/`
+removed from the agent's workspace while the MCP server reads atlas
+data from a non-workspace location — is documented as the rigorous
+remediation path. It is **deferred to v0.4 as conditional future
+work**, not pre-committed: done if v0.4 quality-axis measurement
+evidence shows beta substrate distortion materially affects findings;
+not done if v0.4 evidence does not justify it.
+
+Full rationale + decision history at
+[`research/atlas-file-visibility-benchmark-methodology.md`](research/atlas-file-visibility-benchmark-methodology.md).
+v0.2 retrospective implications at
+[`research/v0.2-beta-contamination-retrospective.md`](research/v0.2-beta-contamination-retrospective.md).
+
+---
+
 ## Reporting Format
 
 ### Step 7 MVP

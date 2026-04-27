@@ -1,0 +1,790 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-04-27T04:18:51.648Z",
+  "filter_source": "src/harness/atlas-visibility-filter.ts",
+  "threshold": 0.1,
+  "passes_threshold": false,
+  "overall": {
+    "total_cells": 71,
+    "contaminated_cells": 17,
+    "contamination_rate": 0.23943661971830985
+  },
+  "per_repo": {
+    "cobra": {
+      "total": 24,
+      "contaminated": 4,
+      "rate": 0.16666666666666666,
+      "contaminatedCellIds": [
+        "c2-persistent-flag-scope/beta",
+        "c3-hook-lifecycle/beta",
+        "c4-subcommand-resolution/beta",
+        "c6-execute-signature/beta"
+      ]
+    },
+    "hono": {
+      "total": 23,
+      "contaminated": 7,
+      "rate": 0.30434782608695654,
+      "contaminatedCellIds": [
+        "h1-context-runtime/beta",
+        "h2-router-contract/beta",
+        "h3-middleware-onion/beta",
+        "h3-middleware-onion/beta-ca",
+        "h4-validator-typeflow/beta",
+        "h5-hono-generics/beta",
+        "h6-fetch-signature/beta"
+      ]
+    },
+    "httpx": {
+      "total": 24,
+      "contaminated": 6,
+      "rate": 0.25,
+      "contaminatedCellIds": [
+        "p2-http3-transport/beta",
+        "p3-custom-auth/beta",
+        "p4-stream-lifecycle/beta",
+        "p5-drop-anyio/beta",
+        "p6-client-get-args/beta",
+        "p6-client-get-args/beta-ca"
+      ]
+    }
+  },
+  "contaminated_cells": [
+    {
+      "cellId": "c2-persistent-flag-scope/beta",
+      "condition": "beta",
+      "evidence": [
+        {
+          "traceIndex": 2,
+          "tool": "Bash",
+          "atlasPath": "atlases/cobra/index.db",
+          "argSnippet": "{\"command\":\"sqlite3 atlases/cobra/index.db \\\".tables\\\"\",\"description\":\"List tables in cobra atlas index\"}"
+        },
+        {
+          "traceIndex": 3,
+          "tool": "Bash",
+          "atlasPath": "atlases/cobra/atlas.json",
+          "argSnippet": "{\"command\":\"head -c 2000 atlases/cobra/atlas.json\",\"description\":\"Peek cobra atlas.json\"}"
+        }
+      ]
+    },
+    {
+      "cellId": "c3-hook-lifecycle/beta",
+      "condition": "beta",
+      "evidence": [
+        {
+          "traceIndex": 2,
+          "tool": "Bash",
+          "atlasPath": "atlases/cobra/index.db",
+          "argSnippet": "{\"command\":\"sqlite3 atlases/cobra/index.db \\\".tables\\\"\",\"description\":\"List tables in cobra atlas\"}"
+        },
+        {
+          "traceIndex": 3,
+          "tool": "Bash",
+          "atlasPath": "atlases/cobra/index.db",
+          "argSnippet": "{\"command\":\"sqlite3 atlases/cobra/index.db \\\".tables\\\"\",\"description\":\"List tables in cobra atlas index\",\"dangerouslyDisableSandbox\":true}"
+        },
+        {
+          "traceIndex": 4,
+          "tool": "Bash",
+          "atlasPath": "atlases/cobra/index.db",
+          "argSnippet": "{\"command\":\"sqlite3 -readonly atlases/cobra/index.db \\\".tables\\\"\",\"description\":\"List tables in cobra atlas database\"}"
+        },
+        {
+          "traceIndex": 5,
+          "tool": "Read",
+          "atlasPath": "atlases\\cobra\\atlas.json",
+          "argSnippet": "{\"file_path\":\"C:\\\\CodeWork\\\\ContextAtlas-benchmarks\\\\atlases\\\\cobra\\\\atlas.json\"}"
+        },
+        {
+          "traceIndex": 6,
+          "tool": "Bash",
+          "atlasPath": "atlases/cobra/atlas.json",
+          "argSnippet": "{\"command\":\"grep -n -i \\\"PersistentPreRun\\\\|PreRun\\\\|PostRun\\\\|hook\\\" atlases/cobra/atlas.json | head -80\",\"description\":\"Search for hook references in cobra atlas\"}"
+        },
+        {
+          "traceIndex": 7,
+          "tool": "Bash",
+          "atlasPath": "atlases/cobra/atlas.json",
+          "argSnippet": "{\"command\":\"grep -n \\\"ADR-03-hook-lifecycle\\\" atlases/cobra/atlas.json | head -20\",\"description\":\"Find ADR-03 references\"}"
+        }
+      ]
+    },
+    {
+      "cellId": "c4-subcommand-resolution/beta",
+      "condition": "beta",
+      "evidence": [
+        {
+          "traceIndex": 2,
+          "tool": "Bash",
+          "atlasPath": "atlases/cobra/index.db",
+          "argSnippet": "{\"command\":\"sqlite3 atlases/cobra/index.db \\\".tables\\\"\",\"description\":\"List tables in cobra atlas index\"}"
+        },
+        {
+          "traceIndex": 3,
+          "tool": "Bash",
+          "atlasPath": "atlases/cobra/atlas.json",
+          "argSnippet": "{\"command\":\"ls atlases/cobra/ && head -200 atlases/cobra/atlas.json\",\"description\":\"Inspect atlas.json contents\"}"
+        }
+      ]
+    },
+    {
+      "cellId": "c6-execute-signature/beta",
+      "condition": "beta",
+      "evidence": [
+        {
+          "traceIndex": 2,
+          "tool": "Bash",
+          "atlasPath": "atlases/cobra/index.db",
+          "argSnippet": "{\"command\":\"sqlite3 atlases/cobra/index.db \\\".tables\\\"\",\"description\":\"List tables in cobra atlas index\"}"
+        },
+        {
+          "traceIndex": 3,
+          "tool": "Bash",
+          "atlasPath": "atlases/cobra/index.db",
+          "argSnippet": "{\"command\":\"sqlite3 atlases/cobra/index.db \\\".tables\\\"\",\"description\":\"List tables in cobra atlas index\",\"dangerouslyDisableSandbox\":true}"
+        },
+        {
+          "traceIndex": 4,
+          "tool": "Read",
+          "atlasPath": "atlases\\cobra\\atlas.json",
+          "argSnippet": "{\"file_path\":\"C:\\\\CodeWork\\\\ContextAtlas-benchmarks\\\\atlases\\\\cobra\\\\atlas.json\"}"
+        },
+        {
+          "traceIndex": 5,
+          "tool": "Bash",
+          "atlasPath": "atlases/cobra/atlas.json",
+          "argSnippet": "{\"command\":\"grep -n \\\"Execute\\\" atlases/cobra/atlas.json | head -50\",\"description\":\"Search for Execute in cobra atlas\"}"
+        },
+        {
+          "traceIndex": 6,
+          "tool": "Read",
+          "atlasPath": "atlases\\cobra\\atlas.json",
+          "argSnippet": "{\"file_path\":\"C:\\\\CodeWork\\\\ContextAtlas-benchmarks\\\\atlases\\\\cobra\\\\atlas.json\",\"offset\":1550,\"limit\":80}"
+        }
+      ]
+    },
+    {
+      "cellId": "h1-context-runtime/beta",
+      "condition": "beta",
+      "evidence": [
+        {
+          "traceIndex": 2,
+          "tool": "Bash",
+          "atlasPath": "atlases/hono/index.db",
+          "argSnippet": "{\"command\":\"sqlite3 atlases/hono/index.db \\\".tables\\\"\",\"description\":\"List sqlite tables\"}"
+        },
+        {
+          "traceIndex": 3,
+          "tool": "Read",
+          "atlasPath": "atlases\\hono\\atlas.json",
+          "argSnippet": "{\"file_path\":\"C:\\\\CodeWork\\\\ContextAtlas-benchmarks\\\\atlases\\\\hono\\\\atlas.json\",\"limit\":100}"
+        },
+        {
+          "traceIndex": 4,
+          "tool": "Bash",
+          "atlasPath": "atlases/hono/atlas.json",
+          "argSnippet": "{\"command\":\"grep -c \\\"Context\\\" atlases/hono/atlas.json\",\"description\":\"Count Context references\"}"
+        },
+        {
+          "traceIndex": 5,
+          "tool": "Bash",
+          "atlasPath": "atlases/hono/atlas.json",
+          "argSnippet": "{\"command\":\"grep -n \\\"src/context.ts\\\" atlases/hono/atlas.json | head -40\",\"description\":\"Find context.ts references\"}"
+        },
+        {
+          "traceIndex": 6,
+          "tool": "Read",
+          "atlasPath": "atlases\\hono\\atlas.json",
+          "argSnippet": "{\"file_path\":\"C:\\\\CodeWork\\\\ContextAtlas-benchmarks\\\\atlases\\\\hono\\\\atlas.json\",\"offset\":5230,\"limit\":200}"
+        },
+        {
+          "traceIndex": 7,
+          "tool": "Bash",
+          "atlasPath": "atlases/hono/atlas.json",
+          "argSnippet": "{\"command\":\"grep -n \\\"ADR-01-web-standards\\\" atlases/hono/atlas.json | head -5\",\"description\":\"Find ADR-01 references\"}"
+        },
+        {
+          "traceIndex": 8,
+          "tool": "Read",
+          "atlasPath": "atlases\\hono\\atlas.json",
+          "argSnippet": "{\"file_path\":\"C:\\\\CodeWork\\\\ContextAtlas-benchmarks\\\\atlases\\\\hono\\\\atlas.json\",\"offset\":16500,\"limit\":250}"
+        },
+        {
+          "traceIndex": 9,
+          "tool": "Bash",
+          "atlasPath": "atlases/hono/atlas.json",
+          "argSnippet": "{\"command\":\"grep -n \\\"executionCtx\\\\|c\\\\\\\\.env\\\\|app.fetch\\\\|ExecutionContext\\\" atlases/hono/atlas.json | head -30\",\"description\":\"Find execution context and env references\"}"
+        },
+        {
+          "traceIndex": 10,
+          "tool": "Bash",
+          "atlasPath": "atlases/hono/atlas.json",
+          "argSnippet": "{\"command\":\"grep -n \\\"ExecutionContext\\\" atlases/hono/atlas.json | head -20\",\"description\":\"Find ExecutionContext references\"}"
+        },
+        {
+          "traceIndex": 11,
+          "tool": "Read",
+          "atlasPath": "atlases\\hono\\atlas.json",
+          "argSnippet": "{\"file_path\":\"C:\\\\CodeWork\\\\ContextAtlas-benchmarks\\\\atlases\\\\hono\\\\atlas.json\",\"offset\":10498,\"limit\":30}"
+        }
+      ]
+    },
+    {
+      "cellId": "h2-router-contract/beta",
+      "condition": "beta",
+      "evidence": [
+        {
+          "traceIndex": 1,
+          "tool": "Bash",
+          "atlasPath": "atlases/hono/index.db",
+          "argSnippet": "{\"command\":\"ls atlases/hono/ && file atlases/hono/index.db && sqlite3 atlases/hono/index.db \\\".schema\\\" 2>&1 | head -60\",\"description\":\"Inspect hono atlas database schema\"}"
+        },
+        {
+          "traceIndex": 1,
+          "tool": "Bash",
+          "atlasPath": "atlases/hono/index.db",
+          "argSnippet": "{\"command\":\"ls atlases/hono/ && file atlases/hono/index.db && sqlite3 atlases/hono/index.db \\\".schema\\\" 2>&1 | head -60\",\"description\":\"Inspect hono atlas database schema\"}"
+        },
+        {
+          "traceIndex": 2,
+          "tool": "Bash",
+          "atlasPath": "atlases/hono/index.db",
+          "argSnippet": "{\"command\":\"sqlite3 atlases/hono/index.db \\\".schema\\\"\",\"description\":\"Inspect hono atlas database schema\"}"
+        },
+        {
+          "traceIndex": 3,
+          "tool": "Bash",
+          "atlasPath": "atlases/hono/atlas.json",
+          "argSnippet": "{\"command\":\"head -200 atlases/hono/atlas.json\",\"description\":\"Read start of atlas.json\"}"
+        },
+        {
+          "traceIndex": 4,
+          "tool": "Bash",
+          "atlasPath": "atlases/hono/atlas.json",
+          "argSnippet": "{\"command\":\"grep -n -i \\\"router\\\\|ADR-02\\\" atlases/hono/atlas.json | head -80\",\"description\":\"Search for router references in atlas\"}"
+        },
+        {
+          "traceIndex": 5,
+          "tool": "Bash",
+          "atlasPath": "atlases/hono/atlas.json",
+          "argSnippet": "{\"command\":\"grep -n \\\"\\\\\\\"docs\\\\\\\"\\\\\\\\|\\\\\\\"adrs\\\\\\\"\\\\\\\\|\\\\\\\"decisions\\\\\\\"\\\\\\\\|ADR-02\\\" atlases/hono/atlas.json | head -20\",\"description\":\"Find ADR section in atlas.json\"}"
+        },
+        {
+          "traceIndex": 6,
+          "tool": "Bash",
+          "atlasPath": "atlases/hono/atlas.json",
+          "argSnippet": "{\"command\":\"grep -n \\\"ADR-02\\\" atlases/hono/atlas.json | head -20\",\"description\":\"Find ADR-02 references\"}"
+        },
+        {
+          "traceIndex": 7,
+          "tool": "Read",
+          "atlasPath": "atlases\\hono\\atlas.json",
+          "argSnippet": "{\"file_path\":\"C:\\\\CodeWork\\\\ContextAtlas-benchmarks\\\\atlases\\\\hono\\\\atlas.json\",\"offset\":16820,\"limit\":400}"
+        }
+      ]
+    },
+    {
+      "cellId": "h3-middleware-onion/beta",
+      "condition": "beta",
+      "evidence": [
+        {
+          "traceIndex": 2,
+          "tool": "Bash",
+          "atlasPath": "atlases/hono/atlas.json",
+          "argSnippet": "{\"command\":\"ls atlases/hono/ && head -c 2000 atlases/hono/atlas.json\",\"description\":\"Check atlas contents\"}"
+        },
+        {
+          "traceIndex": 3,
+          "tool": "Bash",
+          "atlasPath": "atlases/hono/atlas.json",
+          "argSnippet": "{\"command\":\"grep -l \\\"compose\\\" atlases/hono/atlas.json | head -5; grep -o '\\\"path\\\":\\\"[^\\\"]*compose[^\\\"]*\\\"' atlases/hono/atlas.json | sort -u | head -20\",\"description\":\"Search for compose references in atlas\"}"
+        },
+        {
+          "traceIndex": 3,
+          "tool": "Bash",
+          "atlasPath": "atlases/hono/atlas.json",
+          "argSnippet": "{\"command\":\"grep -l \\\"compose\\\" atlases/hono/atlas.json | head -5; grep -o '\\\"path\\\":\\\"[^\\\"]*compose[^\\\"]*\\\"' atlases/hono/atlas.json | sort -u | head -20\",\"description\":\"Search for compose references in atlas\"}"
+        },
+        {
+          "traceIndex": 4,
+          "tool": "Bash",
+          "atlasPath": "atlases/hono/atlas.json",
+          "argSnippet": "{\"command\":\"grep -oE '\\\"path\\\":\\\\s*\\\"[^\\\"]*compose[^\\\"]*\\\"' atlases/hono/atlas.json | sort -u\",\"description\":\"Find compose-related file paths\"}"
+        },
+        {
+          "traceIndex": 5,
+          "tool": "Bash",
+          "atlasPath": "atlases/hono/atlas.json",
+          "argSnippet": "{\"command\":\"python -c \\\"\\nimport json\\nwith open('atlases/hono/atlas.json') as f:\\n    a = json.load(f)\\nfor s in a['symbols']:\\n    if s.get('path') == 'src/compose.ts':\\n        print(s.get('line'), s.get('kind'), s.get('name'), '|', s.get('signature',''))\\n\\\"\",\"description\":\"List symbols in compose.ts\"}"
+        },
+        {
+          "traceIndex": 6,
+          "tool": "Bash",
+          "atlasPath": "atlases/hono/atlas.json",
+          "argSnippet": "{\"command\":\"grep -oE '\\\\{[^{}]*\\\"path\\\":\\\\s*\\\"src/compose.ts\\\"[^{}]*\\\\}' atlases/hono/atlas.json | head -40\",\"description\":\"List symbols in compose.ts\"}"
+        },
+        {
+          "traceIndex": 7,
+          "tool": "Bash",
+          "atlasPath": "atlases/hono/atlas.json",
+          "argSnippet": "{\"command\":\"grep -n -B1 -A6 '\\\"path\\\": \\\"src/compose.ts\\\"' atlases/hono/atlas.json | head -120\",\"description\":\"Show compose.ts symbol context\"}"
+        },
+        {
+          "traceIndex": 8,
+          "tool": "Bash",
+          "atlasPath": "atlases/hono/atlas.json",
+          "argSnippet": "{\"command\":\"sed -n '5130,5165p' atlases/hono/atlas.json\",\"description\":\"Show compose.ts symbol\"}"
+        },
+        {
+          "traceIndex": 9,
+          "tool": "Bash",
+          "atlasPath": "atlases/hono/atlas.json",
+          "argSnippet": "{\"command\":\"grep -n \\\"ADR-03\\\" atlases/hono/atlas.json | head -20\",\"description\":\"Find ADR-03 references\"}"
+        },
+        {
+          "traceIndex": 10,
+          "tool": "Bash",
+          "atlasPath": "atlases/hono/atlas.json",
+          "argSnippet": "{\"command\":\"sed -n '17100,17400p' atlases/hono/atlas.json\",\"description\":\"Read ADR-03 narrative chunks\"}"
+        },
+        {
+          "traceIndex": 11,
+          "tool": "Bash",
+          "atlasPath": "atlases/hono/atlas.json",
+          "argSnippet": "{\"command\":\"sed -n '17400,17700p' atlases/hono/atlas.json\",\"description\":\"Continue reading ADR-03 narrative chunks\"}"
+        }
+      ]
+    },
+    {
+      "cellId": "h3-middleware-onion/beta-ca",
+      "condition": "beta-ca",
+      "evidence": [
+        {
+          "traceIndex": 6,
+          "tool": "Bash",
+          "atlasPath": "atlases/hono/atlas.json",
+          "argSnippet": "{\"command\":\"cat atlases/hono/atlas.json | head -30\",\"description\":\"Inspect atlas.json metadata\"}"
+        }
+      ]
+    },
+    {
+      "cellId": "h4-validator-typeflow/beta",
+      "condition": "beta",
+      "evidence": [
+        {
+          "traceIndex": 2,
+          "tool": "Bash",
+          "atlasPath": "atlases/hono/atlas.json",
+          "argSnippet": "{\"command\":\"ls atlases/hono/ -la 2>/dev/null; file atlases/hono/atlas.json 2>/dev/null; head -c 2000 atlases/hono/atlas.json\",\"description\":\"Inspect atlas.json contents\"}"
+        },
+        {
+          "traceIndex": 2,
+          "tool": "Bash",
+          "atlasPath": "atlases/hono/atlas.json",
+          "argSnippet": "{\"command\":\"ls atlases/hono/ -la 2>/dev/null; file atlases/hono/atlas.json 2>/dev/null; head -c 2000 atlases/hono/atlas.json\",\"description\":\"Inspect atlas.json contents\"}"
+        },
+        {
+          "traceIndex": 3,
+          "tool": "Bash",
+          "atlasPath": "atlases/hono/index.db",
+          "argSnippet": "{\"command\":\"sqlite3 atlases/hono/index.db \\\".schema\\\" 2>&1 | head -60\",\"description\":\"Inspect atlas sqlite schema\"}"
+        },
+        {
+          "traceIndex": 4,
+          "tool": "Bash",
+          "atlasPath": "atlases/hono/index.db",
+          "argSnippet": "{\"command\":\"sqlite3 atlases/hono/index.db \\\".schema\\\"\",\"description\":\"Inspect atlas sqlite schema\"}"
+        },
+        {
+          "traceIndex": 5,
+          "tool": "Bash",
+          "atlasPath": "atlases/hono/atlas.json",
+          "argSnippet": "{\"command\":\"grep -o '\\\"path\\\":\\\"[^\\\"]*validator[^\\\"]*\\\"' atlases/hono/atlas.json | sort -u | head -30\",\"description\":\"Find validator-related paths in atlas\"}"
+        },
+        {
+          "traceIndex": 6,
+          "tool": "Bash",
+          "atlasPath": "atlases/hono/atlas.json",
+          "argSnippet": "{\"command\":\"grep -oE '\\\"path\\\": \\\"[^\\\"]*\\\"' atlases/hono/atlas.json | sort -u | head -80\",\"description\":\"List unique file paths in atlas\"}"
+        },
+        {
+          "traceIndex": 7,
+          "tool": "Bash",
+          "atlasPath": "atlases/hono/atlas.json",
+          "argSnippet": "{\"command\":\"grep -oE '\\\"path\\\": \\\"[^\\\"]*\\\"' atlases/hono/atlas.json | sort -u | grep -iE 'valid|client|hono-base|types' | head -40\",\"description\":\"Find validator/client/type files in atlas\"}"
+        },
+        {
+          "traceIndex": 8,
+          "tool": "Bash",
+          "atlasPath": "atlases/hono/atlas.json",
+          "argSnippet": "{\"command\":\"grep -oE '\\\"id\\\": \\\"sym:ts:src/validator/validator\\\\.ts:[^\\\"]*\\\"' atlases/hono/atlas.json | sort -u\",\"description\":\"List validator.ts symbols\"}"
+        },
+        {
+          "traceIndex": 9,
+          "tool": "Bash",
+          "atlasPath": "atlases/hono/atlas.json",
+          "argSnippet": "{\"command\":\"python -c \\\"import json; d=json.load(open('atlases/hono/atlas.json')); syms=[s for s in d['symbols'] if s.get('path','').startswith('src/validator/validator.ts')]; import pprint; pprint.pprint(syms[:20])\\\"\",\"description\":\"Inspect validator symbols in detail\"}"
+        },
+        {
+          "traceIndex": 10,
+          "tool": "Bash",
+          "atlasPath": "atlases/hono/atlas.json",
+          "argSnippet": "{\"command\":\"node -e \\\"const d=require('./atlases/hono/atlas.json'); const syms=d.symbols.filter(s=>(s.path||'').startsWith('src/validator/validator.ts')); console.log(JSON.stringify(syms.slice(0,20),null,2));\\\"\",\"description\":\"Inspect validator symbols\"}"
+        },
+        {
+          "traceIndex": 11,
+          "tool": "Bash",
+          "atlasPath": "atlases/hono/atlas.json",
+          "argSnippet": "{\"command\":\"grep -A 30 '\\\"id\\\": \\\"sym:ts:src/validator/validator.ts:validator\\\"' atlases/hono/atlas.json | head -60\",\"description\":\"Inspect the validator symbol entry\"}"
+        },
+        {
+          "traceIndex": 12,
+          "tool": "Bash",
+          "atlasPath": "atlases/hono/atlas.json",
+          "argSnippet": "{\"command\":\"grep -B2 -A 30 '\\\"ADR-04\\\"' atlases/hono/atlas.json | head -200\",\"description\":\"Check ADR-04 claims on type inference to client\"}"
+        },
+        {
+          "traceIndex": 13,
+          "tool": "Bash",
+          "atlasPath": "atlases/hono/atlas.json",
+          "argSnippet": "{\"command\":\"grep -B2 -A 8 'ExtractValidatorOutput\\\\|ValidationFunction\\\\|\\\"Schema\\\"\\\\|\\\"ToSchema\\\"\\\\|\\\"Input\\\"' atlases/hono/atlas.json | grep -A 6 '\\\"claim\\\":' | head -80\",\"description\":\"Look for claims on Input/Schema/ToSchema\"}"
+        },
+        {
+          "traceIndex": 14,
+          "tool": "Bash",
+          "atlasPath": "atlases/hono/atlas.json",
+          "argSnippet": "{\"command\":\"grep -B 1 -A 6 '\\\"claim\\\":' atlases/hono/atlas.json | grep -B 1 -A 4 -i 'validat\\\\|Input\\\\|ToSchema\\\\|typed client\\\\|hc<' | head -100\",\"description\":\"Find validator-related claims\"}"
+        }
+      ]
+    },
+    {
+      "cellId": "h5-hono-generics/beta",
+      "condition": "beta",
+      "evidence": [
+        {
+          "traceIndex": 5,
+          "tool": "Read",
+          "atlasPath": "atlases\\hono\\atlas.json",
+          "argSnippet": "{\"file_path\":\"C:\\\\CodeWork\\\\ContextAtlas-benchmarks\\\\atlases\\\\hono\\\\atlas.json\",\"offset\":7360,\"limit\":80}"
+        },
+        {
+          "traceIndex": 6,
+          "tool": "Read",
+          "atlasPath": "atlases\\hono\\atlas.json",
+          "argSnippet": "{\"file_path\":\"C:\\\\CodeWork\\\\ContextAtlas-benchmarks\\\\atlases\\\\hono\\\\atlas.json\",\"offset\":7840,\"limit\":50}"
+        },
+        {
+          "traceIndex": 12,
+          "tool": "Read",
+          "atlasPath": "atlases\\hono\\atlas.json",
+          "argSnippet": "{\"file_path\":\"C:\\\\CodeWork\\\\ContextAtlas-benchmarks\\\\atlases\\\\hono\\\\atlas.json\",\"offset\":12150,\"limit\":80}"
+        },
+        {
+          "traceIndex": 13,
+          "tool": "Read",
+          "atlasPath": "atlases\\hono\\atlas.json",
+          "argSnippet": "{\"file_path\":\"C:\\\\CodeWork\\\\ContextAtlas-benchmarks\\\\atlases\\\\hono\\\\atlas.json\",\"offset\":4520,\"limit\":120}"
+        },
+        {
+          "traceIndex": 14,
+          "tool": "Read",
+          "atlasPath": "atlases\\hono\\atlas.json",
+          "argSnippet": "{\"file_path\":\"C:\\\\CodeWork\\\\ContextAtlas-benchmarks\\\\atlases\\\\hono\\\\atlas.json\",\"offset\":4815,\"limit\":30}"
+        },
+        {
+          "traceIndex": 15,
+          "tool": "Read",
+          "atlasPath": "atlases\\hono\\atlas.json",
+          "argSnippet": "{\"file_path\":\"C:\\\\CodeWork\\\\ContextAtlas-benchmarks\\\\atlases\\\\hono\\\\atlas.json\",\"offset\":13490,\"limit\":30}"
+        },
+        {
+          "traceIndex": 16,
+          "tool": "Read",
+          "atlasPath": "atlases\\hono\\atlas.json",
+          "argSnippet": "{\"file_path\":\"C:\\\\CodeWork\\\\ContextAtlas-benchmarks\\\\atlases\\\\hono\\\\atlas.json\",\"offset\":17770,\"limit\":60}"
+        }
+      ]
+    },
+    {
+      "cellId": "h6-fetch-signature/beta",
+      "condition": "beta",
+      "evidence": [
+        {
+          "traceIndex": 2,
+          "tool": "Bash",
+          "atlasPath": "atlases/hono/index.db",
+          "argSnippet": "{\"command\":\"sqlite3 atlases/hono/index.db \\\".tables\\\"\",\"description\":\"List tables in hono index db\"}"
+        },
+        {
+          "traceIndex": 3,
+          "tool": "Bash",
+          "atlasPath": "atlases/hono/index.db",
+          "argSnippet": "{\"command\":\"sqlite3 atlases/hono/index.db \\\".tables\\\"\",\"description\":\"List tables in hono index db\",\"dangerouslyDisableSandbox\":true}"
+        },
+        {
+          "traceIndex": 4,
+          "tool": "Read",
+          "atlasPath": "atlases\\hono\\atlas.json",
+          "argSnippet": "{\"file_path\":\"C:\\\\CodeWork\\\\ContextAtlas-benchmarks\\\\atlases\\\\hono\\\\atlas.json\",\"limit\":100}"
+        },
+        {
+          "traceIndex": 5,
+          "tool": "Bash",
+          "atlasPath": "atlases/hono/atlas.json",
+          "argSnippet": "{\"command\":\"grep -n \\\"fetch\\\" atlases/hono/atlas.json | head -50\",\"description\":\"Search for fetch in atlas.json\"}"
+        },
+        {
+          "traceIndex": 6,
+          "tool": "Bash",
+          "atlasPath": "atlases/hono/atlas.json",
+          "argSnippet": "{\"command\":\"grep -n \\\"app.fetch\\\\|Hono.prototype.*fetch\\\\|\\\\\\\"fetch\\\\\\\"\\\\|prototype\\\\\\\\[.fetch\\\" atlases/hono/atlas.json | head -40\",\"description\":\"Search for fetch method patterns\"}"
+        },
+        {
+          "traceIndex": 7,
+          "tool": "Bash",
+          "atlasPath": "atlases/hono/atlas.json",
+          "argSnippet": "{\"command\":\"grep -n \\\"app.fetch\\\" atlases/hono/atlas.json | head -40\",\"description\":\"Search for app.fetch in atlas\"}"
+        },
+        {
+          "traceIndex": 8,
+          "tool": "Bash",
+          "atlasPath": "atlases/hono/atlas.json",
+          "argSnippet": "{\"command\":\"grep -n \\\"name.*\\\\\\\"fetch\\\\\\\"\\\\|signature.*fetch(req\\\" atlases/hono/atlas.json | head -40\",\"description\":\"Search for fetch method name entries\"}"
+        },
+        {
+          "traceIndex": 9,
+          "tool": "Bash",
+          "atlasPath": "atlases/hono/atlas.json",
+          "argSnippet": "{\"command\":\"grep -n \\\"hono.ts\\\" atlases/hono/atlas.json | head -40\",\"description\":\"Find Hono class file entries\"}"
+        },
+        {
+          "traceIndex": 10,
+          "tool": "Bash",
+          "atlasPath": "atlases/hono/atlas.json",
+          "argSnippet": "{\"command\":\"grep -n \\\"src/hono-base.ts\\\\|src/hono.ts\\\" atlases/hono/atlas.json | grep -i \\\"fetch\\\\|signature\\\" | head -40\",\"description\":\"Search hono core files for fetch signatures\"}"
+        },
+        {
+          "traceIndex": 11,
+          "tool": "Read",
+          "atlasPath": "atlases\\hono\\atlas.json",
+          "argSnippet": "{\"file_path\":\"C:\\\\CodeWork\\\\ContextAtlas-benchmarks\\\\atlases\\\\hono\\\\atlas.json\",\"offset\":7840,\"limit\":80}"
+        },
+        {
+          "traceIndex": 12,
+          "tool": "Bash",
+          "atlasPath": "atlases/hono/atlas.json",
+          "argSnippet": "{\"command\":\"grep -n \\\"hono-base.ts\\\" atlases/hono/atlas.json | head -30\",\"description\":\"Search for hono-base.ts entries\"}"
+        },
+        {
+          "traceIndex": 13,
+          "tool": "Read",
+          "atlasPath": "atlases\\hono\\atlas.json",
+          "argSnippet": "{\"file_path\":\"C:\\\\CodeWork\\\\ContextAtlas-benchmarks\\\\atlases\\\\hono\\\\atlas.json\",\"offset\":7363,\"limit\":80}"
+        },
+        {
+          "traceIndex": 14,
+          "tool": "Read",
+          "atlasPath": "atlases\\hono\\atlas.json",
+          "argSnippet": "{\"file_path\":\"C:\\\\CodeWork\\\\ContextAtlas-benchmarks\\\\atlases\\\\hono\\\\atlas.json\",\"offset\":16680,\"limit\":120}"
+        }
+      ]
+    },
+    {
+      "cellId": "p2-http3-transport/beta",
+      "condition": "beta",
+      "evidence": [
+        {
+          "traceIndex": 2,
+          "tool": "Bash",
+          "atlasPath": "atlases/httpx/index.db",
+          "argSnippet": "{\"command\":\"sqlite3 atlases/httpx/index.db \\\".tables\\\"\",\"description\":\"List tables in httpx atlas\"}"
+        },
+        {
+          "traceIndex": 5,
+          "tool": "Bash",
+          "atlasPath": "atlases/httpx/index.db",
+          "argSnippet": "{\"command\":\"python -c \\\"import sqlite3; conn=sqlite3.connect('atlases/httpx/index.db'); print([r[0] for r in conn.execute(\\\\\\\"SELECT name FROM sqlite_master WHERE type='table'\\\\\\\")])\\\"\",\"description\":\"List tables in httpx atlas via Python\"}"
+        },
+        {
+          "traceIndex": 6,
+          "tool": "Bash",
+          "atlasPath": "atlases/httpx/index.db",
+          "argSnippet": "{\"command\":\"python3 -c \\\"import sqlite3; conn=sqlite3.connect('atlases/httpx/index.db'); print([r[0] for r in conn.execute(\\\\\\\"SELECT name FROM sqlite_master WHERE type='table'\\\\\\\")])\\\"\",\"description\":\"List tables in httpx atlas via python3\"}"
+        }
+      ]
+    },
+    {
+      "cellId": "p3-custom-auth/beta",
+      "condition": "beta",
+      "evidence": [
+        {
+          "traceIndex": 3,
+          "tool": "Bash",
+          "atlasPath": "atlases/httpx/atlas.json",
+          "argSnippet": "{\"command\":\"head -100 atlases/httpx/atlas.json\",\"description\":\"Preview httpx atlas.json\"}"
+        }
+      ]
+    },
+    {
+      "cellId": "p4-stream-lifecycle/beta",
+      "condition": "beta",
+      "evidence": [
+        {
+          "traceIndex": 2,
+          "tool": "Bash",
+          "atlasPath": "atlases/httpx/index.db",
+          "argSnippet": "{\"command\":\"sqlite3 C:/CodeWork/ContextAtlas-benchmarks/atlases/httpx/index.db \\\".tables\\\"\",\"description\":\"List tables in httpx atlas db\"}"
+        },
+        {
+          "traceIndex": 3,
+          "tool": "Bash",
+          "atlasPath": "atlases/httpx/index.db",
+          "argSnippet": "{\"command\":\"sqlite3 \\\"C:/CodeWork/ContextAtlas-benchmarks/atlases/httpx/index.db\\\" \\\".tables\\\"\",\"description\":\"List tables in httpx atlas db\"}"
+        },
+        {
+          "traceIndex": 5,
+          "tool": "Bash",
+          "atlasPath": "atlases/httpx/index.db",
+          "argSnippet": "{\"command\":\"python -c \\\"import sqlite3; conn = sqlite3.connect('C:/CodeWork/ContextAtlas-benchmarks/atlases/httpx/index.db'); c = conn.cursor(); print([r[0] for r in c.execute(\\\\\\\"SELECT name FROM sqlite_master WHERE type='table'\\\\\\\")])\\\"\",\"description\":\"List tables via python\"}"
+        },
+        {
+          "traceIndex": 6,
+          "tool": "Bash",
+          "atlasPath": "atlases/httpx/index.db",
+          "argSnippet": "{\"command\":\"python3 -c \\\"import sqlite3; conn = sqlite3.connect('C:/CodeWork/ContextAtlas-benchmarks/atlases/httpx/index.db'); c = conn.cursor(); print([r[0] for r in c.execute(\\\\\\\"SELECT name FROM sqlite_master WHERE type='table'\\\\\\\")])\\\"\",\"description\":\"List tables via python3\"}"
+        }
+      ]
+    },
+    {
+      "cellId": "p5-drop-anyio/beta",
+      "condition": "beta",
+      "evidence": [
+        {
+          "traceIndex": 2,
+          "tool": "Bash",
+          "atlasPath": "atlases/httpx/index.db",
+          "argSnippet": "{\"command\":\"sqlite3 atlases/httpx/index.db \\\".tables\\\"\",\"description\":\"List tables in httpx atlas db\"}"
+        },
+        {
+          "traceIndex": 4,
+          "tool": "Bash",
+          "atlasPath": "atlases/httpx/atlas.json",
+          "argSnippet": "{\"command\":\"grep -oiE \\\"[^\\\\\\\"]*anyio[^\\\\\\\"]*\\\" atlases/httpx/atlas.json | head -30\",\"description\":\"Extract anyio references from atlas.json\"}"
+        },
+        {
+          "traceIndex": 5,
+          "tool": "Bash",
+          "atlasPath": "atlases/httpx/atlas.json",
+          "argSnippet": "{\"command\":\"grep -oE \\\".{150}anyio.{150}\\\" atlases/httpx/atlas.json | head -20\",\"description\":\"Extract context around anyio references\"}"
+        },
+        {
+          "traceIndex": 6,
+          "tool": "Bash",
+          "atlasPath": "atlases/httpx/atlas.json",
+          "argSnippet": "{\"command\":\"python -c \\\"import json; d=json.load(open('atlases/httpx/atlas.json')); import sys; \\nfor k,v in d.items(): \\n    if isinstance(v, (list,dict)): print(k, type(v).__name__, len(v))\\n    else: print(k, type(v).__name__)\\\"\",\"description\":\"Print top-level atlas.json structure\"}"
+        },
+        {
+          "traceIndex": 7,
+          "tool": "Bash",
+          "atlasPath": "atlases/httpx/atlas.json",
+          "argSnippet": "{\"command\":\"python -c \\\"import json; d=json.load(open('atlases/httpx/atlas.json')); print(list(d.keys())[:20])\\\"\",\"description\":\"Print top level atlas keys\"}"
+        },
+        {
+          "traceIndex": 8,
+          "tool": "Bash",
+          "atlasPath": "atlases/httpx/atlas.json",
+          "argSnippet": "{\"command\":\"head -c 500 atlases/httpx/atlas.json\",\"description\":\"Peek at start of atlas.json\"}"
+        },
+        {
+          "traceIndex": 9,
+          "tool": "Bash",
+          "atlasPath": "atlases/httpx/atlas.json",
+          "argSnippet": "{\"command\":\"grep -n \\\"ADR-02-httpcore-anyio-layering\\\" atlases/httpx/atlas.json | head -5\",\"description\":\"Find line numbers of ADR-02 references\"}"
+        },
+        {
+          "traceIndex": 10,
+          "tool": "Read",
+          "atlasPath": "atlases\\httpx\\atlas.json",
+          "argSnippet": "{\"file_path\":\"C:\\\\CodeWork\\\\ContextAtlas-benchmarks\\\\atlases\\\\httpx\\\\atlas.json\",\"offset\":10740,\"limit\":220}"
+        }
+      ]
+    },
+    {
+      "cellId": "p6-client-get-args/beta",
+      "condition": "beta",
+      "evidence": [
+        {
+          "traceIndex": 2,
+          "tool": "Bash",
+          "atlasPath": "atlases/httpx/index.db",
+          "argSnippet": "{\"command\":\"sqlite3 atlases/httpx/index.db \\\".schema\\\"\",\"description\":\"Show httpx atlas database schema\"}"
+        },
+        {
+          "traceIndex": 3,
+          "tool": "Bash",
+          "atlasPath": "atlases/httpx/index.db",
+          "argSnippet": "{\"command\":\"sqlite3 atlases/httpx/index.db \\\".schema\\\"\",\"description\":\"Show httpx atlas database schema\",\"dangerouslyDisableSandbox\":true}"
+        },
+        {
+          "traceIndex": 4,
+          "tool": "Bash",
+          "atlasPath": "atlases/httpx/index.db",
+          "argSnippet": "{\"command\":\"sqlite3 \\\"atlases/httpx/index.db\\\" \\\".tables\\\"\",\"description\":\"List tables in httpx atlas\"}"
+        },
+        {
+          "traceIndex": 5,
+          "tool": "Read",
+          "atlasPath": "atlases\\httpx\\atlas.json",
+          "argSnippet": "{\"file_path\":\"C:\\\\CodeWork\\\\ContextAtlas-benchmarks\\\\atlases\\\\httpx\\\\atlas.json\",\"limit\":50}"
+        },
+        {
+          "traceIndex": 6,
+          "tool": "Bash",
+          "atlasPath": "atlases/httpx/atlas.json",
+          "argSnippet": "{\"command\":\"grep -n \\\"Client:get\\\\|Client.get\\\\|\\\\\\\"name\\\\\\\": \\\\\\\"get\\\\\\\"\\\" \\\"atlases/httpx/atlas.json\\\" | head -20\",\"description\":\"Find Client.get in atlas\"}"
+        },
+        {
+          "traceIndex": 7,
+          "tool": "Read",
+          "atlasPath": "atlases\\httpx\\atlas.json",
+          "argSnippet": "{\"file_path\":\"C:\\\\CodeWork\\\\ContextAtlas-benchmarks\\\\atlases\\\\httpx\\\\atlas.json\",\"offset\":2180,\"limit\":30}"
+        },
+        {
+          "traceIndex": 8,
+          "tool": "Read",
+          "atlasPath": "atlases\\httpx\\atlas.json",
+          "argSnippet": "{\"file_path\":\"C:\\\\CodeWork\\\\ContextAtlas-benchmarks\\\\atlases\\\\httpx\\\\atlas.json\",\"offset\":800,\"limit\":40}"
+        },
+        {
+          "traceIndex": 9,
+          "tool": "Read",
+          "atlasPath": "atlases\\httpx\\atlas.json",
+          "argSnippet": "{\"file_path\":\"C:\\\\CodeWork\\\\ContextAtlas-benchmarks\\\\atlases\\\\httpx\\\\atlas.json\",\"offset\":4440,\"limit\":30}"
+        },
+        {
+          "traceIndex": 10,
+          "tool": "Read",
+          "atlasPath": "atlases\\httpx\\atlas.json",
+          "argSnippet": "{\"file_path\":\"C:\\\\CodeWork\\\\ContextAtlas-benchmarks\\\\atlases\\\\httpx\\\\atlas.json\",\"offset\":75,\"limit\":25}"
+        }
+      ]
+    },
+    {
+      "cellId": "p6-client-get-args/beta-ca",
+      "condition": "beta-ca",
+      "evidence": [
+        {
+          "traceIndex": 3,
+          "tool": "Bash",
+          "atlasPath": "atlases/httpx/atlas.json",
+          "argSnippet": "{\"command\":\"grep -n \\\"def get\\\" atlases/httpx/atlas.json 2>/dev/null | head -20; echo \\\"---\\\"; find . -path ./atlases -prune -o -name \\\"_client.py\\\" -print 2>/dev/null | head -5\",\"description\":\"Search for get method definitions\"}"
+        }
+      ]
+    }
+  ],
+  "ground_truth_check": {
+    "cellId": "c6-execute-signature/beta",
+    "present": true
+  }
+}
