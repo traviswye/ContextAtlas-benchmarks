@@ -53,3 +53,8 @@ atlases/*/index.db
 # Step 9 calibration auto-generated summary (results.json is the
 # committed empirical record; .md is regenerated from it on each run).
 scripts/v0.3-step9-calibration-results.md
+
+# Step 10 cobra calibration: temp DB + auto-generated summary.
+# results.json is the committed empirical record; DB and .md are not.
+scripts/v0.3-step10-cobra-calibration.db
+scripts/v0.3-step10-cobra-calibration-results.md
