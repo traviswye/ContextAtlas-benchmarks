@@ -1,51 +1,51 @@
-# Reference run — cobra (2026-04-25)
+# Reference run — cobra (2026-04-27)
 
-**ContextAtlas v0.1 (atlas schema v1.1).** Claude Code CLI 2.1.118. claude-opus-4-7 across all conditions. cobra pinned at `88b30ab89da2`.
+**ContextAtlas v0.3-dev (atlas schema v1.3).** Claude Code CLI 2.1.118. claude-opus-4-7 across all conditions. cobra pinned at `88b30ab89da2`.
 
 Single-run methodology per STEP-7-PLAN §1; three-run medians deferred to step 13.
 
-**Scope:** v0.1 baseline measurement — ADR-backed architectural intent, LSP-grade structural data, and git signals, served through three MCP tools (`get_symbol_context`, `find_by_intent`, `impact_of_change`). Broader signal fusion (docs mining, PR descriptions, semantic search) is v0.3+ scope and is NOT measured here.
+**Scope:** v0.3 reference measurement on sharpened atlas substrate — ADR-backed architectural intent, LSP-grade structural data, git signals, and Stream B docstring claims (TS/Python/Go), served through three MCP tools (`get_symbol_context`, `find_by_intent`, `impact_of_change`). Beta-vs-Beta+CA reporting carries Step 12 atlas-file-visibility methodology limit per Path 3b. Broader signal fusion (PR descriptions, commit messages, semantic search) remains v0.4+ scope and is NOT measured here.
 
 ## Metrics
 
 | prompt_id | bucket | alpha calls | alpha tokens | alpha wall | ca calls | ca tokens | ca wall | beta calls | beta tokens | beta wall | beta-ca calls | beta-ca tokens | beta-ca wall | notes |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| c1-command-behavior | win | 11 | 60.4k | 49s | 6 | 45.7k | 43s | 11 | 73.6k | 57s | 6 | 35.7k | 44s |  |
-| c2-persistent-flag-scope | win | 4 | 22.2k | 33s | 6 | 19.4k | 34s | 6 | 33.5k | 47s | 9 | 51.7k | 42s |  |
-| c3-hook-lifecycle | win | 4 | 12.4k | 26s | 3 | 15.7k | 21s | 10 | 60k | 48s | 4 | 19.8k | 35s |  |
-| c4-subcommand-resolution | win | 7 | 23.5k | 34s | 8 | 36k | 38s | 6 | 42.1k | 48s | 5 | 32.7k | 34s |  |
-| c5-flag-group-constraints | tie | 3 | 11.7k | 21s | 5 | 19.9k | 24s | 0 | 3.6k | 16s | 5 | 26.4k | 33s |  |
-| c6-execute-signature | trick | 2 | 6.7k | 10s | 3 | 9.8k | 17s | 7 | 30.2k | 28s | 3 | 12.8k | 16s |  |
+| c1-command-behavior | win | 8 | 39.3k | 48s | 10 | 55.9k | 47s | 12 | 86.4k | 66s | 6 | 47.5k | 44s |  |
+| c2-persistent-flag-scope | win | 5 | 23.4k | 31s | 4 | 20.8k | 32s | 5 | 23.6k | 36s | 4 | 29.2k | 41s |  |
+| c3-hook-lifecycle | win | 3 | 12.6k | 25s | 3 | 17k | 24s | 8 | 51.8k | 46s | 4 | 24.7k | 35s |  |
+| c4-subcommand-resolution | win | 9 | 26.5k | 36s | 5 | 30.9k | 36s | 13 | 79.7k | 60s | 3 | 29.8k | 39s |  |
+| c5-flag-group-constraints | tie | 0 | 2.6k | 16s | 0 | 4.4k | 19s | 11 | 58.4k | 41s | 2 | 16.9k | 22s |  |
+| c6-execute-signature | trick | 3 | 9.6k | 14s | 2 | 10.8k | 11s | 8 | 41.3k | 33s | 17 | 115k | 50s |  |
 
 ## CA vs Alpha (tool effect, same Opus baseline)
 
 | prompt_id | alpha calls | ca calls | Δ calls | alpha tokens | ca tokens | Δ tokens |
 |---|---|---|---|---|---|---|
-| c1-command-behavior | 11 | 6 | -5 | 60.4k | 45.7k | -14700 |
-| c2-persistent-flag-scope | 4 | 6 | +2 | 22.2k | 19.4k | -2890 |
-| c3-hook-lifecycle | 4 | 3 | -1 | 12.4k | 15.7k | +3257 |
-| c4-subcommand-resolution | 7 | 8 | +1 | 23.5k | 36k | +12493 |
-| c5-flag-group-constraints | 3 | 5 | +2 | 11.7k | 19.9k | +8263 |
-| c6-execute-signature | 2 | 3 | +1 | 6.7k | 9.8k | +3141 |
+| c1-command-behavior | 8 | 10 | +2 | 39.3k | 55.9k | +16598 |
+| c2-persistent-flag-scope | 5 | 4 | -1 | 23.4k | 20.8k | -2648 |
+| c3-hook-lifecycle | 3 | 3 | 0 | 12.6k | 17k | +4415 |
+| c4-subcommand-resolution | 9 | 5 | -4 | 26.5k | 30.9k | +4359 |
+| c5-flag-group-constraints | 0 | 0 | 0 | 2.6k | 4.4k | +1792 |
+| c6-execute-signature | 3 | 2 | -1 | 9.6k | 10.8k | +1230 |
 
 ## Beta-CA vs Beta (tool effect, same CLI baseline)
 
 | prompt_id | beta calls | beta-ca calls | Δ calls | beta tokens | beta-ca tokens | Δ tokens |
 |---|---|---|---|---|---|---|
-| c1-command-behavior | 11 | 6 | -5 | 73.6k | 35.7k | -37896 |
-| c2-persistent-flag-scope | 6 | 9 | +3 | 33.5k | 51.7k | +18222 |
-| c3-hook-lifecycle | 10 | 4 | -6 | 60k | 19.8k | -40175 |
-| c4-subcommand-resolution | 6 | 5 | -1 | 42.1k | 32.7k | -9414 |
-| c5-flag-group-constraints | 0 | 5 | +5 | 3.6k | 26.4k | +22796 |
-| c6-execute-signature | 7 | 3 | -4 | 30.2k | 12.8k | -17335 |
+| c1-command-behavior | 12 | 6 | -6 | 86.4k | 47.5k | -38889 |
+| c2-persistent-flag-scope | 5 | 4 | -1 | 23.6k | 29.2k | +5669 |
+| c3-hook-lifecycle | 8 | 4 | -4 | 51.8k | 24.7k | -27024 |
+| c4-subcommand-resolution | 13 | 3 | -10 | 79.7k | 29.8k | -49927 |
+| c5-flag-group-constraints | 11 | 2 | -9 | 58.4k | 16.9k | -41408 |
+| c6-execute-signature | 8 | 17 | +9 | 41.3k | 115k | +74058 |
 
 > Deltas compare same-baseline conditions only. Cross-baseline deltas (e.g., `beta-ca` vs `alpha`) conflate multiple axes — system prompt, tool surface, harness — and are not computed here. See RUBRIC.md §"System prompt asymmetry" for details.
 
 ## Diagnostics
 
-Total cost: $7.1944
-  authoritative (beta/beta-ca, Claude Code reports): $1.6149
-  estimated (alpha/ca, Opus 4.7 pricing): $5.5795
+Total cost: $6.8534
+  authoritative (beta/beta-ca, Claude Code reports): $1.7659
+  estimated (alpha/ca, Opus 4.7 pricing): $5.0875
 
 Retries this run: 0
 
@@ -53,7 +53,7 @@ Errored cells: 0
 
 ## Provenance
 
-- contextatlas commit: `9f27e03ea2f6`
-- benchmarks commit: `545a73de5981`
-- contextatlas dist/index.js mtime: 2026-04-25T02:36:52.875Z
-- generated_at: 2026-04-25T03:06:25.072Z
+- contextatlas commit: `6576b4743a7b`
+- benchmarks commit: `7cda543b1a50`
+- contextatlas dist/index.js mtime: 2026-04-27T03:14:39.369Z
+- generated_at: 2026-04-27T21:52:51.594Z

@@ -5,45 +5,167 @@
   "target_symbol": "Command.Execute",
   "bucket": "trick",
   "metrics": {
-    "tool_calls": 3,
-    "input_tokens": 8,
-    "output_tokens": 905,
-    "total_tokens": 12833,
-    "wall_clock_ms": 15883
+    "tool_calls": 17,
+    "input_tokens": 21,
+    "output_tokens": 2910,
+    "total_tokens": 115404,
+    "wall_clock_ms": 49814
   },
   "capped": null,
-  "answer": "Here are the relevant signatures from `command.go`:\n\n```go\n// command.go:1070\nfunc (c *Command) Execute() error\n\n// command.go:1062\nfunc (c *Command) ExecuteContext(ctx context.Context) error\n\n// command.go:1084\nfunc (c *Command) ExecuteC() (cmd *Command, err error)\n\n// command.go:1078\nfunc (c *Command) ExecuteContextC(ctx context.Context) (*Command, error)\n```\n\nFor a test harness, a few practical notes:\n\n- **`Execute()`** is the simplest — it just returns an `error`. It internally delegates to `ExecuteC()`.\n- **`ExecuteC()`** is usually what you want in tests because it returns the actual `*Command` that ran (useful when subcommands are dispatched), in addition to the error.\n- **`ExecuteContext(ctx)`** / **`ExecuteContextC(ctx)`** are the context-aware variants — prefer these if your test needs cancellation/timeout.\n\nTypical test-harness pattern:\n\n```go\ncmd := newRootCmd()\ncmd.SetArgs([]string{\"sub\", \"--flag\", \"value\"})\ncmd.SetOut(&outBuf)\ncmd.SetErr(&errBuf)\nerr := cmd.Execute()\n```\n\nIf you need to assert *which* subcommand actually ran, swap `Execute()` for `ExecuteC()` and inspect the returned `*Command`.",
+  "answer": "Here's the signature you need, plus the two related siblings since they often come up in test harnesses:\n\n**`(*Command).Execute`** — `command.go:1070`\n```go\nfunc (c *Command) Execute() error\n```\n> \"Execute uses `os.Args[1:]` by default and traverses the command tree to match commands and their flags.\" (docstring)\n\nSo from your test harness, the simplest call is:\n```go\nerr := rootCmd.Execute()\n```\n\n### Related variants worth knowing for tests\n\n**`(*Command).ExecuteContext`** — `command.go:1062`\n```go\nfunc (c *Command) ExecuteContext(ctx context.Context) error\n```\n> \"ExecuteContext behaves like Execute but attaches a context retrievable via `cmd.Context()` inside `*Run` lifecycle or `ValidArgs` functions.\" — useful if your test needs cancellation/timeout.\n\n**`(*Command).ExecuteC`** — `command.go:1084`\n```go\nfunc (c *Command) ExecuteC() (cmd *Command, err error)\n```\nReturns the matched leaf command alongside the error — handy in tests when you want to assert *which* subcommand actually ran.\n\n### Test harness tip\n\nSince `Execute()` reads `os.Args[1:]` by default, in tests you typically don't want that. Use `SetArgs` on the command before calling, e.g.:\n```go\nrootCmd.SetArgs([]string{\"sub\", \"--flag\", \"value\"})\nrootCmd.SetOut(&bufOut)\nrootCmd.SetErr(&bufErr)\nif err := rootCmd.Execute(); err != nil { /* ... */ }\n```\nThat keeps the harness deterministic and aligns with cobra's injectable‑IO design (ADR‑08).",
   "trace": [
     {
       "tool": "mcp__contextatlas__get_symbol_context",
       "args": {
         "symbol": "Execute",
-        "file_hint": "command.go",
-        "depth": "summary"
+        "depth": "summary",
+        "file_hint": "command.go"
       },
       "result_preview": "ERR not_found\n  MESSAGE Symbol 'Execute' not found. Try find_by_intent if you're searching by concept rather than name."
     },
     {
       "tool": "mcp__contextatlas__find_by_intent",
       "args": {
-        "query": "Command.Execute entry point that runs cobra command tree",
+        "query": "Command.Execute entry point run cobra command",
         "limit": 5
       },
-      "result_preview": "MATCHES 5 [query=\"Command.Execute entry point that runs cobra command tree\"]\n  SYM sym:go:command.go:commandNameMatches command.go:1928 function\n    SIG func(s string, t string) bool\n    INTENT ADR-04 context \"Command.Find walks the command tree starting from the receiver, consuming positional arguments as subcommand names until no match is found.\"\n  SYM sym:go:args.go:legacyArgs args.go:28 function\n    SIG func(cmd *Command, args []string) error\n    INTENT ADR-04 context \"Command.Find walks the command tree starting from the receiver, consuming positional arguments as subcommand names until no match is found.\"\n  SYM sym:go:cobra.go:EnableCaseInsensitive cobra.go:62 variable\n    INTENT ADR-04 context \"Command.Find walks the command tree starting from the receiver, consuming positional arguments as subcommand names until no match is found.\"\n  SYM sym:go:cobra.go:EnablePrefixMatching cobra.go:55 variable\n    INTENT ADR-04 context \"Command.Find walks the command tree starting from the receiver, consuming positional arguments as subcommand names until no match is found.\"\n  SYM sym:go:cobra.go:ld cobra.go:192 function\n    SIG func(s, t string, ignoreCase bool) int\n    INTENT ADR-04 context \"Command.Find walks the command tree starting from the receiver, consuming positional arguments as subcommand names until no match is found.\"\n"
+      "result_preview": "MATCHES 5 [query=\"Command.Execute entry point run cobra command\"]\n  SYM sym:go:command.go:commandNameMatches command.go:1928 function\n    SIG func(s string, t string) bool\n    INTENT ADR-04 context \"Command.Find walks the command tree starting from the receiver, consuming positional arguments as subcommand names until no match is found.\"\n  SYM sym:go:args.go:legacyArgs args.go:28 function\n    SIG func(cmd *Command, args []string) error\n    INTENT ADR-04 context \"Command.Find walks the command tree starting from the receiver, consuming positional arguments as subcommand names until no match is found.\"\n  SYM sym:go:cobra.go:EnableCaseInsensitive cobra.go:62 variable\n    INTENT ADR-04 context \"Command.Find walks the command tree starting from the receiver, consuming positional arguments as subcommand names until no match is found.\"\n  SYM sym:go:cobra.go:EnablePrefixMatching cobra.go:55 variable\n    INTENT ADR-04 context \"Command.Find walks the command tree starting from the receiver, consuming positional arguments as subcommand names until no match is found.\"\n  SYM sym:go:cobra.go:ld cobra.go:192 function\n    SIG func(s, t string, ignoreCase bool) int\n    INTENT ADR-04 context \"Command.Find walks the command tree starting from the receiver, consuming positional arguments as subcommand names until no match is found.\"\n"
     },
     {
       "tool": "Bash",
       "args": {
-        "command": "grep -n \"func (c \\*Command) Execute\" C:/CodeWork/ContextAtlas-benchmarks/repos/cobra/command.go | head -20",
-        "description": "Find Execute method signatures in cobra command.go"
+        "command": "ls atlases/cobra/ 2>&1 | head -20",
+        "description": "List cobra atlas files"
       },
-      "result_preview": "1062:func (c *Command) ExecuteContext(ctx context.Context) error {\n1070:func (c *Command) Execute() error {\n1078:func (c *Command) ExecuteContextC(ctx context.Context) (*Command, error) {\n1084:func (c *Command) ExecuteC() (cmd *Command, err error) {"
+      "result_preview": "atlas.json\nindex.db\nindex.db-shm\nindex.db-wal"
+    },
+    {
+      "tool": "mcp__contextatlas__get_symbol_context",
+      "args": {
+        "symbol": "Command.Execute",
+        "depth": "summary"
+      },
+      "result_preview": "ERR not_found\n  MESSAGE Symbol 'Command.Execute' not found. Try find_by_intent if you're searching by concept rather than name."
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -n \"func (c \\*Command) Execute\" atlases/cobra/atlas.json 2>&1 | head -20",
+        "description": "Search atlas.json for Execute signatures"
+      },
+      "result_preview": "(Bash completed with no output)"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -oE \"\\\"name\\\":\\\"Execute[A-Za-z]*\\\"\" atlases/cobra/atlas.json | sort -u | head -20",
+        "description": "List Execute-prefixed symbols in cobra atlas"
+      },
+      "result_preview": "(Bash completed with no output)"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -oE \"Execute[A-Za-z]*\" atlases/cobra/atlas.json | sort -u | head -20",
+        "description": "Find Execute-related symbols in atlas"
+      },
+      "result_preview": "Execute\nExecuteC\nExecuteContext\nExecuteContextC\nExecuteUnknownCommand\nExecuted\nExecutedDiplayName\nExecutedOnChild\nExecutedOnChildWithFlagThatShadowsParentFlag\nExecutedOnNonRunnableChild\nExecutedOnSubcommand\nExecutedWithNoName\nExecutedWithVersionSet\nExecutedWithoutVersionSet\nExecutes"
+    },
+    {
+      "tool": "mcp__contextatlas__get_symbol_context",
+      "args": {
+        "symbol": [
+          "Execute",
+          "ExecuteC",
+          "ExecuteContext"
+        ],
+        "depth": "summary",
+        "file_hint": "command.go"
+      },
+      "result_preview": "ERR all_symbols_failed\n  COUNT 3\n\n--- get_symbol_context: Execute (1 of 3) ---\nERR not_found\n  MESSAGE Symbol 'Execute' not found. Try find_by_intent if you're searching by concept rather than name.\n\n--- get_symbol_context: ExecuteC (2 of 3) ---\nERR not_found\n  MESSAGE Symbol 'ExecuteC' not found. Try find_by_intent if you're searching by concept rather than name.\n\n--- get_symbol_context: ExecuteContext (3 of 3) ---\nERR not_found\n  MESSAGE Symbol 'ExecuteContext' not found. Try find_by_intent if you're searching by concept rather than name."
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "python3 -c \"\nimport json\nwith open('atlases/cobra/atlas.json') as f:\n    data = json.load(f)\nprint('keys:', list(data.keys())[:20])\n\"",
+        "description": "Inspect top-level keys of cobra atlas.json"
+      },
+      "result_preview": "This command requires approval"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "head -c 2000 atlases/cobra/atlas.json",
+        "description": "View beginning of atlas.json"
+      },
+      "result_preview": "{\n  \"version\": \"1.3\",\n  \"generated_at\": \"2026-04-27T16:35:38.372Z\",\n  \"extracted_at_sha\": \"88b30ab89da2d0d0abb153818746c5a2d30eccec\",\n  \"generator\": {\n    \"contextatlas_version\": \"0.0.1-benchmark\",\n    \"contextatlas_commit_sha\": \"4308de5574f332626e0a09e91727f072aee9194b\",\n    \"extraction_model\": \"claude-opus-4-7\"\n  },\n  \"source_shas\": {\n    \"ADR-01-commands-are-data.md\": \"67824468716363fd8df11680c5ddd3a2eecb314e89616b9bbcd9d49e1fab4e1d\",\n    \"ADR-02-pflag-not-stdlib-flag.md\": \"eea403deacd75a039146d768982b5a13432ba2ac870dbdbe317bd5e4a1f11706\",\n    \"ADR-03-hook-lifecycle.md\": \"6e17fb3ccb342605c4e47f43c270e67262d1b9eadd0aa0a8edbdd09c111c84f6\",\n    \"ADR-04-resolution-and-suggestions.md\": \"5db0d3092273924f25fab6ef087b0d90633bea277a76c1dbdd23b52191ab5908\",\n    \"ADR-05-help-templates.md\": \"ed28a2f2381feb7eff75ff7521a5ef2ea66585be5a1ecfa782346dc56f8470bc\",\n    \"ADR-06-flag-groups-as-annotations.md\": \"a2e7d4e7fec6753d53ca5e56b350a6c241ca27f8656aeab649398d76ca21f364\",\n    \"ADR-07-completion-at-runtime.md\": \"b001cdabde85c501ec519b1c4f2607c7ae9a664f6e480b852ac1cfabe86ac92b\",\n    \"ADR-08-injectable-io.md\": \"aff460b0da7072e3354a063107da1bc4273278e5aa29528cba1e2f330f577264\",\n    \"active_help.go\": \"d25e08c959824b9bfd07d1f7266bc69ad5982c6d5ac7f6e5ee897c711e30401a\",\n    \"args.go\": \"0e0bd2b59e79d54442d40e35bc57004d8a10945f4ada382a2fb970603b05929c\",\n    \"bash_completions.go\": \"185aa2f55bde1f02e1520f8f998a6d05e8fe4b3292a2be15b552e91bc7d30ed4\",\n    \"bash_completionsV2.go\": \"17c4d50f0e874f4b6d8473b0e7250ad004df555a55e851125ff89994b8fed3f4\",\n    \"cobra.go\": \"705333c3f58582f4ac4c77d439cba277ede26678f5f7230c60980cd704c619b2\",\n    \"command.go\": \"5a58ba98c4031edeca001b5ad6bc908d0a9b42233f2558424501b8fac1b2c4bc\",\n    \"command_notwin.go\": \"189050b67f01d0d3a9b63c57e73a95a8d17223ecd80d06a1cda2942651176885\",\n    \"command_win.go\": \"6f056c824de5cfc8ccf8ac9d1852ba8a509f87275d7ba2b89d36056b6eefd749\",\n    \"completions.go\": \"913e9f34a82f3ded82dc3e5c89e3595d51c819c3a719112d8ce833daab6d61b6\",\n    \"doc/man_"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -oE \"\\\"name\\\"[^,]*,\\\"signature\\\"[^}]*\\\"\" atlases/cobra/atlas.json | grep -i \"Execute\\b\" | head -5",
+        "description": "Find Execute name+signature pairs"
+      },
+      "result_preview": "(Bash completed with no output)"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -oE \".{0,200}\\\"Execute\\\".{0,300}\" atlases/cobra/atlas.json | head -20",
+        "description": "Show context around Execute occurrences"
+      },
+      "result_preview": "This Bash command contains multiple operations. The following part requires approval: grep -oE \".{0,200}\\\"Execute\\\".{0,300}\" atlases/cobra/atlas.json"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -oE \"\\\"Execute\\\"[^}]{0,500}\" atlases/cobra/atlas.json | head -10",
+        "description": "Show Execute symbol entries"
+      },
+      "result_preview": "This Bash command contains multiple operations. The following part requires approval: grep -oE \"\\\"Execute\\\"[^}]{0,500}\" atlases/cobra/atlas.json"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -o 'Execute\"[^}]\\{0,500\\}' atlases/cobra/atlas.json | head -10",
+        "description": "Show Execute symbol surroundings"
+      },
+      "result_preview": "This Bash command contains multiple operations. The following part requires approval: grep -o 'Execute\"[^}]\\{0,500\\}' atlases/cobra/atlas.json"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -oE \"Execute.{0,400}\" atlases/cobra/atlas.json | head -20",
+        "description": "Display content around Execute mentions"
+      },
+      "result_preview": "This Bash command contains multiple operations. The following part requires approval: grep -oE \"Execute.{0,400}\" atlases/cobra/atlas.json"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -aE \"Execute\" atlases/cobra/atlas.json | head -5",
+        "description": "Show lines containing Execute"
+      },
+      "result_preview": "      \"id\": \"sym:go:command.go:(*Command).Execute\",\n      \"name\": \"(*Command).Execute\",\n      \"id\": \"sym:go:command.go:(*Command).ExecuteC\",\n      \"name\": \"(*Command).ExecuteC\",\n      \"id\": \"sym:go:command.go:(*Command).ExecuteContext\","
+    },
+    {
+      "tool": "mcp__contextatlas__get_symbol_context",
+      "args": {
+        "symbol": [
+          "(*Command).Execute",
+          "(*Command).ExecuteC",
+          "(*Command).ExecuteContext"
+        ],
+        "depth": "summary",
+        "file_hint": "command.go"
+      },
+      "result_preview": "--- get_symbol_context: (*Command).Execute (1 of 3) ---\nSYM (*Command).Execute@command.go:1070 method\n  SIG func() error\n  INTENT hard:0 soft:0 context:1; top=\"Execute uses os.Args[1:] by default and traverses the command tree to match commands and their flags\" (docstring:command.go)\n  GIT last=2025-11-17T23:48:10+09:00 by 95602579+htoyoda18@users.noreply.github.com hot (81≥5 commits)\n\n--- get_symbol_context: (*Command).ExecuteC (2 of 3) ---\nSYM (*Command).ExecuteC@command.go:1084 method\n  SIG func() (cmd *Command, err error)\n  GIT last=2025-11-17T23:48:10+09:00 by 95602579+htoyoda18@users.noreply.github.com hot (81≥5 commits)\n\n--- get_symbol_context: (*Command).ExecuteContext (3 of 3) ---\nSYM (*Command).ExecuteContext@command.go:1062 method\n  SIG func(ctx context.Context) error\n  INTENT hard:0 soft:0 context:1; top=\"ExecuteContext behaves like Execute but attaches a context retrievable via cmd.Context() inside *Run lifecycle or ValidArgs functions\" (docstring:command.go)\n  GIT last=2025-11-17T23:48:10+09:00 by 95602579+htoyoda18@users.noreply.github.com hot (81≥5 commits)\n"
     }
   ],
   "diagnostics": {
     "claudeCodeVersion": "2.1.118",
-    "totalCostUsd": 0.042426,
-    "numTurns": 4,
+    "totalCostUsd": 0.17377000000000004,
+    "numTurns": 18,
     "isError": false,
     "terminalReason": "completed",
     "modelUsage": {
@@ -58,17 +180,17 @@
         "maxOutputTokens": 32000
       },
       "claude-opus-4-7": {
-        "inputTokens": 8,
-        "outputTokens": 905,
-        "cacheReadInputTokens": 9596,
-        "cacheCreationInputTokens": 2324,
+        "inputTokens": 21,
+        "outputTokens": 2910,
+        "cacheReadInputTokens": 104779,
+        "cacheCreationInputTokens": 7694,
         "webSearchRequests": 0,
-        "costUSD": 0.041988,
+        "costUSD": 0.17333200000000004,
         "contextWindow": 1000000,
         "maxOutputTokens": 64000
       }
     }
   },
-  "cost_usd": 0.042426,
-  "written_at": "2026-04-25T03:06:25.071Z"
+  "cost_usd": 0.17377000000000004,
+  "written_at": "2026-04-27T21:52:51.593Z"
 }

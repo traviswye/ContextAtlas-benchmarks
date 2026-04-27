@@ -5,19 +5,112 @@
   "target_symbol": "MarkFlagsMutuallyExclusive",
   "bucket": "tie",
   "metrics": {
-    "tool_calls": 0,
-    "input_tokens": 6,
-    "output_tokens": 1199,
-    "total_tokens": 3616,
-    "wall_clock_ms": 16467
+    "tool_calls": 11,
+    "input_tokens": 17,
+    "output_tokens": 2447,
+    "total_tokens": 58350,
+    "wall_clock_ms": 40503
   },
   "capped": null,
-  "answer": "# Mutually Exclusive + Required Flag Groups in Cobra\n\nThis is a **cobra** feature, not a pflag one. `pflag` only knows about individual flag parsing; it has no concept of relationships between flags. Cobra layers \"flag groups\" on top via annotations on the command.\n\n## The two helpers you need\n\nFor your \"exactly one\" constraint you actually need **two** calls working together:\n\n```go\ncmd.MarkFlagsMutuallyExclusive(\"from-file\", \"from-url\") // not both\ncmd.MarkFlagsOneRequired(\"from-file\", \"from-url\")       // not neither\n```\n\n- `MarkFlagsMutuallyExclusive` — errors out if more than one flag in the group is set.\n- `MarkFlagsOneRequired` — errors out if none of the flags in the group is set.\n\nCombined, they give you \"exactly one.\"\n\n## Full example\n\n```go\nvar (\n    fromFile string\n    fromURL  string\n)\n\ncmd := &cobra.Command{\n    Use: \"ingest\",\n    RunE: func(cmd *cobra.Command, args []string) error {\n        // At this point cobra guarantees exactly one is non-empty.\n        ...\n    },\n}\n\ncmd.Flags().StringVar(&fromFile, \"from-file\", \"\", \"path to input file\")\ncmd.Flags().StringVar(&fromURL,  \"from-url\",  \"\", \"URL to fetch input from\")\n\ncmd.MarkFlagsMutuallyExclusive(\"from-file\", \"from-url\")\ncmd.MarkFlagsOneRequired(\"from-file\", \"from-url\")\n```\n\n## Behavior / gotchas\n\n1. **Error messages are auto-generated** by cobra, e.g. `Error: if any flags in the group [from-file from-url] are set none of the others can be; [from-file from-url] were all set` and `Error: at least one of the flags in the group [from-file from-url] is required`.\n2. **Don't also call `MarkFlagRequired`** on either individual flag — that would force *both*, contradicting the mutual exclusion.\n3. The flags must already be registered on the command (`cmd.Flags().StringVar(...)`) **before** you call the group helpers; otherwise cobra panics at runtime.\n4. Groups are stored as flag annotations, so they participate in help text generation and shell completion correctly.\n5. `MarkFlagsOneRequired` was added in Cobra v1.8.0 (Dec 2023). On older versions you had to check manually in `PreRunE`. If you're pinned to anything older, upgrade or fall back to:\n\n    ```go\n    PreRunE: func(cmd *cobra.Command, args []string) error {\n        if fromFile == \"\" && fromURL == \"\" {\n            return errors.New(\"one of --from-file or --from-url is required\")\n        }\n        return nil\n    },\n    ```\n\n## Related group helpers (for completeness)\n\nCobra exposes three flag-group helpers, all on `*cobra.Command`:\n\n| Helper | Semantics |\n|---|---|\n| `MarkFlagsRequiredTogether(a, b, …)` | if any is set, all must be set |\n| `MarkFlagsMutuallyExclusive(a, b, …)` | at most one may be set |\n| `MarkFlagsOneRequired(a, b, …)` | at least one must be set |\n\n\"Exactly one\" = mutually exclusive **+** one required, which is the idiomatic cobra pattern for your case.",
-  "trace": [],
+  "answer": "I have what I need. Here's the answer:\n\n## Answer\n\nYou combine **two** Cobra calls on the same group of flag names:\n\n```go\ncmd.MarkFlagsMutuallyExclusive(\"from-file\", \"from-url\")\ncmd.MarkFlagsOneRequired(\"from-file\", \"from-url\")\n```\n\n- `MarkFlagsMutuallyExclusive` makes Cobra error if **more than one** flag from the set is provided.\n- `MarkFlagsOneRequired` makes Cobra error if **none** of them is provided.\n\nUsed together they give you \"exactly one.\" There is no single `MarkFlagsExactlyOne` helper — it's the composition of the two.\n\nBoth live on `*cobra.Command` in `flag_groups.go` (`func(flagNames ...string)`), alongside the related `MarkFlagsRequiredTogether` (all-or-none).\n\n### Is it pflag or Cobra?\n\n**It's purely a Cobra feature.** pflag has no concept of flag groups. Cobra implements it by storing annotations on the underlying pflag `*Flag` objects, then a Cobra-side validator (`ValidateFlagGroups` in `flag_groups.go`) runs during `Execute` and inspects those annotations after pflag has parsed. So pflag does the parsing; Cobra layers group validation on top.\n\n### Gotchas worth knowing (from the cobra atlas)\n\n1. **`DisableFlagParsing` skips validation.** If the command sets `DisableFlagParsing = true`, `ValidateFlagGroups` early-returns `nil` and your mutual-exclusion check silently does nothing.\n2. **Validation runs *after* `PreRun`/`PreRunE`.** That's intentional — it lets you call `cmd.Flags().Set(...)` from `PreRunE` to satisfy the constraint programmatically. But it also means a `PreRunE` that does real work will execute even if the user violated the constraint, unless you guard against it.\n3. **No custom error messages.** The `MarkFlags*` methods don't accept a message; the error string is built from the flag names. If you need a domain-specific message (\"specify a source via --from-file or --from-url\"), you have to either wrap/rewrite the returned error or do the validation yourself in `PreRunE` instead of using the annotations.\n\nFor your case the two-line form above is the idiomatic answer.",
+  "trace": [
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "ls atlases/cobra/",
+        "description": "List cobra atlas contents"
+      },
+      "result_preview": "atlas.json\nindex.db\nindex.db-shm\nindex.db-wal"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "cd atlases/cobra && python -c \"import sqlite3; con=sqlite3.connect('index.db'); cur=con.cursor(); cur.execute(\\\"SELECT name FROM sqlite_master WHERE type='table'\\\"); print(cur.fetchall())\"",
+        "description": "List tables in cobra index.db"
+      },
+      "result_preview": "This Bash command contains multiple operations. The following part requires approval: python -c \"import sqlite3; con=sqlite3.connect('index.db'); cur=con.cursor(); cur.execute(\\\"SELECT name FROM sqlite_master WHERE type='table'\\\"); print(cur.fetchall())\""
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "cd atlases/cobra && sqlite3 index.db \".tables\"",
+        "description": "List tables in cobra index.db"
+      },
+      "result_preview": "This Bash command contains multiple operations. The following part requires approval: sqlite3 index.db \".tables\""
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "sqlite3 atlases/cobra/index.db \".tables\"",
+        "description": "List tables in cobra index.db"
+      },
+      "result_preview": "This command requires approval"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -l -i \"MarkFlagsMutuallyExclusive\\|MarkFlagsOneRequired\\|mutually exclusive\" atlases/cobra/atlas.json | head",
+        "description": "Find references to mutually exclusive flags"
+      },
+      "result_preview": "atlases/cobra/atlas.json"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -o -i \"MarkFlagsMutuallyExclusive\\|MarkFlagsOneRequired\\|MarkFlagsRequiredTogether\" atlases/cobra/atlas.json | sort -u",
+        "description": "Find specific flag group functions"
+      },
+      "result_preview": "MarkFlagsMutuallyExclusive\nMarkFlagsOneRequired\nMarkFlagsRequiredTogether"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -n \"MarkFlagsMutuallyExclusive\\|MarkFlagsOneRequired\" atlases/cobra/atlas.json | head -40",
+        "description": "Locate mentions of these flag functions"
+      },
+      "result_preview": "5686:      \"id\": \"sym:go:flag_groups.go:(*Command).MarkFlagsMutuallyExclusive\",\n5687:      \"name\": \"(*Command).MarkFlagsMutuallyExclusive\",\n5695:      \"id\": \"sym:go:flag_groups.go:(*Command).MarkFlagsOneRequired\",\n5696:      \"name\": \"(*Command).MarkFlagsOneRequired\",\n6641:      \"rationale\": \"No parsed flags exist to group; but can surprise users who set MarkFlagsMutuallyExclusive and see no validation.\",\n7528:      \"excerpt\": \"`MarkFlagsMutuallyExclusive` does not accept a custom error message. The message that surfaces to the end user is built from the flag names.\",\n9433:      \"rationale\": \"Describes behavior of MarkFlagsMutuallyExclusive annotation mechanism\",\n9436:        \"sym:go:flag_groups.go:(*Command).MarkFlagsMutuallyExclusive\"\n9444:      \"claim\": \"MarkFlagsOneRequired causes Cobra to error if the command is invoked without at least one flag from the given set\",\n9448:        \"sym:go:flag_groups.go:(*Command).MarkFlagsOneRequired\"\n10880:      \"message\": \"Improve MarkFlagsMutuallyExclusive example in User Guide (#1904)\","
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "C:\\CodeWork\\ContextAtlas-benchmarks\\atlases\\cobra\\atlas.json",
+        "offset": 5680,
+        "limit": 40
+      },
+      "result_preview": "5680\t      \"path\": \"fish_completions_test.go\",\n5681\t      \"line\": 59,\n5682\t      \"signature\": \"func(t *testing.T)\",\n5683\t      \"file_sha\": \"e1471f22d856fd1692786b9067f15e6618afe74cf3f2e82d85fcbd8d67c35d8f\"\n5684\t    },\n5685\t    {\n5686\t      \"id\": \"sym:go:flag_groups.go:(*Command).MarkFlagsMutuallyExclusive\",\n5687\t      \"name\": \"(*Command).MarkFlagsMutuallyExclusive\",\n5688\t      \"kind\": \"method\",\n5689\t      \"path\": \"flag_groups.go\",\n5690\t      \"line\": 65,\n5691\t      \"signature\": \"func(flagNames ...string)\",\n5692\t      \"file_sha\": \"13efd58bf023ce69992d1be06afd37d6ebd4e60ff48eb18c6db1ce883b7a64c9\"\n5693\t    },\n5694\t    {\n5695\t      \"id\": \"sym:go:flag_groups.go:(*Command).MarkFlagsOneRequired\",\n5696\t      \"name\": \"(*Command).MarkFlagsOneRequired\",\n5697\t      \"kind\": \"method\",\n5698\t      \"path\": \"flag_groups.go\",\n5699\t      \"line\": 49,\n5700\t      \"signature\": \"func(flagNames ...string)\",\n5701\t      \"file_sha\": \"13efd58bf023ce69992d1be06afd37d6ebd4e60ff48eb18c6db1ce883b7a64c9\"\n5702\t    },\n5703\t    {\n5704\t      \"id\": \"sym:go:flag_groups.go:(*Command).MarkFlagsRequiredTogether\",\n5705\t      \"name\": \"(*Command).MarkFlagsRequiredTogether\",\n5706\t      \"kind\": \"method\",\n5707\t      \"path\": \"flag_groups.go\",\n5708\t      \"line\": 33,\n5709\t      \"signature\": \"func(flagNames ...string)\",\n5710\t      \"file_sha\": \"13efd58bf023ce69992d1be06afd37d6ebd4e60ff48eb18c6db1ce883b7a64c9\"\n5711\t    },\n5712\t    {\n5713\t      \"id\": \"sym:go:flag_groups.go:(*Command).ValidateFlagGroups\",\n5714\t      \"name\": \"(*Command).ValidateFlagGroups\",\n5715\t      \"kind\": \"method\",\n5716\t      \"path\": \"flag_groups.go\",\n5717\t      \"line\": 81,\n5718\t      \"signature\": \"func() error\",\n5719\t      \"file_sha\": \"13efd58bf023ce69992d1be06afd37d6ebd4e60ff48eb18c6db1ce883b7a64c9\""
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "C:\\CodeWork\\ContextAtlas-benchmarks\\atlases\\cobra\\atlas.json",
+        "offset": 9420,
+        "limit": 60
+      },
+      "result_preview": "9420\t      \"claim\": \"GenYamlTree may produce undefined output when command names contain hyphens, due to filename collisions between nested subcommands and hyphenated names\",\n9421\t      \"rationale\": \"Hyphens in command names create ambiguous output filenames (e.g., cmd-sub-third.1 could refer to multiple command paths)\",\n9422\t      \"excerpt\": \"This function may not work correctly if your command names have `-` in them.\",\n9423\t      \"symbol_ids\": [\n9424\t        \"sym:go:doc/yaml_docs.go:GenYamlTree\"\n9425\t      ]\n9426\t    },\n9427\t    {\n9428\t      \"source\": \"docstring:flag_groups.go\",\n9429\t      \"source_path\": \"flag_groups.go\",\n9430\t      \"source_sha\": \"13efd58bf023ce69992d1be06afd37d6ebd4e60ff48eb18c6db1ce883b7a64c9\",\n9431\t      \"severity\": \"context\",\n9432\t      \"claim\": \"Flags marked mutually exclusive cause Cobra to error if more than one is provided at invocation\",\n9433\t      \"rationale\": \"Describes behavior of MarkFlagsMutuallyExclusive annotation mechanism\",\n9434\t      \"excerpt\": \"Cobra errors if the command is invoked with more than one flag from the given set of flags\",\n9435\t      \"symbol_ids\": [\n9436\t        \"sym:go:flag_groups.go:(*Command).MarkFlagsMutuallyExclusive\"\n9437\t      ]\n9438\t    },\n9439\t    {\n9440\t      \"source\": \"docstring:flag_groups.go\",\n9441\t      \"source_path\": \"flag_groups.go\",\n9442\t      \"source_sha\": \"13efd58bf023ce69992d1be06afd37d6ebd4e60ff48eb18c6db1ce883b7a64c9\",\n9443\t      \"severity\": \"context\",\n9444\t      \"claim\": \"MarkFlagsOneRequired causes Cobra to error if the command is invoked without at least one flag from the given set\",\n9445\t      \"rationale\": \"Describes the behavior of the function in enforcing that at least one flag from a group is provided\",\n9446\t      \"excerpt\": \"Cobra errors if the command is invoked without at least one flag from the given set of flags\",\n9447\t      \"symbol_ids\": [\n9448\t        \"sym:go:flag_groups.go:(*Command).MarkFlagsOneRequired\"\n9449\t      ]\n9450\t    },\n9451\t    {\n9452\t      \"source\": \"docstring:flag_groups.go\",\n9453\t      \"source_path\": \"flag_groups.go\",\n9454\t      \"source_sha\": \"13efd58bf023ce69992d1be06afd37d6ebd4e60ff48eb18c6db1ce883b7a64c9\",\n9455\t      \"severity\": \"context\",\n9456\t      \"claim\": \"MarkFlagsRequiredTogether annotates flags so Cobra errors when only a subset of the group is provided\",\n9457\t      \"rationale\": \"Describes the behavior of the function: enforcing all-or-none flag usage\",\n9458\t      \"excerpt\": \"marks the given flags with annotations so that Cobra errors if the command is invoked with a subset (but not all) of the given flags\",\n9459\t      \"symbol_ids\": [\n9460\t        \"sym:go:flag_groups.go:(*Command).MarkFlagsRequiredTogether\"\n9461\t      ]\n9462\t    },\n9463\t    {\n9464\t      \"source\": \"docstring:shell_completions.go\",\n9465\t      \"source_path\": \"shell_completions.go\",\n9466\t      \"source_sha\": \"f722f5f5ff7019c793ee5d81bb3099e3843e2c7de491e6bdc5b64984d9b9598e\",\n9467\t      \"severity\": \"context\",\n9468\t      \"claim\": \"MarkFlagCustom adds the BashCompCustom annotation to the named flag so the bash completion script calls function f\",\n9469\t      \"rationale\": \"Describes the mechanism by which MarkFlagCustom integrates with bash completion\",\n9470\t      \"excerpt\": \"MarkFlagCustom adds the BashCompCustom annotation to the named flag, if it exists. The bash completion script will call the bash function f for the flag.\",\n9471\t      \"symbol_ids\": [\n9472\t        \"sym:go:bash_completions.go:BashCompCustom\",\n9473\t        \"sym:go:shell_completions.go:MarkFlagCustom\"\n9474\t      ]\n9475\t    },\n9476\t    {\n9477\t      \"source\": \"docstring:shell_completions.go\",\n9478\t      \"source_path\": \"shell_completions.go\",\n9479\t      \"source_sha\": \"f722f5f5ff7019c793ee5d81bb3099e3843e2c7de491e6bdc5b64984d9b9598e\","
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "C:\\CodeWork\\ContextAtlas-benchmarks\\atlases\\cobra\\atlas.json",
+        "offset": 6625,
+        "limit": 30
+      },
+      "result_preview": "6625\t      \"source_path\": \"ADR-03-hook-lifecycle.md\",\n6626\t      \"source_sha\": \"6e17fb3ccb342605c4e47f43c270e67262d1b9eadd0aa0a8edbdd09c111c84f6\",\n6627\t      \"severity\": \"hard\",\n6628\t      \"claim\": \"ValidateRequiredFlags and ValidateFlagGroups run after PreRun, enabling PreRunE to set flag defaults programmatically and satisfy required-flag checks.\",\n6629\t      \"rationale\": \"PreRun is the last chance to set flag defaults; ordering allows cmd.Flags().Set from PreRunE to satisfy validation.\",\n6630\t      \"excerpt\": \"`ValidateRequiredFlags`/`ValidateFlagGroups` run *after* `PreRun` (lines 1007-1012) because `PreRun` is the last chance to set flag defaults programmatically.\",\n6631\t      \"symbol_ids\": [\n6632\t        \"sym:go:cobra.go:EnableTraverseRunHooks\"\n6633\t      ]\n6634\t    },\n6635\t    {\n6636\t      \"source\": \"ADR-03\",\n6637\t      \"source_path\": \"ADR-03-hook-lifecycle.md\",\n6638\t      \"source_sha\": \"6e17fb3ccb342605c4e47f43c270e67262d1b9eadd0aa0a8edbdd09c111c84f6\",\n6639\t      \"severity\": \"hard\",\n6640\t      \"claim\": \"When DisableFlagParsing is true, ValidateFlagGroups is skipped (early-returns nil).\",\n6641\t      \"rationale\": \"No parsed flags exist to group; but can surprise users who set MarkFlagsMutuallyExclusive and see no validation.\",\n6642\t      \"excerpt\": \"The flag-group validator (`flag_groups.go:82-84`) early-returns `nil` if `c.DisableFlagParsing` is true.\",\n6643\t      \"symbol_ids\": [\n6644\t        \"sym:go:cobra.go:EnableTraverseRunHooks\"\n6645\t      ]\n6646\t    },\n6647\t    {\n6648\t      \"source\": \"ADR-03\",\n6649\t      \"source_path\": \"ADR-03-hook-lifecycle.md\",\n6650\t      \"source_sha\": \"6e17fb3ccb342605c4e47f43c270e67262d1b9eadd0aa0a8edbdd09c111c84f6\",\n6651\t      \"severity\": \"hard\",\n6652\t      \"claim\": \"When EnableTraverseRunHooks=true, every ancestor's PersistentPreRun runs root-to-leaf, and PersistentPostRun runs leaf-to-root (stack-unwinding order).\",\n6653\t      \"rationale\": \"Symmetric open/close setup/teardown semantics for users who need full-chain traversal.\",\n6654\t      \"excerpt\": \"**Every ancestor that has a hook runs**, root first... Post hooks execute child first, then ancestors — stack-unwinding order.\","
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "C:\\CodeWork\\ContextAtlas-benchmarks\\atlases\\cobra\\atlas.json",
+        "offset": 7515,
+        "limit": 25
+      },
+      "result_preview": "7515\t        \"sym:go:flag_groups.go:requiredAsGroupAnnotation\",\n7516\t        \"sym:go:flag_groups.go:validateExclusiveFlagGroups\",\n7517\t        \"sym:go:flag_groups.go:validateOneRequiredFlagGroups\",\n7518\t        \"sym:go:flag_groups.go:validateRequiredFlagGroups\"\n7519\t      ]\n7520\t    },\n7521\t    {\n7522\t      \"source\": \"ADR-06\",\n7523\t      \"source_path\": \"ADR-06-flag-groups-as-annotations.md\",\n7524\t      \"source_sha\": \"a2e7d4e7fec6753d53ca5e56b350a6c241ca27f8656aeab649398d76ca21f364\",\n7525\t      \"severity\": \"context\",\n7526\t      \"claim\": \"MarkFlags* methods do not accept custom error messages; messages are generated from flag names.\",\n7527\t      \"rationale\": \"Programs needing domain-specific messages must intercept and rewrite errors or implement custom PreRun validation.\",\n7528\t      \"excerpt\": \"`MarkFlagsMutuallyExclusive` does not accept a custom error message. The message that surfaces to the end user is built from the flag names.\",\n7529\t      \"symbol_ids\": [\n7530\t        \"sym:go:flag_groups.go:mutuallyExclusiveAnnotation\",\n7531\t        \"sym:go:flag_groups.go:oneRequiredAnnotation\",\n7532\t        \"sym:go:flag_groups.go:processFlagForGroupAnnotation\",\n7533\t        \"sym:go:flag_groups.go:requiredAsGroupAnnotation\",\n7534\t        \"sym:go:flag_groups.go:validateExclusiveFlagGroups\",\n7535\t        \"sym:go:flag_groups.go:validateOneRequiredFlagGroups\",\n7536\t        \"sym:go:flag_groups.go:validateRequiredFlagGroups\"\n7537\t      ]\n7538\t    },\n7539\t    {"
+    }
+  ],
   "diagnostics": {
     "claudeCodeVersion": "2.1.118",
-    "totalCostUsd": 0.04554075,
-    "numTurns": 1,
+    "totalCostUsd": 0.16012474999999998,
+    "numTurns": 12,
     "isError": false,
     "terminalReason": "completed",
     "modelUsage": {
@@ -32,17 +125,17 @@
         "maxOutputTokens": 32000
       },
       "claude-opus-4-7": {
-        "inputTokens": 6,
-        "outputTokens": 1199,
-        "cacheReadInputTokens": 0,
-        "cacheCreationInputTokens": 2411,
+        "inputTokens": 17,
+        "outputTokens": 2447,
+        "cacheReadInputTokens": 43633,
+        "cacheCreationInputTokens": 12253,
         "webSearchRequests": 0,
-        "costUSD": 0.045073749999999996,
+        "costUSD": 0.15965775,
         "contextWindow": 1000000,
         "maxOutputTokens": 64000
       }
     }
   },
-  "cost_usd": 0.04554075,
-  "written_at": "2026-04-25T03:04:41.203Z"
+  "cost_usd": 0.16012474999999998,
+  "written_at": "2026-04-27T21:50:40.914Z"
 }

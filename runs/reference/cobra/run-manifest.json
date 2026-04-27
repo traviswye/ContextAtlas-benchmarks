@@ -1,15 +1,15 @@
 {
   "manifest_version": "1.0",
-  "generated_at": "2026-04-25T03:06:25.072Z",
+  "generated_at": "2026-04-27T21:52:51.594Z",
   "repo_name": "cobra",
   "pinned_repo_sha": "88b30ab89da2d0d0abb153818746c5a2d30eccec",
   "contextatlas": {
-    "version_label": "ContextAtlas v0.1 (atlas schema v1.1)",
-    "commit_sha": "9f27e03ea2f66c53d9e2c6072fb5a5312e076117",
-    "dist_mtime": "2026-04-25T02:36:52.875Z"
+    "version_label": "ContextAtlas v0.3-dev (atlas schema v1.3)",
+    "commit_sha": "6576b4743a7bf3b5c7d490e69441d77332392fdc",
+    "dist_mtime": "2026-04-27T03:14:39.369Z"
   },
   "benchmarks": {
-    "commit_sha": "545a73de5981b5e1062602440d23caddf2c5946c"
+    "commit_sha": "7cda543b1a50824b44ebab5cd892caa816732019"
   },
   "claude_cli_version": "2.1.118",
   "model": "claude-opus-4-7",
@@ -19,8 +19,8 @@
     "beta",
     "beta-ca"
   ],
-  "budget_ceiling_usd": 18,
-  "total_cost_usd": 7.1943865,
+  "budget_ceiling_usd": 14,
+  "total_cost_usd": 6.8533582499999985,
   "halted": null,
   "cells": [
     {
@@ -29,14 +29,14 @@
       "bucket": "win",
       "artifact_path": "cobra/c1-command-behavior/alpha.json",
       "metrics": {
-        "tool_calls": 11,
-        "input_tokens": 57311,
-        "output_tokens": 3065,
-        "total_tokens": 60376,
-        "wall_clock_ms": 48617
+        "tool_calls": 8,
+        "input_tokens": 36423,
+        "output_tokens": 2854,
+        "total_tokens": 39277,
+        "wall_clock_ms": 48333
       },
       "capped": null,
-      "cost_usd": 1.08954
+      "cost_usd": 0.760395
     },
     {
       "prompt_id": "c1-command-behavior",
@@ -44,14 +44,14 @@
       "bucket": "win",
       "artifact_path": "cobra/c1-command-behavior/ca.json",
       "metrics": {
-        "tool_calls": 6,
-        "input_tokens": 43025,
-        "output_tokens": 2651,
-        "total_tokens": 45676,
-        "wall_clock_ms": 42785
+        "tool_calls": 10,
+        "input_tokens": 52924,
+        "output_tokens": 2951,
+        "total_tokens": 55875,
+        "wall_clock_ms": 46862
       },
       "capped": null,
-      "cost_usd": 0.8442
+      "cost_usd": 1.015185
     },
     {
       "prompt_id": "c1-command-behavior",
@@ -59,14 +59,14 @@
       "bucket": "win",
       "artifact_path": "cobra/c1-command-behavior/beta.json",
       "metrics": {
-        "tool_calls": 11,
-        "input_tokens": 17,
-        "output_tokens": 3510,
-        "total_tokens": 73613,
-        "wall_clock_ms": 56883
+        "tool_calls": 12,
+        "input_tokens": 18,
+        "output_tokens": 3904,
+        "total_tokens": 86355,
+        "wall_clock_ms": 65511
       },
       "capped": null,
-      "cost_usd": 0.2578525
+      "cost_usd": 0.2474655
     },
     {
       "prompt_id": "c1-command-behavior",
@@ -75,13 +75,13 @@
       "artifact_path": "cobra/c1-command-behavior/beta-ca.json",
       "metrics": {
         "tool_calls": 6,
-        "input_tokens": 9,
-        "output_tokens": 2676,
-        "total_tokens": 35717,
-        "wall_clock_ms": 43661
+        "input_tokens": 10,
+        "output_tokens": 2703,
+        "total_tokens": 47466,
+        "wall_clock_ms": 43880
       },
       "capped": null,
-      "cost_usd": 0.14235725
+      "cost_usd": 0.15351425
     },
     {
       "prompt_id": "c2-persistent-flag-scope",
@@ -89,14 +89,14 @@
       "bucket": "win",
       "artifact_path": "cobra/c2-persistent-flag-scope/alpha.json",
       "metrics": {
-        "tool_calls": 4,
-        "input_tokens": 20012,
-        "output_tokens": 2233,
-        "total_tokens": 22245,
-        "wall_clock_ms": 32726
+        "tool_calls": 5,
+        "input_tokens": 21430,
+        "output_tokens": 1978,
+        "total_tokens": 23408,
+        "wall_clock_ms": 31251
       },
       "capped": null,
-      "cost_usd": 0.467655
+      "cost_usd": 0.4698
     },
     {
       "prompt_id": "c2-persistent-flag-scope",
@@ -104,14 +104,14 @@
       "bucket": "win",
       "artifact_path": "cobra/c2-persistent-flag-scope/ca.json",
       "metrics": {
-        "tool_calls": 6,
-        "input_tokens": 17188,
-        "output_tokens": 2167,
-        "total_tokens": 19355,
-        "wall_clock_ms": 34362
+        "tool_calls": 4,
+        "input_tokens": 18534,
+        "output_tokens": 2226,
+        "total_tokens": 20760,
+        "wall_clock_ms": 32297
       },
       "capped": null,
-      "cost_usd": 0.420345
+      "cost_usd": 0.44496
     },
     {
       "prompt_id": "c2-persistent-flag-scope",
@@ -119,14 +119,14 @@
       "bucket": "win",
       "artifact_path": "cobra/c2-persistent-flag-scope/beta.json",
       "metrics": {
-        "tool_calls": 6,
-        "input_tokens": 12,
-        "output_tokens": 2687,
-        "total_tokens": 33477,
-        "wall_clock_ms": 47383
+        "tool_calls": 5,
+        "input_tokens": 11,
+        "output_tokens": 2247,
+        "total_tokens": 23570,
+        "wall_clock_ms": 36205
       },
       "capped": null,
-      "cost_usd": 0.15055975
+      "cost_usd": 0.100965
     },
     {
       "prompt_id": "c2-persistent-flag-scope",
@@ -134,14 +134,14 @@
       "bucket": "win",
       "artifact_path": "cobra/c2-persistent-flag-scope/beta-ca.json",
       "metrics": {
-        "tool_calls": 9,
-        "input_tokens": 11,
-        "output_tokens": 2522,
-        "total_tokens": 51699,
-        "wall_clock_ms": 41637
+        "tool_calls": 4,
+        "input_tokens": 9,
+        "output_tokens": 2272,
+        "total_tokens": 29239,
+        "wall_clock_ms": 40814
       },
       "capped": null,
-      "cost_usd": 0.13846350000000002
+      "cost_usd": 0.1169085
     },
     {
       "prompt_id": "c3-hook-lifecycle",
@@ -149,14 +149,14 @@
       "bucket": "win",
       "artifact_path": "cobra/c3-hook-lifecycle/alpha.json",
       "metrics": {
-        "tool_calls": 4,
-        "input_tokens": 10760,
-        "output_tokens": 1636,
-        "total_tokens": 12396,
-        "wall_clock_ms": 25961
+        "tool_calls": 3,
+        "input_tokens": 11053,
+        "output_tokens": 1577,
+        "total_tokens": 12630,
+        "wall_clock_ms": 25370
       },
       "capped": null,
-      "cost_usd": 0.2841
+      "cost_usd": 0.28407
     },
     {
       "prompt_id": "c3-hook-lifecycle",
@@ -165,13 +165,13 @@
       "artifact_path": "cobra/c3-hook-lifecycle/ca.json",
       "metrics": {
         "tool_calls": 3,
-        "input_tokens": 14324,
-        "output_tokens": 1329,
-        "total_tokens": 15653,
-        "wall_clock_ms": 20931
+        "input_tokens": 15659,
+        "output_tokens": 1386,
+        "total_tokens": 17045,
+        "wall_clock_ms": 24407
       },
       "capped": null,
-      "cost_usd": 0.314535
+      "cost_usd": 0.338835
     },
     {
       "prompt_id": "c3-hook-lifecycle",
@@ -179,14 +179,14 @@
       "bucket": "win",
       "artifact_path": "cobra/c3-hook-lifecycle/beta.json",
       "metrics": {
-        "tool_calls": 10,
-        "input_tokens": 16,
-        "output_tokens": 2934,
-        "total_tokens": 59987,
-        "wall_clock_ms": 48352
+        "tool_calls": 8,
+        "input_tokens": 14,
+        "output_tokens": 2522,
+        "total_tokens": 51754,
+        "wall_clock_ms": 46062
       },
       "capped": null,
-      "cost_usd": 0.19121975
+      "cost_usd": 0.1554895
     },
     {
       "prompt_id": "c3-hook-lifecycle",
@@ -196,12 +196,12 @@
       "metrics": {
         "tool_calls": 4,
         "input_tokens": 8,
-        "output_tokens": 1948,
-        "total_tokens": 19812,
-        "wall_clock_ms": 34703
+        "output_tokens": 2005,
+        "total_tokens": 24730,
+        "wall_clock_ms": 35407
       },
       "capped": null,
-      "cost_usd": 0.10320474999999998
+      "cost_usd": 0.11532375
     },
     {
       "prompt_id": "c4-subcommand-resolution",
@@ -209,14 +209,14 @@
       "bucket": "win",
       "artifact_path": "cobra/c4-subcommand-resolution/alpha.json",
       "metrics": {
-        "tool_calls": 7,
-        "input_tokens": 21349,
-        "output_tokens": 2189,
-        "total_tokens": 23538,
-        "wall_clock_ms": 33951
+        "tool_calls": 9,
+        "input_tokens": 23998,
+        "output_tokens": 2510,
+        "total_tokens": 26508,
+        "wall_clock_ms": 36203
       },
       "capped": null,
-      "cost_usd": 0.48441
+      "cost_usd": 0.54822
     },
     {
       "prompt_id": "c4-subcommand-resolution",
@@ -224,14 +224,14 @@
       "bucket": "win",
       "artifact_path": "cobra/c4-subcommand-resolution/ca.json",
       "metrics": {
-        "tool_calls": 8,
-        "input_tokens": 33646,
-        "output_tokens": 2385,
-        "total_tokens": 36031,
-        "wall_clock_ms": 37614
+        "tool_calls": 5,
+        "input_tokens": 28920,
+        "output_tokens": 1947,
+        "total_tokens": 30867,
+        "wall_clock_ms": 35901
       },
       "capped": null,
-      "cost_usd": 0.683565
+      "cost_usd": 0.579825
     },
     {
       "prompt_id": "c4-subcommand-resolution",
@@ -239,14 +239,14 @@
       "bucket": "win",
       "artifact_path": "cobra/c4-subcommand-resolution/beta.json",
       "metrics": {
-        "tool_calls": 6,
-        "input_tokens": 12,
-        "output_tokens": 2474,
-        "total_tokens": 42082,
-        "wall_clock_ms": 47955
+        "tool_calls": 13,
+        "input_tokens": 19,
+        "output_tokens": 3301,
+        "total_tokens": 79740,
+        "wall_clock_ms": 60346
       },
       "capped": null,
-      "cost_usd": 0.19187
+      "cost_usd": 0.22325899999999999
     },
     {
       "prompt_id": "c4-subcommand-resolution",
@@ -254,14 +254,14 @@
       "bucket": "win",
       "artifact_path": "cobra/c4-subcommand-resolution/beta-ca.json",
       "metrics": {
-        "tool_calls": 5,
-        "input_tokens": 9,
-        "output_tokens": 1905,
-        "total_tokens": 32668,
-        "wall_clock_ms": 34147
+        "tool_calls": 3,
+        "input_tokens": 8,
+        "output_tokens": 2135,
+        "total_tokens": 29813,
+        "wall_clock_ms": 39398
       },
       "capped": null,
-      "cost_usd": 0.13960025
+      "cost_usd": 0.14813874999999999
     },
     {
       "prompt_id": "c5-flag-group-constraints",
@@ -269,14 +269,14 @@
       "bucket": "tie",
       "artifact_path": "cobra/c5-flag-group-constraints/alpha.json",
       "metrics": {
-        "tool_calls": 3,
-        "input_tokens": 10148,
-        "output_tokens": 1513,
-        "total_tokens": 11661,
-        "wall_clock_ms": 20786
+        "tool_calls": 0,
+        "input_tokens": 1627,
+        "output_tokens": 1017,
+        "total_tokens": 2644,
+        "wall_clock_ms": 15952
       },
       "capped": null,
-      "cost_usd": 0.265695
+      "cost_usd": 0.10068
     },
     {
       "prompt_id": "c5-flag-group-constraints",
@@ -284,14 +284,14 @@
       "bucket": "tie",
       "artifact_path": "cobra/c5-flag-group-constraints/ca.json",
       "metrics": {
-        "tool_calls": 5,
-        "input_tokens": 18541,
-        "output_tokens": 1383,
-        "total_tokens": 19924,
-        "wall_clock_ms": 24071
+        "tool_calls": 0,
+        "input_tokens": 3176,
+        "output_tokens": 1260,
+        "total_tokens": 4436,
+        "wall_clock_ms": 19292
       },
       "capped": null,
-      "cost_usd": 0.38184
+      "cost_usd": 0.14214
     },
     {
       "prompt_id": "c5-flag-group-constraints",
@@ -299,14 +299,14 @@
       "bucket": "tie",
       "artifact_path": "cobra/c5-flag-group-constraints/beta.json",
       "metrics": {
-        "tool_calls": 0,
-        "input_tokens": 6,
-        "output_tokens": 1199,
-        "total_tokens": 3616,
-        "wall_clock_ms": 16467
+        "tool_calls": 11,
+        "input_tokens": 17,
+        "output_tokens": 2447,
+        "total_tokens": 58350,
+        "wall_clock_ms": 40503
       },
       "capped": null,
-      "cost_usd": 0.04554075
+      "cost_usd": 0.16012474999999998
     },
     {
       "prompt_id": "c5-flag-group-constraints",
@@ -314,14 +314,14 @@
       "bucket": "tie",
       "artifact_path": "cobra/c5-flag-group-constraints/beta-ca.json",
       "metrics": {
-        "tool_calls": 5,
-        "input_tokens": 9,
-        "output_tokens": 1860,
-        "total_tokens": 26412,
-        "wall_clock_ms": 32534
+        "tool_calls": 2,
+        "input_tokens": 8,
+        "output_tokens": 1217,
+        "total_tokens": 16942,
+        "wall_clock_ms": 22379
       },
       "capped": null,
-      "cost_usd": 0.108768
+      "cost_usd": 0.05590675
     },
     {
       "prompt_id": "c6-execute-signature",
@@ -329,14 +329,14 @@
       "bucket": "trick",
       "artifact_path": "cobra/c6-execute-signature/alpha.json",
       "metrics": {
-        "tool_calls": 2,
-        "input_tokens": 5938,
-        "output_tokens": 723,
-        "total_tokens": 6661,
-        "wall_clock_ms": 9771
+        "tool_calls": 3,
+        "input_tokens": 8603,
+        "output_tokens": 980,
+        "total_tokens": 9583,
+        "wall_clock_ms": 14211
       },
       "capped": null,
-      "cost_usd": 0.143295
+      "cost_usd": 0.202545
     },
     {
       "prompt_id": "c6-execute-signature",
@@ -344,14 +344,14 @@
       "bucket": "trick",
       "artifact_path": "cobra/c6-execute-signature/ca.json",
       "metrics": {
-        "tool_calls": 3,
-        "input_tokens": 8914,
-        "output_tokens": 888,
-        "total_tokens": 9802,
-        "wall_clock_ms": 17305
+        "tool_calls": 2,
+        "input_tokens": 10169,
+        "output_tokens": 644,
+        "total_tokens": 10813,
+        "wall_clock_ms": 10924
       },
       "capped": null,
-      "cost_usd": 0.20031
+      "cost_usd": 0.200835
     },
     {
       "prompt_id": "c6-execute-signature",
@@ -359,14 +359,14 @@
       "bucket": "trick",
       "artifact_path": "cobra/c6-execute-signature/beta.json",
       "metrics": {
-        "tool_calls": 7,
-        "input_tokens": 13,
-        "output_tokens": 1592,
-        "total_tokens": 30168,
-        "wall_clock_ms": 28359
+        "tool_calls": 8,
+        "input_tokens": 14,
+        "output_tokens": 2151,
+        "total_tokens": 41346,
+        "wall_clock_ms": 33321
       },
       "capped": null,
-      "cost_usd": 0.10303399999999999
+      "cost_usd": 0.1150025
     },
     {
       "prompt_id": "c6-execute-signature",
@@ -374,14 +374,14 @@
       "bucket": "trick",
       "artifact_path": "cobra/c6-execute-signature/beta-ca.json",
       "metrics": {
-        "tool_calls": 3,
-        "input_tokens": 8,
-        "output_tokens": 905,
-        "total_tokens": 12833,
-        "wall_clock_ms": 15883
+        "tool_calls": 17,
+        "input_tokens": 21,
+        "output_tokens": 2910,
+        "total_tokens": 115404,
+        "wall_clock_ms": 49814
       },
       "capped": null,
-      "cost_usd": 0.042426
+      "cost_usd": 0.17377000000000004
     }
   ]
 }
