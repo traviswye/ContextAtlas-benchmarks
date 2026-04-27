@@ -46,24 +46,81 @@ const SYSTEM_PROMPT =
 const ALPHA_TOOLS = [readTool, grepTool, globTool, lsTool];
 
 /**
- * Per-cell estimates used by the budget gate to halt before overflow.
+ * Per-(repo, bucket, condition) cost priors used by the budget gate
+ * to halt before overflow. Bumped from V0_1 to V0_3 in v0.3 Step 13
+ * (Theme 2.3 — Go-specific cost priors); see
+ * `../../../contextatlas/STEP-PLAN-V0.3.md` Step 13 + scope-doc
+ * Stream C item 3.
  *
- * Calibrated from the partial reference run at
- * runs/2026-04-23T01-20-18-813Z/hono/ (n=11 cells, all win-bucket).
- * Derivation and rationale: research/phase-5-cost-calibration.md.
+ * Derivation methodology (consistent across all three repos):
+ *   - Calibration anchor: observed win-bucket averages from full
+ *     Phase 5/6/7 reference runs
+ *     (`runs/reference/<repo>/run-manifest.json`).
+ *   - Buffer: ×1.20 over observed win averages for unseen variance.
+ *   - Bucket scaling (preserved from V0_1): tie at 65% of win,
+ *     trick at 45%, held_out at 80%.
  *
- * Methodology: observed win-bucket averages + ~20% buffer for unseen
- * variance; tie scaled at 65% of win; trick scaled at 45% of win;
- * held_out scaled at 80% of win (step-13 prompts lean architectural).
- * beta-ca win kept conservative ($0.25) despite observed $0.14 average
- * because the sample was only n=2.
+ * Per-repo seeding:
+ *   - hono (TS-baseline): preserved at V0_1 values per Step 13
+ *     ship criterion 1. Originally calibrated from a partial pre-
+ *     Phase-5 run (n=11, win-bucket only); see
+ *     `research/phase-5-cost-calibration.md`. Full Phase 5 data
+ *     subsequently showed observed win-alpha at $1.5730 (vs prior
+ *     $0.70) — the priors materially undershoot full-Phase-5
+ *     reality. Recalibration is out of scope per scope doc;
+ *     documented here so future readers don't read it as
+ *     methodology drift.
+ *   - httpx (Python): calibrated from Phase 6 reference-run data.
+ *     Observed win: alpha $0.6682, ca $0.5611, beta $0.1477,
+ *     beta-ca $0.1494. Empirically beta and beta-ca are
+ *     near-identical, so priors round equal at $0.18 —
+ *     empirically correct, reads slightly odd.
+ *   - cobra (Go): calibrated from Phase 7 reference-run data.
+ *     Observed win: alpha $0.5814, ca $0.5657, beta $0.1979,
+ *     beta-ca $0.1309. Buffered priors blend to ~$0.38/cell vs
+ *     observed $0.30/cell — the $0.30 figure cited in
+ *     v0.3-SCOPE.md Stream C item 3 is the descriptive empirical
+ *     anchor; the buffered prior is the budget-gate value.
  */
-export const COST_PRIORS_V0_1: Record<Bucket, Record<Condition, number>> = {
-  win: { alpha: 0.7, ca: 0.7, beta: 0.3, "beta-ca": 0.25 },
-  tie: { alpha: 0.45, ca: 0.45, beta: 0.2, "beta-ca": 0.18 },
-  trick: { alpha: 0.3, ca: 0.3, beta: 0.15, "beta-ca": 0.15 },
-  held_out: { alpha: 0.55, ca: 0.55, beta: 0.25, "beta-ca": 0.22 },
+export const COST_PRIORS_V0_3: Record<
+  "hono" | "httpx" | "cobra",
+  Record<Bucket, Record<Condition, number>>
+> = {
+  hono: {
+    win: { alpha: 0.7, ca: 0.7, beta: 0.3, "beta-ca": 0.25 },
+    tie: { alpha: 0.45, ca: 0.45, beta: 0.2, "beta-ca": 0.18 },
+    trick: { alpha: 0.3, ca: 0.3, beta: 0.15, "beta-ca": 0.15 },
+    held_out: { alpha: 0.55, ca: 0.55, beta: 0.25, "beta-ca": 0.22 },
+  },
+  httpx: {
+    win: { alpha: 0.8, ca: 0.67, beta: 0.18, "beta-ca": 0.18 },
+    tie: { alpha: 0.52, ca: 0.44, beta: 0.12, "beta-ca": 0.12 },
+    trick: { alpha: 0.36, ca: 0.3, beta: 0.08, "beta-ca": 0.08 },
+    held_out: { alpha: 0.64, ca: 0.54, beta: 0.14, "beta-ca": 0.14 },
+  },
+  cobra: {
+    win: { alpha: 0.7, ca: 0.68, beta: 0.24, "beta-ca": 0.16 },
+    tie: { alpha: 0.46, ca: 0.44, beta: 0.16, "beta-ca": 0.1 },
+    trick: { alpha: 0.32, ca: 0.31, beta: 0.11, "beta-ca": 0.07 },
+    held_out: { alpha: 0.56, ca: 0.54, beta: 0.19, "beta-ca": 0.13 },
+  },
 };
+
+/**
+ * Look up a budget-gate cost prior with two-layer fallback:
+ *   - Unseeded `repoName` → hono priors (TS-baseline; Step 13 Q4).
+ *   - Unseeded `(bucket, condition)` → $0.30 (preserved from V0_1).
+ */
+export function lookupCostPrior(
+  repoName: string,
+  bucket: Bucket,
+  condition: Condition,
+): number {
+  const repoPriors =
+    COST_PRIORS_V0_3[repoName as keyof typeof COST_PRIORS_V0_3] ??
+    COST_PRIORS_V0_3.hono;
+  return repoPriors[bucket]?.[condition] ?? 0.3;
+}
 
 export interface DispatchOptions {
   readonly condition: Condition;
@@ -373,8 +430,11 @@ export async function runMatrix(
     if (!prompt.prompt) continue; // should never happen after filterStep7
     for (const condition of orderedConditions) {
       // --- Budget gate (halt-before-overflow) ---
-      const estimated =
-        COST_PRIORS_V0_1[prompt.bucket]?.[condition] ?? 0.3;
+      const estimated = lookupCostPrior(
+        input.repoName,
+        prompt.bucket,
+        condition,
+      );
       if (accumulatedCost + estimated >= input.budgetCeilingUsd) {
         // eslint-disable-next-line no-console
         console.warn(

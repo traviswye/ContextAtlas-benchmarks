@@ -5,12 +5,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { AlphaAgentOutput } from "./alpha-agent.js";
 import type { Condition } from "./metrics.js";
 import {
-  COST_PRIORS_V0_1,
+  COST_PRIORS_V0_3,
   actualCostUsd,
+  lookupCostPrior,
   type DispatchFn,
   type DispatchOptions,
   runMatrix,
 } from "./run.js";
+import type { Bucket } from "./metrics.js";
 import type { DiagnosticInfo } from "./claude-code-driver.js";
 
 // -------- fixture scaffolding --------
@@ -472,15 +474,110 @@ describe("runMatrix — errored cells", () => {
 
 // -------- priors sanity check --------
 
-describe("COST_PRIORS_V0_1", () => {
-  it("has entries for every (bucket, condition) pair", () => {
-    const conditions: Condition[] = ["alpha", "ca", "beta", "beta-ca"];
-    const buckets = ["win", "tie", "trick", "held_out"] as const;
-    for (const b of buckets) {
-      for (const c of conditions) {
-        expect(COST_PRIORS_V0_1[b][c]).toBeTypeOf("number");
-        expect(COST_PRIORS_V0_1[b][c]).toBeGreaterThan(0);
+describe("COST_PRIORS_V0_3", () => {
+  const repos = ["hono", "httpx", "cobra"] as const;
+  const conditions: Condition[] = ["alpha", "ca", "beta", "beta-ca"];
+  const buckets = ["win", "tie", "trick", "held_out"] as const;
+
+  it("has entries for every (repo, bucket, condition) triple", () => {
+    for (const r of repos) {
+      for (const b of buckets) {
+        for (const c of conditions) {
+          // held_out is forward-compat scaffolding; no held_out cells in v0.3 reference data.
+          expect(COST_PRIORS_V0_3[r][b][c]).toBeTypeOf("number");
+          expect(COST_PRIORS_V0_3[r][b][c]).toBeGreaterThan(0);
+        }
       }
     }
+  });
+
+  it("hono win-bucket priors preserved at V0_1 values (Step 13 ship criterion 1)", () => {
+    expect(COST_PRIORS_V0_3.hono.win.alpha).toBe(0.7);
+    expect(COST_PRIORS_V0_3.hono.win.ca).toBe(0.7);
+    expect(COST_PRIORS_V0_3.hono.win.beta).toBe(0.3);
+    expect(COST_PRIORS_V0_3.hono.win["beta-ca"]).toBe(0.25);
+  });
+
+  it("httpx win-bucket priors calibrated from Phase 6 data (×1.20 buffer)", () => {
+    expect(COST_PRIORS_V0_3.httpx.win.alpha).toBe(0.8);
+    expect(COST_PRIORS_V0_3.httpx.win.ca).toBe(0.67);
+    expect(COST_PRIORS_V0_3.httpx.win.beta).toBe(0.18);
+    expect(COST_PRIORS_V0_3.httpx.win["beta-ca"]).toBe(0.18);
+  });
+
+  it("cobra win-bucket priors calibrated from Phase 7 data (×1.20 buffer)", () => {
+    expect(COST_PRIORS_V0_3.cobra.win.alpha).toBe(0.7);
+    expect(COST_PRIORS_V0_3.cobra.win.ca).toBe(0.68);
+    expect(COST_PRIORS_V0_3.cobra.win.beta).toBe(0.24);
+    expect(COST_PRIORS_V0_3.cobra.win["beta-ca"]).toBe(0.16);
+  });
+});
+
+describe("lookupCostPrior", () => {
+  it("returns the seeded prior for a known (repo, bucket, condition)", () => {
+    expect(lookupCostPrior("cobra", "win", "alpha")).toBe(0.7);
+    expect(lookupCostPrior("httpx", "trick", "beta-ca")).toBe(0.08);
+  });
+
+  it("falls back to hono (TS-baseline) priors when repoName is unseeded", () => {
+    // Forward-compat: if a future repo (e.g., a Django target) is added
+    // before its priors are calibrated, the budget gate uses hono priors
+    // rather than failing or returning 0.
+    expect(lookupCostPrior("django", "win", "alpha")).toBe(
+      COST_PRIORS_V0_3.hono.win.alpha,
+    );
+    expect(lookupCostPrior("nextjs", "tie", "beta-ca")).toBe(
+      COST_PRIORS_V0_3.hono.tie["beta-ca"],
+    );
+  });
+
+  it("falls back to $0.30 when (bucket, condition) is unseeded", () => {
+    // Defensive: preserves the V0_1 inner fallback. Reachable only if
+    // a new bucket or condition is added without seeding the priors.
+    const v = lookupCostPrior("hono", "ghost-bucket" as Bucket, "alpha");
+    expect(v).toBe(0.3);
+  });
+});
+
+describe("runMatrix — per-repo budget gate (V0_3)", () => {
+  let f: TestFixture;
+  beforeEach(async () => {
+    f = await makeFixture();
+    // Add httpx prompts fixture so we can exercise the per-repo lookup
+    // through the matrix entry point with `repoName: "httpx"`.
+    await writeFile(
+      path.join(f.benchmarksRoot, "prompts", "httpx.yml"),
+      `prompts:
+  - prompt_id: p1-test
+    target_symbol: foo
+    bucket: win
+    prompt: "test"
+`,
+    );
+  });
+  afterEach(async () => {
+    await f.cleanup();
+  });
+
+  it("uses repo-specific priors at the budget gate", async () => {
+    // httpx win alpha prior is $0.80 vs hono's $0.70. With a $0.75
+    // ceiling, httpx halts BEFORE the first cell runs (0 + 0.80 ≥ 0.75)
+    // — proving the lookup uses input.repoName rather than a single
+    // global priors table.
+    const dispatch = vi.fn<[DispatchOptions], Promise<AlphaAgentOutput>>(
+      async () => canned(),
+    );
+    const result = await runMatrix(
+      baseInput(f, {
+        dispatch,
+        repoName: "httpx" as const,
+        budgetCeilingUsd: 0.75,
+        warningGateUsd: 0.5,
+        conditions: ["alpha"],
+      }),
+    );
+    expect(dispatch).toHaveBeenCalledTimes(0);
+    expect(result.halted).toBe("budget_ceiling");
+    expect(result.cells).toHaveLength(0);
   });
 });
