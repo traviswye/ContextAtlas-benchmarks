@@ -1,9 +1,10 @@
 {
   "version": "1.1",
-  "generated_at": "2026-04-23T23:36:42.397Z",
+  "generated_at": "2026-04-27T19:56:27.496Z",
   "extracted_at_sha": "cf2d2b7edcf07adef2db7614557f4d7f9e2be7ba",
   "generator": {
     "contextatlas_version": "0.0.1",
+    "contextatlas_commit_sha": "4308de5574f332626e0a09e91727f072aee9194b",
     "extraction_model": "claude-opus-4-7"
   },
   "source_shas": {
@@ -11,7 +12,230 @@
     "ADR-02-router-interface-and-presets.md": "611b65231bd15a6e7fa7de69e287ad2dfe48c3e419e52d0f5d4606031a762e49",
     "ADR-03-onion-middleware-compose.md": "ff0af54899bc79db0167348a1c898512c7a10f9a7696821ec766bb10ba1d362e",
     "ADR-04-type-inference-to-typed-client.md": "c48cd13c3a58c91330dfc7bbc227adddb8d785a559c002707e5ec9d8be6d0564",
-    "ADR-05-dual-jsx-backends.md": "85ca7513ba55ce5eee8e66e6139105044f28033e1e4f4fc7d09cf22c25f02a32"
+    "ADR-05-dual-jsx-backends.md": "85ca7513ba55ce5eee8e66e6139105044f28033e1e4f4fc7d09cf22c25f02a32",
+    "benchmarks/deno/fast.ts": "f7057eff513855e0a52f14b90070f7751725e14d52d30a07c9f489fe6f393a58",
+    "benchmarks/deno/faster.ts": "4cb879d9378a8a882a8899e61d081cf2556c49459d5232609377d1b2bd771c93",
+    "benchmarks/deno/hono.ts": "4dcbf241f17412be646dc21c6b86b56a8c98846a52aa9c98a25937c0c7d17aca",
+    "benchmarks/deno/magalo.ts": "7caeca0d3bd5bd1b031bf722e9e5397b0e5ec7ac9b5f95ecfbe77187d251ce6e",
+    "benchmarks/deno/oak.ts": "ec1ec19d34f83f4dff20cd89756e01c1411357344f39dbe360191ae931b6cd67",
+    "benchmarks/deno/opine.ts": "d396760194363d099e53e6f53cc8d5c63e56cd13cf3b220e4cad38421edcd2e8",
+    "benchmarks/http-server/benchmark.ts": "51f5032fe9f6a39a67ce42cbb9144d7e889924f2501288e53ca9c17cdb7f585a",
+    "benchmarks/jsx/src/benchmark.ts": "54bd8cd257149ad1a0727bd480c4b8f364b5c2cdb84fbda35789a5f0218059d4",
+    "benchmarks/jsx/src/hono.ts": "5e1530d823ccc42cdbdcdd60f38a737fcef29c9a6734e7d904ba10834ff3e968",
+    "benchmarks/jsx/src/nano.ts": "214183dc9c358bdaa8ac3582261cfe19187636b52bbb111624d43583acea9d77",
+    "benchmarks/jsx/src/page-react.tsx": "e654c83d66bdb798c949d6e134008b86be404b8d06d8c48dcb4abef79f73ca8b",
+    "benchmarks/jsx/src/page.tsx": "752b66e45befb5fee338552fb63c2aab0ed872c3e15b79e433d5842d0dac0373",
+    "benchmarks/jsx/src/preact.ts": "26ca2295ab8609b3d6e5e667d4ea55478bcf2655183cc532123b74390f9e5b16",
+    "benchmarks/jsx/src/react-jsx/benchmark.ts": "54bd8cd257149ad1a0727bd480c4b8f364b5c2cdb84fbda35789a5f0218059d4",
+    "benchmarks/jsx/src/react-jsx/hono.ts": "44b83d891f9d1654ec6c661d7ab62f94ae33729951d618cbc476374146c6d624",
+    "benchmarks/jsx/src/react-jsx/nano.ts": "a8c3dec72052fb4130c763ffecc699ae9411709c8318215273bed688cf4880df",
+    "benchmarks/jsx/src/react-jsx/page-hono.tsx": "c774c1b3176e50018e9a13e8050524402b75e1b0b42790ba53658aaa470ff648",
+    "benchmarks/jsx/src/react-jsx/page-nano.tsx": "05966db7298e1b418f26cc7ce95532205f935ac946ffdad5b28553c674160eb0",
+    "benchmarks/jsx/src/react-jsx/page-preact.tsx": "c606bdebe76a44bd6dbcb6446f19f3325716788c266baa251a9eb86de4f57460",
+    "benchmarks/jsx/src/react-jsx/page-react.tsx": "f2d122fffa4c4fbcf3c4c9d9f1bd53d9c90a308ac1bfbe9911474765bf4e551d",
+    "benchmarks/jsx/src/react-jsx/preact.ts": "36dc876ac327800fc3e7d3d6f374bf61a817b163f558b3de4826b8423fbe4713",
+    "benchmarks/jsx/src/react-jsx/react.ts": "78f78f0721a6439d31e975cf4d44d2544d9a7ec82bf61632c01a2d763fd245ae",
+    "benchmarks/jsx/src/react.ts": "8435b8fb5f6cec7da89f9e8423708650aad43fc81a96ad72ad629ced1584f069",
+    "benchmarks/utils/src/get-path.ts": "d8816c5490ec5daf247ab7db52cc03068b640b1433c62220ccca9277687ad862",
+    "perf-measures/bundle-check/scripts/check-bundle-size.ts": "3428f4682b7a1402e3605e5e6923587835d896cfd2171689e524807f5aabcfcd",
+    "perf-measures/type-check/client.ts": "022991ab8d9a84953db68f2116917c5cdecb4ee502fbae0112798ca680f43dae",
+    "perf-measures/type-check/scripts/generate-app.ts": "8930a1697fa1a72a5b0f01981cdc8d29871b6d5671e20237bbf18fcc1f731862",
+    "perf-measures/type-check/scripts/process-results.ts": "6ce0c930a1c50ce3d3c6710e242ad5172c895e69b7ce5fa44b5975da834bf9bc",
+    "runtime-tests/fastly/vitest.config.ts": "7de063bfa43adab0a85fd37ee20b6b644dba33a82dc389c209cfcecbb4ccb590",
+    "runtime-tests/lambda-edge/vitest.config.ts": "92f9a6df01be9af1ab49cc24d265dbf77672faa792ced3ae41cc899faca8624a",
+    "runtime-tests/lambda/mock.ts": "0291eb1e0bd7f8b7e2d5bab763c54a29b3616c64882f17bfb3529317b1b532bd",
+    "runtime-tests/lambda/stream-mock.ts": "e3bb3dce11c3a9bd6e7ce097801d69bde292b5ac260bac707511111426b21dd9",
+    "runtime-tests/lambda/vitest.config.ts": "3b15f9988419b6000c1b3580d04bc40c4b234c87b1fc19d8610dff5430c357bd",
+    "runtime-tests/node/vitest.config.ts": "fb1d50638568a1b4d5e2a642815b03e7490bcbbfb9749c115bb846a7a5c83f38",
+    "runtime-tests/workerd/index.ts": "411612bc02c414884ddc0f924829b8ef0c7a665d1f225b75e81696767323303c",
+    "runtime-tests/workerd/vitest.config.ts": "670dfcc7bfe9b8de3562c621583b3616cd9143d652acd842a787c08b2dc2492f",
+    "src/adapter/aws-lambda/conninfo.ts": "0814b47cfd6e6682526acffc2e13d0af3363e5e11f594609151b7061acb5bc45",
+    "src/adapter/aws-lambda/handler.ts": "6464f8c4c0b0d18de4018c01f3aea47900dc437e8b45eb694d3aa87cfe79eafe",
+    "src/adapter/aws-lambda/index.ts": "4dae2d00d99edcc4f057f6c3c2364a748e2f944a632f6ff7d2d1d391d7e2d7f8",
+    "src/adapter/aws-lambda/types.ts": "e27b2a1b0064fb16be020ec55ba99fb98d24e9c7a6c05691dde0d716881aa4c6",
+    "src/adapter/bun/conninfo.ts": "be1857420ee87888e1e7544ecf8270e52a35ecfc0ef74e5533ee50cfc7581901",
+    "src/adapter/bun/index.ts": "2dccb88ae4990dfc1b63008f942445df0180374484209ef59deb925194010fbd",
+    "src/adapter/bun/serve-static.ts": "256051754f844f3c7bc00c287d2557cf4aa3d2b361c5b75d1ccfbc7b96fbecd5",
+    "src/adapter/bun/server.ts": "a22b3045f156083f9cbfde2886f20b33b83c3d920af3e54874c27120debb4c35",
+    "src/adapter/bun/ssg.ts": "45600cc8fd5a9e92128520e0dec5a9031f44c151a994ef2c2c0ce970c18d00bd",
+    "src/adapter/bun/websocket.ts": "73e8cd041218f2cb3ce2266afd85a09370aca59cce52fb2146cf0325037c5b07",
+    "src/adapter/cloudflare-pages/conninfo.ts": "6d15de3bc73fcb30130ca5d35298b1882696fd50ddf5e565394332ed1da754c1",
+    "src/adapter/cloudflare-pages/handler.ts": "b75fcc260629e91f16fd2efefc16689ec72887a588fc1ae9243d0207efd029be",
+    "src/adapter/cloudflare-pages/index.ts": "ac7eaba8db1c91ea66b9fd3482cf14d63290376eb2661e4658aef65e18be2a89",
+    "src/adapter/cloudflare-workers/conninfo.ts": "63b286aeb5b3bd66d8605b351686eb00ef8c04db430153b9b08d1116880733bc",
+    "src/adapter/cloudflare-workers/index.ts": "20d8d14d17a7efd6e2f0debd62213304355fd6b5e845fed689196b73e45c2b59",
+    "src/adapter/cloudflare-workers/serve-static-module.ts": "cc6670ab91f92c5ac8b9924a7190d3f331feddcc68057e46f20aacfb17a24c73",
+    "src/adapter/cloudflare-workers/serve-static.ts": "eac578a3a7c2d108dbca1fba40c5320cb984df42ee039ad8703ce9debcf03012",
+    "src/adapter/cloudflare-workers/utils.ts": "2fd585d81dad9544072c898c53cabfef47a802fd8004c33c9a0f34bc26d4b95b",
+    "src/adapter/cloudflare-workers/websocket.ts": "d6ddc26e4641fdc883c239aa2f051067bcaeffcb8cc2436e8b5a501bba92585d",
+    "src/adapter/deno/conninfo.ts": "96012c1af08dd160e5b4179536706defae62574039c7b2930b5f90f6d3f26f10",
+    "src/adapter/deno/deno.d.ts": "f436f18be7f584e065939dbb5dcb02f7f9a60953b3f59c2f5c9056b152eac654",
+    "src/adapter/deno/index.ts": "95641544b3470bdbe058bdd3c11b89cdaf8bcc1c7fb965e63248a0cbac9466fe",
+    "src/adapter/deno/serve-static.ts": "7123b1989be8921cf510469c37af26eac54a6bcfd8b02bfc9b6acafbb9f9fc45",
+    "src/adapter/deno/ssg.ts": "2c014695c18ab15e35025d363fd43f572443d35ff32a9cd19e207596870f5cb7",
+    "src/adapter/deno/websocket.ts": "f0bc70ba44abacdb7b8f26802d41dc413b9510a4f0b126a8b171dde77a71b1c4",
+    "src/adapter/lambda-edge/conninfo.ts": "cf6fff6427e510f6dca4f55659a5c1bd3f127c0b93a2ccac7e70351b74b2b23a",
+    "src/adapter/lambda-edge/handler.ts": "aaf5e0b74860bbc239e9d17f88f12cbb6ce50eb60e80ea9e0994ff55806cbdc3",
+    "src/adapter/lambda-edge/index.ts": "9df8f899ec64db587f81c6ae01451a6c8e82f0c1d8cb1b7645a50b5d95321666",
+    "src/adapter/netlify/conninfo.ts": "5e86d547ed9ba07fa991297a747f38d2d13312d4b79de8a31c56743a7b32c253",
+    "src/adapter/netlify/handler.ts": "debd101dd414f72132047aa6ebab20294030bb7c3aa564cb7160017808254245",
+    "src/adapter/netlify/index.ts": "fdf457b59d73fbb478a23ceac2b3e78663cc3ff3fee9c2dade3c199b89e647d1",
+    "src/adapter/netlify/mod.ts": "76c64927c61feb670b28c8fdf4d3f8d5a30c6a320169b945617bc742659b3365",
+    "src/adapter/service-worker/handler.ts": "0e352484e2dc457ca7d66af5066b6078628a120b5aebbb3d0f7f503bedb5c405",
+    "src/adapter/service-worker/index.ts": "8b8da2e321c4d5c30611d545da8776ffe87534525a818a40bbfb14037aaaca7b",
+    "src/adapter/service-worker/types.ts": "371281c3619a1e9ae4b14c65d161ca4eefc30f96e3e166d832bc6e7edae36f85",
+    "src/adapter/vercel/conninfo.ts": "b2b9222c831f94ba592cdf74ac8ef888c7481188dd40c9e64f1eb933b7378d54",
+    "src/adapter/vercel/handler.ts": "6380cf502e7317b4f805d95b413d56e22154b9df951dd693c06d77b68f7341b6",
+    "src/adapter/vercel/index.ts": "229fbb1a92756bef737bb85f4a80d4931bf3cfc47b6197793ddfb57537333b06",
+    "src/client/client.ts": "8ad632db27a8993c3cb136be1ff5f6a02b5af335f120d83b2a385de4b8240a56",
+    "src/client/fetch-result-please.ts": "3c068997642838bf1b889b26ab31ab471b9016eff1803df91352776449e24d51",
+    "src/client/index.ts": "ff5c66f3e8a0ef25c3327c179b815cb26f1f7b13ca817e0658a9629150f2fd31",
+    "src/client/types.ts": "ad9ec820c24911b2fd28c5649a9a6a14ed53e44386c527d8e908bfc568304538",
+    "src/client/utils.ts": "0812b3353ba39764a0ffdce6d4a6a944ee10ecd71d43550b8de45fc4726ed0bb",
+    "src/compose.ts": "e62bb2748fae15bdfc2abdc994ffd7b8675d194c928d4448157f016e829d6e56",
+    "src/context.ts": "f486ae1578fcf1bb29497d2cb35f849d808fb77785426b9426397cbe89d77de3",
+    "src/helper/accepts/accepts.ts": "7ffd3415255722c4e20632ea9ab7b3229377fca20fa1d35fd086c81ce553d603",
+    "src/helper/accepts/index.ts": "696e0c317cbb9acc95f05961b0f036e9fc03cb763d624a32bc6f17c86a56b4c1",
+    "src/helper/adapter/index.ts": "29af7c4980b01a89705b12ace95a3bbe2dd1a0052f74fc1e30cdf29f9d987fae",
+    "src/helper/conninfo/index.ts": "62176baa843d3879dc4c2908ee7fb93be2ddbe16d84f5c580ce0977b9d69795b",
+    "src/helper/conninfo/types.ts": "57ce162159e561380c1797f25d73c372a61c14140c95614f423c3d2e19666177",
+    "src/helper/cookie/index.ts": "90d86addfe5c32524c96d15d03db4dd100f0eac367dab22602abf2d8afb9ca84",
+    "src/helper/css/common.ts": "443d07bda09c7f946db6e22811994355661b778fbac9b7a2c7aab35308f52fd8",
+    "src/helper/css/index.ts": "4840089e61a7f23da8001dade7f2dcefd93b3127a8eceeb9b87112f5a7b1e6f7",
+    "src/helper/dev/index.ts": "52f8b5c74e6b6c3aa08c721de7774c0d9805844ebbc14922f8b76128b50fcc4c",
+    "src/helper/factory/index.ts": "a9aabe8a21c561b6791205661be0089165ede48efae8587ae7afe2acacb97e1c",
+    "src/helper/html/index.ts": "872e006b63af8cc10952f1db760609cfc92845a3b45d0722e66760f90e86e8b5",
+    "src/helper/proxy/index.ts": "a19d0605956c622c6c6378f224a8502c0e413d2dbd12bde2c88c60478a81f037",
+    "src/helper/route/index.ts": "9bcc6735bf21a85078b7c0eb0aee287e6069163a5d2b6b56ea3a4d0bc70f22d4",
+    "src/helper/ssg/index.ts": "13c1dfcf26fc3ed0f29c9308f68c3d8f0ff918a9481eab41d585a16500db5455",
+    "src/helper/ssg/middleware.ts": "8a5fb4a45be9c8beb069e7c9c090d707de6c713228665308e83724c178067042",
+    "src/helper/ssg/plugins.ts": "7d72337f0418c3653d4bef98025ca14cb3b4237f1404be7d2649ea4b01594148",
+    "src/helper/ssg/ssg.ts": "a178a70327d231691d30f1dd5a915eaba7c8933555071f33b36bdb6d4622e6bc",
+    "src/helper/ssg/utils.ts": "4511cc49b304cc98689af08db3c7b562c97d010b8b2d7be169f627868887eaf5",
+    "src/helper/streaming/index.ts": "1a37f2d832f63f8165cd7f74ae5086c9e70eb0e074519044b38b99a100ad6def",
+    "src/helper/streaming/sse.ts": "06b97f40803c4981a3806c045879bc7ec64b4d697d9962d14b7ebfd17fdbfefd",
+    "src/helper/streaming/stream.ts": "95a8d46c4eac72ff9ebcecd021c99f8ca4ebdd53dda8818957253bbba9ddeb42",
+    "src/helper/streaming/text.ts": "f76bbb56232f1f36a6e30975b1c625dda04c0562f7c4a1a340bb3d9d2eeb17cd",
+    "src/helper/streaming/utils.ts": "0fee83108c8d0f491eb7107e5d2b71370c5d9f5da44b559b0019f3e649046839",
+    "src/helper/testing/index.ts": "55a7800cd453d5ca92bc54f89257b89bdd96959f1063b2b7199e00a46b5cfd89",
+    "src/helper/websocket/index.ts": "55fd0da6b5af9783bf657fe855f827e01cdc3daf51f82591b42eb90ae01b81c9",
+    "src/hono-base.ts": "068061a01effa9a3af709e30abb5803310868186a177c8f57ed5e1886966fbb1",
+    "src/hono.ts": "d39498b9bb339bfc72cbc3741d1dbd499b2fb9aa762204418c7a7c241bcae8d4",
+    "src/http-exception.ts": "6f37149536b482d7b654d69cf4c44ef1043679e5c04f635da24fe57f38770c36",
+    "src/index.ts": "50441221a8a833113fb58dd8ad75a826812d5939bd402adf48f949e09c4a2437",
+    "src/jsx/base.ts": "6efcb5ae54bc39b988edf5490c12fcdf58d5e50b1e757025cc2903613831534d",
+    "src/jsx/children.ts": "4f0eb983f09b93f47a58484e77ec73ae84bb4dfe56ed48147a35482e9c6b3d82",
+    "src/jsx/components.ts": "c00f5fc797e3de77257e39267786c77f49aadf9cfb0359410f2be74dca2cc3a3",
+    "src/jsx/constants.ts": "ed2c705269e690e0f8e90158d3e7df589868b848b0f09017d629e5fe6b4bbe5f",
+    "src/jsx/context.ts": "9aa011a494fb5d2b6e039b9b81d4ea1251397f7b13538c80f5e947d18016f8dd",
+    "src/jsx/dom/client.ts": "6ff8ad6e69cbeb92ff0d46b0991f72c25fad8e88465794f45607255914aceced",
+    "src/jsx/dom/components.ts": "2efca2d20c10129ab6e66053ca757fe7177d43b4857321c3dace4e68f5c5846b",
+    "src/jsx/dom/context.ts": "3f4126415d529c5894909c18d02f57f5f78979fb435a52f530c8ca3304b72d4e",
+    "src/jsx/dom/css.ts": "a3dd5058a1fa52593de754365b6cc7ba5ada4fcd9dfab7e3b4e56a6d89efc854",
+    "src/jsx/dom/hooks/index.ts": "b0a2dd762cfa38d0fc750c43e3a89f932f2985c28ef69d424c4bf093629350c7",
+    "src/jsx/dom/index.ts": "5b7fb6a362d4ed98c187f45b437a8c18bb372219326691b6346e39c4b4499e34",
+    "src/jsx/dom/intrinsic-element/components.ts": "74a8a156f7812aa1a67cf16e59a08ba3cc908a89868632ab653ced7358217555",
+    "src/jsx/dom/jsx-dev-runtime.ts": "49f9d9cb2358fc2020f2e4f59b7903213eec6086b8d511d06102f768f5e699f6",
+    "src/jsx/dom/jsx-runtime.ts": "5e8a31094b03bd18c1138643cbd2cebf832140f76e23ab104da97470a2231de3",
+    "src/jsx/dom/render.ts": "7bc09921fa398882d6a286e1acd31cde1040c290819e094497ad377e30cc588f",
+    "src/jsx/dom/server.ts": "654a1a725e3f5326ce59460fe8c42f4d3b894022c485d4863ca207a053cbfc42",
+    "src/jsx/dom/utils.ts": "634c054e155147ab8ce052edb63cb9a6cf813fb08c0cb38ae774f0205a57ff9e",
+    "src/jsx/hooks/index.ts": "859ba3ecd042c35414dab61c8f4b5938135fb94aa7fc56a09b308e6af419ebb1",
+    "src/jsx/index.ts": "d42c4ae38724137d1a9ab6b4a6307375c01f960741d1534a67dc22238fa53a53",
+    "src/jsx/intrinsic-element/common.ts": "745a286002ba09bbe6cc40d390273bd0bd8ab758e68a7f3d3c6bd85fe9ee2c21",
+    "src/jsx/intrinsic-element/components.ts": "d790d061125b39c78f4424798ca710d1b6f48890a2089662b189a9c1be0f4ce8",
+    "src/jsx/intrinsic-elements.ts": "0cd65e40c1507294137b51bcda4c410072a509c8809a698e3e8e12a95a4edf85",
+    "src/jsx/jsx-dev-runtime.ts": "fbd8c8f6be6e04488472849fa5da82b6fa9c87deb20d835c8d06cf26414ccda4",
+    "src/jsx/jsx-runtime.ts": "ecd1cfccfc4ad54a2be37d9aa2ff5367d0ee13fba250a6adba6df457ae2cbbb9",
+    "src/jsx/streaming.ts": "0171bc75c6341438ed411e394a49c0d812f2a102dc13e650f6e711c640479967",
+    "src/jsx/types.ts": "a20a8b5cfde4a2d4adeca833ef8225f08df48172d69c148bb2e38a5b93759819",
+    "src/jsx/utils.ts": "3bfb324a0518c3f300d083bcf7a78984d75778839cac212654a5797a1b23835a",
+    "src/middleware/basic-auth/index.ts": "8692ff7ac33e3291cf7c83d842fab91309cd655448e388f285cf0b888f7ce606",
+    "src/middleware/bearer-auth/index.ts": "fdce02912d13cb203bdf9911ee015aa20c5921673b9334c800a23468228bada7",
+    "src/middleware/body-limit/index.ts": "a698cacd3355bc0fae35fb1bbc8265e3a01c22fb4547ad8f82708dd7d12d01b2",
+    "src/middleware/cache/index.ts": "0394494d589988b1b87c8a6c4016593e9f3b49f3d3ece2d29e904d848c5a14c8",
+    "src/middleware/combine/index.ts": "5d4da987f3c9b290c11be98029a62946a8ca47618ab7616ab3bdefbb5317507a",
+    "src/middleware/compress/index.ts": "e58c1ee45b6369e311f4fcd6c926e2680dfe5a6f60442e2e1705b0e10b87c7ea",
+    "src/middleware/context-storage/index.ts": "0d18a05bd02bd489339358401deffb870b745a7f1f8fa576947db26ee3c86268",
+    "src/middleware/cors/index.ts": "9b6e79aecf39bcce6c4db3f41328a7a48d39d3f6a22f893058e9f51e289db05e",
+    "src/middleware/csrf/index.ts": "dbf9ec0348aa7019c995e14ab8f53da4b5c332f367dcc116e3f77cd25461466e",
+    "src/middleware/etag/digest.ts": "af7791966e3a2401b38b150e1f110a10e75dc6409ea4925393388fd3abee3f63",
+    "src/middleware/etag/index.ts": "6e593c9a40bb225f97b90644927de7b17a6e5a79f77436330e34922f729a01be",
+    "src/middleware/ip-restriction/index.ts": "5f3ab0e943edc21f68636d51d3a67bcf602c77d9795c185c2394c61c5780dccd",
+    "src/middleware/jsx-renderer/index.ts": "80a0494c145c58d225fa6765d112f5e221fa1e802622c76a9939e85892d91f8b",
+    "src/middleware/jwk/index.ts": "84571211137723fd5a455887bcec846d89611e6b5aa86d0c5c773b11e50638e5",
+    "src/middleware/jwk/jwk.ts": "567bbcfc4bf3322401ee21783714c1e7b2fafe05ed76709884a63f0a34030e4b",
+    "src/middleware/jwt/index.ts": "b0ff9829400821271fe4d370d49346b2f810b3e17765c3fe9557506ac8e8bef9",
+    "src/middleware/jwt/jwt.ts": "c99dedfbdec934d6e662e16a6c65dd2191d816dffff2b7bbf6c26d53e6eab59b",
+    "src/middleware/language/index.ts": "ab00affc298158a12012cd0a0f9cddad9fe4a498537778aae83f073e8a6a152d",
+    "src/middleware/language/language.ts": "570d177685da6d7a3d7704e4964fde1f4a502e78828d94975e65b1c84218733b",
+    "src/middleware/logger/index.ts": "27ab0633f493a675660e8a05f4ef8cb3c0aa751f5a1bd1c8dd2be1a6082ff022",
+    "src/middleware/method-override/index.ts": "a55a06c127f88021f3345a8f1dcc54c6ef31b8c96f69336bb67e6f9a5d170a9f",
+    "src/middleware/powered-by/index.ts": "7ab5420562123a2bc9039cbdeb248e4e910edfc34c140fc492eddd0ef401b803",
+    "src/middleware/pretty-json/index.ts": "4054e264419596d31847455cdb0cb40e40ed8476363faf15f39da5db01654be7",
+    "src/middleware/request-id/index.ts": "f1b20ee9ab71e26a7df4e01c0191cca1a5e121be962a54361c7612d684086462",
+    "src/middleware/request-id/request-id.ts": "e7aac5d8c6479b4f6fd3e605375cbbb8f705858a3f07c360adfbf06866c0a476",
+    "src/middleware/secure-headers/index.ts": "4dc2c95a0f6b529264ad0dd39e3b1b76ffb9c26ceba38cefcb73f9cce4b4d31d",
+    "src/middleware/secure-headers/permissions-policy.ts": "8acda11aa507d20f5ae57fc65c9c36b41f97a60137155319062756bf9059a7d4",
+    "src/middleware/secure-headers/secure-headers.ts": "48bd9c2636aa766f131c60571007d10f13de4e5810254c918f0f6c6d977c14b7",
+    "src/middleware/serve-static/index.ts": "8414698bc80768e39b8aeeb7fc08401d066fb6bb0e56bd3daaa2e9a74eb31472",
+    "src/middleware/serve-static/path.ts": "64cdf7abc8921c77830a26ddd42c58403cb0ddb2a13a928a49996cd16b28e15d",
+    "src/middleware/timeout/index.ts": "d73a6d697e1935927e09fb8f28da8eacb305491d95ba54f8078a0d22d04698c9",
+    "src/middleware/timing/index.ts": "3352d5d412ad4367e910a9669e3bd69aa1d77db6a8335d4aeabbf35e4cc05e54",
+    "src/middleware/timing/timing.ts": "b8a0add1fedab749722e9b06c166798751517d396376569559b7f0b0c7ded3c2",
+    "src/middleware/trailing-slash/index.ts": "1b10cfef0ad9736fac0ddd231ab425acecefd5e5deeab409e7ed37bd01c5f345",
+    "src/preset/quick.ts": "6f317c3716e424f689eb5577be29bb18146181ae5016bcc499a1f4a1e9f4db9e",
+    "src/preset/tiny.ts": "6143d909bb95394e1da8adeb21e19bd52fb9cba3f328a842033a24019a7fde5e",
+    "src/request.ts": "44b20e61d223f68583e1755e983565a3a4c282a20b4d9729061d054727c4c745",
+    "src/request/constants.ts": "69b2127c163359faf05ef8f08e8ba9a351c682f4d1eeceee03b1be038b0eb104",
+    "src/router.ts": "2900b6163773a537d759b3cd0af67d3e65896f22b6a4651b8abf01cb406c7582",
+    "src/router/linear-router/index.ts": "b2cd46dc70df35f6be4b3eddce65f66efcc3785711b8026e12b37405a14c38e6",
+    "src/router/linear-router/router.ts": "c6276aa05476c109026fe1d2d33e18f5de83ad00a02a73be525bd1a463a89b2e",
+    "src/router/pattern-router/index.ts": "490317c9035534d7beb56dddabf45f4bcdca5971ebdb32bc43cd1ec56b0f65c6",
+    "src/router/pattern-router/router.ts": "5e64731b26a41acbf4c0d93c62f616a0ec981211f8a7557d71b022d03e6fc52f",
+    "src/router/reg-exp-router/index.ts": "526f7170e0773924c62ff51e86900dc7fe82fc2d8f35001844801a1639e438a3",
+    "src/router/reg-exp-router/matcher.ts": "4a9645511a90543b3d59fe33c9fad02d8412a5cf3fdebd130e60e0139be32c57",
+    "src/router/reg-exp-router/node.ts": "e5d7dbbcacd2920fca494c4220c6ab5282333bbe55fc53571809508b675af502",
+    "src/router/reg-exp-router/prepared-router.ts": "e5eb361fa570e1f6854db8733d5316dc562184c8056fa994b0409531757a36ef",
+    "src/router/reg-exp-router/router.ts": "aba436c862a6520afb462b28712dd562094c1205d400d69af1c2ae4aacb3382b",
+    "src/router/reg-exp-router/trie.ts": "bc11b3002c2b837e54eadd132f326d8ec8aa682b26e83166978ec02197e4262f",
+    "src/router/smart-router/index.ts": "721df1e0dce8d6a45d320d9b4130bde4160b6a24bdd7c5af811dd3717405ce93",
+    "src/router/smart-router/router.ts": "6f133f78a081dd561ea8390cded532af36905a8e59fd440c0285c2303ce120fe",
+    "src/router/trie-router/index.ts": "067d9253748f3f9e5d7382336400d4a5fcb61e9c9b76a6e62c246636898b0f0b",
+    "src/router/trie-router/node.ts": "ebc24f3cc1ba36ac2d382948219b679dcaa3d4e00b285dce71da7b7414adb75d",
+    "src/router/trie-router/router.ts": "9e1fd9375ab1d95db4ae86d368507aae0d8c4e44e6e2a76fe365123e9fce8081",
+    "src/types.ts": "66db6081a897ce664b1c890b97842270f7326616b0d0c1aaa77c5feccd8f5c6e",
+    "src/utils/accept.ts": "380182fcd90398b063a4359984ebed60bf72b10ba5501737d4bf9ea0752bcefd",
+    "src/utils/basic-auth.ts": "740c46bf1177b1660fcf26fd91e47864324ebce8ff4bd9a61423f5a88d4c2547",
+    "src/utils/body.ts": "920ce90e4504ad347bc01edb7ab819920aae8ab9eea41ee238cd8214cefce3a1",
+    "src/utils/buffer.ts": "3690742c0f7eb9c9140cec296448c8999e20c5a09d74cc2bf7d97dd5d0cb306a",
+    "src/utils/color.ts": "b74ef1e26f87942183778bc67ef6971b5e639e17600444ba2e637cd6910222a7",
+    "src/utils/compress.ts": "6971d6bc726af46a7ab45d45487de5311cf2bea0452bd78ac4c8aaed9627ead9",
+    "src/utils/concurrent.ts": "3de6e71c6b74c18e6af0eaaec26636d7b9caeb0e10df28129465a10a161a5053",
+    "src/utils/constants.ts": "0ae54e099acec4e3404d5b58754af0ec583a2dadcb9819d59c0600e3247ac313",
+    "src/utils/cookie.ts": "ba53102548bbed54568e3513ab5a5eaee13b7efc9a62a6278b30ed12bcc4a46c",
+    "src/utils/crypto.ts": "08e9a18560dbd147a4ed40d9ae3ab94a571502a4d88d3e2dc6ced2c7014e9871",
+    "src/utils/encode.ts": "b37805ffcbbdddf7a7b0a7c5a0d65c719ad74983c740899c030f3bdfe6ece5fa",
+    "src/utils/filepath.ts": "8694aa838aa397eb2ed22880bb4fbb854b54c5dcd9ac4e971df0004f9f6b629a",
+    "src/utils/handler.ts": "7b41da0f432673dde4a5c3dfc674c233500a533368fea376e125b4561d35f1b9",
+    "src/utils/headers.ts": "a823cd80e7060076e27449fe2e94589348a35a979a80078834ff8c9f3f7441f5",
+    "src/utils/html.ts": "ea55e58ccb46a28edfd86c307abca670f6ec2290cabde3a268270d0e7f3eeb69",
+    "src/utils/http-status.ts": "7736f82dec467fb8d5075166f502d819bd472657e87336f00cb420ea44ee2531",
+    "src/utils/ipaddr.ts": "9c37db01bb928d357ee26e46b9bb832fb279a956d42c9c1fe009987e8c82bfda",
+    "src/utils/jwt/index.ts": "6f4ce32503639f1a2dd5b670fdabbcc5cd5eb56afa655d4bdc0769e2d2c6341a",
+    "src/utils/jwt/jwa.ts": "91c6350b5255fbb252b1542247c2c8b0bc8ad0c0b030a11d7b79871ab1f60122",
+    "src/utils/jwt/jws.ts": "4e6eb655dd6cdbf29f51572c3386e5c0b1e2af94726c27c0248532ce420301e5",
+    "src/utils/jwt/jwt.ts": "68151a933eb881580aaf56d472d2150a68d70499a6182325ee14834810144e57",
+    "src/utils/jwt/types.ts": "7e8c370998783d6fb2fd666686763c8371264e051712ee162f06876c9bb83d44",
+    "src/utils/jwt/utf8.ts": "21202242395f8577b508fb53e622f6695494821933a8f05d80de0f6d6c136c44",
+    "src/utils/mime.ts": "c7c71047c3329769d5c6ff814f4f54ca3ca25daafe54d6b729c1ef63d03707f6",
+    "src/utils/stream.ts": "900b11af8a5139519e799ea47092a694c3cfbd07b9c9c448f5e4b298c3678757",
+    "src/utils/types.ts": "14d203532a112d61769d74fcf4ded5e1c24a197a6a4d2db2c078112d9da59a0d",
+    "src/utils/url.ts": "57b0de0a6f097c56cbc7b600b160f2b4463c8d632ed7123a2f18dc5d3ab2628a",
+    "src/validator/index.ts": "211d9bb5223bde1e1fd240d3fe736291912371eb3d81521e58c2270496524357",
+    "src/validator/utils.ts": "aa652d5f854b8c6be2e2b2883ca5dbd95303bf29f529cf3f0e91d086597c7f1b",
+    "src/validator/validator.ts": "e10101677e368edfa45de5ec195899bf49f34ac83757213d984a8875ba60cfb0",
+    "vitest.config.ts": "67690e4c85a8da889dfae23d24dbc45608e94772f19516dcdca7db69fef2aa93"
   },
   "symbols": [
     {
@@ -20389,6 +20613,1747 @@
         "sym:ts:src/jsx/dom/components.ts:Suspense",
         "sym:ts:src/jsx/dom/context.ts:createContext",
         "sym:ts:src/jsx/streaming.ts:Suspense"
+      ]
+    },
+    {
+      "source": "docstring:src/adapter/aws-lambda/conninfo.ts",
+      "source_path": "src/adapter/aws-lambda/conninfo.ts",
+      "source_sha": "0814b47cfd6e6682526acffc2e13d0af3363e5e11f594609151b7061acb5bc45",
+      "severity": "context",
+      "claim": "getConnInfo extracts client IP from different Lambda event source shapes: API Gateway v1 uses requestContext.identity.sourceIp, API Gateway v2 uses requestContext.http.sourceIp, ALB falls back to x-forwarded-for header",
+      "rationale": "Documents the source-specific extraction logic so consumers understand which event shapes are supported and how the remote address is derived",
+      "excerpt": "Extracts client IP from various Lambda event sources:\n- API Gateway v1 (REST API): requestContext.identity.sourceIp\n- API Gateway v2 (HTTP API/Function URLs): requestContext.http.sourceIp\n- ALB: Falls back to x-forwarded-for header",
+      "symbol_ids": [
+        "sym:ts:src/adapter/aws-lambda/conninfo.ts:getConnInfo",
+        "sym:ts:src/adapter/bun/conninfo.ts:getConnInfo",
+        "sym:ts:src/adapter/cloudflare-pages/conninfo.ts:getConnInfo",
+        "sym:ts:src/adapter/cloudflare-workers/conninfo.ts:getConnInfo",
+        "sym:ts:src/adapter/deno/conninfo.ts:getConnInfo",
+        "sym:ts:src/adapter/lambda-edge/conninfo.ts:getConnInfo",
+        "sym:ts:src/adapter/netlify/conninfo.ts:getConnInfo",
+        "sym:ts:src/adapter/vercel/conninfo.ts:getConnInfo"
+      ]
+    },
+    {
+      "source": "docstring:src/adapter/aws-lambda/handler.ts",
+      "source_path": "src/adapter/aws-lambda/handler.ts",
+      "source_sha": "6464f8c4c0b0d18de4018c01f3aea47900dc437e8b45eb694d3aa87cfe79eafe",
+      "severity": "context",
+      "claim": "Default binary content-type check can be overridden via the isContentTypeBinary option in handler()",
+      "rationale": "Documents an extension point allowing user customization of binary detection",
+      "excerpt": "This is a default function and may be overwritten by the user via `isContentTypeBinary` option in handler()",
+      "symbol_ids": [
+        "sym:ts:src/adapter/aws-lambda/handler.ts:defaultIsContentTypeBinary",
+        "sym:ts:src/adapter/lambda-edge/handler.ts:isContentTypeBinary"
+      ]
+    },
+    {
+      "source": "docstring:src/adapter/aws-lambda/handler.ts",
+      "source_path": "src/adapter/aws-lambda/handler.ts",
+      "source_sha": "6464f8c4c0b0d18de4018c01f3aea47900dc437e8b45eb694d3aa87cfe79eafe",
+      "severity": "context",
+      "claim": "If isContentTypeBinary is not provided, a default function is used to determine binary content types",
+      "rationale": "Documents fallback behavior for binary detection",
+      "excerpt": "If not provided, the default function will be used.",
+      "symbol_ids": [
+        "sym:ts:src/adapter/aws-lambda/handler.ts:defaultIsContentTypeBinary",
+        "sym:ts:src/adapter/aws-lambda/handler.ts:handle"
+      ]
+    },
+    {
+      "source": "docstring:src/adapter/aws-lambda/handler.ts",
+      "source_path": "src/adapter/aws-lambda/handler.ts",
+      "source_sha": "6464f8c4c0b0d18de4018c01f3aea47900dc437e8b45eb694d3aa87cfe79eafe",
+      "severity": "context",
+      "claim": "Handler accepts events from API Gateway (v1 and v2), Application Load Balancer (ALB), and Lambda Function URLs",
+      "rationale": "Defines the supported event sources for the Lambda adapter",
+      "excerpt": "Accepts events from API Gateway (v1 and v2), Application Load Balancer (ALB), and Lambda Function URLs.",
+      "symbol_ids": [
+        "sym:ts:src/adapter/aws-lambda/handler.ts:handle",
+        "sym:ts:src/adapter/cloudflare-pages/handler.ts:handle",
+        "sym:ts:src/adapter/lambda-edge/handler.ts:handle",
+        "sym:ts:src/adapter/netlify/handler.ts:handle",
+        "sym:ts:src/adapter/service-worker/handler.ts:handle",
+        "sym:ts:src/adapter/vercel/handler.ts:handle",
+        "sym:ts:src/hono-base.ts:Hono",
+        "sym:ts:src/hono.ts:Hono",
+        "sym:ts:src/preset/quick.ts:Hono",
+        "sym:ts:src/preset/tiny.ts:Hono"
+      ]
+    },
+    {
+      "source": "docstring:src/adapter/bun/ssg.ts",
+      "source_path": "src/adapter/bun/ssg.ts",
+      "source_sha": "45600cc8fd5a9e92128520e0dec5a9031f44c151a994ef2c2c0ce970c18d00bd",
+      "severity": "soft",
+      "claim": "bunFileSystemModule is experimental and its API may change",
+      "rationale": "Consumers should be aware that depending on this feature carries API stability risk",
+      "excerpt": "`bunFileSystemModule` is an experimental feature. The API might be changed.",
+      "symbol_ids": [
+        "sym:ts:src/adapter/bun/ssg.ts:bunFileSystemModule"
+      ]
+    },
+    {
+      "source": "docstring:src/adapter/bun/ssg.ts",
+      "source_path": "src/adapter/bun/ssg.ts",
+      "source_sha": "45600cc8fd5a9e92128520e0dec5a9031f44c151a994ef2c2c0ce970c18d00bd",
+      "severity": "soft",
+      "claim": "toSSG is experimental and its API may change",
+      "rationale": "Consumers should be aware the API is unstable and subject to change",
+      "excerpt": "`toSSG` is an experimental feature.\nThe API might be changed.",
+      "symbol_ids": [
+        "sym:ts:src/adapter/bun/ssg.ts:toSSG",
+        "sym:ts:src/adapter/deno/ssg.ts:toSSG",
+        "sym:ts:src/helper/ssg/ssg.ts:toSSG"
+      ]
+    },
+    {
+      "source": "docstring:src/adapter/bun/websocket.ts",
+      "source_path": "src/adapter/bun/websocket.ts",
+      "source_sha": "73e8cd041218f2cb3ce2266afd85a09370aca59cce52fb2146cf0325037c5b07",
+      "severity": "hard",
+      "claim": "Deprecated; import upgradeWebSocket and websocket directly from hono/bun instead",
+      "rationale": "Marked @deprecated with explicit replacement guidance",
+      "excerpt": "@deprecated — Import `upgradeWebSocket` and `websocket` directly from `hono/bun` instead.",
+      "symbol_ids": [
+        "sym:ts:src/adapter/bun/websocket.ts:createBunWebSocket",
+        "sym:ts:src/adapter/bun/websocket.ts:upgradeWebSocket",
+        "sym:ts:src/adapter/bun/websocket.ts:websocket",
+        "sym:ts:src/adapter/cloudflare-workers/websocket.ts:upgradeWebSocket",
+        "sym:ts:src/adapter/deno/deno.d.ts:upgradeWebSocket",
+        "sym:ts:src/adapter/deno/websocket.ts:upgradeWebSocket"
+      ]
+    },
+    {
+      "source": "docstring:src/adapter/cloudflare-pages/handler.ts",
+      "source_path": "src/adapter/cloudflare-pages/handler.ts",
+      "source_sha": "b75fcc260629e91f16fd2efefc16689ec72887a588fc1ae9243d0207efd029be",
+      "severity": "context",
+      "claim": "serveStatic() is intended for Cloudflare Pages advanced mode",
+      "rationale": "Documents the use case context for serveStatic",
+      "excerpt": "`serveStatic()` is for advanced mode",
+      "symbol_ids": [
+        "sym:ts:src/adapter/bun/serve-static.ts:serveStatic",
+        "sym:ts:src/adapter/cloudflare-pages/handler.ts:serveStatic",
+        "sym:ts:src/adapter/cloudflare-workers/serve-static.ts:serveStatic",
+        "sym:ts:src/adapter/deno/serve-static.ts:serveStatic",
+        "sym:ts:src/middleware/serve-static/index.ts:serveStatic"
+      ]
+    },
+    {
+      "source": "docstring:src/adapter/cloudflare-workers/serve-static.ts",
+      "source_path": "src/adapter/cloudflare-workers/serve-static.ts",
+      "source_sha": "eac578a3a7c2d108dbca1fba40c5320cb984df42ee039ad8703ce9debcf03012",
+      "severity": "hard",
+      "claim": "serveStatic in the Cloudflare Workers adapter is deprecated; use Cloudflare Static Assets to serve static files directly",
+      "rationale": "Marked with @deprecated tag; consumers should migrate away from this API",
+      "excerpt": "`serveStatic` in the Cloudflare Workers adapter is deprecated.",
+      "symbol_ids": [
+        "sym:ts:src/adapter/bun/serve-static.ts:serveStatic",
+        "sym:ts:src/adapter/cloudflare-pages/handler.ts:serveStatic",
+        "sym:ts:src/adapter/cloudflare-workers/serve-static.ts:serveStatic",
+        "sym:ts:src/adapter/deno/serve-static.ts:serveStatic",
+        "sym:ts:src/middleware/serve-static/index.ts:serveStatic"
+      ]
+    },
+    {
+      "source": "docstring:src/adapter/cloudflare-workers/serve-static.ts",
+      "source_path": "src/adapter/cloudflare-workers/serve-static.ts",
+      "source_sha": "eac578a3a7c2d108dbca1fba40c5320cb984df42ee039ad8703ce9debcf03012",
+      "severity": "context",
+      "claim": "Cloudflare Static Assets is in open beta; Cloudflare Pages is an alternative if it doesn't work",
+      "rationale": "Informs migration choice given beta status of the recommended replacement",
+      "excerpt": "Cloudflare Static Assets is currently in open beta. If this doesn't work for you, please consider using Cloudflare Pages.",
+      "symbol_ids": [
+        "sym:ts:src/adapter/cloudflare-workers/serve-static.ts:serveStatic"
+      ]
+    },
+    {
+      "source": "docstring:src/adapter/deno/ssg.ts",
+      "source_path": "src/adapter/deno/ssg.ts",
+      "source_sha": "2c014695c18ab15e35025d363fd43f572443d35ff32a9cd19e207596870f5cb7",
+      "severity": "soft",
+      "claim": "toSSG is an experimental feature; its API may change",
+      "rationale": "Consumers should be aware the API is unstable and subject to change",
+      "excerpt": "`toSSG` is an experimental feature. The API might be changed.",
+      "symbol_ids": [
+        "sym:ts:src/adapter/bun/ssg.ts:toSSG",
+        "sym:ts:src/adapter/deno/ssg.ts:toSSG",
+        "sym:ts:src/helper/ssg/ssg.ts:toSSG"
+      ]
+    },
+    {
+      "source": "docstring:src/adapter/deno/ssg.ts",
+      "source_path": "src/adapter/deno/ssg.ts",
+      "source_sha": "2c014695c18ab15e35025d363fd43f572443d35ff32a9cd19e207596870f5cb7",
+      "severity": "soft",
+      "claim": "denoFileSystemModule is an experimental feature whose API might change",
+      "rationale": "Consumers should be cautious relying on it because the API is unstable",
+      "excerpt": "`denoFileSystemModule` is an experimental feature. The API might be changed.",
+      "symbol_ids": [
+        "sym:ts:src/adapter/deno/ssg.ts:denoFileSystemModule"
+      ]
+    },
+    {
+      "source": "docstring:src/adapter/lambda-edge/handler.ts",
+      "source_path": "src/adapter/lambda-edge/handler.ts",
+      "source_sha": "aaf5e0b74860bbc239e9d17f88f12cbb6ce50eb60e80ea9e0994ff55806cbdc3",
+      "severity": "context",
+      "claim": "Accepts events from Lambda@Edge event source",
+      "rationale": "Describes the event source this code handles",
+      "excerpt": "Accepts events from 'Lambda@Edge' event",
+      "symbol_ids": [
+        "sym:ts:src/adapter/lambda-edge/handler.ts:convertHeaders"
+      ]
+    },
+    {
+      "source": "docstring:src/adapter/service-worker/index.ts",
+      "source_path": "src/adapter/service-worker/index.ts",
+      "source_sha": "8b8da2e321c4d5c30611d545da8776ffe87534525a818a40bbfb14037aaaca7b",
+      "severity": "context",
+      "claim": "fire() registers a Hono app as a service worker fetch handler via addEventListener('fetch', handle(app, options))",
+      "rationale": "Describes the integration mechanism between Hono and the service worker fetch event lifecycle",
+      "excerpt": "This sets up `addEventListener('fetch', handle(app, options))` for the provided app.",
+      "symbol_ids": [
+        "sym:ts:src/adapter/aws-lambda/handler.ts:handle",
+        "sym:ts:src/adapter/cloudflare-pages/handler.ts:handle",
+        "sym:ts:src/adapter/lambda-edge/handler.ts:handle",
+        "sym:ts:src/adapter/netlify/handler.ts:handle",
+        "sym:ts:src/adapter/service-worker/handler.ts:handle",
+        "sym:ts:src/adapter/service-worker/index.ts:fire",
+        "sym:ts:src/adapter/vercel/handler.ts:handle",
+        "sym:ts:src/hono-base.ts:Hono",
+        "sym:ts:src/hono.ts:Hono",
+        "sym:ts:src/preset/quick.ts:Hono",
+        "sym:ts:src/preset/tiny.ts:Hono"
+      ]
+    },
+    {
+      "source": "docstring:src/client/fetch-result-please.ts",
+      "source_path": "src/client/fetch-result-please.ts",
+      "source_sha": "3c068997642838bf1b889b26ab31ab471b9016eff1803df91352776449e24d51",
+      "severity": "context",
+      "claim": "Throws a structured DetailedError when the fetch Response is not ok",
+      "rationale": "Describes error-handling behavior of the parser when responses fail",
+      "excerpt": "Throwing a structured error if the response is not `ok`.",
+      "symbol_ids": [
+        "sym:ts:src/client/fetch-result-please.ts:DetailedError",
+        "sym:ts:src/client/fetch-result-please.ts:fetchRP",
+        "sym:ts:src/client/types.ts:Response"
+      ]
+    },
+    {
+      "source": "docstring:src/client/fetch-result-please.ts",
+      "source_path": "src/client/fetch-result-please.ts",
+      "source_sha": "3c068997642838bf1b889b26ab31ab471b9016eff1803df91352776449e24d51",
+      "severity": "context",
+      "claim": "This file is a modified, minimalized adaptation of fetch-result-please (ofetch) tailored for Hono's needs",
+      "rationale": "Identifies the upstream origin and explains why the code diverges from a standard package",
+      "excerpt": "This file is a modified version of `fetch-result-please` (`ofetch`), minimalized and adapted to Hono's custom needs.",
+      "symbol_ids": [
+        "sym:ts:src/client/fetch-result-please.ts:nullBodyResponses"
+      ]
+    },
+    {
+      "source": "docstring:src/client/types.ts",
+      "source_path": "src/client/types.ts",
+      "source_sha": "ad9ec820c24911b2fd28c5649a9a6a14ed53e44386c527d8e908bfc568304538",
+      "severity": "context",
+      "claim": "Filters all routes of an app to retain only responses matching specific status codes",
+      "rationale": "Describes the purpose of the type utility",
+      "excerpt": "Keep only specific status code responses from all routes of an app.",
+      "symbol_ids": [
+        "sym:ts:src/client/client.ts:hc",
+        "sym:ts:src/client/types.ts:PickResponseByStatusCode"
+      ]
+    },
+    {
+      "source": "docstring:src/client/types.ts",
+      "source_path": "src/client/types.ts",
+      "source_sha": "ad9ec820c24911b2fd28c5649a9a6a14ed53e44386c527d8e908bfc568304538",
+      "severity": "context",
+      "claim": "Useful when error responses are handled centrally so the client only exposes success response types",
+      "rationale": "Explains the intended use case for centralized error handling",
+      "excerpt": "Useful when error responses are handled centrally (e.g., via custom fetch) and you want the client to only expose success response types.",
+      "symbol_ids": [
+        "sym:ts:src/client/types.ts:PickResponseByStatusCode"
+      ]
+    },
+    {
+      "source": "docstring:src/client/utils.ts",
+      "source_path": "src/client/utils.ts",
+      "source_sha": "0812b3353ba39764a0ffdce6d4a6a944ee10ecd71d43550b8de45fc4726ed0bb",
+      "severity": "context",
+      "claim": "Throws a structured DetailedError when the fetch response is not ok",
+      "rationale": "Documents error-handling behavior of the response parser, providing a typed error contract for non-ok responses",
+      "excerpt": "Smartly parse the response data, throwing a structured error if the response is not `ok`.",
+      "symbol_ids": [
+        "sym:ts:src/client/client.ts:hc",
+        "sym:ts:src/client/fetch-result-please.ts:DetailedError",
+        "sym:ts:src/client/types.ts:Response",
+        "sym:ts:src/client/utils.ts:parseResponse"
+      ]
+    },
+    {
+      "source": "docstring:src/compose.ts",
+      "source_path": "src/compose.ts",
+      "source_sha": "e62bb2748fae15bdfc2abdc994ffd7b8675d194c928d4448157f016e829d6e56",
+      "severity": "context",
+      "claim": "Compose function is based on the koa-compose package",
+      "rationale": "Indicates derivation/inspiration from existing package, relevant for understanding behavior",
+      "excerpt": "Compose middleware functions into a single function based on `koa-compose` package.",
+      "symbol_ids": [
+        "sym:ts:src/compose.ts:compose"
+      ]
+    },
+    {
+      "source": "docstring:src/context.ts",
+      "source_path": "src/context.ts",
+      "source_sha": "f486ae1578fcf1bb29497d2cb35f849d808fb77785426b9426397cbe89d77de3",
+      "severity": "context",
+      "claim": "Accessing the event throws when the context has no associated FetchEvent",
+      "rationale": "Documents an error condition tied to context state",
+      "excerpt": "Will throw an error if the context does not have a FetchEvent.",
+      "symbol_ids": [
+        "sym:ts:src/adapter/service-worker/types.ts:FetchEvent",
+        "sym:ts:src/context.ts:event"
+      ]
+    },
+    {
+      "source": "docstring:src/context.ts",
+      "source_path": "src/context.ts",
+      "source_sha": "f486ae1578fcf1bb29497d2cb35f849d808fb77785426b9426397cbe89d77de3",
+      "severity": "context",
+      "claim": ".req is an instance of HonoRequest",
+      "rationale": "Documents the type of the .req property",
+      "excerpt": "`.req` is the instance of [HonoRequest]",
+      "symbol_ids": [
+        "sym:ts:src/client/types.ts:HonoRequest",
+        "sym:ts:src/context.ts:req",
+        "sym:ts:src/request.ts:HonoRequest"
+      ]
+    },
+    {
+      "source": "docstring:src/context.ts",
+      "source_path": "src/context.ts",
+      "source_sha": "f486ae1578fcf1bb29497d2cb35f849d808fb77785426b9426397cbe89d77de3",
+      "severity": "context",
+      "claim": "Accessing the ExecutionContext throws if the current request context does not have one",
+      "rationale": "Documents runtime error condition when ExecutionContext is unavailable",
+      "excerpt": "Will throw an error if the context does not have an ExecutionContext.",
+      "symbol_ids": [
+        "sym:ts:src/context.ts:ExecutionContext",
+        "sym:ts:src/context.ts:executionCtx"
+      ]
+    },
+    {
+      "source": "docstring:src/context.ts",
+      "source_path": "src/context.ts",
+      "source_sha": "f486ae1578fcf1bb29497d2cb35f849d808fb77785426b9426397cbe89d77de3",
+      "severity": "context",
+      "claim": ".var accesses the value of a variable on the context",
+      "rationale": "Describes the purpose of the .var accessor",
+      "excerpt": "`.var` can access the value of a variable.",
+      "symbol_ids": [
+        "sym:ts:src/context.ts:var"
+      ]
+    },
+    {
+      "source": "docstring:src/context.ts",
+      "source_path": "src/context.ts",
+      "source_sha": "f486ae1578fcf1bb29497d2cb35f849d808fb77785426b9426397cbe89d77de3",
+      "severity": "context",
+      "claim": "Extends the lifetime of the event callback until the promise is settled",
+      "rationale": "Describes how passing a promise affects callback lifetime",
+      "excerpt": "Extends the lifetime of the event callback until the promise is settled.",
+      "symbol_ids": [
+        "sym:ts:src/context.ts:waitUntil"
+      ]
+    },
+    {
+      "source": "docstring:src/helper/css/common.ts",
+      "source_path": "src/helper/css/common.ts",
+      "source_sha": "443d07bda09c7f946db6e22811994355661b778fbac9b7a2c7aab35308f52fd8",
+      "severity": "context",
+      "claim": "If the returned class name is not a safe CSS identifier, the default hash is used as fallback",
+      "rationale": "Describes fallback behavior for invalid return values",
+      "excerpt": "otherwise, the default hash is used as a fallback",
+      "symbol_ids": [
+        "sym:ts:src/helper/css/common.ts:ClassNameSlug"
+      ]
+    },
+    {
+      "source": "docstring:src/helper/css/common.ts",
+      "source_path": "src/helper/css/common.ts",
+      "source_sha": "443d07bda09c7f946db6e22811994355661b778fbac9b7a2c7aab35308f52fd8",
+      "severity": "context",
+      "claim": "Label whitespace is trimmed and inner spaces replaced with hyphens",
+      "rationale": "Describes preprocessing applied to the label argument",
+      "excerpt": "Whitespace is trimmed and inner spaces are replaced with hyphens.",
+      "symbol_ids": [
+        "sym:ts:src/helper/css/common.ts:ClassNameSlug"
+      ]
+    },
+    {
+      "source": "docstring:src/helper/css/common.ts",
+      "source_path": "src/helper/css/common.ts",
+      "source_sha": "443d07bda09c7f946db6e22811994355661b778fbac9b7a2c7aab35308f52fd8",
+      "severity": "hard",
+      "claim": "Returned custom class name must be a safe CSS identifier",
+      "rationale": "Unsafe identifiers cause fallback to the default hash",
+      "excerpt": "Must be a safe CSS identifier; otherwise, the default hash is used as a fallback.",
+      "symbol_ids": [
+        "sym:ts:src/helper/css/common.ts:ClassNameSlug"
+      ]
+    },
+    {
+      "source": "docstring:src/helper/css/common.ts",
+      "source_path": "src/helper/css/common.ts",
+      "source_sha": "443d07bda09c7f946db6e22811994355661b778fbac9b7a2c7aab35308f52fd8",
+      "severity": "soft",
+      "claim": "rawCssString is experimental and its API may change",
+      "rationale": "Consumers should be aware the API is unstable and subject to change",
+      "excerpt": "`rawCssString` is an experimental feature. The API might be changed.",
+      "symbol_ids": [
+        "sym:ts:src/helper/css/common.ts:rawCssString"
+      ]
+    },
+    {
+      "source": "docstring:src/helper/css/index.ts",
+      "source_path": "src/helper/css/index.ts",
+      "source_sha": "4840089e61a7f23da8001dade7f2dcefd93b3127a8eceeb9b87112f5a7b1e6f7",
+      "severity": "soft",
+      "claim": "createCssContext is experimental and its API may change",
+      "rationale": "Consumers should be cautious relying on this API since it is marked experimental and subject to change",
+      "excerpt": "createCssContext is an experimental feature. The API might be changed.",
+      "symbol_ids": [
+        "sym:ts:src/helper/css/index.ts:createCssContext",
+        "sym:ts:src/jsx/dom/css.ts:createCssContext"
+      ]
+    },
+    {
+      "source": "docstring:src/helper/proxy/index.ts",
+      "source_path": "src/helper/proxy/index.ts",
+      "source_sha": "a19d0605956c622c6c6378f224a8502c0e413d2dbd12bde2c88c60478a81f037",
+      "severity": "context",
+      "claim": "proxy wrapper mirrors fetch's parameters and return value, except for proxy-specific options",
+      "rationale": "Establishes API surface compatibility with fetch",
+      "excerpt": "The parameters and return value are the same as for `fetch` (except for the proxy-specific options).",
+      "symbol_ids": [
+        "sym:ts:src/adapter/cloudflare-pages/handler.ts:fetch",
+        "sym:ts:src/helper/proxy/index.ts:proxy"
+      ]
+    },
+    {
+      "source": "docstring:src/helper/proxy/index.ts",
+      "source_path": "src/helper/proxy/index.ts",
+      "source_sha": "a19d0605956c622c6c6378f224a8502c0e413d2dbd12bde2c88c60478a81f037",
+      "severity": "context",
+      "claim": "Unnecessary response headers are stripped and the returned Response can be returned as-is from a handler",
+      "rationale": "Describes response sanitization enabling direct handler return",
+      "excerpt": "Unnecessary response headers are deleted and a Response object is returned that can be returned as is as a response from the handler.",
+      "symbol_ids": [
+        "sym:ts:src/client/types.ts:Response",
+        "sym:ts:src/helper/proxy/index.ts:proxy"
+      ]
+    },
+    {
+      "source": "docstring:src/helper/proxy/index.ts",
+      "source_path": "src/helper/proxy/index.ts",
+      "source_sha": "a19d0605956c622c6c6378f224a8502c0e413d2dbd12bde2c88c60478a81f037",
+      "severity": "soft",
+      "claim": "Set Authorization to undefined to avoid propagating the original request's Authorization header",
+      "rationale": "Prevents leaking caller credentials to upstream proxy target",
+      "excerpt": "Authorization: undefined, // do not propagate request headers contained in c.req.header('Authorization')",
+      "symbol_ids": [
+        "sym:ts:src/helper/proxy/index.ts:proxy"
+      ]
+    },
+    {
+      "source": "docstring:src/helper/proxy/index.ts",
+      "source_path": "src/helper/proxy/index.ts",
+      "source_sha": "a19d0605956c622c6c6378f224a8502c0e413d2dbd12bde2c88c60478a81f037",
+      "severity": "soft",
+      "claim": "Spreading c.req.header() into proxy headers should only be done when forwarding all request data including credentials is necessary",
+      "rationale": "Forwarding all headers including credentials has security implications",
+      "excerpt": "optional, specify only when forwarding all the request data (including credentials) is necessary.",
+      "symbol_ids": [
+        "sym:ts:src/helper/proxy/index.ts:proxy"
+      ]
+    },
+    {
+      "source": "docstring:src/helper/proxy/index.ts",
+      "source_path": "src/helper/proxy/index.ts",
+      "source_sha": "a19d0605956c622c6c6378f224a8502c0e413d2dbd12bde2c88c60478a81f037",
+      "severity": "context",
+      "claim": "The Accept-Encoding header is replaced with an encoding the runtime can handle",
+      "rationale": "Documents automatic header rewriting behavior to ensure runtime compatibility",
+      "excerpt": "The “Accept-Encoding” header is replaced with an encoding that the current runtime can handle.",
+      "symbol_ids": [
+        "sym:ts:src/helper/proxy/index.ts:proxy"
+      ]
+    },
+    {
+      "source": "docstring:src/helper/proxy/index.ts",
+      "source_path": "src/helper/proxy/index.ts",
+      "source_sha": "a19d0605956c622c6c6378f224a8502c0e413d2dbd12bde2c88c60478a81f037",
+      "severity": "soft",
+      "claim": "strictConnectionProcessing (strict RFC compliance mode) should be used only in trusted environments",
+      "rationale": "Strict RFC compliance mode is unsafe outside trusted environments",
+      "excerpt": "Strict RFC compliance mode (use only in trusted environments)",
+      "symbol_ids": [
+        "sym:ts:src/helper/proxy/index.ts:proxy"
+      ]
+    },
+    {
+      "source": "docstring:src/helper/ssg/middleware.ts",
+      "source_path": "src/helper/ssg/middleware.ts",
+      "source_sha": "8a5fb4a45be9c8beb069e7c9c090d707de6c713228665308e83724c178067042",
+      "severity": "hard",
+      "claim": "Deprecated; use X_HONO_DISABLE_SSG_HEADER_KEY instead. Will be removed in the next minor version.",
+      "rationale": "Explicit @deprecated tag with scheduled removal in the next minor version.",
+      "excerpt": "@deprecated  \nUse `X_HONO_DISABLE_SSG_HEADER_KEY` instead.\nThis constant will be removed in the next minor version.",
+      "symbol_ids": [
+        "sym:ts:src/helper/ssg/middleware.ts:SSG_DISABLED_RESPONSE",
+        "sym:ts:src/helper/ssg/middleware.ts:X_HONO_DISABLE_SSG_HEADER_KEY"
+      ]
+    },
+    {
+      "source": "docstring:src/helper/ssg/middleware.ts",
+      "source_path": "src/helper/ssg/middleware.ts",
+      "source_sha": "8a5fb4a45be9c8beb069e7c9c090d707de6c713228665308e83724c178067042",
+      "severity": "soft",
+      "claim": "disableSSG is an experimental feature whose API may change",
+      "rationale": "Consumers should be cautious relying on it because the API is unstable",
+      "excerpt": "`disableSSG` is an experimental feature. The API might be changed.",
+      "symbol_ids": [
+        "sym:ts:src/helper/ssg/middleware.ts:disableSSG"
+      ]
+    },
+    {
+      "source": "docstring:src/helper/ssg/middleware.ts",
+      "source_path": "src/helper/ssg/middleware.ts",
+      "source_sha": "8a5fb4a45be9c8beb069e7c9c090d707de6c713228665308e83724c178067042",
+      "severity": "soft",
+      "claim": "isSSGContext is experimental and its API may change",
+      "rationale": "Consumers should be aware the API is unstable and subject to change",
+      "excerpt": "`isSSGContext` is an experimental feature. The API might be changed.",
+      "symbol_ids": [
+        "sym:ts:src/helper/ssg/middleware.ts:isSSGContext"
+      ]
+    },
+    {
+      "source": "docstring:src/helper/ssg/middleware.ts",
+      "source_path": "src/helper/ssg/middleware.ts",
+      "source_sha": "8a5fb4a45be9c8beb069e7c9c090d707de6c713228665308e83724c178067042",
+      "severity": "context",
+      "claim": "onlySSG is an experimental feature whose API may change",
+      "rationale": "Consumers should be aware that relying on this feature carries instability risk",
+      "excerpt": "`onlySSG` is an experimental feature. The API might be changed.",
+      "symbol_ids": [
+        "sym:ts:src/helper/ssg/middleware.ts:onlySSG"
+      ]
+    },
+    {
+      "source": "docstring:src/helper/ssg/plugins.ts",
+      "source_path": "src/helper/ssg/plugins.ts",
+      "source_sha": "7d72337f0418c3653d4bef98025ca14cb3b4237f1404be7d2649ea4b01594148",
+      "severity": "hard",
+      "claim": "When using redirectPlugin with defaultPlugin, redirectPlugin must be placed before defaultPlugin in the plugins array",
+      "rationale": "defaultPlugin skips non-200 responses, so it would discard redirect responses if it ran first",
+      "excerpt": "place `redirectPlugin` before it, because `defaultPlugin` skips non-200 responses",
+      "symbol_ids": [
+        "sym:ts:src/adapter/bun/ssg.ts:toSSG",
+        "sym:ts:src/adapter/deno/ssg.ts:toSSG",
+        "sym:ts:src/helper/ssg/plugins.ts:defaultPlugin",
+        "sym:ts:src/helper/ssg/plugins.ts:redirectPlugin",
+        "sym:ts:src/helper/ssg/ssg.ts:toSSG"
+      ]
+    },
+    {
+      "source": "docstring:src/helper/ssg/plugins.ts",
+      "source_path": "src/helper/ssg/plugins.ts",
+      "source_sha": "7d72337f0418c3653d4bef98025ca14cb3b4237f1404be7d2649ea4b01594148",
+      "severity": "context",
+      "claim": "Defines the recommended default behavior for the plugin system",
+      "rationale": "Establishes the role of this plugin as the default/recommended one",
+      "excerpt": "The default plugin that defines the recommended behavior.",
+      "symbol_ids": [
+        "sym:ts:src/helper/ssg/plugins.ts:defaultPlugin"
+      ]
+    },
+    {
+      "source": "docstring:src/helper/ssg/plugins.ts",
+      "source_path": "src/helper/ssg/plugins.ts",
+      "source_sha": "7d72337f0418c3653d4bef98025ca14cb3b4237f1404be7d2649ea4b01594148",
+      "severity": "soft",
+      "claim": "defaultPlugin is experimental and its API may change",
+      "rationale": "Consumers should be cautious relying on the API since it is marked experimental and subject to change",
+      "excerpt": "`defaultPlugin` is an experimental feature. The API might be changed.",
+      "symbol_ids": [
+        "sym:ts:src/helper/ssg/plugins.ts:defaultPlugin"
+      ]
+    },
+    {
+      "source": "docstring:src/helper/ssg/plugins.ts",
+      "source_path": "src/helper/ssg/plugins.ts",
+      "source_sha": "7d72337f0418c3653d4bef98025ca14cb3b4237f1404be7d2649ea4b01594148",
+      "severity": "context",
+      "claim": "redirectPlugin generates HTML redirect pages for HTTP redirect responses with status codes 301, 302, 303, 307, and 308",
+      "rationale": "Describes the purpose and scope of the plugin",
+      "excerpt": "generates HTML redirect pages for HTTP redirect responses for status codes 301, 302, 303, 307 and 308",
+      "symbol_ids": [
+        "sym:ts:src/helper/ssg/plugins.ts:redirectPlugin"
+      ]
+    },
+    {
+      "source": "docstring:src/helper/ssg/plugins.ts",
+      "source_path": "src/helper/ssg/plugins.ts",
+      "source_sha": "7d72337f0418c3653d4bef98025ca14cb3b4237f1404be7d2649ea4b01594148",
+      "severity": "context",
+      "claim": "redirectPlugin is experimental and its API may change",
+      "rationale": "Consumers should be aware that the API is unstable",
+      "excerpt": "`redirectPlugin` is an experimental feature. The API might be changed.",
+      "symbol_ids": [
+        "sym:ts:src/helper/ssg/plugins.ts:redirectPlugin"
+      ]
+    },
+    {
+      "source": "docstring:src/helper/ssg/ssg.ts",
+      "source_path": "src/helper/ssg/ssg.ts",
+      "source_sha": "a178a70327d231691d30f1dd5a915eaba7c8933555071f33b36bdb6d4622e6bc",
+      "severity": "soft",
+      "claim": "toSSG is an experimental feature whose API may change",
+      "rationale": "Consumers should be cautious relying on it because the API is not stable",
+      "excerpt": "`toSSG` is an experimental feature. The API might be changed.",
+      "symbol_ids": [
+        "sym:ts:src/adapter/bun/ssg.ts:toSSG",
+        "sym:ts:src/adapter/deno/ssg.ts:toSSG",
+        "sym:ts:src/helper/ssg/ssg.ts:toSSG"
+      ]
+    },
+    {
+      "source": "docstring:src/helper/ssg/ssg.ts",
+      "source_path": "src/helper/ssg/ssg.ts",
+      "source_sha": "a178a70327d231691d30f1dd5a915eaba7c8933555071f33b36bdb6d4622e6bc",
+      "severity": "soft",
+      "claim": "FileSystemModule is experimental and its API may change",
+      "rationale": "Consumers should be cautious relying on this API since it may change",
+      "excerpt": "`FileSystemModule` is an experimental feature. The API might be changed.",
+      "symbol_ids": [
+        "sym:ts:src/helper/ssg/ssg.ts:FileSystemModule"
+      ]
+    },
+    {
+      "source": "docstring:src/helper/ssg/ssg.ts",
+      "source_path": "src/helper/ssg/ssg.ts",
+      "source_sha": "a178a70327d231691d30f1dd5a915eaba7c8933555071f33b36bdb6d4622e6bc",
+      "severity": "context",
+      "claim": "ToSSGAdaptorInterface is experimental and its API may change",
+      "rationale": "Consumers should be aware the API is unstable",
+      "excerpt": "`ToSSGAdaptorInterface` is an experimental feature. The API might be changed.",
+      "symbol_ids": [
+        "sym:ts:src/helper/ssg/ssg.ts:ToSSGAdaptorInterface"
+      ]
+    },
+    {
+      "source": "docstring:src/helper/ssg/ssg.ts",
+      "source_path": "src/helper/ssg/ssg.ts",
+      "source_sha": "a178a70327d231691d30f1dd5a915eaba7c8933555071f33b36bdb6d4622e6bc",
+      "severity": "soft",
+      "claim": "ToSSGInterface is experimental and its API may change",
+      "rationale": "Consumers should be cautious relying on it because the API is not stable",
+      "excerpt": "`ToSSGInterface` is an experimental feature. The API might be changed.",
+      "symbol_ids": [
+        "sym:ts:src/helper/ssg/ssg.ts:ToSSGInterface"
+      ]
+    },
+    {
+      "source": "docstring:src/helper/ssg/ssg.ts",
+      "source_path": "src/helper/ssg/ssg.ts",
+      "source_sha": "a178a70327d231691d30f1dd5a915eaba7c8933555071f33b36bdb6d4622e6bc",
+      "severity": "soft",
+      "claim": "ToSSGResult is an experimental feature whose API may change",
+      "rationale": "Consumers should be cautious relying on it because the API is unstable",
+      "excerpt": "`ToSSGResult` is an experimental feature. The API might be changed.",
+      "symbol_ids": [
+        "sym:ts:src/helper/ssg/ssg.ts:ToSSGResult"
+      ]
+    },
+    {
+      "source": "docstring:src/helper/ssg/ssg.ts",
+      "source_path": "src/helper/ssg/ssg.ts",
+      "source_sha": "a178a70327d231691d30f1dd5a915eaba7c8933555071f33b36bdb6d4622e6bc",
+      "severity": "soft",
+      "claim": "saveContentToFile is experimental and its API may change",
+      "rationale": "Consumers should be cautious relying on this API since it is marked experimental and subject to change",
+      "excerpt": "`saveContentToFile` is an experimental feature. The API might be changed.",
+      "symbol_ids": [
+        "sym:ts:src/helper/ssg/ssg.ts:createdDirs",
+        "sym:ts:src/helper/ssg/ssg.ts:saveContentToFile"
+      ]
+    },
+    {
+      "source": "docstring:src/helper/ssg/ssg.ts",
+      "source_path": "src/helper/ssg/ssg.ts",
+      "source_sha": "a178a70327d231691d30f1dd5a915eaba7c8933555071f33b36bdb6d4622e6bc",
+      "severity": "soft",
+      "claim": "fetchRoutesContent is an experimental feature whose API may change",
+      "rationale": "Consumers should be cautious relying on it because the API is unstable",
+      "excerpt": "`fetchRoutesContent` is an experimental feature. The API might be changed.",
+      "symbol_ids": [
+        "sym:ts:src/helper/ssg/ssg.ts:fetchRoutesContent"
+      ]
+    },
+    {
+      "source": "docstring:src/hono-base.ts",
+      "source_path": "src/hono-base.ts",
+      "source_sha": "068061a01effa9a3af709e30abb5803310868186a177c8f57ed5e1886966fbb1",
+      "severity": "context",
+      "claim": ".mount() integrates applications built with other frameworks into a Hono application",
+      "rationale": "Describes the architectural purpose of the mount method as an interop boundary between Hono and external frameworks",
+      "excerpt": ".mount()` allows you to mount applications built with other frameworks into your Hono application",
+      "symbol_ids": [
+        "sym:ts:src/hono-base.ts:Hono",
+        "sym:ts:src/hono-base.ts:mount",
+        "sym:ts:src/hono.ts:Hono",
+        "sym:ts:src/preset/quick.ts:Hono",
+        "sym:ts:src/preset/tiny.ts:Hono"
+      ]
+    },
+    {
+      "source": "docstring:src/hono-base.ts",
+      "source_path": "src/hono-base.ts",
+      "source_sha": "068061a01effa9a3af709e30abb5803310868186a177c8f57ed5e1886966fbb1",
+      "severity": "context",
+      "claim": ".route() groups another Hono instance under a base path",
+      "rationale": "Describes the routing composition mechanism for mounting sub-apps",
+      "excerpt": "`.route()` allows grouping other Hono instance in routes.",
+      "symbol_ids": [
+        "sym:ts:src/hono-base.ts:Hono",
+        "sym:ts:src/hono-base.ts:route",
+        "sym:ts:src/hono.ts:Hono",
+        "sym:ts:src/preset/quick.ts:Hono",
+        "sym:ts:src/preset/tiny.ts:Hono"
+      ]
+    },
+    {
+      "source": "docstring:src/hono.ts",
+      "source_path": "src/hono.ts",
+      "source_sha": "d39498b9bb339bfc72cbc3741d1dbd499b2fb9aa762204418c7a7c241bcae8d4",
+      "severity": "context",
+      "claim": "Hono class extends HonoBase to provide routing setup and customizable options",
+      "rationale": "Describes the inheritance and purpose of the Hono class",
+      "excerpt": "The Hono class extends the functionality of the HonoBase class. It sets up routing and allows for custom options to be passed.",
+      "symbol_ids": [
+        "sym:ts:src/hono.ts:Hono"
+      ]
+    },
+    {
+      "source": "docstring:src/http-exception.ts",
+      "source_path": "src/http-exception.ts",
+      "source_sha": "6f37149536b482d7b654d69cf4c44ef1043679e5c04f635da24fe57f38770c36",
+      "severity": "hard",
+      "claim": "HTTPException must be used when a fatal error such as authentication failure occurs",
+      "rationale": "Explicit 'must' constraint on consumers for handling fatal errors like auth failures",
+      "excerpt": "`HTTPException` must be used when a fatal error such as authentication failure occurs.",
+      "symbol_ids": [
+        "sym:ts:src/http-exception.ts:HTTPException"
+      ]
+    },
+    {
+      "source": "docstring:src/jsx/components.ts",
+      "source_path": "src/jsx/components.ts",
+      "source_sha": "c00f5fc797e3de77257e39267786c77f49aadf9cfb0359410f2be74dca2cc3a3",
+      "severity": "soft",
+      "claim": "ErrorBoundary is experimental and its API may change",
+      "rationale": "Consumers should be cautious relying on it because the API is unstable",
+      "excerpt": "`ErrorBoundary` is an experimental feature. The API might be changed.",
+      "symbol_ids": [
+        "sym:ts:src/jsx/components.ts:ErrorBoundary",
+        "sym:ts:src/jsx/dom/components.ts:ErrorBoundary"
+      ]
+    },
+    {
+      "source": "docstring:src/jsx/dom/css.ts",
+      "source_path": "src/jsx/dom/css.ts",
+      "source_sha": "a3dd5058a1fa52593de754365b6cc7ba5ada4fcd9dfab7e3b4e56a6d89efc854",
+      "severity": "soft",
+      "claim": "createCssContext is experimental and its API may change",
+      "rationale": "Consumers should be aware the API is unstable and subject to change",
+      "excerpt": "`createCssContext` is an experimental feature. The API might be changed.",
+      "symbol_ids": [
+        "sym:ts:src/helper/css/index.ts:createCssContext",
+        "sym:ts:src/jsx/dom/css.ts:createCssContext"
+      ]
+    },
+    {
+      "source": "docstring:src/jsx/streaming.ts",
+      "source_path": "src/jsx/streaming.ts",
+      "source_sha": "0171bc75c6341438ed411e394a49c0d812f2a102dc13e650f6e711c640479967",
+      "severity": "context",
+      "claim": "StreamingContext provides scriptNonce used for scripts generated by Suspense and ErrorBoundary",
+      "rationale": "Documents the purpose of the nonce value in streaming context for CSP-related script tagging",
+      "excerpt": "Used to specify nonce for scripts generated by `Suspense` and `ErrorBoundary`.",
+      "symbol_ids": [
+        "sym:ts:src/jsx/components.ts:ErrorBoundary",
+        "sym:ts:src/jsx/dom/components.ts:ErrorBoundary",
+        "sym:ts:src/jsx/dom/components.ts:Suspense",
+        "sym:ts:src/jsx/streaming.ts:StreamingContext",
+        "sym:ts:src/jsx/streaming.ts:Suspense"
+      ]
+    },
+    {
+      "source": "docstring:src/jsx/streaming.ts",
+      "source_path": "src/jsx/streaming.ts",
+      "source_sha": "0171bc75c6341438ed411e394a49c0d812f2a102dc13e650f6e711c640479967",
+      "severity": "soft",
+      "claim": "Suspense is an experimental feature whose API may change",
+      "rationale": "Consumers should be cautious relying on it because the API is not stable",
+      "excerpt": "`Suspense` is an experimental feature. The API might be changed.",
+      "symbol_ids": [
+        "sym:ts:src/jsx/dom/components.ts:Suspense",
+        "sym:ts:src/jsx/streaming.ts:Suspense"
+      ]
+    },
+    {
+      "source": "docstring:src/jsx/streaming.ts",
+      "source_path": "src/jsx/streaming.ts",
+      "source_sha": "0171bc75c6341438ed411e394a49c0d812f2a102dc13e650f6e711c640479967",
+      "severity": "soft",
+      "claim": "renderToReadableStream is experimental and its API may change",
+      "rationale": "Consumers should be aware the API is unstable and may change",
+      "excerpt": "`renderToReadableStream()` is an experimental feature. The API might be changed.",
+      "symbol_ids": [
+        "sym:ts:src/jsx/dom/server.ts:renderToReadableStream",
+        "sym:ts:src/jsx/streaming.ts:renderToReadableStream"
+      ]
+    },
+    {
+      "source": "docstring:src/middleware/basic-auth/index.ts",
+      "source_path": "src/middleware/basic-auth/index.ts",
+      "source_sha": "8692ff7ac33e3291cf7c83d842fab91309cd655448e388f285cf0b888f7ce606",
+      "severity": "hard",
+      "claim": "basicAuth throws HTTPException if neither username/password pair nor verifyUser option is provided",
+      "rationale": "Configuration must include at least one credential verification mechanism",
+      "excerpt": "{HTTPException} If neither \"username and password\" nor \"verifyUser\" options are provided.",
+      "symbol_ids": [
+        "sym:ts:src/http-exception.ts:HTTPException",
+        "sym:ts:src/middleware/basic-auth/index.ts:basicAuth"
+      ]
+    },
+    {
+      "source": "docstring:src/middleware/bearer-auth/index.ts",
+      "source_path": "src/middleware/bearer-auth/index.ts",
+      "source_sha": "fdce02912d13cb203bdf9911ee015aa20c5921673b9334c800a23468228bada7",
+      "severity": "context",
+      "claim": "Authentication failures throw HTTPException with 401 for missing/invalid token or 400 for invalid request.",
+      "rationale": "Documents the error-signaling contract for failed authentication.",
+      "excerpt": "@throws — {HTTPException} If authentication fails, with 401 status code for missing or invalid token, or 400 status code for invalid request.",
+      "symbol_ids": [
+        "sym:ts:src/http-exception.ts:HTTPException",
+        "sym:ts:src/middleware/bearer-auth/index.ts:bearerAuth"
+      ]
+    },
+    {
+      "source": "docstring:src/middleware/bearer-auth/index.ts",
+      "source_path": "src/middleware/bearer-auth/index.ts",
+      "source_sha": "fdce02912d13cb203bdf9911ee015aa20c5921673b9334c800a23468228bada7",
+      "severity": "hard",
+      "claim": "Either 'token' or 'verifyToken' option must be provided; otherwise an Error is thrown.",
+      "rationale": "Constructor-time validation enforces that at least one token source is configured.",
+      "excerpt": "@throws — {Error} If neither \"token\" nor \"verifyToken\" options are provided.",
+      "symbol_ids": [
+        "sym:ts:src/middleware/bearer-auth/index.ts:bearerAuth"
+      ]
+    },
+    {
+      "source": "docstring:src/middleware/bearer-auth/index.ts",
+      "source_path": "src/middleware/bearer-auth/index.ts",
+      "source_sha": "fdce02912d13cb203bdf9911ee015aa20c5921673b9334c800a23468228bada7",
+      "severity": "context",
+      "claim": "If options.prefix is set to the empty string, no prefix is expected on the Authorization header.",
+      "rationale": "Describes special-case configuration of the Authorization scheme prefix.",
+      "excerpt": "If set to the empty string, no prefix is expected.",
+      "symbol_ids": [
+        "sym:ts:src/middleware/bearer-auth/index.ts:bearerAuth"
+      ]
+    },
+    {
+      "source": "docstring:src/middleware/bearer-auth/index.ts",
+      "source_path": "src/middleware/bearer-auth/index.ts",
+      "source_sha": "fdce02912d13cb203bdf9911ee015aa20c5921673b9334c800a23468228bada7",
+      "severity": "context",
+      "claim": "options.hashFunction is used for safe comparison of authentication tokens.",
+      "rationale": "Indicates token comparison should be done via a hash function for safety (timing-safe comparison).",
+      "excerpt": "A function to handle hashing for safe comparison of authentication tokens.",
+      "symbol_ids": [
+        "sym:ts:src/middleware/bearer-auth/index.ts:bearerAuth"
+      ]
+    },
+    {
+      "source": "docstring:src/middleware/cache/index.ts",
+      "source_path": "src/middleware/cache/index.ts",
+      "source_sha": "0394494d589988b1b87c8a6c4016593e9f3b49f3d3ece2d29e904d848c5a14c8",
+      "severity": "context",
+      "claim": "If the original response already has a Vary header, values are merged with duplicates removed",
+      "rationale": "Describes merge behavior for Vary header",
+      "excerpt": "If the original response header already contains a `Vary` header, the values are merged, removing any duplicates.",
+      "symbol_ids": [
+        "sym:ts:src/middleware/cache/index.ts:cache"
+      ]
+    },
+    {
+      "source": "docstring:src/middleware/cache/index.ts",
+      "source_path": "src/middleware/cache/index.ts",
+      "source_sha": "0394494d589988b1b87c8a6c4016593e9f3b49f3d3ece2d29e904d848c5a14c8",
+      "severity": "hard",
+      "claim": "Throws Error if the vary option includes \"*\"",
+      "rationale": "Wildcard vary is explicitly rejected",
+      "excerpt": "@throws — {Error} If the `vary` option includes \"*\".",
+      "symbol_ids": [
+        "sym:ts:src/middleware/cache/index.ts:cache"
+      ]
+    },
+    {
+      "source": "docstring:src/middleware/cache/index.ts",
+      "source_path": "src/middleware/cache/index.ts",
+      "source_sha": "0394494d589988b1b87c8a6c4016593e9f3b49f3d3ece2d29e904d848c5a14c8",
+      "severity": "context",
+      "claim": "keyGenerator can derive cache keys from request or context parameters within the cacheName store",
+      "rationale": "Explains key scoping and customization",
+      "excerpt": "Generates keys for every request in the `cacheName` store. This can be used to cache data based on request parameters or context parameters.",
+      "symbol_ids": [
+        "sym:ts:src/middleware/cache/index.ts:cache"
+      ]
+    },
+    {
+      "source": "docstring:src/middleware/cache/index.ts",
+      "source_path": "src/middleware/cache/index.ts",
+      "source_sha": "0394494d589988b1b87c8a6c4016593e9f3b49f3d3ece2d29e904d848c5a14c8",
+      "severity": "context",
+      "claim": "onCacheNotAvailable is invoked when globalThis.caches is unavailable; defaults to console log, can be set false to suppress or provided as custom function",
+      "rationale": "Describes fallback behavior when Cache API is missing",
+      "excerpt": "A callback invoked when `globalThis.caches` is not available. By default, a message is logged to the console.",
+      "symbol_ids": [
+        "sym:ts:src/middleware/cache/index.ts:cache"
+      ]
+    },
+    {
+      "source": "docstring:src/middleware/cache/index.ts",
+      "source_path": "src/middleware/cache/index.ts",
+      "source_sha": "0394494d589988b1b87c8a6c4016593e9f3b49f3d3ece2d29e904d848c5a14c8",
+      "severity": "hard",
+      "claim": "options.wait must be true for the Deno environment",
+      "rationale": "Deno requires waiting for the cache.put Promise to resolve before continuing",
+      "excerpt": "Required to be true for the Deno environment.",
+      "symbol_ids": [
+        "sym:ts:src/middleware/cache/index.ts:cache"
+      ]
+    },
+    {
+      "source": "docstring:src/middleware/combine/index.ts",
+      "source_path": "src/middleware/combine/index.ts",
+      "source_sha": "5d4da987f3c9b290c11be98029a62946a8ca47618ab7616ab3bdefbb5317507a",
+      "severity": "context",
+      "claim": "Middleware is applied in the order it is passed; if any middleware exits without throwing, subsequent middleware will not be executed.",
+      "rationale": "Describes the short-circuit evaluation behavior of the composed middleware.",
+      "excerpt": "Middleware is applied in the order it is passed, and if any middleware exits without returning an exception first, subsequent middleware will not be executed.",
+      "symbol_ids": [
+        "sym:ts:src/middleware/combine/index.ts:Condition",
+        "sym:ts:src/middleware/combine/index.ts:some",
+        "sym:ts:src/types.ts:MiddlewareHandler"
+      ]
+    },
+    {
+      "source": "docstring:src/middleware/combine/index.ts",
+      "source_path": "src/middleware/combine/index.ts",
+      "source_sha": "5d4da987f3c9b290c11be98029a62946a8ca47618ab7616ab3bdefbb5317507a",
+      "severity": "context",
+      "claim": "Middleware is applied in the order it is passed; if any middleware throws, subsequent middleware will not be executed.",
+      "rationale": "Describes execution semantics of the composed middleware.",
+      "excerpt": "Middleware is applied in the order it is passed, and if any middleware throws an error, subsequent middleware will not be executed.",
+      "symbol_ids": [
+        "sym:ts:src/middleware/combine/index.ts:Condition",
+        "sym:ts:src/middleware/combine/index.ts:every",
+        "sym:ts:src/types.ts:MiddlewareHandler"
+      ]
+    },
+    {
+      "source": "docstring:src/middleware/combine/index.ts",
+      "source_path": "src/middleware/combine/index.ts",
+      "source_sha": "5d4da987f3c9b290c11be98029a62946a8ca47618ab7616ab3bdefbb5317507a",
+      "severity": "context",
+      "claim": "A condition function returning false halts evaluation and prevents execution of remaining middleware.",
+      "rationale": "Describes short-circuit semantics for condition functions.",
+      "excerpt": "If returns false the evaluation will be halted, and rest of the middleware will not be executed.",
+      "symbol_ids": [
+        "sym:ts:src/middleware/combine/index.ts:every"
+      ]
+    },
+    {
+      "source": "docstring:src/middleware/combine/index.ts",
+      "source_path": "src/middleware/combine/index.ts",
+      "source_sha": "5d4da987f3c9b290c11be98029a62946a8ca47618ab7616ab3bdefbb5317507a",
+      "severity": "context",
+      "claim": "A condition function returning true halts evaluation and prevents remaining middleware from executing.",
+      "rationale": "Defines how condition functions control middleware chain execution.",
+      "excerpt": "If returns true the evaluation will be halted, and rest of the middleware will not be executed.",
+      "symbol_ids": [
+        "sym:ts:src/middleware/combine/index.ts:some"
+      ]
+    },
+    {
+      "source": "docstring:src/middleware/compress/index.ts",
+      "source_path": "src/middleware/compress/index.ts",
+      "source_sha": "e58c1ee45b6369e311f4fcd6c926e2680dfe5a6f60442e2e1705b0e10b87c7ea",
+      "severity": "context",
+      "claim": "Compress middleware supports 'gzip' or 'deflate' encoding; if unspecified, both are allowed and selected via Accept-Encoding header",
+      "rationale": "Describes default negotiation behavior for response compression",
+      "excerpt": "If not defined, both are allowed and will be used based on the Accept-Encoding header.",
+      "symbol_ids": [
+        "sym:ts:src/hono-base.ts:Hono",
+        "sym:ts:src/hono.ts:Hono",
+        "sym:ts:src/middleware/compress/index.ts:compress",
+        "sym:ts:src/preset/quick.ts:Hono",
+        "sym:ts:src/preset/tiny.ts:Hono"
+      ]
+    },
+    {
+      "source": "docstring:src/middleware/compress/index.ts",
+      "source_path": "src/middleware/compress/index.ts",
+      "source_sha": "e58c1ee45b6369e311f4fcd6c926e2680dfe5a6f60442e2e1705b0e10b87c7ea",
+      "severity": "context",
+      "claim": "Default minimum response size for compression is 1024 bytes (threshold option)",
+      "rationale": "Establishes default threshold below which responses are not compressed",
+      "excerpt": "The minimum size in bytes to compress. Defaults to 1024 bytes.",
+      "symbol_ids": [
+        "sym:ts:src/middleware/compress/index.ts:compress"
+      ]
+    },
+    {
+      "source": "docstring:src/middleware/compress/index.ts",
+      "source_path": "src/middleware/compress/index.ts",
+      "source_sha": "e58c1ee45b6369e311f4fcd6c926e2680dfe5a6f60442e2e1705b0e10b87c7ea",
+      "severity": "context",
+      "claim": "When encoding option is not provided and client accepts both, 'gzip' is prioritized over 'deflate'",
+      "rationale": "Documents tie-breaking default for compression scheme selection",
+      "excerpt": "'gzip' is prioritized if this option is not provided and the client provides both in the Accept-Encoding header.",
+      "symbol_ids": [
+        "sym:ts:src/middleware/compress/index.ts:compress"
+      ]
+    },
+    {
+      "source": "docstring:src/middleware/csrf/index.ts",
+      "source_path": "src/middleware/csrf/index.ts",
+      "source_sha": "dbf9ec0348aa7019c995e14ab8f53da4b5c332f367dcc116e3f77cd25461466e",
+      "severity": "context",
+      "claim": "CSRF middleware allows the request if either origin validation or sec-fetch-site validation passes",
+      "rationale": "Defines the validation semantics: combined OR logic between two checks",
+      "excerpt": "The request is allowed if either validation passes.",
+      "symbol_ids": [
+        "sym:ts:src/hono-base.ts:Hono",
+        "sym:ts:src/hono.ts:Hono",
+        "sym:ts:src/middleware/csrf/index.ts:csrf",
+        "sym:ts:src/preset/quick.ts:Hono",
+        "sym:ts:src/preset/tiny.ts:Hono"
+      ]
+    },
+    {
+      "source": "docstring:src/middleware/csrf/index.ts",
+      "source_path": "src/middleware/csrf/index.ts",
+      "source_sha": "dbf9ec0348aa7019c995e14ab8f53da4b5c332f367dcc116e3f77cd25461466e",
+      "severity": "context",
+      "claim": "Default origin policy permits only the same origin as the request URL",
+      "rationale": "Describes secure-by-default behavior when no origin option is supplied",
+      "excerpt": "Default: Only same origin as the request URL",
+      "symbol_ids": [
+        "sym:ts:src/middleware/csrf/index.ts:csrf"
+      ]
+    },
+    {
+      "source": "docstring:src/middleware/csrf/index.ts",
+      "source_path": "src/middleware/csrf/index.ts",
+      "source_sha": "dbf9ec0348aa7019c995e14ab8f53da4b5c332f367dcc116e3f77cd25461466e",
+      "severity": "context",
+      "claim": "Default sec-fetch-site policy permits only 'same-origin'",
+      "rationale": "Describes secure-by-default behavior for the sec-fetch-site validation",
+      "excerpt": "Default: Only allows 'same-origin'",
+      "symbol_ids": [
+        "sym:ts:src/middleware/csrf/index.ts:csrf"
+      ]
+    },
+    {
+      "source": "docstring:src/middleware/etag/index.ts",
+      "source_path": "src/middleware/etag/index.ts",
+      "source_sha": "6e593c9a40bb225f97b90644927de7b17a6e5a79f77436330e34922f729a01be",
+      "severity": "context",
+      "claim": "Custom digest function receives response body as Uint8Array and returns ArrayBuffer or Promise of one",
+      "rationale": "Defines the contract for custom digest implementations",
+      "excerpt": "This function is called with the response body as a `Uint8Array` and should return a hash as an `ArrayBuffer` or a Promise of one.",
+      "symbol_ids": [
+        "sym:ts:src/middleware/etag/digest.ts:generateDigest",
+        "sym:ts:src/middleware/etag/index.ts:etag"
+      ]
+    },
+    {
+      "source": "docstring:src/middleware/etag/index.ts",
+      "source_path": "src/middleware/etag/index.ts",
+      "source_sha": "6e593c9a40bb225f97b90644927de7b17a6e5a79f77436330e34922f729a01be",
+      "severity": "context",
+      "claim": "Default digest algorithm for ETag generation is SHA-1",
+      "rationale": "Documents the default hashing behavior consumers can override",
+      "excerpt": "A custom digest generation function. By default, it uses 'SHA-1'",
+      "symbol_ids": [
+        "sym:ts:src/middleware/etag/digest.ts:generateDigest",
+        "sym:ts:src/middleware/etag/index.ts:etag"
+      ]
+    },
+    {
+      "source": "docstring:src/middleware/etag/index.ts",
+      "source_path": "src/middleware/etag/index.ts",
+      "source_sha": "6e593c9a40bb225f97b90644927de7b17a6e5a79f77436330e34922f729a01be",
+      "severity": "hard",
+      "claim": "304 responses must not contain a body and must include headers that would have been sent in an equivalent 200 OK response: Cache-Control, Content-Location, Date, ETag, Expires, and Vary",
+      "rationale": "Quoted directly from the HTTP spec governing 304 response semantics",
+      "excerpt": "The response must not contain a body and must include the headers that would have been sent in an equivalent 200 OK response: Cache-Control, Content-Location, Date, ETag, Expires, and Vary.",
+      "symbol_ids": [
+        "sym:ts:src/middleware/etag/index.ts:RETAINED_304_HEADERS"
+      ]
+    },
+    {
+      "source": "docstring:src/middleware/etag/index.ts",
+      "source_path": "src/middleware/etag/index.ts",
+      "source_sha": "6e593c9a40bb225f97b90644927de7b17a6e5a79f77436330e34922f729a01be",
+      "severity": "context",
+      "claim": "When weak option is true, 'W/' prefix is added to the ETag value",
+      "rationale": "Describes weak validation behavior per HTTP ETag semantics",
+      "excerpt": "If true is set, then `W/` is added to the prefix of the value.",
+      "symbol_ids": [
+        "sym:ts:src/middleware/etag/index.ts:etag"
+      ]
+    },
+    {
+      "source": "docstring:src/middleware/etag/index.ts",
+      "source_path": "src/middleware/etag/index.ts",
+      "source_sha": "6e593c9a40bb225f97b90644927de7b17a6e5a79f77436330e34922f729a01be",
+      "severity": "context",
+      "claim": "retainedHeaders specifies headers preserved on 304 responses",
+      "rationale": "Controls which headers survive into Not Modified responses",
+      "excerpt": "The headers that you want to retain in the 304 Response.",
+      "symbol_ids": [
+        "sym:ts:src/middleware/etag/index.ts:etag"
+      ]
+    },
+    {
+      "source": "docstring:src/middleware/ip-restriction/index.ts",
+      "source_path": "src/middleware/ip-restriction/index.ts",
+      "source_sha": "5f3ab0e943edc21f68636d51d3a67bcf602c77d9795c185c2394c61c5780dccd",
+      "severity": "soft",
+      "claim": "The getIP function should be obtained via getConnInfo from the runtime-specific adapter",
+      "rationale": "IP retrieval is runtime-dependent; using the appropriate adapter ensures correct client IP resolution",
+      "excerpt": "A function to retrieve the client IP address. Use `getConnInfo` from the appropriate runtime adapter.",
+      "symbol_ids": [
+        "sym:ts:src/adapter/aws-lambda/conninfo.ts:getConnInfo",
+        "sym:ts:src/adapter/bun/conninfo.ts:getConnInfo",
+        "sym:ts:src/adapter/cloudflare-pages/conninfo.ts:getConnInfo",
+        "sym:ts:src/adapter/cloudflare-workers/conninfo.ts:getConnInfo",
+        "sym:ts:src/adapter/deno/conninfo.ts:getConnInfo",
+        "sym:ts:src/adapter/lambda-edge/conninfo.ts:getConnInfo",
+        "sym:ts:src/adapter/netlify/conninfo.ts:getConnInfo",
+        "sym:ts:src/adapter/vercel/conninfo.ts:getConnInfo",
+        "sym:ts:src/middleware/ip-restriction/index.ts:ipRestriction"
+      ]
+    },
+    {
+      "source": "docstring:src/middleware/ip-restriction/index.ts",
+      "source_path": "src/middleware/ip-restriction/index.ts",
+      "source_sha": "5f3ab0e943edc21f68636d51d3a67bcf602c77d9795c185c2394c61c5780dccd",
+      "severity": "context",
+      "claim": "Rules accept static IPs, CIDR ranges, or custom functions in denyList/allowList arrays",
+      "rationale": "Defines the supported rule shapes for IP restriction configuration",
+      "excerpt": "Each rule can be a static IP, a CIDR range, or a custom function.",
+      "symbol_ids": [
+        "sym:ts:src/middleware/ip-restriction/index.ts:ipRestriction"
+      ]
+    },
+    {
+      "source": "docstring:src/middleware/ip-restriction/index.ts",
+      "source_path": "src/middleware/ip-restriction/index.ts",
+      "source_sha": "5f3ab0e943edc21f68636d51d3a67bcf602c77d9795c185c2394c61c5780dccd",
+      "severity": "context",
+      "claim": "When no custom onError handler is provided, blocked requests receive a 403 Forbidden response by default",
+      "rationale": "Documents the default blocking behavior for security-relevant denial responses",
+      "excerpt": "Optional custom handler invoked when a request is blocked. Defaults to returning a 403 Forbidden response.",
+      "symbol_ids": [
+        "sym:ts:src/middleware/ip-restriction/index.ts:ipRestriction"
+      ]
+    },
+    {
+      "source": "docstring:src/middleware/jsx-renderer/index.ts",
+      "source_path": "src/middleware/jsx-renderer/index.ts",
+      "source_sha": "80a0494c145c58d225fa6765d112f5e221fa1e802622c76a9939e85892d91f8b",
+      "severity": "context",
+      "claim": "docType option controls DOCTYPE prefix; false disables it",
+      "rationale": "Describes how the docType option affects rendered HTML output",
+      "excerpt": "The DOCTYPE to be added at the beginning of the HTML. If set to false, no DOCTYPE will be added.",
+      "symbol_ids": [
+        "sym:ts:src/middleware/jsx-renderer/index.ts:jsxRenderer"
+      ]
+    },
+    {
+      "source": "docstring:src/middleware/jsx-renderer/index.ts",
+      "source_path": "src/middleware/jsx-renderer/index.ts",
+      "source_sha": "80a0494c145c58d225fa6765d112f5e221fa1e802622c76a9939e85892d91f8b",
+      "severity": "context",
+      "claim": "stream option enables streaming response; true uses default headers, a record provides custom headers",
+      "rationale": "Describes how the stream option configures response streaming and headers",
+      "excerpt": "If set to true, enables streaming response with default headers. If a record is provided, custom headers will be used.",
+      "symbol_ids": [
+        "sym:ts:src/middleware/jsx-renderer/index.ts:jsxRenderer"
+      ]
+    },
+    {
+      "source": "docstring:src/middleware/jwk/jwk.ts",
+      "source_path": "src/middleware/jwk/jwk.ts",
+      "source_sha": "567bbcfc4bf3322401ee21783714c1e7b2fafe05ed76709884a63f0a34030e4b",
+      "severity": "context",
+      "claim": "JWK Auth middleware for Hono framework",
+      "rationale": "Identifies the framework integration target",
+      "excerpt": "JWK Auth Middleware for Hono.",
+      "symbol_ids": [
+        "sym:ts:src/hono-base.ts:Hono",
+        "sym:ts:src/hono.ts:Hono",
+        "sym:ts:src/middleware/jwk/jwk.ts:jwk",
+        "sym:ts:src/preset/quick.ts:Hono",
+        "sym:ts:src/preset/tiny.ts:Hono"
+      ]
+    },
+    {
+      "source": "docstring:src/middleware/jwk/jwk.ts",
+      "source_path": "src/middleware/jwk/jwk.ts",
+      "source_sha": "567bbcfc4bf3322401ee21783714c1e7b2fafe05ed76709884a63f0a34030e4b",
+      "severity": "context",
+      "claim": "Cookie token retrieval is only attempted when no token is found in the header",
+      "rationale": "Defines fallback ordering between header and cookie token sources",
+      "excerpt": "the middleware attempts to retrieve the token from a cookie with these options (optionally signed) only if no token is found in the header",
+      "symbol_ids": [
+        "sym:ts:src/middleware/jwk/jwk.ts:jwk"
+      ]
+    },
+    {
+      "source": "docstring:src/middleware/jwk/jwk.ts",
+      "source_path": "src/middleware/jwk/jwk.ts",
+      "source_sha": "567bbcfc4bf3322401ee21783714c1e7b2fafe05ed76709884a63f0a34030e4b",
+      "severity": "context",
+      "claim": "Default header name for JWT token is 'Authorization'",
+      "rationale": "Documents default behavior",
+      "excerpt": "The name of the header to look for the JWT token. Default is 'Authorization'.",
+      "symbol_ids": [
+        "sym:ts:src/middleware/jwk/jwk.ts:jwk"
+      ]
+    },
+    {
+      "source": "docstring:src/middleware/jwk/jwk.ts",
+      "source_path": "src/middleware/jwk/jwk.ts",
+      "source_sha": "567bbcfc4bf3322401ee21783714c1e7b2fafe05ed76709884a63f0a34030e4b",
+      "severity": "hard",
+      "claim": "alg option restricts JWT verification to the listed asymmetric algorithms only",
+      "rationale": "Security constraint limiting accepted signing algorithms",
+      "excerpt": "Only tokens signed with these algorithms will be accepted.",
+      "symbol_ids": [
+        "sym:ts:src/middleware/jwk/jwk.ts:jwk"
+      ]
+    },
+    {
+      "source": "docstring:src/middleware/jwk/jwk.ts",
+      "source_path": "src/middleware/jwk/jwk.ts",
+      "source_sha": "567bbcfc4bf3322401ee21783714c1e7b2fafe05ed76709884a63f0a34030e4b",
+      "severity": "context",
+      "claim": "allow_anon=true permits unauthenticated requests to proceed",
+      "rationale": "Security-relevant option that bypasses authentication",
+      "excerpt": "If set to `true`, the middleware allows requests without a token to proceed without authentication.",
+      "symbol_ids": [
+        "sym:ts:src/middleware/jwk/jwk.ts:jwk"
+      ]
+    },
+    {
+      "source": "docstring:src/middleware/jwk/jwk.ts",
+      "source_path": "src/middleware/jwk/jwk.ts",
+      "source_sha": "567bbcfc4bf3322401ee21783714c1e7b2fafe05ed76709884a63f0a34030e4b",
+      "severity": "hard",
+      "claim": "jwks_uri response must be a JSON object containing a keys array, which is merged with the keys option",
+      "rationale": "Defines the required response shape for the JWKS endpoint",
+      "excerpt": "The response must be a JSON object containing a `keys` array, which will be merged with the `keys` option.",
+      "symbol_ids": [
+        "sym:ts:src/middleware/jwk/jwk.ts:jwk"
+      ]
+    },
+    {
+      "source": "docstring:src/middleware/serve-static/index.ts",
+      "source_path": "src/middleware/serve-static/index.ts",
+      "source_sha": "8414698bc80768e39b8aeeb7fc08401d066fb6bb0e56bd3daaa2e9a74eb31472",
+      "severity": "context",
+      "claim": "Middleware is not consumed directly; environment-specific wrappers should provide getContent()",
+      "rationale": "Indicates this module is an internal building block requiring environment-specific adaptation",
+      "excerpt": "This middleware is not directly used by the user. Create a wrapper specifying `getContent()` by the environment such as Deno or Bun.",
+      "symbol_ids": [
+        "sym:ts:src/adapter/deno/deno.d.ts:Deno",
+        "sym:ts:src/middleware/serve-static/index.ts:serveStatic"
+      ]
+    },
+    {
+      "source": "docstring:src/middleware/serve-static/path.ts",
+      "source_path": "src/middleware/serve-static/path.ts",
+      "source_sha": "64cdf7abc8921c77830a26ddd42c58403cb0ddb2a13a928a49996cd16b28e15d",
+      "severity": "soft",
+      "claim": "For Windows path support, use join exported from node:path instead of defaultJoin",
+      "rationale": "Recommends an alternative when Windows path semantics are required",
+      "excerpt": "If you need Windows path support, please use `join` exported from `node:path` etc. instead.",
+      "symbol_ids": [
+        "sym:ts:src/middleware/serve-static/path.ts:defaultJoin"
+      ]
+    },
+    {
+      "source": "docstring:src/middleware/serve-static/path.ts",
+      "source_path": "src/middleware/serve-static/path.ts",
+      "source_sha": "64cdf7abc8921c77830a26ddd42c58403cb0ddb2a13a928a49996cd16b28e15d",
+      "severity": "context",
+      "claim": "defaultJoin does not support Windows paths and always uses '/' separators",
+      "rationale": "Describes the behavior/limitation of defaultJoin so consumers know its scope",
+      "excerpt": "`defaultJoin` does not support Windows paths and always uses `/` separators.",
+      "symbol_ids": [
+        "sym:ts:src/middleware/serve-static/path.ts:defaultJoin"
+      ]
+    },
+    {
+      "source": "docstring:src/request.ts",
+      "source_path": "src/request.ts",
+      "source_sha": "44b20e61d223f68583e1755e983565a3a4c282a20b4d9729061d054727c4c745",
+      "severity": "hard",
+      "claim": "Body consumption must go through HonoRequest methods (e.g., req.json(), req.text()) to enable later cloning.",
+      "rationale": "Cached body data is only populated when HonoRequest's own consumption methods are used.",
+      "excerpt": "without using HonoRequest methods (e.g., `req.json()`, `req.text()`), making it impossible to reconstruct the body from cache",
+      "symbol_ids": [
+        "sym:ts:src/client/types.ts:HonoRequest",
+        "sym:ts:src/request.ts:HonoRequest",
+        "sym:ts:src/request.ts:cloneRawRequest"
+      ]
+    },
+    {
+      "source": "docstring:src/request.ts",
+      "source_path": "src/request.ts",
+      "source_sha": "44b20e61d223f68583e1755e983565a3a4c282a20b4d9729061d054727c4c745",
+      "severity": "hard",
+      "claim": "Throws HTTPException if the body was consumed directly via req.raw rather than through HonoRequest methods, because the body cannot be reconstructed from cache.",
+      "rationale": "Bypassing HonoRequest's caching methods makes reconstruction impossible, causing a thrown exception.",
+      "excerpt": "{HTTPException} If the request body was consumed directly via `req.raw` without using HonoRequest methods",
+      "symbol_ids": [
+        "sym:ts:src/client/types.ts:HonoRequest",
+        "sym:ts:src/http-exception.ts:HTTPException",
+        "sym:ts:src/request.ts:HonoRequest",
+        "sym:ts:src/request.ts:cloneRawRequest"
+      ]
+    },
+    {
+      "source": "docstring:src/request.ts",
+      "source_path": "src/request.ts",
+      "source_sha": "44b20e61d223f68583e1755e983565a3a4c282a20b4d9729061d054727c4c745",
+      "severity": "context",
+      "claim": "When the request body has not been consumed, cloning uses the native Request.clone() method; when consumed, it reconstructs from cached body data.",
+      "rationale": "Describes the dual strategy used to handle both consumed and unconsumed bodies.",
+      "excerpt": "If the request body hasn't been consumed, it uses the native `clone()` method",
+      "symbol_ids": [
+        "sym:ts:src/client/types.ts:HonoRequest",
+        "sym:ts:src/client/types.ts:clone",
+        "sym:ts:src/request.ts:HonoRequest",
+        "sym:ts:src/request.ts:cloneRawRequest"
+      ]
+    },
+    {
+      "source": "docstring:src/request.ts",
+      "source_path": "src/request.ts",
+      "source_sha": "44b20e61d223f68583e1755e983565a3a4c282a20b4d9729061d054727c4c745",
+      "severity": "hard",
+      "claim": "matchedRoutes() on the request is deprecated; use the matchedRoutes helper from \"hono/route\" instead.",
+      "rationale": "Marked with @deprecated tag directing consumers to a replacement helper.",
+      "excerpt": "@deprecated — Use matchedRoutes helper defined in \"hono/route\" instead.",
+      "symbol_ids": [
+        "sym:ts:src/helper/route/index.ts:matchedRoutes",
+        "sym:ts:src/request.ts:matchedRoutes"
+      ]
+    },
+    {
+      "source": "docstring:src/request.ts",
+      "source_path": "src/request.ts",
+      "source_sha": "44b20e61d223f68583e1755e983565a3a4c282a20b4d9729061d054727c4c745",
+      "severity": "hard",
+      "claim": "routePath() on the request is deprecated; use the routePath helper from \"hono/route\" instead.",
+      "rationale": "Marked with @deprecated tag indicating the API should no longer be used.",
+      "excerpt": "@deprecated — Use routePath helper defined in \"hono/route\" instead.",
+      "symbol_ids": [
+        "sym:ts:src/helper/route/index.ts:routePath",
+        "sym:ts:src/request.ts:routePath"
+      ]
+    },
+    {
+      "source": "docstring:src/request.ts",
+      "source_path": "src/request.ts",
+      "source_sha": "44b20e61d223f68583e1755e983565a3a4c282a20b4d9729061d054727c4c745",
+      "severity": "context",
+      "claim": "routePath() retrieves the path registered within the handler.",
+      "rationale": "Describes the purpose of the function.",
+      "excerpt": "`routePath()` can retrieve the path registered within the handler",
+      "symbol_ids": [
+        "sym:ts:src/helper/route/index.ts:routePath",
+        "sym:ts:src/request.ts:routePath"
+      ]
+    },
+    {
+      "source": "docstring:src/request.ts",
+      "source_path": "src/request.ts",
+      "source_sha": "44b20e61d223f68583e1755e983565a3a4c282a20b4d9729061d054727c4c745",
+      "severity": "context",
+      "claim": "Useful for processing the same request body multiple times or forwarding requests to external services after validation.",
+      "rationale": "Describes intended use cases for the utility.",
+      "excerpt": "Process the same request body multiple times\n- Pass requests to external services after validation",
+      "symbol_ids": [
+        "sym:ts:src/request.ts:cloneRawRequest"
+      ]
+    },
+    {
+      "source": "docstring:src/request.ts",
+      "source_path": "src/request.ts",
+      "source_sha": "44b20e61d223f68583e1755e983565a3a4c282a20b4d9729061d054727c4c745",
+      "severity": "context",
+      "claim": ".json() parses Request body of type application/json",
+      "rationale": "Describes what the .json() method does on the request object",
+      "excerpt": "`.json()` can parse Request body of type `application/json`",
+      "symbol_ids": [
+        "sym:ts:src/request.ts:json"
+      ]
+    },
+    {
+      "source": "docstring:src/request.ts",
+      "source_path": "src/request.ts",
+      "source_sha": "44b20e61d223f68583e1755e983565a3a4c282a20b4d9729061d054727c4c745",
+      "severity": "context",
+      "claim": "parseBody() handles Request bodies of type multipart/form-data or application/x-www-form-urlencoded",
+      "rationale": "Describes the supported content types the method parses",
+      "excerpt": ".parseBody() can parse Request body of type multipart/form-data or application/x-www-form-urlencoded",
+      "symbol_ids": [
+        "sym:ts:src/request.ts:parseBody",
+        "sym:ts:src/utils/body.ts:parseBody"
+      ]
+    },
+    {
+      "source": "docstring:src/request.ts",
+      "source_path": "src/request.ts",
+      "source_sha": "44b20e61d223f68583e1755e983565a3a4c282a20b4d9729061d054727c4c745",
+      "severity": "context",
+      "claim": "parseBody() handles request bodies of type multipart/form-data or application/x-www-form-urlencoded",
+      "rationale": "Describes the supported content types for the parseBody method",
+      "excerpt": "`.parseBody()` can parse Request body of type `multipart/form-data` or `application/x-www-form-urlencoded`",
+      "symbol_ids": [
+        "sym:ts:src/request.ts:parseBody"
+      ]
+    },
+    {
+      "source": "docstring:src/request.ts",
+      "source_path": "src/request.ts",
+      "source_sha": "44b20e61d223f68583e1755e983565a3a4c282a20b4d9729061d054727c4c745",
+      "severity": "context",
+      "claim": "parseBody() handles request bodies of type multipart/form-data or application/x-www-form-urlencoded",
+      "rationale": "Defines the supported content types for body parsing",
+      "excerpt": "`.parseBody()` can parse Request body of type `multipart/form-data` or `application/x-www-form-urlencoded`",
+      "symbol_ids": [
+        "sym:ts:src/request.ts:parseBody",
+        "sym:ts:src/utils/body.ts:parseBody"
+      ]
+    },
+    {
+      "source": "docstring:src/request.ts",
+      "source_path": "src/request.ts",
+      "source_sha": "44b20e61d223f68583e1755e983565a3a4c282a20b4d9729061d054727c4c745",
+      "severity": "context",
+      "claim": ".queries() retrieves multiple querystring parameter values for a given key, returning an array",
+      "rationale": "Distinguishes .queries() from single-value query retrieval; relevant when handling repeated query params",
+      "excerpt": ".queries()` can get multiple querystring parameter values, e.g. /search?tags=A&tags=B",
+      "symbol_ids": [
+        "sym:ts:src/request.ts:queries"
+      ]
+    },
+    {
+      "source": "docstring:src/request.ts",
+      "source_path": "src/request.ts",
+      "source_sha": "44b20e61d223f68583e1755e983565a3a4c282a20b4d9729061d054727c4c745",
+      "severity": "context",
+      "claim": ".queries() returns multiple querystring parameter values as a string array",
+      "rationale": "Describes behavior of the queries() method for repeated query parameters",
+      "excerpt": ".queries() can get multiple querystring parameter values, e.g. /search?tags=A&tags=B",
+      "symbol_ids": [
+        "sym:ts:src/request.ts:queries"
+      ]
+    },
+    {
+      "source": "docstring:src/request.ts",
+      "source_path": "src/request.ts",
+      "source_sha": "44b20e61d223f68583e1755e983565a3a4c282a20b4d9729061d054727c4c745",
+      "severity": "context",
+      "claim": ".queries() returns multiple querystring parameter values as an array",
+      "rationale": "Describes behavior of the method for repeated query parameters",
+      "excerpt": "`.queries()` can get multiple querystring parameter values, e.g. /search?tags=A&tags=B",
+      "symbol_ids": [
+        "sym:ts:src/request.ts:queries"
+      ]
+    },
+    {
+      "source": "docstring:src/request.ts",
+      "source_path": "src/request.ts",
+      "source_sha": "44b20e61d223f68583e1755e983565a3a4c282a20b4d9729061d054727c4c745",
+      "severity": "context",
+      "claim": ".query() retrieves querystring parameters from the request",
+      "rationale": "Describes the purpose of the query() method on the request object",
+      "excerpt": ".query() can get querystring parameters.",
+      "symbol_ids": [
+        "sym:ts:src/request.ts:query"
+      ]
+    },
+    {
+      "source": "docstring:src/request.ts",
+      "source_path": "src/request.ts",
+      "source_sha": "44b20e61d223f68583e1755e983565a3a4c282a20b4d9729061d054727c4c745",
+      "severity": "context",
+      "claim": ".text() parses Request body of type text/plain",
+      "rationale": "Describes what the .text() method does on a Request",
+      "excerpt": "`.text()` can parse Request body of type `text/plain`",
+      "symbol_ids": [
+        "sym:ts:src/request.ts:text"
+      ]
+    },
+    {
+      "source": "docstring:src/router/reg-exp-router/node.ts",
+      "source_path": "src/router/reg-exp-router/node.ts",
+      "source_sha": "e5d7dbbcacd2920fca494c4220c6ab5282333bbe55fc53571809508b675af502",
+      "severity": "context",
+      "claim": "Sort order: literal first, then special pattern, then common label pattern, then wildcard",
+      "rationale": "Defines precedence ordering for pattern matching",
+      "excerpt": "Sort order:\n1. literal\n2. special pattern (e.g. :label{[0-9]+})\n3. common label pattern (e.g. :label)\n4. wildcard",
+      "symbol_ids": [
+        "sym:ts:src/router/reg-exp-router/node.ts:compareKey"
+      ]
+    },
+    {
+      "source": "docstring:src/types.ts",
+      "source_path": "src/types.ts",
+      "source_sha": "66db6081a897ce664b1c890b97842270f7326616b0d0c1aaa77c5feccd8f5c6e",
+      "severity": "context",
+      "claim": "NotFoundResponse interface can be extended via module augmentation to define a custom c.notFound() Response type",
+      "rationale": "Describes an extension point for customizing the not-found response shape",
+      "excerpt": "You can extend this interface to define a custom `c.notFound()` Response type.",
+      "symbol_ids": [
+        "sym:ts:src/client/types.ts:Response",
+        "sym:ts:src/types.ts:NotFoundResponse",
+        "sym:ts:src/types.ts:TypedResponse"
+      ]
+    },
+    {
+      "source": "docstring:src/utils/color.ts",
+      "source_path": "src/utils/color.ts",
+      "source_sha": "b74ef1e26f87942183778bc67ef6971b5e639e17600444ba2e637cd6910222a7",
+      "severity": "context",
+      "claim": "Returns false when NO_COLOR environment variable is set",
+      "rationale": "Describes behavior aligned with the no-color.org convention",
+      "excerpt": "If `NO_COLOR` environment variable is set, this function returns `false`.",
+      "symbol_ids": [
+        "sym:ts:src/utils/color.ts:getColorEnabled",
+        "sym:ts:src/utils/color.ts:getColorEnabledAsync"
+      ]
+    },
+    {
+      "source": "docstring:src/utils/color.ts",
+      "source_path": "src/utils/color.ts",
+      "source_sha": "b74ef1e26f87942183778bc67ef6971b5e639e17600444ba2e637cd6910222a7",
+      "severity": "context",
+      "claim": "This synchronous variant cannot inspect Cloudflare environment variables, unlike getColorEnabledAsync()",
+      "rationale": "Distinguishes capability boundary between sync and async variants",
+      "excerpt": "Unlike getColorEnabledAsync(), this cannot check Cloudflare environment variables.",
+      "symbol_ids": [
+        "sym:ts:src/utils/color.ts:getColorEnabled",
+        "sym:ts:src/utils/color.ts:getColorEnabledAsync"
+      ]
+    },
+    {
+      "source": "docstring:src/utils/color.ts",
+      "source_path": "src/utils/color.ts",
+      "source_sha": "b74ef1e26f87942183778bc67ef6971b5e639e17600444ba2e637cd6910222a7",
+      "severity": "context",
+      "claim": "Color output is disabled when the NO_COLOR environment variable is set",
+      "rationale": "Documents that the function honors the NO_COLOR convention for disabling color output",
+      "excerpt": "If `NO_COLOR` environment variable is set, this function returns `false`.",
+      "symbol_ids": [
+        "sym:ts:src/utils/color.ts:getColorEnabledAsync"
+      ]
+    },
+    {
+      "source": "docstring:src/utils/html.ts",
+      "source_path": "src/utils/html.ts",
+      "source_sha": "ea55e58ccb46a28edfd86c307abca670f6ec2290cabde3a268270d0e7f3eeb69",
+      "severity": "context",
+      "claim": "StringBuffer is an array of odd length alternating string and Promise<string>, where odd-indexed elements are strings and even-indexed elements are Promise<string>",
+      "rationale": "Defines the structural invariant of the StringBuffer type",
+      "excerpt": "StringBuffer contains string and Promise<string> alternately\nThe length of the array will be odd, the odd numbered element will be a string,\nand the even numbered element will be a Promise<string>.",
+      "symbol_ids": [
+        "sym:ts:src/utils/html.ts:StringBuffer"
+      ]
+    },
+    {
+      "source": "docstring:src/utils/html.ts",
+      "source_path": "src/utils/html.ts",
+      "source_sha": "ea55e58ccb46a28edfd86c307abca670f6ec2290cabde3a268270d0e7f3eeb69",
+      "severity": "hard",
+      "claim": "When concatenating a StringBuffer into a single string, processing must occur from the tail",
+      "rationale": "Explicit 'must' constraint on how concatenation is performed",
+      "excerpt": "When concatenating into a single string, it must be processed from the tail.",
+      "symbol_ids": [
+        "sym:ts:src/utils/html.ts:StringBuffer"
+      ]
+    },
+    {
+      "source": "docstring:src/utils/http-status.ts",
+      "source_path": "src/utils/http-status.ts",
+      "source_sha": "7736f82dec467fb8d5075166f502d819bd472657e87336f00cb420ea44ee2531",
+      "severity": "soft",
+      "claim": "Use UnofficialStatusCode for unofficial HTTP status codes",
+      "rationale": "Directs consumers to a specific type when handling unofficial status codes",
+      "excerpt": "If you want to use an unofficial status, use `UnofficialStatusCode`.",
+      "symbol_ids": [
+        "sym:ts:src/utils/http-status.ts:StatusCode",
+        "sym:ts:src/utils/http-status.ts:UnofficialStatusCode"
+      ]
+    },
+    {
+      "source": "docstring:src/utils/http-status.ts",
+      "source_path": "src/utils/http-status.ts",
+      "source_sha": "7736f82dec467fb8d5075166f502d819bd472657e87336f00cb420ea44ee2531",
+      "severity": "hard",
+      "claim": "Deprecated; use UnofficialStatusCode instead.",
+      "rationale": "Marked with @deprecated JSDoc tag indicating the symbol should not be used in new code.",
+      "excerpt": "@deprecated — Use `UnofficialStatusCode` instead.",
+      "symbol_ids": [
+        "sym:ts:src/utils/http-status.ts:UnOfficalStatusCode",
+        "sym:ts:src/utils/http-status.ts:UnofficialStatusCode"
+      ]
+    },
+    {
+      "source": "docstring:src/utils/http-status.ts",
+      "source_path": "src/utils/http-status.ts",
+      "source_sha": "7736f82dec467fb8d5075166f502d819bd472657e87336f00cb420ea44ee2531",
+      "severity": "context",
+      "claim": "UnofficialStatusCode is used to specify status codes outside the official set",
+      "rationale": "Describes the purpose of the type for unofficial HTTP status codes",
+      "excerpt": "`UnofficialStatusCode` can be used to specify an unofficial status code.",
+      "symbol_ids": [
+        "sym:ts:src/utils/http-status.ts:UnofficialStatusCode"
+      ]
+    },
+    {
+      "source": "docstring:src/utils/types.ts",
+      "source_path": "src/utils/types.ts",
+      "source_sha": "14d203532a112d61769d74fcf4ded5e1c24a197a6a4d2db2c078112d9da59a0d",
+      "severity": "context",
+      "claim": "JSON.stringify() throws a TypeError on bigint values unless a custom replacer or .toJSON() is provided",
+      "rationale": "Explains why the type conversion needs to handle bigint specially",
+      "excerpt": "`JSON.stringify()` throws a `TypeError` when it encounters a `bigint` value, unless a custom `replacer` function or `.toJSON()` method is provided.",
+      "symbol_ids": [
+        "sym:ts:src/utils/types.ts:JSONObject",
+        "sym:ts:src/utils/types.ts:JSONParsed"
+      ]
+    },
+    {
+      "source": "docstring:src/utils/types.ts",
+      "source_path": "src/utils/types.ts",
+      "source_sha": "14d203532a112d61769d74fcf4ded5e1c24a197a6a4d2db2c078112d9da59a0d",
+      "severity": "context",
+      "claim": "Non-JSON values like Date implement .toJSON() so they become assignable to JSONObject",
+      "rationale": "Explains how non-JSON native types are handled in conversion",
+      "excerpt": "Non-JSON values such as `Date` implement `.toJSON()`, so they can be transformed to a value assignable to `JSONObject`",
+      "symbol_ids": [
+        "sym:ts:src/utils/types.ts:JSONObject",
+        "sym:ts:src/utils/types.ts:JSONParsed"
+      ]
+    },
+    {
+      "source": "docstring:src/utils/types.ts",
+      "source_path": "src/utils/types.ts",
+      "source_sha": "14d203532a112d61769d74fcf4ded5e1c24a197a6a4d2db2c078112d9da59a0d",
+      "severity": "context",
+      "claim": "TError generic parameter controls bigint check behavior; defaults to bigint | ReadonlyArray<bigint>, can be set to never to disable",
+      "rationale": "Documents the configuration mechanism for the bigint behavior",
+      "excerpt": "This behaviour can be controlled by the `TError` generic type parameter, which defaults to `bigint | ReadonlyArray<bigint>`.",
+      "symbol_ids": [
+        "sym:ts:src/utils/types.ts:JSONParsed"
+      ]
+    },
+    {
+      "source": "docstring:src/utils/types.ts",
+      "source_path": "src/utils/types.ts",
+      "source_sha": "14d203532a112d61769d74fcf4ded5e1c24a197a6a4d2db2c078112d9da59a0d",
+      "severity": "context",
+      "claim": "Symbol-keyed properties are omitted by JSON.stringify",
+      "rationale": "Documents serialization behavior relevant to using symbols as keys",
+      "excerpt": "symbol keys are omitted through `JSON.stringify`",
+      "symbol_ids": [
+        "sym:ts:src/utils/types.ts:OmitSymbolKeys"
+      ]
+    },
+    {
+      "source": "docstring:src/utils/types.ts",
+      "source_path": "src/utils/types.ts",
+      "source_sha": "14d203532a112d61769d74fcf4ded5e1c24a197a6a4d2db2c078112d9da59a0d",
+      "severity": "context",
+      "claim": "Utility flattens type output to improve editor type hints and converts interfaces to types for assignability",
+      "rationale": "Describes the purpose of the type utility",
+      "excerpt": "Useful to flatten the type output to improve type hints shown in editors. And also to transform an interface into a type to aide with assignability.",
+      "symbol_ids": [
+        "sym:ts:src/utils/types.ts:Simplify"
+      ]
+    },
+    {
+      "source": "docstring:src/utils/types.ts",
+      "source_path": "src/utils/types.ts",
+      "source_sha": "14d203532a112d61769d74fcf4ded5e1c24a197a6a4d2db2c078112d9da59a0d",
+      "severity": "context",
+      "claim": "Provides string literal types with auto-completion",
+      "rationale": "Describes the purpose of the type utility",
+      "excerpt": "String literal types with auto-completion",
+      "symbol_ids": [
+        "sym:ts:src/utils/types.ts:StringLiteralUnion"
+      ]
+    },
+    {
+      "source": "docstring:src/utils/url.ts",
+      "source_path": "src/utils/url.ts",
+      "source_sha": "57b0de0a6f097c56cbc7b600b160f2b4463c8d632ed7123a2f18dc5d3ab2628a",
+      "severity": "context",
+      "claim": "tryDecodeURI falls back to partial decoding when decodeURI fails on invalid percent encoding or UTF-8 sequences, returning a string that may still contain undecodable percent encoding.",
+      "rationale": "Documents the fallback behavior so callers know the result is not guaranteed to be fully decoded.",
+      "excerpt": "If it fails, skip invalid percent encoding or invalid UTF-8 sequences, and apply decodeURI() to the rest as much as possible.",
+      "symbol_ids": [
+        "sym:ts:src/utils/url.ts:tryDecodeURI"
+      ]
+    },
+    {
+      "source": "docstring:src/validator/utils.ts",
+      "source_path": "src/validator/utils.ts",
+      "source_sha": "aa652d5f854b8c6be2e2b2883ca5dbd95303bf29f529cf3f0e91d086597c7f1b",
+      "severity": "context",
+      "claim": "Utility type infers input types for validation targets, preserving literal union types while using the default ValidationTargets type for other values.",
+      "rationale": "Describes the purpose and behavior of the utility type.",
+      "excerpt": "Utility type to infer input types for validation targets. Preserves literal union types (e.g., 'asc' | 'desc') while using the default ValidationTargets type for other values.",
+      "symbol_ids": [
+        "sym:ts:src/types.ts:ValidationTargets",
+        "sym:ts:src/validator/utils.ts:InferInput"
       ]
     }
   ],
