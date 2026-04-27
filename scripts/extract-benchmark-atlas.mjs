@@ -388,14 +388,24 @@ async function extractOne(repoName) {
     // internal atlas-export is gated on input-SHA changes (didModify);
     // a second pipeline pass would NOT re-emit since ADR SHAs are
     // unchanged. Direct exportAtlasToFile call bypasses the gate.
-    // atlas_meta values populated by the first pipeline call propagate
-    // via fall-back-to-stored-meta semantics in ExportAtlasOptions.
+    //
+    // contextatlasCommitSha is passed explicitly even though atlas_meta
+    // generally fall-through-to-stored-value would handle it: in the
+    // re-extraction scenario where input SHAs are unchanged, the first
+    // pipeline pass logs "no changes detected; atlas.json untouched" and
+    // skips its entire atlas_meta update block (pipeline.ts:461-507).
+    // Stored meta then reflects pre-v0.3 state with no
+    // generator.contextatlas_commit_sha value at all (Theme 1.3 is a new
+    // field), so the fall-back finds nothing and emits nothing — which
+    // fails the validation below. Surfaced during cobra extraction
+    // 2026-04-27 (Step 14 Commit 2.5 fix).
     if (config.atlas.committed) {
       console.log(
         `\n[${repoName}] re-exporting atlas with Stream B claims...`,
       );
       exportAtlasToFile(db, atlasPath, {
         generatedAt: new Date().toISOString(),
+        contextatlasCommitSha,
       });
       console.log(`[${repoName}] atlas re-exported: ${atlasPath}`);
     }
