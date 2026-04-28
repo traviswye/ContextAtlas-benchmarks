@@ -530,6 +530,70 @@ for adding new target repos before priors are calibrated.
   §7 + §8.4 — cobra cost data + per-language calibration finding
   that surfaced this work item.
 
+### Cross-harness asymmetry comparison (Theme 2.2)
+
+Every v0.3+ reference-run synthesis doc includes a per-target
+tabular comparison of Beta-vs-Beta+CA and Alpha-vs-CA aggregate
+deltas across all reference targets. This convention surfaces
+cross-harness asymmetry hypotheses (e.g., Phase 7 §5.3's
+"CA delivers larger gains in CLI harnesses than in SDK
+harnesses") for rigorous test against multi-target reference
+data, rather than letting such hypotheses persist as untested
+qualitative observations.
+
+**Three-ranking presentation.** Per-target comparisons report
+all three ranking methods side-by-side:
+
+- **Absolute deltas:** sums across prompts per target.
+  Surfaces total CA contribution in raw token / call counts.
+- **Mean relative deltas:** per-prompt percentage reduction
+  averaged across prompts. Outlier-sensitive.
+- **Median relative deltas:** per-prompt percentage reduction
+  median across prompts. Outlier-resistant.
+
+Reporting all three exposes outlier sensitivity to readers
+rather than imposing a single computation method. Disagreement
+across rankings (e.g., absolute leader differs from median
+leader) is itself signal — surfaces small-n + heterogeneous-
+prompt-difficulty interactions that single-method reporting
+would obscure.
+
+**Outlier disclosure.** Any cell-level outliers driving per-
+target rankings are explained with trace-inspection
+cross-references; outliers explained, not excluded. Per-cell
+behavior anomalies that drag means in unexpected directions
+warrant qualitative explanation linking to the synthesis
+section that documents the underlying behavior (e.g., a token
+expansion that looks like CA regression may be a Theme 1.1
+multi-symbol API closure cost — that should be cross-referenced,
+not silently dropped from the average).
+
+**Hypothesis test framing.** Synthesis docs explicitly state
+which pre-registered hypotheses the cross-harness comparison
+tests (Phase 7 §5.3-class or otherwise). Outcome stated as
+**validated / partially-validated / falsified**. Falsification
+is reported as a finding, not a failure — methodology discipline
+under pre-registration means data shapes the narrative, not
+the reverse.
+
+**First rigorous test reference.** Phase 8 (§6 of
+[`research/phase-8-v0.3-reference-run.md`](research/phase-8-v0.3-reference-run.md))
+is the first rigorous application of Theme 2.2 across three
+reference targets simultaneously. Phase 7 §5.3's CLI-vs-SDK
+asymmetry hypothesis FALSIFIED on v0.3 substrate (cobra never
+ranks first across absolute / mean / median framings; non-cobra
+ranking flips between hono mean-leader and httpx median-leader,
+demonstrating outlier sensitivity addressed by the
+three-ranking presentation requirement above).
+
+**Methodology limit.** Small-n cross-harness comparisons (v0.3
+reference run: n=6 prompts per target) are outlier-sensitive.
+The three-ranking presentation + outlier disclosure requirements
+above address this within the v0.3 single-run methodology
+constraint. Larger-n protocols (multi-run methodology + additional
+reference targets per v0.3-SCOPE post-v0.5 candidates) defer to
+v0.4+ scope.
+
 ---
 
 ## Reporting Format
