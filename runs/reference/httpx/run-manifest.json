@@ -1,15 +1,15 @@
 {
   "manifest_version": "1.0",
-  "generated_at": "2026-04-24T03:46:38.896Z",
+  "generated_at": "2026-04-27T22:52:33.643Z",
   "repo_name": "httpx",
   "pinned_repo_sha": "26d48e0634e6ee9cdc0533996db289ce4b430177",
   "contextatlas": {
-    "version_label": "ContextAtlas v0.1 (atlas schema v1.1)",
-    "commit_sha": "026ff4e870d219b7278bfc1aef48813dd4f16c18",
-    "dist_mtime": "2026-04-23T23:12:06.708Z"
+    "version_label": "ContextAtlas v0.3-dev (atlas schema v1.3)",
+    "commit_sha": "6576b4743a7bf3b5c7d490e69441d77332392fdc",
+    "dist_mtime": "2026-04-27T03:14:39.369Z"
   },
   "benchmarks": {
-    "commit_sha": "ac71be9db8816884d1ff8e6b51de2cac4815787c"
+    "commit_sha": "44fad1821642a0bbc35d7320e258e0842465c0b9"
   },
   "claude_cli_version": "2.1.118",
   "model": "claude-opus-4-7",
@@ -19,8 +19,8 @@
     "beta",
     "beta-ca"
   ],
-  "budget_ceiling_usd": 18,
-  "total_cost_usd": 8.35933975,
+  "budget_ceiling_usd": 14,
+  "total_cost_usd": 8.092786749999998,
   "halted": null,
   "cells": [
     {
@@ -30,13 +30,13 @@
       "artifact_path": "httpx/p1-sync-async-split/alpha.json",
       "metrics": {
         "tool_calls": 8,
-        "input_tokens": 26062,
-        "output_tokens": 2656,
-        "total_tokens": 28718,
-        "wall_clock_ms": 43778
+        "input_tokens": 21033,
+        "output_tokens": 2358,
+        "total_tokens": 23391,
+        "wall_clock_ms": 40964
       },
       "capped": null,
-      "cost_usd": 0.59013
+      "cost_usd": 0.492345
     },
     {
       "prompt_id": "p1-sync-async-split",
@@ -45,13 +45,13 @@
       "artifact_path": "httpx/p1-sync-async-split/ca.json",
       "metrics": {
         "tool_calls": 2,
-        "input_tokens": 9487,
-        "output_tokens": 1420,
-        "total_tokens": 10907,
-        "wall_clock_ms": 22637
+        "input_tokens": 13959,
+        "output_tokens": 1620,
+        "total_tokens": 15579,
+        "wall_clock_ms": 26744
       },
       "capped": null,
-      "cost_usd": 0.248805
+      "cost_usd": 0.330885
     },
     {
       "prompt_id": "p1-sync-async-split",
@@ -59,14 +59,14 @@
       "bucket": "win",
       "artifact_path": "httpx/p1-sync-async-split/beta.json",
       "metrics": {
-        "tool_calls": 1,
-        "input_tokens": 7,
-        "output_tokens": 1679,
-        "total_tokens": 7096,
-        "wall_clock_ms": 30953
+        "tool_calls": 0,
+        "input_tokens": 6,
+        "output_tokens": 1343,
+        "total_tokens": 3814,
+        "wall_clock_ms": 21285
       },
       "capped": null,
-      "cost_usd": 0.06263225
+      "cost_usd": 0.049454250000000005
     },
     {
       "prompt_id": "p1-sync-async-split",
@@ -74,14 +74,14 @@
       "bucket": "win",
       "artifact_path": "httpx/p1-sync-async-split/beta-ca.json",
       "metrics": {
-        "tool_calls": 8,
-        "input_tokens": 11,
-        "output_tokens": 2522,
-        "total_tokens": 29049,
-        "wall_clock_ms": 43310
+        "tool_calls": 2,
+        "input_tokens": 7,
+        "output_tokens": 1652,
+        "total_tokens": 22459,
+        "wall_clock_ms": 32305
       },
       "capped": null,
-      "cost_usd": 0.110846
+      "cost_usd": 0.1313325
     },
     {
       "prompt_id": "p2-http3-transport",
@@ -91,12 +91,12 @@
       "metrics": {
         "tool_calls": 4,
         "input_tokens": 10694,
-        "output_tokens": 1038,
-        "total_tokens": 11732,
-        "wall_clock_ms": 17183
+        "output_tokens": 992,
+        "total_tokens": 11686,
+        "wall_clock_ms": 17577
       },
       "capped": null,
-      "cost_usd": 0.23826
+      "cost_usd": 0.23481
     },
     {
       "prompt_id": "p2-http3-transport",
@@ -104,14 +104,14 @@
       "bucket": "win",
       "artifact_path": "httpx/p2-http3-transport/ca.json",
       "metrics": {
-        "tool_calls": 3,
-        "input_tokens": 14018,
-        "output_tokens": 1087,
-        "total_tokens": 15105,
-        "wall_clock_ms": 18255
+        "tool_calls": 4,
+        "input_tokens": 25261,
+        "output_tokens": 1480,
+        "total_tokens": 26741,
+        "wall_clock_ms": 26497
       },
       "capped": null,
-      "cost_usd": 0.291795
+      "cost_usd": 0.489915
     },
     {
       "prompt_id": "p2-http3-transport",
@@ -119,14 +119,14 @@
       "bucket": "win",
       "artifact_path": "httpx/p2-http3-transport/beta.json",
       "metrics": {
-        "tool_calls": 12,
-        "input_tokens": 18,
-        "output_tokens": 2696,
-        "total_tokens": 48287,
-        "wall_clock_ms": 45976
+        "tool_calls": 10,
+        "input_tokens": 16,
+        "output_tokens": 2708,
+        "total_tokens": 79124,
+        "wall_clock_ms": 43915
       },
       "capped": null,
-      "cost_usd": 0.1252355
+      "cost_usd": 0.23597575
     },
     {
       "prompt_id": "p2-http3-transport",
@@ -134,14 +134,14 @@
       "bucket": "win",
       "artifact_path": "httpx/p2-http3-transport/beta-ca.json",
       "metrics": {
-        "tool_calls": 11,
-        "input_tokens": 17,
-        "output_tokens": 2773,
-        "total_tokens": 59107,
-        "wall_clock_ms": 54447
+        "tool_calls": 2,
+        "input_tokens": 8,
+        "output_tokens": 1564,
+        "total_tokens": 20060,
+        "wall_clock_ms": 30006
       },
       "capped": null,
-      "cost_usd": 0.12331025000000001
+      "cost_usd": 0.08867325
     },
     {
       "prompt_id": "p3-custom-auth",
@@ -149,14 +149,14 @@
       "bucket": "win",
       "artifact_path": "httpx/p3-custom-auth/alpha.json",
       "metrics": {
-        "tool_calls": 8,
-        "input_tokens": 36990,
-        "output_tokens": 2433,
-        "total_tokens": 39423,
-        "wall_clock_ms": 39241
+        "tool_calls": 7,
+        "input_tokens": 34583,
+        "output_tokens": 2498,
+        "total_tokens": 37081,
+        "wall_clock_ms": 37308
       },
       "capped": null,
-      "cost_usd": 0.737325
+      "cost_usd": 0.706095
     },
     {
       "prompt_id": "p3-custom-auth",
@@ -164,14 +164,14 @@
       "bucket": "win",
       "artifact_path": "httpx/p3-custom-auth/ca.json",
       "metrics": {
-        "tool_calls": 5,
-        "input_tokens": 27955,
-        "output_tokens": 2739,
-        "total_tokens": 30694,
-        "wall_clock_ms": 50930
+        "tool_calls": 6,
+        "input_tokens": 30785,
+        "output_tokens": 2757,
+        "total_tokens": 33542,
+        "wall_clock_ms": 42357
       },
       "capped": null,
-      "cost_usd": 0.62475
+      "cost_usd": 0.66855
     },
     {
       "prompt_id": "p3-custom-auth",
@@ -179,14 +179,14 @@
       "bucket": "win",
       "artifact_path": "httpx/p3-custom-auth/beta.json",
       "metrics": {
-        "tool_calls": 9,
-        "input_tokens": 11,
-        "output_tokens": 3848,
-        "total_tokens": 44543,
-        "wall_clock_ms": 54229
+        "tool_calls": 11,
+        "input_tokens": 15,
+        "output_tokens": 5316,
+        "total_tokens": 87011,
+        "wall_clock_ms": 76064
       },
       "capped": null,
-      "cost_usd": 0.191469
+      "cost_usd": 0.36939750000000005
     },
     {
       "prompt_id": "p3-custom-auth",
@@ -194,14 +194,14 @@
       "bucket": "win",
       "artifact_path": "httpx/p3-custom-auth/beta-ca.json",
       "metrics": {
-        "tool_calls": 9,
-        "input_tokens": 13,
-        "output_tokens": 3956,
-        "total_tokens": 49854,
-        "wall_clock_ms": 65482
+        "tool_calls": 2,
+        "input_tokens": 8,
+        "output_tokens": 2257,
+        "total_tokens": 23551,
+        "wall_clock_ms": 41223
       },
       "capped": null,
-      "cost_usd": 0.1707285
+      "cost_usd": 0.116363
     },
     {
       "prompt_id": "p4-stream-lifecycle",
@@ -209,14 +209,14 @@
       "bucket": "win",
       "artifact_path": "httpx/p4-stream-lifecycle/alpha.json",
       "metrics": {
-        "tool_calls": 11,
-        "input_tokens": 60428,
-        "output_tokens": 2676,
-        "total_tokens": 63104,
-        "wall_clock_ms": 67988
+        "tool_calls": 10,
+        "input_tokens": 58694,
+        "output_tokens": 2728,
+        "total_tokens": 61422,
+        "wall_clock_ms": 43827
       },
       "capped": null,
-      "cost_usd": 1.10712
+      "cost_usd": 1.08501
     },
     {
       "prompt_id": "p4-stream-lifecycle",
@@ -224,14 +224,14 @@
       "bucket": "win",
       "artifact_path": "httpx/p4-stream-lifecycle/ca.json",
       "metrics": {
-        "tool_calls": 14,
-        "input_tokens": 58050,
-        "output_tokens": 2776,
-        "total_tokens": 60826,
-        "wall_clock_ms": 106029
+        "tool_calls": 6,
+        "input_tokens": 30851,
+        "output_tokens": 2080,
+        "total_tokens": 32931,
+        "wall_clock_ms": 33231
       },
       "capped": null,
-      "cost_usd": 1.07895
+      "cost_usd": 0.618765
     },
     {
       "prompt_id": "p4-stream-lifecycle",
@@ -239,14 +239,14 @@
       "bucket": "win",
       "artifact_path": "httpx/p4-stream-lifecycle/beta.json",
       "metrics": {
-        "tool_calls": 15,
-        "input_tokens": 21,
-        "output_tokens": 3402,
-        "total_tokens": 87948,
-        "wall_clock_ms": 66501
+        "tool_calls": 16,
+        "input_tokens": 22,
+        "output_tokens": 4561,
+        "total_tokens": 127475,
+        "wall_clock_ms": 74717
       },
       "capped": null,
-      "cost_usd": 0.21147849999999999
+      "cost_usd": 0.29572325
     },
     {
       "prompt_id": "p4-stream-lifecycle",
@@ -254,14 +254,14 @@
       "bucket": "win",
       "artifact_path": "httpx/p4-stream-lifecycle/beta-ca.json",
       "metrics": {
-        "tool_calls": 17,
-        "input_tokens": 17,
-        "output_tokens": 4131,
-        "total_tokens": 73255,
-        "wall_clock_ms": 62919
+        "tool_calls": 2,
+        "input_tokens": 8,
+        "output_tokens": 1401,
+        "total_tokens": 18603,
+        "wall_clock_ms": 27027
       },
       "capped": null,
-      "cost_usd": 0.19288525
+      "cost_usd": 0.0701605
     },
     {
       "prompt_id": "p5-drop-anyio",
@@ -269,14 +269,14 @@
       "bucket": "tie",
       "artifact_path": "httpx/p5-drop-anyio/alpha.json",
       "metrics": {
-        "tool_calls": 9,
-        "input_tokens": 12273,
-        "output_tokens": 1947,
-        "total_tokens": 14220,
-        "wall_clock_ms": 25078
+        "tool_calls": 8,
+        "input_tokens": 30406,
+        "output_tokens": 1704,
+        "total_tokens": 32110,
+        "wall_clock_ms": 28240
       },
       "capped": null,
-      "cost_usd": 0.33012
+      "cost_usd": 0.58389
     },
     {
       "prompt_id": "p5-drop-anyio",
@@ -284,14 +284,14 @@
       "bucket": "tie",
       "artifact_path": "httpx/p5-drop-anyio/ca.json",
       "metrics": {
-        "tool_calls": 12,
-        "input_tokens": 46659,
-        "output_tokens": 2431,
-        "total_tokens": 49090,
-        "wall_clock_ms": 44414
+        "tool_calls": 8,
+        "input_tokens": 32591,
+        "output_tokens": 2056,
+        "total_tokens": 34647,
+        "wall_clock_ms": 38214
       },
       "capped": null,
-      "cost_usd": 0.88221
+      "cost_usd": 0.643065
     },
     {
       "prompt_id": "p5-drop-anyio",
@@ -299,14 +299,14 @@
       "bucket": "tie",
       "artifact_path": "httpx/p5-drop-anyio/beta.json",
       "metrics": {
-        "tool_calls": 11,
-        "input_tokens": 17,
-        "output_tokens": 2480,
-        "total_tokens": 53089,
-        "wall_clock_ms": 43490
+        "tool_calls": 13,
+        "input_tokens": 19,
+        "output_tokens": 2764,
+        "total_tokens": 69606,
+        "wall_clock_ms": 45495
       },
       "capped": null,
-      "cost_usd": 0.15719700000000003
+      "cost_usd": 0.16025050000000002
     },
     {
       "prompt_id": "p5-drop-anyio",
@@ -314,14 +314,14 @@
       "bucket": "tie",
       "artifact_path": "httpx/p5-drop-anyio/beta-ca.json",
       "metrics": {
-        "tool_calls": 13,
-        "input_tokens": 19,
-        "output_tokens": 2941,
-        "total_tokens": 82481,
-        "wall_clock_ms": 58006
+        "tool_calls": 3,
+        "input_tokens": 8,
+        "output_tokens": 1428,
+        "total_tokens": 23749,
+        "wall_clock_ms": 28484
       },
       "capped": null,
-      "cost_usd": 0.16061124999999998
+      "cost_usd": 0.0954735
     },
     {
       "prompt_id": "p6-client-get-args",
@@ -330,13 +330,13 @@
       "artifact_path": "httpx/p6-client-get-args/alpha.json",
       "metrics": {
         "tool_calls": 3,
-        "input_tokens": 6773,
-        "output_tokens": 1074,
-        "total_tokens": 7847,
-        "wall_clock_ms": 15204
+        "input_tokens": 6819,
+        "output_tokens": 1177,
+        "total_tokens": 7996,
+        "wall_clock_ms": 14347
       },
       "capped": null,
-      "cost_usd": 0.182145
+      "cost_usd": 0.19056
     },
     {
       "prompt_id": "p6-client-get-args",
@@ -344,14 +344,14 @@
       "bucket": "trick",
       "artifact_path": "httpx/p6-client-get-args/ca.json",
       "metrics": {
-        "tool_calls": 4,
-        "input_tokens": 13228,
-        "output_tokens": 1260,
-        "total_tokens": 14488,
-        "wall_clock_ms": 16151
+        "tool_calls": 0,
+        "input_tokens": 3126,
+        "output_tokens": 419,
+        "total_tokens": 3545,
+        "wall_clock_ms": 8742
       },
       "capped": null,
-      "cost_usd": 0.29292
+      "cost_usd": 0.078315
     },
     {
       "prompt_id": "p6-client-get-args",
@@ -359,15 +359,14 @@
       "bucket": "trick",
       "artifact_path": "httpx/p6-client-get-args/beta.json",
       "metrics": {
-        "tool_calls": 11,
-        "input_tokens": 17,
-        "output_tokens": 3316,
-        "total_tokens": 57506,
-        "wall_clock_ms": 63443
+        "tool_calls": 17,
+        "input_tokens": 23,
+        "output_tokens": 4270,
+        "total_tokens": 96711,
+        "wall_clock_ms": 65601
       },
       "capped": null,
-      "cost_usd": 0.163994,
-      "retried": true
+      "cost_usd": 0.26028100000000004
     },
     {
       "prompt_id": "p6-client-get-args",
@@ -375,14 +374,14 @@
       "bucket": "trick",
       "artifact_path": "httpx/p6-client-get-args/beta-ca.json",
       "metrics": {
-        "tool_calls": 6,
-        "input_tokens": 12,
-        "output_tokens": 1460,
-        "total_tokens": 30901,
-        "wall_clock_ms": 28290
+        "tool_calls": 5,
+        "input_tokens": 10,
+        "output_tokens": 1623,
+        "total_tokens": 37604,
+        "wall_clock_ms": 24859
       },
       "capped": null,
-      "cost_usd": 0.08442225
+      "cost_usd": 0.09749675000000001
     }
   ]
 }

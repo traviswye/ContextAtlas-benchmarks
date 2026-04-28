@@ -5,14 +5,14 @@
   "target_symbol": "(module-level)",
   "bucket": "tie",
   "metrics": {
-    "tool_calls": 9,
-    "input_tokens": 12273,
-    "output_tokens": 1947,
-    "total_tokens": 14220,
-    "wall_clock_ms": 25078
+    "tool_calls": 8,
+    "input_tokens": 30406,
+    "output_tokens": 1704,
+    "total_tokens": 32110,
+    "wall_clock_ms": 28240
   },
   "capped": null,
-  "answer": "Here's the full picture:\n\n## Short answer: Yes, for **your own code** — but httpx itself still requires `anyio` as a dependency.\n\n### What the codebase shows\n\n**1. `httpx` source code does not import `anyio` anywhere.**\nA grep for `anyio` across the `httpx/` package returns nothing. The actual async I/O is delegated to [`httpcore`](https://github.com/encode/httpcore) (see line 32 of `_client.py`: `from ._transports.default import AsyncHTTPTransport`), and httpcore is what actually talks to the network.\n\n**2. `anyio` is declared as a runtime dependency in `pyproject.toml`:**\n```toml\n# pyproject.toml, lines 30-35\ndependencies = [\n    \"certifi\",\n    \"httpcore==1.*\",\n    \"anyio\",\n    \"idna\",\n]\n```\nSo even though the httpx source doesn't import it, `pip install httpx` will still pull `anyio` in. It's used by httpx's **test suite** (see the test files that matched the grep: `test_asgi.py`, `test_timeouts.py`, `test_async_client.py`, etc.) and indirectly by the Trio-compatibility path through httpcore.\n\n**3. From the user's perspective, `asyncio` works out of the box.** `docs/async.md` shows three supported entry points:\n\n- **Plain asyncio** (lines ~140-153):\n  ```python\n  import httpx, asyncio\n  async def main():\n      async with httpx.AsyncClient() as client:\n          response = await client.get('https://www.example.com/')\n  asyncio.run(main())\n  ```\n- **Trio** (lines 155-173)\n- **AnyIO** (lines 176-190)\n\nYou don't need to `import anyio` in your code — `asyncio.run(...)` with `httpx.AsyncClient` is fully supported and is shown as the primary example.\n\n### Summary\n\n| Question | Answer |\n|---|---|\n| Do I need to `import anyio` in my code? | No — just use `asyncio.run()` with `AsyncClient`. |\n| Can I uninstall `anyio` from the environment? | No — it's a declared dependency of the `httpx` package (`pyproject.toml` line 33), and is also used for Trio-backend support and the test suite. |\n| Does httpx's source use anyio? | No — the `httpx/` package has zero `anyio` imports. Networking is delegated to `httpcore`. |\n\nSo if your question is \"can I write my async httpx code with raw asyncio instead of anyio?\" — absolutely yes, that's the default and recommended style. If you're asking \"can I remove the `anyio` dependency from the install tree?\" — no, not without patching `pyproject.toml` and accepting that Trio support would likely break.",
+  "answer": "This is very revealing. So my answer is now clearer:\n\n## Updated answer: Yes, you basically can — and httpx already has\n\n**`anyio` is listed as a dependency in `pyproject.toml` (line 33), but it is not actually imported anywhere in the `httpx/` source code.** It's only used in the test suite.\n\nEvidence:\n\n1. **`pyproject.toml` line 33** declares `anyio` as a runtime dependency.\n2. A grep for `anyio` across `httpx/` returns **zero hits**. All hits are in `tests/`.\n3. In `httpx/_transports/asgi.py` (lines 29–52), httpx deliberately rolls its own dispatch between `asyncio` and `trio` using `sniffio` directly — exactly the kind of thing anyio would be useful for, but they avoid the dependency in the source:\n\n   ```python\n   def is_running_trio() -> bool:\n       import sniffio\n       if sniffio.current_async_library() == \"trio\":\n           return True\n       ...\n\n   def create_event() -> Event:\n       if is_running_trio():\n           import trio\n           return trio.Event()\n       import asyncio\n       return asyncio.Event()\n   ```\n\n4. The actual network I/O is delegated to **`httpcore`** (see `pyproject.toml` line 32: `httpcore==1.*`), which is the layer that does the real async socket work. Whatever async backend httpcore uses is independent of httpx's declared `anyio` dependency.\n\n### Practical implications for you\n\n- **If you only use `asyncio` (no trio)**: You can pretty much install httpx, never import anyio, and everything works on raw `asyncio`. The `anyio` dependency is essentially unused at runtime by httpx itself.\n- **The `anyio` line in `pyproject.toml` looks like a vestigial dependency.** It may have been needed in a past version, or kept for the test suite, or for downstream compatibility. Removing it from `pyproject.toml` for your own fork wouldn't break the source.\n- **Caveat**: `httpcore` (the real transport layer) has its own dependency story. If you want to fully eliminate anyio from your environment, check `httpcore`'s dependencies too — that's the layer that actually drives sockets.\n\nSo while my opening \"no\" was wrong, the nuance is: **httpx itself is already raw-asyncio/trio-compatible without anyio. The declared `anyio` dependency appears to be dead weight (likely test-only) at the httpx level.**",
   "trace": [
     {
       "tool": "Grep",
@@ -20,14 +20,14 @@
         "pattern": "anyio",
         "output_mode": "files_with_matches"
       },
-      "result_preview": "C:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\pyproject.toml\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\tests\\test_asgi.py\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\tests\\client\\test_event_hooks.py\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\tests\\test_timeouts.py\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\tests\\client\\test_redirects.py\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\docs\\async.md\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\tests\\models\\test_responses.py\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\tests\\models\\test_requests.py\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\tests\\client\\test_async_client.py\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\tests\\client\\test_auth.py\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\tests\\client\\test_proxies.py\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\tests\\test_decoders.py\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\tests\\test_content.py\n"
+      "result_preview": "C:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\pyproject.toml\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\tests\\test_content.py\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\tests\\test_asgi.py\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\tests\\test_decoders.py\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\docs\\async.md\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\tests\\client\\test_auth.py\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\tests\\client\\test_async_client.py\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\tests\\test_timeouts.py\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\tests\\client\\test_event_hooks.py\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\tests\\client\\test_proxies.py\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\tests\\client\\test_redirects.py\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\tests\\models\\test_responses.py\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\tests\\models\\test_requests.py\n"
     },
     {
-      "tool": "LS",
+      "tool": "Read",
       "args": {
-        "path": "."
+        "file_path": "pyproject.toml"
       },
-      "result_preview": ".contextatlas.yml\n.git/\n.github/\n.gitignore\nCHANGELOG.md\nLICENSE.md\nREADME.md\ndocs/\nhttpx/\nmkdocs.yml\npyproject.toml\nrequirements.txt\nscripts/\ntests/"
+      "result_preview": "     1\t[build-system]\n     2\trequires = [\"hatchling\", \"hatch-fancy-pypi-readme\"]\n     3\tbuild-backend = \"hatchling.build\"\n     4\t\n     5\t[project]\n     6\tname = \"httpx\"\n     7\tdescription = \"The next generation HTTP client.\"\n     8\tlicense = \"BSD-3-Clause\"\n     9\trequires-python = \">=3.8\"\n    10\tauthors = [\n    11\t    { name = \"Tom Christie\", email = \"tom@tomchristie.com\" },\n    12\t]\n    13\tclassifiers = [\n    14\t    \"Development Status :: 4 - Beta\",\n    15\t    \"Environment :: Web Environment\",\n    16\t    \"Framework :: AsyncIO\",\n    17\t    \"Framework :: Trio\",\n    18\t    \"Intended Audience :: Developers\",\n    19\t    \"License :: OSI Approved :: BSD License\",\n    20\t    \"Operating System :: OS Independent\",\n    21\t    \"Programming Language :: Python :: 3\",\n    22\t    \"Programming Language :: Python :: 3 :: Only\",\n    23\t    \"Programming Language :: Python :: 3.8\",\n    24\t    \"Programming Language :: Python :: 3.9\",\n    25\t    \"Programming Language :: Python :: 3.10\",\n    26\t    \"Programming Language :: Python :: 3.11\",\n    27\t    \"Programming Language :: Python :: 3.12\",\n    28\t    \"Topic :: Internet :: WWW/HTTP\",\n    29\t]\n    30\tdependencies = [\n    31\t    \"certifi\",\n    32\t    \"httpcore==1.*\",\n    33\t    \"anyio\",\n    34\t    \"idna\",\n    35\t]\n    36\tdynamic = [\"readme\", \"version\"]\n    37\t\n    38\t[project.optional-dependencies]\n    39\tbrotli = [\n    40\t    \"brotli; platform_python_implementation == 'CPython'\",\n    41\t    \"brotlicffi; platform_python_implementation != 'CPython'\",\n    42\t]\n    43\tcli = [\n    44\t    \"click==8.*\",\n    45\t    \"pygments==2.*\",\n    46\t    \"rich>=10,<14\",\n    47\t]\n    48\thttp2 = [\n    49\t    \"h2>=3,<5\",\n    50\t]\n    51\tsocks = [\n    52\t    \"socksio==1.*\",\n    53\t]\n    54\tzstd = [\n    55\t  \"zstandard>=0.18.0\",\n    56\t]\n    57\t\n    58\t[project.scripts]\n    59\thttpx = \"httpx:main\"\n    60\t\n    61\t[project.urls]\n    62\tChangelog = \"https://github.com/encode/httpx/blob/master/CHANGELOG.md\"\n    63\tDocumentation = \"https://www.python-httpx.org\"\n    64\tHomepage = \"https://github.com/encode/httpx\"\n    65\tSource = \"https://github.com/encode/httpx\"\n    66\t\n    67\t[tool.hatch.version]\n    68\tpath = \"httpx/__version__.py\"\n    69\t\n    70\t[tool.hatch.build.targets.sdist]\n    71\tinclude = [\n    72\t    \"/httpx\",\n    73\t    \"/CHANGELOG.md\",\n    74\t    \"/README.md\",\n    75\t    \"/tests\",\n    76\t]\n    77\t\n    78\t[tool.hatch.metadata.hooks.fancy-pypi-readme]\n    79\tcontent-type = \"text/markdown\"\n    80\t\n    81\t[[tool.hatch.metadata.hooks.fancy-pypi-readme.fragments]]\n    82\tpath = \"README.md\"\n    83\t\n    84\t[[tool.hatch.metadata.hooks.fancy-pypi-readme.fragments]]\n    85\ttext = \"\\n## Release Information\\n\\n\"\n    86\t\n    87\t[[tool.hatch.metadata.hooks.fancy-pypi-readme.fragments]]\n    88\tpath = \"CHANGELOG.md\"\n    89\tpattern = \"\\n(###.+?\\n)## \"\n    90\t\n    91\t[[tool.hatch.metadata.hooks.fancy-pypi-readme.fragments]]\n    92\ttext = \"\\n---\\n\\n[Full changelog](https://github.com/encode/httpx/blob/master/CHANGELOG.md)\\n\"\n    93\t\n    94\t[[tool.hatch.metadata.hooks.fancy-pypi-readme.substitutions]]\n    95\tpattern = 'src=\"(docs/img/.*?)\"'\n    96\treplacement = 'src=\"https://raw.githubusercontent.com/encode/httpx/master/\\1\"'\n    97\t\n    98\t[tool.ruff.lint]\n    99\tselect = [\"E\", \"F\", \"I\", \"B\", \"PIE\"]\n   100\tignore = [\"B904\", \"B028\"]\n   101\t\n   102\t[tool.ruff.lint.isort]\n   103\tcombine-as-imports = true\n   104\t\n   105\t[tool.ruff.lint.per-file-ignores]\n   106\t\"__init__.py\" = [\"F403\", \"F405\"]\n   107\t\n   108\t[tool.mypy]\n   109\tignore_missing_imports = true\n   110\tstrict = true\n   111\t\n   112\t[[tool.mypy.overrides]]\n   113\tmodule = \"tests.*\"\n   114\tdisallow_untyped_defs = false\n   115\tcheck_untyped_defs = true\n   116\t\n   117\t[tool.pytest.ini_options]\n   118\taddopts = \"-rxXs\"\n   119\tfilterwarnings = [\n   120\t  \"error\",\n   121\t  \"ignore: You seem to already have a custom sys.excepthook handler installed. I'll skip installing Trio's custom handler, but this means MultiErrors will not show full tracebacks.:RuntimeWarning\",\n   122\t  # See: https://github.com/agronholm/anyio/issues/508\n   123\t  \"ignore: trio.MultiError is deprecated since Trio 0.22.0:trio.TrioDeprecationWarning\"\n   124\t]\n   125\tmarkers = [\n   126\t  \"copied_from(source, changes=None): mark test as copied from somewhere else, along with a description of changes made to accodomate e.g. our test setup\",\n   127\t  \"network: marks tests which require network connection. Used in 3rd-party build environments that have network disabled.\"\n   128\t]\n   129\t\n   130\t[tool.coverage.run]\n   131\tomit = [\"venv/*\"]\n   132\tinclude = [\"httpx/*\", \"tests/*\"]"
     },
     {
       "tool": "Grep",
@@ -39,62 +39,46 @@
       "result_preview": ""
     },
     {
+      "tool": "LS",
+      "args": {
+        "path": "httpx"
+      },
+      "result_preview": "__init__.py\n__version__.py\n_api.py\n_auth.py\n_client.py\n_config.py\n_content.py\n_decoders.py\n_exceptions.py\n_main.py\n_models.py\n_multipart.py\n_status_codes.py\n_transports/\n_types.py\n_urlparse.py\n_urls.py\n_utils.py\npy.typed"
+    },
+    {
       "tool": "Grep",
       "args": {
         "pattern": "anyio",
-        "path": "pyproject.toml",
+        "path": ".",
+        "glob": "**/*.py",
+        "output_mode": "count"
+      },
+      "result_preview": "C:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\tests\\test_asgi.py:12\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\tests\\test_timeouts.py:5\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\tests\\test_decoders.py:3\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\tests\\test_content.py:19\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\tests\\client\\test_auth.py:27\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\tests\\client\\test_async_client.py:24\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\tests\\client\\test_event_hooks.py:3\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\tests\\models\\test_requests.py:2\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\tests\\models\\test_responses.py:17\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\tests\\client\\test_proxies.py:1\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\tests\\client\\test_redirects.py:3\n"
+    },
+    {
+      "tool": "LS",
+      "args": {
+        "path": "httpx/_transports"
+      },
+      "result_preview": "__init__.py\nasgi.py\nbase.py\ndefault.py\nmock.py\nwsgi.py"
+    },
+    {
+      "tool": "Grep",
+      "args": {
+        "pattern": "^import|^from",
+        "path": "httpx/_transports/default.py",
         "output_mode": "content"
       },
-      "result_preview": "33:    \"anyio\",\r\n122:  # See: https://github.com/agronholm/anyio/issues/508\r\n"
-    },
-    {
-      "tool": "Grep",
-      "args": {
-        "pattern": "anyio",
-        "path": "docs/async.md",
-        "output_mode": "content",
-        "-i": true
-      },
-      "result_preview": "176:### [AnyIO](https://github.com/agronholm/anyio)\r\n178:AnyIO is an [asynchronous networking and concurrency library](https://anyio.readthedocs.io/) that works on top of either `asyncio` or `trio`. It blends in with native libraries of your chosen backend (defaults to `asyncio`).\r\n182:import anyio\r\n189:anyio.run(main, backend='trio')\r\n"
+      "result_preview": "27:from __future__ import annotations\r\n29:import contextlib\r\n30:import typing\r\n31:from types import TracebackType\r\n38:from .._config import DEFAULT_LIMITS, Limits, Proxy, create_ssl_context\r\n39:from .._exceptions import (\r\n55:from .._models import Request, Response\r\n56:from .._types import AsyncByteStream, CertTypes, ProxyTypes, SyncByteStream\r\n57:from .._urls import URL\r\n58:from .base import AsyncBaseTransport, BaseTransport\r\n"
     },
     {
       "tool": "Read",
       "args": {
-        "file_path": "pyproject.toml",
-        "offset": 25,
-        "limit": 15
+        "file_path": "httpx/_transports/asgi.py"
       },
-      "result_preview": "    25\t    \"Programming Language :: Python :: 3.10\",\n    26\t    \"Programming Language :: Python :: 3.11\",\n    27\t    \"Programming Language :: Python :: 3.12\",\n    28\t    \"Topic :: Internet :: WWW/HTTP\",\n    29\t]\n    30\tdependencies = [\n    31\t    \"certifi\",\n    32\t    \"httpcore==1.*\",\n    33\t    \"anyio\",\n    34\t    \"idna\",\n    35\t]\n    36\tdynamic = [\"readme\", \"version\"]\n    37\t\n    38\t[project.optional-dependencies]\n    39\tbrotli = ["
-    },
-    {
-      "tool": "Read",
-      "args": {
-        "file_path": "pyproject.toml",
-        "offset": 115,
-        "limit": 15
-      },
-      "result_preview": "   115\tcheck_untyped_defs = true\n   116\t\n   117\t[tool.pytest.ini_options]\n   118\taddopts = \"-rxXs\"\n   119\tfilterwarnings = [\n   120\t  \"error\",\n   121\t  \"ignore: You seem to already have a custom sys.excepthook handler installed. I'll skip installing Trio's custom handler, but this means MultiErrors will not show full tracebacks.:RuntimeWarning\",\n   122\t  # See: https://github.com/agronholm/anyio/issues/508\n   123\t  \"ignore: trio.MultiError is deprecated since Trio 0.22.0:trio.TrioDeprecationWarning\"\n   124\t]\n   125\tmarkers = [\n   126\t  \"copied_from(source, changes=None): mark test as copied from somewhere else, along with a description of changes made to accodomate e.g. our test setup\",\n   127\t  \"network: marks tests which require network connection. Used in 3rd-party build environments that have network disabled.\"\n   128\t]\n   129\t"
-    },
-    {
-      "tool": "Read",
-      "args": {
-        "file_path": "docs/async.md",
-        "offset": 150,
-        "limit": 50
-      },
-      "result_preview": "   150\t        print(response)\n   151\t\n   152\tasyncio.run(main())\n   153\t```\n   154\t\n   155\t### [Trio](https://github.com/python-trio/trio)\n   156\t\n   157\tTrio is [an alternative async library](https://trio.readthedocs.io/en/stable/),\n   158\tdesigned around the [the principles of structured concurrency](https://en.wikipedia.org/wiki/Structured_concurrency).\n   159\t\n   160\t```python\n   161\timport httpx\n   162\timport trio\n   163\t\n   164\tasync def main():\n   165\t    async with httpx.AsyncClient() as client:\n   166\t        response = await client.get('https://www.example.com/')\n   167\t        print(response)\n   168\t\n   169\ttrio.run(main)\n   170\t```\n   171\t\n   172\t!!! important\n   173\t    The `trio` package must be installed to use the Trio backend.\n   174\t\n   175\t\n   176\t### [AnyIO](https://github.com/agronholm/anyio)\n   177\t\n   178\tAnyIO is an [asynchronous networking and concurrency library](https://anyio.readthedocs.io/) that works on top of either `asyncio` or `trio`. It blends in with native libraries of your chosen backend (defaults to `asyncio`).\n   179\t\n   180\t```python\n   181\timport httpx\n   182\timport anyio\n   183\t\n   184\tasync def main():\n   185\t    async with httpx.AsyncClient() as client:\n   186\t        response = await client.get('https://www.example.com/')\n   187\t        print(response)\n   188\t\n   189\tanyio.run(main, backend='trio')\n   190\t```\n   191\t\n   192\t## Calling into Python Web Apps\n   193\t\n   194\tFor details on calling directly into ASGI applications, see [the `ASGITransport` docs](../advanced/transports#asgitransport)."
-    },
-    {
-      "tool": "Grep",
-      "args": {
-        "pattern": "import",
-        "path": "httpx/_client.py",
-        "output_mode": "content",
-        "-i": false
-      },
-      "result_preview": "1:from __future__ import annotations\r\n3:import datetime\r\n4:import enum\r\n5:import logging\r\n6:import time\r\n7:import typing\r\n8:import warnings\r\n9:from contextlib import asynccontextmanager, contextmanager\r\n10:from types import TracebackType\r\n12:from .__version__ import __version__\r\n13:from ._auth import Auth, BasicAuth, FunctionAuth\r\n14:from ._config import (\r\n22:from ._decoders import SUPPORTED_DECODERS\r\n23:from ._exceptions import (\r\n29:from ._models import Cookies, Headers, Request, Response\r\n30:from ._status_codes import codes\r\n31:from ._transports.base import AsyncBaseTransport, BaseTransport\r\n32:from ._transports.default import AsyncHTTPTransport, HTTPTransport\r\n33:from ._types import (\r\n48:from ._urls import URL, QueryParams\r\n49:from ._utils import URLPattern, get_environment_proxies\r\n52:    import ssl  # pragma: no cover\r\n678:                import h2  # noqa\r\n1392:                import h2  # noqa\r\n"
+      "result_preview": "     1\tfrom __future__ import annotations\n     2\t\n     3\timport typing\n     4\t\n     5\tfrom .._models import Request, Response\n     6\tfrom .._types import AsyncByteStream\n     7\tfrom .base import AsyncBaseTransport\n     8\t\n     9\tif typing.TYPE_CHECKING:  # pragma: no cover\n    10\t    import asyncio\n    11\t\n    12\t    import trio\n    13\t\n    14\t    Event = typing.Union[asyncio.Event, trio.Event]\n    15\t\n    16\t\n    17\t_Message = typing.MutableMapping[str, typing.Any]\n    18\t_Receive = typing.Callable[[], typing.Awaitable[_Message]]\n    19\t_Send = typing.Callable[\n    20\t    [typing.MutableMapping[str, typing.Any]], typing.Awaitable[None]\n    21\t]\n    22\t_ASGIApp = typing.Callable[\n    23\t    [typing.MutableMapping[str, typing.Any], _Receive, _Send], typing.Awaitable[None]\n    24\t]\n    25\t\n    26\t__all__ = [\"ASGITransport\"]\n    27\t\n    28\t\n    29\tdef is_running_trio() -> bool:\n    30\t    try:\n    31\t        # sniffio is a dependency of trio.\n    32\t\n    33\t        # See https://github.com/python-trio/trio/issues/2802\n    34\t        import sniffio\n    35\t\n    36\t        if sniffio.current_async_library() == \"trio\":\n    37\t            return True\n    38\t    except ImportError:  # pragma: nocover\n    39\t        pass\n    40\t\n    41\t    return False\n    42\t\n    43\t\n    44\tdef create_event() -> Event:\n    45\t    if is_running_trio():\n    46\t        import trio\n    47\t\n    48\t        return trio.Event()\n    49\t\n    50\t    import asyncio\n    51\t\n    52\t    return asyncio.Event()\n    53\t\n    54\t\n    55\tclass ASGIResponseStream(AsyncByteStream):\n    56\t    def __init__(self, body: list[bytes]) -> None:\n    57\t        self._body = body\n    58\t\n    59\t    async def __aiter__(self) -> typing.AsyncIterator[bytes]:\n    60\t        yield b\"\".join(self._body)\n    61\t\n    62\t\n    63\tclass ASGITransport(AsyncBaseTransport):\n    64\t    \"\"\"\n    65\t    A custom AsyncTransport that handles sending requests directly to an ASGI app.\n    66\t\n    67\t    ```python\n    68\t    transport = httpx.ASGITransport(\n    69\t        app=app,\n    70\t        root_path=\"/submount\",\n    71\t        client=(\"1.2.3.4\", 123)\n    72\t    )\n    73\t    client = httpx.AsyncClient(transport=transport)\n    74\t    ```\n    75\t\n    76\t    Arguments:\n    77\t\n    78\t    * `app` - The ASGI application.\n    79\t    * `raise_app_exceptions` - Boolean indicating if exceptions in the application\n    80\t       should be raised. Default to `True`. Can be set to `False` for use cases\n    81\t       such as testing the content of a client 500 response.\n    82\t    * `root_path` - The root path on which the ASGI application should be mounted.\n    83\t    * `client` - A two-tuple indicating the client IP and port of incoming requests.\n    84\t    ```\n    85\t    \"\"\"\n    86\t\n    87\t    def __init__(\n    88\t        self,\n    89\t        app: _ASGIApp,\n    90\t        raise_app_exceptions: bool = True,\n    91\t        root_path: str = \"\",\n    92\t        client: tuple[str, int] = (\"127.0.0.1\", 123),\n    93\t    ) -> None:\n    94\t        self.app = app\n    95\t        self.raise_app_exceptions = raise_app_exceptions\n    96\t        self.root_path = root_path\n    97\t        self.client = client\n    98\t\n    99\t    async def handle_async_request(\n   100\t        self,\n   101\t        request: Request,\n   102\t    ) -> Response:\n   103\t        assert isinstance(request.stream, AsyncByteStream)\n   104\t\n   105\t        # ASGI scope.\n   106\t        scope = {\n   107\t            \"type\": \"http\",\n   108\t            \"asgi\": {\"version\": \"3.0\"},\n   109\t            \"http_version\": \"1.1\",\n   110\t            \"method\": request.method,\n   111\t            \"headers\": [(k.lower(), v) for (k, v) in request.headers.raw],\n   112\t            \"scheme\": request.url.scheme,\n   113\t            \"path\": request.url.path,\n   114\t            \"raw_path\": request.url.raw_path.split(b\"?\")[0],\n   115\t            \"query_string\": request.url.query,\n   116\t            \"server\": (request.url.host, request.url.port),\n   117\t            \"client\": self.client,\n   118\t            \"root_path\": self.root_path,\n   119\t        }\n   120\t\n   121\t        # Request.\n   122\t        request_body_chunks = request.stream.__aiter__()\n   123\t        request_complete = False\n   124\t\n   125\t        # Response.\n   126\t        status_code = None\n   127\t        response_headers = None\n   128\t        body_parts = []\n   129\t        response_started = False\n   130\t        response_complete = create_event()\n   131\t\n   132\t        # ASGI callables.\n   133\t\n   134\t        async def receive() -> dict[str, typing.Any]:\n   135\t            nonlocal request_complete\n   136\t\n   137\t            if request_complete:\n   138\t                await response_complete.wait()\n   139\t                return {\"type\": \"http.disconnect\"}\n   140\t\n   141\t            try:\n   142\t                body = await request_body_chunks.__anext__()\n   143\t            except StopAsyncIteration:\n   144\t                request_complete = True\n   145\t                return {\"type\": \"http.request\", \"body\":\n\n[truncated: 1809 additional bytes not shown]"
     }
   ],
-  "cost_usd": 0.33012,
-  "written_at": "2026-04-24T02:48:08.690Z"
+  "cost_usd": 0.58389,
+  "written_at": "2026-04-27T22:48:47.876Z"
 }

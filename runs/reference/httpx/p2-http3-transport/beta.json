@@ -5,14 +5,14 @@
   "target_symbol": "BaseTransport",
   "bucket": "win",
   "metrics": {
-    "tool_calls": 12,
-    "input_tokens": 18,
-    "output_tokens": 2696,
-    "total_tokens": 48287,
-    "wall_clock_ms": 45976
+    "tool_calls": 10,
+    "input_tokens": 16,
+    "output_tokens": 2708,
+    "total_tokens": 79124,
+    "wall_clock_ms": 43915
   },
   "capped": null,
-  "answer": "To add a new transport in `httpx`, you implement one (or both) of the base classes defined in `httpx/_transports/base.py`:\n\n## Base interfaces\n\n### `BaseTransport` — for sync transports\nImplement:\n- `handle_request(self, request: Request) -> Response` — the required method (the base raises `NotImplementedError`).\n- `close(self) -> None` — optional; default is a no-op.\n- Context manager support (`__enter__` / `__exit__`) is already provided; `__exit__` calls `self.close()`.\n\n### `AsyncBaseTransport` — for async transports\nImplement:\n- `handle_async_request(self, request: Request) -> Response` — the required method.\n- `aclose(self) -> None` — optional; default is a no-op.\n- `__aenter__` / `__aexit__` are already provided; `__aexit__` calls `self.aclose()`.\n\nFor an HTTP/3 transport, you'd almost certainly want **both**, mirroring how `HTTPTransport` and `AsyncHTTPTransport` are paired in `_transports/default.py`. A sketch:\n\n```python\nfrom httpx import AsyncBaseTransport, BaseTransport, Request, Response\n\nclass HTTP3Transport(BaseTransport):\n    def handle_request(self, request: Request) -> Response:\n        ...  # dispatch via your QUIC/HTTP/3 engine (e.g., aioquic)\n    def close(self) -> None:\n        ...\n\nclass AsyncHTTP3Transport(AsyncBaseTransport):\n    async def handle_async_request(self, request: Request) -> Response:\n        ...\n    async def aclose(self) -> None:\n        ...\n```\n\n## Things to mirror from the existing transports\nLooking at `_transports/default.py` will be useful because the \"real\" network transport does more than the minimum contract:\n\n- **Request translation**: `request.method`, `request.url.raw_scheme/raw_host/port/raw_path`, `request.headers.raw`, and `request.stream` need to be passed to your HTTP/3 engine. (`HTTPTransport` maps these onto `httpcore.Request`.)\n- **Streaming response body**: wrap the engine's body iterator in a class exposing `__iter__` / `__aiter__` and `close()` / `aclose()`, then pass it as `Response(..., stream=ResponseStream(...))`. See `ResponseStream` / `AsyncResponseStream` in `default.py`.\n- **Extensions**: populate `response.extensions` with at least `http_version` (e.g., `b\"HTTP/3\"`), `reason_phrase`, and `network_stream` if applicable — consumers rely on these.\n- **Exception mapping**: catch your engine's exceptions and re-raise as the appropriate `httpx` exceptions (`ConnectError`, `ReadTimeout`, `RemoteProtocolError`, etc.) so the client layer behaves consistently.\n\n## Wiring it up\nOnce implemented, users pass it via the `transport=` argument to `httpx.Client` / `httpx.AsyncClient`, or register it in a `mounts={...}` dict keyed by URL scheme/pattern — no changes to `Client` are required because everything is dispatched through the `BaseTransport` / `AsyncBaseTransport` contract.\n\n**TL;DR:** implement `httpx.BaseTransport` (sync) and `httpx.AsyncBaseTransport` (async) from `httpx/_transports/base.py`; the only required methods are `handle_request` and `handle_async_request`.",
+  "answer": "You implement one of httpx's two parallel transport ABCs in `httpx/_transports/base.py` — the choice depends on whether you're targeting the sync or async client (per ADR-03, transport is a first-class pluggable abstraction with two parallel abstract base classes mirroring the sync/async split from ADR-01).\n\n## The base interfaces\n\n**Sync client (`Client`)** → subclass `BaseTransport` (`httpx/_transports/base.py:14`)\n\n```python\nclass BaseTransport:\n    def __enter__(self: T) -> T: ...\n    def __exit__(self, exc_type, exc_value, traceback) -> None: ...\n    def handle_request(self, request: Request) -> Response: ...   # the method to implement\n    def close(self) -> None: ...\n```\n\n**Async client (`AsyncClient`)** → subclass `AsyncBaseTransport` (`httpx/_transports/base.py:65`)\n\n```python\nclass AsyncBaseTransport:\n    async def __aenter__(self: A) -> A: ...\n    async def __aexit__(self, exc_type, exc_value, traceback) -> None: ...\n    async def handle_async_request(self, request: Request) -> Response: ...   # the method to implement\n    async def aclose(self) -> None: ...\n```\n\nFor an HTTP/3 transport you almost certainly want `AsyncBaseTransport` (QUIC libraries like aioquic are async-native), and you can optionally provide a `BaseTransport` wrapper if you need sync support. Look at `HTTPTransport` / `AsyncHTTPTransport` in `httpx/_transports/default.py` (lines 135 and 279) as the reference implementations — they're the existing httpcore-backed pair.\n\n## Things to honor while implementing (from ADR-03)\n\n1. **Don't reimplement client-layer concerns.** Redirects, auth flows, cookie persistence, event hooks, and timeout coordination live in `Client`/`AsyncClient` above the transport. Your transport only needs to map `Request → Response`.\n2. **Translate exceptions at the transport boundary.** The reference transports map httpcore exceptions to httpx exceptions (see `HTTPCORE_EXC_MAP` at `httpx/_transports/default.py:71`). Do the same — don't leak aioquic/aioquic-h3 exceptions to users.\n3. **Implement context-manager + close semantics.** Clients delegate their `__enter__`/`__exit__`/`__aenter__`/`__aexit__` to the underlying transport, so connection-pool/QUIC-session cleanup must happen in `close`/`aclose`.\n4. **Don't extend the base classes.** ADR-03 explicitly notes additions to the base classes are breaking changes — keep your HTTP/3 surface inside your subclass.\n5. **Plug it in via `transport=` (or `mounts=`).** Users would pass it as `AsyncClient(transport=HTTP3Transport(...))`, or use `mounts={\"https://\": HTTP3Transport(...)}` for per-URL routing / fallback to HTTP/2.\n\nSo: **`AsyncBaseTransport`** (and optionally also `BaseTransport`), implementing `handle_async_request` (and `aclose`).",
   "trace": [
     {
       "tool": "Bash",
@@ -25,120 +25,107 @@
     {
       "tool": "Bash",
       "args": {
-        "command": "cd atlases/httpx && sqlite3 index.db \".tables\"",
-        "description": "List tables in httpx atlas"
-      },
-      "result_preview": "This Bash command contains multiple operations. The following part requires approval: sqlite3 index.db \".tables\""
-    },
-    {
-      "tool": "Bash",
-      "args": {
         "command": "sqlite3 atlases/httpx/index.db \".tables\"",
-        "description": "List tables in httpx atlas"
+        "description": "List tables in httpx index"
       },
       "result_preview": "This command requires approval"
     },
     {
       "tool": "Bash",
       "args": {
-        "command": "which sqlite3; sqlite3 --version",
-        "description": "Check sqlite3 availability"
+        "command": "cd atlases/httpx && python -c \"import sqlite3; c=sqlite3.connect('index.db'); print([r[0] for r in c.execute('select name from sqlite_master where type=\\\"table\\\"').fetchall()])\"",
+        "description": "List tables in httpx index via python"
       },
-      "result_preview": "This Bash command contains multiple operations. The following part requires approval: sqlite3 --version"
+      "result_preview": "This Bash command contains multiple operations. The following part requires approval: python -c \"import sqlite3; c=sqlite3.connect('index.db'); print([r[0] for r in c.execute('select name from sqlite_master where type=\\\"table\\\"').fetchall()])\""
     },
     {
       "tool": "Bash",
       "args": {
-        "command": "sqlite3 --version",
-        "description": "Check sqlite3 version"
+        "command": "python -c \"import sqlite3; c=sqlite3.connect('atlases/httpx/index.db'); print([r[0] for r in c.execute('select name from sqlite_master where type=\\\"table\\\"').fetchall()])\"",
+        "description": "List tables in httpx index via python"
       },
       "result_preview": "This command requires approval"
     },
     {
       "tool": "Bash",
       "args": {
-        "command": "python -c \"import sqlite3; conn=sqlite3.connect('atlases/httpx/index.db'); print([r[0] for r in conn.execute(\\\"SELECT name FROM sqlite_master WHERE type='table'\\\")])\"",
-        "description": "List tables in httpx atlas via Python"
+        "command": "head -c 3000 atlases/httpx/atlas.json",
+        "description": "Peek at httpx atlas.json"
       },
-      "result_preview": "This command requires approval"
+      "result_preview": "{\n  \"version\": \"1.1\",\n  \"generated_at\": \"2026-04-27T16:48:02.461Z\",\n  \"extracted_at_sha\": \"26d48e0634e6ee9cdc0533996db289ce4b430177\",\n  \"generator\": {\n    \"contextatlas_version\": \"0.0.1\",\n    \"contextatlas_commit_sha\": \"4308de5574f332626e0a09e91727f072aee9194b\",\n    \"extraction_model\": \"claude-opus-4-7\"\n  },\n  \"source_shas\": {\n    \"ADR-01-parallel-sync-async-clients.md\": \"fda10a8a31e0605ce321f9610598ed5b9e62856b0ffdd8a15853bcf7081be409\",\n    \"ADR-02-httpcore-anyio-layering.md\": \"343b53a5059928bfdb4fa1ee4f551d0bf81309037f1bf8546586725c3f41989f\",\n    \"ADR-03-transport-abstraction.md\": \"505bccedd57974b6c5f76f503861fcb55656d1b0929b915dc22fa65cbbcab1d2\",\n    \"ADR-04-generator-based-auth-flow.md\": \"28337fe40674ffc8962b453cc23aa252d89634e793daa8ee58489b155159a6dc\",\n    \"ADR-05-explicit-streaming.md\": \"8d3c1f401ba389355703fae0b34655a4adbd4b41eeafc16b120dd2353c90c1df\",\n    \"httpx/__init__.py\": \"4fa3160a66ce47265690b2b0502c6d4da4d9e77de05ad0c7cacab3c0af4c8935\",\n    \"httpx/__version__.py\": \"fbbecde0a559094201ca3e78fc2c2e325ad0f604c37f3299087f62a0488b990c\",\n    \"httpx/_api.py\": \"8936fc710d8deeca17bfe6e8dc9f089231301b090e97dc0cf00e2e6249e6d79a\",\n    \"httpx/_auth.py\": \"0cc30f73ece1adfdf86b47d9c5c35ce651a708ed41f5df23fce1ef471900c6a6\",\n    \"httpx/_client.py\": \"6d4d83aa2af328c1e7471ca5d4cf5f9ac8a601b11fdf62b55dfba88afd824516\",\n    \"httpx/_config.py\": \"2c3f11b64d97d5d1da84a8e8c9270ce611eb329ad3cb2a2464f612d23e6dc891\",\n    \"httpx/_content.py\": \"c52ee6d7a5d05256e2a7209087d08cee952b1c962befdec7d85890ad0f32e984\",\n    \"httpx/_decoders.py\": \"46a3b6982e6c6cdd994b4aa35c7ca55d08f6fd645bad80e987356f547296f915\",\n    \"httpx/_exceptions.py\": \"a995701364ad5d395c26882b8d9e4f6304e6100d12d771d9cc3d8aca848f1abe\",\n    \"httpx/_main.py\": \"293fc53a28263f1d57817f04a511d38d69b441f09314604711047c0960dbf27b\",\n    \"httpx/_models.py\": \"cf5fe378aeba8c35ebeaf85a49d1e149b07a87e6f7953eed34127c8cc41c62a1\",\n    \"httpx/_multipart.py\": \"18062ba313918279ca9585e8a2c5b51a60576815535be088c306bb8402823739\",\n    \"httpx/_status_codes.py\": \"565957cd1b5ca800b35f1aead5eab098993418218639c102bc6808f71a6a97da\",\n    \"httpx/_transports/__init__.py\": \"712663715debd3081b6939ec2ef7554f4263cfa23b0de5d63a148471b1ad7cff\",\n    \"httpx/_transports/asgi.py\": \"deac203fe158b2aea28b3e6e112ea2f175fbfb502e25acd7cfe0bab680bd14d8\",\n    \"httpx/_transports/base.py\": \"96e98f1da0ab25b6d5e950cfa6c7e1750d35e8c2a5f427be09309203eae44725\",\n    \"httpx/_transports/default.py\": \"e3eaed4df146eb8675a253d9887211e700941f459bed8a397eaff2a2a79ffc5f\",\n    \"httpx/_transports/mock.py\": \"c7ddba9e11e7e9c2846874dc25714cae8f91a3ad38a2701a3e3ccc86361d9e20\",\n    \"httpx/_transports/wsgi.py\": \"c28e59ea367cb9bb06c20559a7cfb1dd207ef57544b77f2a46812c2aa2c17fa2\",\n    \"httpx/_types.py\": \"661d3440e537d3d0e3f0d716e0df9380b80c8001536c41a16ba043c271cd8395\",\n    \"httpx/_urlparse.py\": \"10e6c9322fd2c25367faa722c226487a94e8ec31aa7b685deaeed2d7613048ed\",\n    \"httpx/_urls.py\": \"99dcffb4d02bf54ecffdfa54a83c5b94df44b16f08cffc49709c184d0be459da\",\n    \"httpx/_utils.py\": \"6aa82"
     },
     {
       "tool": "Bash",
       "args": {
-        "command": "python3 -c \"import sqlite3; conn=sqlite3.connect('atlases/httpx/index.db'); print([r[0] for r in conn.execute(\\\"SELECT name FROM sqlite_master WHERE type='table'\\\")])\"",
-        "description": "List tables in httpx atlas via python3"
+        "command": "grep -o '\"id\"[^,]*' atlases/httpx/atlas.json | head -50",
+        "description": "List atlas IDs"
       },
-      "result_preview": "This command requires approval"
+      "result_preview": "\"id\": \"sym:py:httpx/__init__.py:<module>\"\n\"id\": \"sym:py:httpx/__init__.py:__all__\"\n\"id\": \"sym:py:httpx/__init__.py:__locals\"\n\"id\": \"sym:py:httpx/__init__.py:main\"\n\"id\": \"sym:py:httpx/__version__.py:<module>\"\n\"id\": \"sym:py:httpx/__version__.py:__description__\"\n\"id\": \"sym:py:httpx/__version__.py:__title__\"\n\"id\": \"sym:py:httpx/__version__.py:__version__\"\n\"id\": \"sym:py:httpx/_api.py:<module>\"\n\"id\": \"sym:py:httpx/_api.py:__all__\"\n\"id\": \"sym:py:httpx/_api.py:delete\"\n\"id\": \"sym:py:httpx/_api.py:get\"\n\"id\": \"sym:py:httpx/_api.py:head\"\n\"id\": \"sym:py:httpx/_api.py:options\"\n\"id\": \"sym:py:httpx/_api.py:patch\"\n\"id\": \"sym:py:httpx/_api.py:post\"\n\"id\": \"sym:py:httpx/_api.py:put\"\n\"id\": \"sym:py:httpx/_api.py:request\"\n\"id\": \"sym:py:httpx/_api.py:stream\"\n\"id\": \"sym:py:httpx/_auth.py:<module>\"\n\"id\": \"sym:py:httpx/_auth.py:Auth\"\n\"id\": \"sym:py:httpx/_auth.py:BasicAuth\"\n\"id\": \"sym:py:httpx/_auth.py:DigestAuth\"\n\"id\": \"sym:py:httpx/_auth.py:FunctionAuth\"\n\"id\": \"sym:py:httpx/_auth.py:NetRCAuth\"\n\"id\": \"sym:py:httpx/_auth.py:_ALGORITHM_TO_HASH_FUNCTION\"\n\"id\": \"sym:py:httpx/_auth.py:_DigestAuthChallenge\"\n\"id\": \"sym:py:httpx/_auth.py:__all__\"\n\"id\": \"sym:py:httpx/_auth.py:__init__\"\n\"id\": \"sym:py:httpx/_auth.py:_build_auth_header\"\n\"id\": \"sym:py:httpx/_auth.py:_get_client_nonce\"\n\"id\": \"sym:py:httpx/_auth.py:_get_header_value\"\n\"id\": \"sym:py:httpx/_auth.py:_parse_challenge\"\n\"id\": \"sym:py:httpx/_auth.py:_resolve_qop\"\n\"id\": \"sym:py:httpx/_auth.py:async_auth_flow\"\n\"id\": \"sym:py:httpx/_auth.py:auth_flow\"\n\"id\": \"sym:py:httpx/_auth.py:requires_request_body\"\n\"id\": \"sym:py:httpx/_auth.py:requires_response_body\"\n\"id\": \"sym:py:httpx/_auth.py:sync_auth_flow\"\n\"id\": \"sym:py:httpx/_client.py:<module>\"\n\"id\": \"sym:py:httpx/_client.py:ACCEPT_ENCODING\"\n\"id\": \"sym:py:httpx/_client.py:AsyncClient\"\n\"id\": \"sym:py:httpx/_client.py:BaseClient\"\n\"id\": \"sym:py:httpx/_client.py:BoundAsyncStream\"\n\"id\": \"sym:py:httpx/_client.py:BoundSyncStream\"\n\"id\": \"sym:py:httpx/_client.py:CLOSED\"\n\"id\": \"sym:py:httpx/_client.py:Client\"\n\"id\": \"sym:py:httpx/_client.py:ClientState\"\n\"id\": \"sym:py:httpx/_client.py:EventHook\"\n\"id\": \"sym:py:httpx/_client.py:OPENED\""
     },
     {
       "tool": "Bash",
       "args": {
-        "command": "ls",
-        "description": "List files"
+        "command": "grep -n 'transports/base' atlases/httpx/atlas.json | head -20",
+        "description": "Find transport base entries"
       },
-      "result_preview": "CLAUDE.md\nLICENSE\nREADME.md\nRUBRIC.md\nSTEP-7-PLAN.md\nadrs\natlases\nconfigs\nnode_modules\npackage-lock.json\npackage.json\nprompts\nrepos\nresearch\nruns\nscripts\nsrc\ntsconfig.json\nvitest.config.ts"
-    },
-    {
-      "tool": "Bash",
-      "args": {
-        "command": "ls repos/httpx 2>/dev/null || ls repos/",
-        "description": "Check repos directory"
-      },
-      "result_preview": "CHANGELOG.md\nLICENSE.md\nREADME.md\ndocs\nhttpx\nmkdocs.yml\npyproject.toml\nrequirements.txt\nscripts\ntests"
-    },
-    {
-      "tool": "Bash",
-      "args": {
-        "command": "ls repos/httpx/_transports/ 2>/dev/null; ls repos/httpx/",
-        "description": "Explore httpx transport directory"
-      },
-      "result_preview": "CHANGELOG.md\nLICENSE.md\nREADME.md\ndocs\nhttpx\nmkdocs.yml\npyproject.toml\nrequirements.txt\nscripts\ntests"
-    },
-    {
-      "tool": "Bash",
-      "args": {
-        "command": "ls repos/httpx/httpx/_transports/",
-        "description": "List httpx _transports directory"
-      },
-      "result_preview": "__init__.py\nasgi.py\nbase.py\ndefault.py\nmock.py\nwsgi.py"
+      "result_preview": "31:    \"httpx/_transports/base.py\": \"96e98f1da0ab25b6d5e950cfa6c7e1750d35e8c2a5f427be09309203eae44725\",\n3514:      \"id\": \"sym:py:httpx/_transports/base.py:<module>\",\n3517:      \"path\": \"httpx/_transports/base.py\",\n3522:      \"id\": \"sym:py:httpx/_transports/base.py:A\",\n3525:      \"path\": \"httpx/_transports/base.py\",\n3530:      \"id\": \"sym:py:httpx/_transports/base.py:AsyncBaseTransport\",\n3533:      \"path\": \"httpx/_transports/base.py\",\n3539:      \"id\": \"sym:py:httpx/_transports/base.py:BaseTransport\",\n3542:      \"path\": \"httpx/_transports/base.py\",\n3548:      \"id\": \"sym:py:httpx/_transports/base.py:T\",\n3551:      \"path\": \"httpx/_transports/base.py\",\n3556:      \"id\": \"sym:py:httpx/_transports/base.py:__aenter__\",\n3559:      \"path\": \"httpx/_transports/base.py\",\n3565:      \"id\": \"sym:py:httpx/_transports/base.py:__aexit__\",\n3568:      \"path\": \"httpx/_transports/base.py\",\n3574:      \"id\": \"sym:py:httpx/_transports/base.py:__all__\",\n3577:      \"path\": \"httpx/_transports/base.py\",\n3582:      \"id\": \"sym:py:httpx/_transports/base.py:__enter__\",\n3585:      \"path\": \"httpx/_transports/base.py\",\n3591:      \"id\": \"sym:py:httpx/_transports/base.py:__exit__\","
     },
     {
       "tool": "Read",
       "args": {
-        "file_path": "C:\\CodeWork\\ContextAtlas-benchmarks\\repos\\httpx\\httpx\\_transports\\base.py"
+        "file_path": "C:\\CodeWork\\ContextAtlas-benchmarks\\atlases\\httpx\\atlas.json",
+        "offset": 3510,
+        "limit": 200
       },
-      "result_preview": "1\tfrom __future__ import annotations\n2\t\n3\timport typing\n4\tfrom types import TracebackType\n5\t\n6\tfrom .._models import Request, Response\n7\t\n8\tT = typing.TypeVar(\"T\", bound=\"BaseTransport\")\n9\tA = typing.TypeVar(\"A\", bound=\"AsyncBaseTransport\")\n10\t\n11\t__all__ = [\"AsyncBaseTransport\", \"BaseTransport\"]\n12\t\n13\t\n14\tclass BaseTransport:\n15\t    def __enter__(self: T) -> T:\n16\t        return self\n17\t\n18\t    def __exit__(\n19\t        self,\n20\t        exc_type: type[BaseException] | None = None,\n21\t        exc_value: BaseException | None = None,\n22\t        traceback: TracebackType | None = None,\n23\t    ) -> None:\n24\t        self.close()\n25\t\n26\t    def handle_request(self, request: Request) -> Response:\n27\t        \"\"\"\n28\t        Send a single HTTP request and return a response.\n29\t\n30\t        Developers shouldn't typically ever need to call into this API directly,\n31\t        since the Client class provides all the higher level user-facing API\n32\t        niceties.\n33\t\n34\t        In order to properly release any network resources, the response\n35\t        stream should *either* be consumed immediately, with a call to\n36\t        `response.stream.read()`, or else the `handle_request` call should\n37\t        be followed with a try/finally block to ensuring the stream is\n38\t        always closed.\n39\t\n40\t        Example usage:\n41\t\n42\t            with httpx.HTTPTransport() as transport:\n43\t                req = httpx.Request(\n44\t                    method=b\"GET\",\n45\t                    url=(b\"https\", b\"www.example.com\", 443, b\"/\"),\n46\t                    headers=[(b\"Host\", b\"www.example.com\")],\n47\t                )\n48\t                resp = transport.handle_request(req)\n49\t                body = resp.stream.read()\n50\t                print(resp.status_code, resp.headers, body)\n51\t\n52\t\n53\t        Takes a `Request` instance as the only argument.\n54\t\n55\t        Returns a `Response` instance.\n56\t        \"\"\"\n57\t        raise NotImplementedError(\n58\t            \"The 'handle_request' method must be implemented.\"\n59\t        )  # pragma: no cover\n60\t\n61\t    def close(self) -> None:\n62\t        pass\n63\t\n64\t\n65\tclass AsyncBaseTransport:\n66\t    async def __aenter__(self: A) -> A:\n67\t        return self\n68\t\n69\t    async def __aexit__(\n70\t        self,\n71\t        exc_type: type[BaseException] | None = None,\n72\t        exc_value: BaseException | None = None,\n73\t        traceback: TracebackType | None = None,\n74\t    ) -> None:\n75\t        await self.aclose()\n76\t\n77\t    async def handle_async_request(\n78\t        self,\n79\t        request: Request,\n80\t    ) -> Response:\n81\t        raise NotImplementedError(\n82\t            \"The 'handle_async_request' method must be implemented.\"\n83\t        )  # pragma: no cover\n84\t\n85\t    async def aclose(self) -> None:\n86\t        pass\n87\t"
+      "result_preview": "3510\t      \"signature\": \"def is_running_trio() -> bool\",\n3511\t      \"file_sha\": \"deac203fe158b2aea28b3e6e112ea2f175fbfb502e25acd7cfe0bab680bd14d8\"\n3512\t    },\n3513\t    {\n3514\t      \"id\": \"sym:py:httpx/_transports/base.py:<module>\",\n3515\t      \"name\": \"<module>\",\n3516\t      \"kind\": \"module\",\n3517\t      \"path\": \"httpx/_transports/base.py\",\n3518\t      \"line\": 1,\n3519\t      \"file_sha\": \"96e98f1da0ab25b6d5e950cfa6c7e1750d35e8c2a5f427be09309203eae44725\"\n3520\t    },\n3521\t    {\n3522\t      \"id\": \"sym:py:httpx/_transports/base.py:A\",\n3523\t      \"name\": \"A\",\n3524\t      \"kind\": \"variable\",\n3525\t      \"path\": \"httpx/_transports/base.py\",\n3526\t      \"line\": 9,\n3527\t      \"file_sha\": \"96e98f1da0ab25b6d5e950cfa6c7e1750d35e8c2a5f427be09309203eae44725\"\n3528\t    },\n3529\t    {\n3530\t      \"id\": \"sym:py:httpx/_transports/base.py:AsyncBaseTransport\",\n3531\t      \"name\": \"AsyncBaseTransport\",\n3532\t      \"kind\": \"class\",\n3533\t      \"path\": \"httpx/_transports/base.py\",\n3534\t      \"line\": 65,\n3535\t      \"signature\": \"class AsyncBaseTransport\",\n3536\t      \"file_sha\": \"96e98f1da0ab25b6d5e950cfa6c7e1750d35e8c2a5f427be09309203eae44725\"\n3537\t    },\n3538\t    {\n3539\t      \"id\": \"sym:py:httpx/_transports/base.py:BaseTransport\",\n3540\t      \"name\": \"BaseTransport\",\n3541\t      \"kind\": \"class\",\n3542\t      \"path\": \"httpx/_transports/base.py\",\n3543\t      \"line\": 14,\n3544\t      \"signature\": \"class BaseTransport\",\n3545\t      \"file_sha\": \"96e98f1da0ab25b6d5e950cfa6c7e1750d35e8c2a5f427be09309203eae44725\"\n3546\t    },\n3547\t    {\n3548\t      \"id\": \"sym:py:httpx/_transports/base.py:T\",\n3549\t      \"name\": \"T\",\n3550\t      \"kind\": \"variable\",\n3551\t      \"path\": \"httpx/_transports/base.py\",\n3552\t      \"line\": 8,\n3553\t      \"file_sha\": \"96e98f1da0ab25b6d5e950cfa6c7e1750d35e8c2a5f427be09309203eae44725\"\n3554\t    },\n3555\t    {\n3556\t      \"id\": \"sym:py:httpx/_transports/base.py:__aenter__\",\n3557\t      \"name\": \"__aenter__\",\n3558\t      \"kind\": \"method\",\n3559\t      \"path\": \"httpx/_transports/base.py\",\n3560\t      \"line\": 66,\n3561\t      \"signature\": \"async def __aenter__(self: A) -> A\",\n3562\t      \"file_sha\": \"96e98f1da0ab25b6d5e950cfa6c7e1750d35e8c2a5f427be09309203eae44725\"\n3563\t    },\n3564\t    {\n3565\t      \"id\": \"sym:py:httpx/_transports/base.py:__aexit__\",\n3566\t      \"name\": \"__aexit__\",\n3567\t      \"kind\": \"method\",\n3568\t      \"path\": \"httpx/_transports/base.py\",\n3569\t      \"line\": 69,\n3570\t      \"signature\": \"async def __aexit__( self, exc_type: type[BaseException] | None = None, exc_value: BaseException | None = None, traceback: TracebackType | None = None, ) -> None\",\n3571\t      \"file_sha\": \"96e98f1da0ab25b6d5e950cfa6c7e1750d35e8c2a5f427be09309203eae44725\"\n3572\t    },\n3573\t    {\n3574\t      \"id\": \"sym:py:httpx/_transports/base.py:__all__\",\n3575\t      \"name\": \"__all__\",\n3576\t      \"kind\": \"variable\",\n3577\t      \"path\": \"httpx/_transports/base.py\",\n3578\t      \"line\": 11,\n3579\t      \"file_sha\": \"96e98f1da0ab25b6d5e950cfa6c7e1750d35e8c2a5f427be09309203eae44725\"\n3580\t    },\n3581\t    {\n3582\t      \"id\": \"sym:py:httpx/_transports/base.py:__enter__\",\n3583\t      \"name\": \"__enter__\",\n3584\t      \"kind\": \"method\",\n3585\t      \"path\": \"httpx/_transports/base.py\",\n3586\t      \"line\": 15,\n3587\t      \"signature\": \"def __enter__(self: T) -> T\",\n3588\t      \"file_sha\": \"96e98f1da0ab25b6d5e950cfa6c7e1750d35e8c2a5f427be09309203eae44725\"\n3589\t    },\n3590\t    {\n3591\t      \"id\": \"sym:py:httpx/_transports/base.py:__exit__\",\n3592\t      \"name\": \"__exit__\",\n3593\t      \"kind\": \"method\",\n3594\t      \"path\": \"httpx/_transports/base.py\",\n3595\t      \"line\": 18,\n3596\t      \"signature\": \"def __exit__( self, exc_type: type[BaseException] | None = None, exc_value: BaseException | None = None, traceback: TracebackType | None = None, ) -> None\",\n3597\t      \"file_sha\": \"96e98f1da0ab25b6d5e950cfa6c7e1750d35e8c2a5f427be09309203eae44725\"\n3598\t    },\n3599\t    {\n3600\t      \"id\": \"sym:py:httpx/_transports/base.py:aclose\",\n3601\t      \"name\": \"aclose\",\n3602\t      \"kind\": \"method\",\n3603\t      \"path\": \"httpx/_transports/base.py\",\n3604\t      \"line\": 85,\n3605\t      \"signature\": \"async def aclose(self) -> None\",\n3606\t      \"file_sha\": \"96e98f1da0ab25b6d5e950cfa6c7e1750d35e8c2a5f427be09309203eae44725\"\n3607\t    },\n3608\t    {\n3609\t      \"id\": \"sym:py:httpx/_transports/base.py:close\",\n3610\t      \"name\": \"close\",\n3611\t      \"kind\": \"method\",\n3612\t      \"path\": \"httpx/_transports/base.py\",\n3613\t      \"line\": 61,\n3614\t      \"signature\": \"def close(self) -> None\",\n3615\t      \"file_sha\": \"96e98f1da0ab25b6d5e950cfa6c7e1750d35e8c2a5f427be09309203eae44725\"\n3616\t    },\n3617\t    {\n3618\t      \"id\": \"sym:py:httpx/_transports/base.py:handle_async_request\",\n3619\t      \"name\": \"handle_async_request\",\n3620\t      \"kind\": \"method\",\n3621\t      \"path\": \"httpx/_transports/base.py\",\n3622\t      \"line\": 77,\n3623\t      \"signature\": \"async def handle_async_request( self, request: Request, ) -> Response\",\n3624\t      \"file_sha\": \"96e98f1da0ab25b6d5e950cfa6c7e1750d35e8c2a5f427be09309203eae44725\"\n3625\t    },\n3626\t    {\n3627\t      \"id\": \"sym:py:httpx/_tran\n\n[truncated: 3485 additional bytes not shown]"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -n 'ADR-03' atlases/httpx/atlas.json | head -20",
+        "description": "Find ADR-03 entries"
+      },
+      "result_preview": "13:    \"ADR-03-transport-abstraction.md\": \"505bccedd57974b6c5f76f503861fcb55656d1b0929b915dc22fa65cbbcab1d2\",\n11439:      \"rationale\": \"ADR-03 covers why the transport abstraction is needed even though default wraps httpcore\",\n11464:      \"source\": \"ADR-03\",\n11465:      \"source_path\": \"ADR-03-transport-abstraction.md\",\n11483:      \"source\": \"ADR-03\",\n11484:      \"source_path\": \"ADR-03-transport-abstraction.md\",\n11508:      \"source\": \"ADR-03\",\n11509:      \"source_path\": \"ADR-03-transport-abstraction.md\",\n11528:      \"source\": \"ADR-03\",\n11529:      \"source_path\": \"ADR-03-transport-abstraction.md\",\n11548:      \"source\": \"ADR-03\",\n11549:      \"source_path\": \"ADR-03-transport-abstraction.md\",\n11569:      \"source\": \"ADR-03\",\n11570:      \"source_path\": \"ADR-03-transport-abstraction.md\",\n11589:      \"source\": \"ADR-03\",\n11590:      \"source_path\": \"ADR-03-transport-abstraction.md\",\n11607:      \"source\": \"ADR-03\",\n11608:      \"source_path\": \"ADR-03-transport-abstraction.md\",\n11625:      \"source\": \"ADR-03\",\n11626:      \"source_path\": \"ADR-03-transport-abstraction.md\","
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "C:\\CodeWork\\ContextAtlas-benchmarks\\atlases\\httpx\\atlas.json",
+        "offset": 11420,
+        "limit": 220
+      },
+      "result_preview": "11420\t      \"source\": \"ADR-02\",\n11421\t      \"source_path\": \"ADR-02-httpcore-anyio-layering.md\",\n11422\t      \"source_sha\": \"343b53a5059928bfdb4fa1ee4f551d0bf81309037f1bf8546586725c3f41989f\",\n11423\t      \"severity\": \"hard\",\n11424\t      \"claim\": \"httpx must support both asyncio and Trio runtimes using sniffio detection and dual-import patterns\",\n11425\t      \"rationale\": \"Committing to asyncio-only would fragment the encode stack which ships Trio-based deployments\",\n11426\t      \"excerpt\": \"**Trio support is a tested commitment.** `pyproject.toml` declares `\\\"Framework :: AsyncIO\\\"` and `\\\"Framework :: Trio\\\"` classifiers.\",\n11427\t      \"symbol_ids\": [\n11428\t        \"sym:py:httpx/_transports/asgi.py:ASGITransport\",\n11429\t        \"sym:py:httpx/_transports/default.py:AsyncHTTPTransport\",\n11430\t        \"sym:py:httpx/_transports/default.py:HTTPTransport\"\n11431\t      ]\n11432\t    },\n11433\t    {\n11434\t      \"source\": \"ADR-02\",\n11435\t      \"source_path\": \"ADR-02-httpcore-anyio-layering.md\",\n11436\t      \"source_sha\": \"343b53a5059928bfdb4fa1ee4f551d0bf81309037f1bf8546586725c3f41989f\",\n11437\t      \"severity\": \"context\",\n11438\t      \"claim\": \"httpx's transport abstraction exists independently of httpcore to allow ASGI, WSGI, mocks, or custom transports\",\n11439\t      \"rationale\": \"ADR-03 covers why the transport abstraction is needed even though default wraps httpcore\",\n11440\t      \"excerpt\": \"it lets users plug in ASGI, WSGI, mocks, or custom transports without any httpcore at all.\",\n11441\t      \"symbol_ids\": [\n11442\t        \"sym:py:httpx/_transports/asgi.py:ASGITransport\",\n11443\t        \"sym:py:httpx/_transports/base.py:AsyncBaseTransport\",\n11444\t        \"sym:py:httpx/_transports/base.py:BaseTransport\",\n11445\t        \"sym:py:httpx/_transports/default.py:AsyncHTTPTransport\",\n11446\t        \"sym:py:httpx/_transports/default.py:HTTPTransport\"\n11447\t      ]\n11448\t    },\n11449\t    {\n11450\t      \"source\": \"ADR-02\",\n11451\t      \"source_path\": \"ADR-02-httpcore-anyio-layering.md\",\n11452\t      \"source_sha\": \"343b53a5059928bfdb4fa1ee4f551d0bf81309037f1bf8546586725c3f41989f\",\n11453\t      \"severity\": \"hard\",\n11454\t      \"claim\": \"sniffio is a hard runtime dependency even though Trio itself is not\",\n11455\t      \"rationale\": \"sniffio is tiny and exists precisely for async-library detection\",\n11456\t      \"excerpt\": \"**`sniffio` is a hard runtime dependency** even though Trio itself is not.\",\n11457\t      \"symbol_ids\": [\n11458\t        \"sym:py:httpx/_transports/asgi.py:ASGITransport\",\n11459\t        \"sym:py:httpx/_transports/default.py:AsyncHTTPTransport\",\n11460\t        \"sym:py:httpx/_transports/default.py:HTTPTransport\"\n11461\t      ]\n11462\t    },\n11463\t    {\n11464\t      \"source\": \"ADR-03\",\n11465\t      \"source_path\": \"ADR-03-transport-abstraction.md\",\n11466\t      \"source_sha\": \"505bccedd57974b6c5f76f503861fcb55656d1b0929b915dc22fa65cbbcab1d2\",\n11467\t      \"severity\": \"hard\",\n11468\t      \"claim\": \"ASGITransport is async-only; testing ASGI apps requires AsyncClient, while WSGITransport is the sync equivalent\",\n11469\t      \"rationale\": \"No sync wrapper hides the event loop for ASGI; sync testing of ASGI apps requires asyncio.run-wrapping\",\n11470\t      \"excerpt\": \"Testing with `ASGITransport` is async-only. Users testing ASGI apps must use `AsyncClient(transport=ASGITransport(app))`; there is no sync wrapper that hides the event loop.\",\n11471\t      \"symbol_ids\": [\n11472\t        \"sym:py:httpx/_client.py:AsyncClient\",\n11473\t        \"sym:py:httpx/_transports/asgi.py:ASGITransport\",\n11474\t        \"sym:py:httpx/_transports/base.py:AsyncBaseTransport\",\n11475\t        \"sym:py:httpx/_transports/base.py:BaseTransport\",\n11476\t        \"sym:py:httpx/_transports/default.py:AsyncHTTPTransport\",\n11477\t        \"sym:py:httpx/_transports/default.py:HTTPTransport\",\n11478\t        \"sym:py:httpx/_transports/mock.py:MockTransport\",\n11479\t        \"sym:py:httpx/_transports/wsgi.py:WSGITransport\"\n11480\t      ]\n11481\t    },\n11482\t    {\n11483\t      \"source\": \"ADR-03\",\n11484\t      \"source_path\": \"ADR-03-transport-abstraction.md\",\n11485\t      \"source_sha\": \"505bccedd57974b6c5f76f503861fcb55656d1b0929b915dc22fa65cbbcab1d2\",\n11486\t      \"severity\": \"hard\",\n11487\t      \"claim\": \"Client features (redirects, auth flows, cookie persistence, event hooks, timeout coordination) live above the transport layer and must not be reimplemented in transports\",\n11488\t      \"rationale\": \"Separation of concerns: transports handle request-to-response, clients handle higher-level orchestration\",\n11489\t      \"excerpt\": \"all implemented in `Client` / `AsyncClient` wrapping calls to `transport.handle_request`. This is deliberate: transports should not re-implement these concerns.\",\n11490\t      \"symbol_ids\": [\n11491\t        \"sym:py:httpx/_client.py:AsyncClient\",\n11492\t        \"sym:py:httpx/_client.py:Client\",\n11493\t        \"sym:py:httpx/_transports/asgi.py:ASGITransport\",\n11494\t        \"sym:py:httpx/_transports/base.py:AsyncBaseTransport\",\n11495\t        \"sym:py:httpx/_transports/base.py:BaseTransport\",\n\n[truncated: 8864 additional bytes not shown]"
     }
   ],
   "diagnostics": {
     "claudeCodeVersion": "2.1.118",
-    "totalCostUsd": 0.1252355,
-    "numTurns": 13,
+    "totalCostUsd": 0.23597575,
+    "numTurns": 11,
     "isError": false,
     "terminalReason": "completed",
     "modelUsage": {
       "claude-haiku-4-5-20251001": {
         "inputTokens": 356,
-        "outputTokens": 16,
+        "outputTokens": 15,
         "cacheReadInputTokens": 0,
         "cacheCreationInputTokens": 0,
         "webSearchRequests": 0,
-        "costUSD": 0.00043599999999999997,
+        "costUSD": 0.00043099999999999996,
         "contextWindow": 200000,
         "maxOutputTokens": 32000
       },
       "claude-opus-4-7": {
-        "inputTokens": 18,
-        "outputTokens": 2696,
-        "cacheReadInputTokens": 39569,
-        "cacheCreationInputTokens": 6004,
+        "inputTokens": 16,
+        "outputTokens": 2708,
+        "cacheReadInputTokens": 53867,
+        "cacheCreationInputTokens": 22533,
         "webSearchRequests": 0,
-        "costUSD": 0.12479950000000001,
+        "costUSD": 0.23554475,
         "contextWindow": 1000000,
         "maxOutputTokens": 64000
       }
     }
   },
-  "cost_usd": 0.1252355,
-  "written_at": "2026-04-24T02:38:15.815Z"
+  "cost_usd": 0.23597575,
+  "written_at": "2026-04-27T22:41:33.839Z"
 }
