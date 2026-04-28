@@ -47,8 +47,16 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { CapsTracker } from "../src/harness/caps.js";
 import { runClaudeCode } from "../src/harness/claude-code-driver.js";
-import { type Condition, generateRunRootDir } from "../src/harness/metrics.js";
-import { runMatrix } from "../src/harness/run.js";
+import {
+  type Bucket,
+  type Condition,
+  generateRunRootDir,
+} from "../src/harness/metrics.js";
+import {
+  projectedCeilingForRepo,
+  runMatrix,
+} from "../src/harness/run.js";
+import { loadPromptFile, filterStep7 } from "../src/harness/prompts.js";
 
 const VALID_CONDITIONS: readonly Condition[] = [
   "alpha",
@@ -66,8 +74,18 @@ const ROOT = path.resolve(
 
 export interface Args {
   readonly repo: "hono" | "httpx" | "cobra";
-  readonly ceiling: number;
-  readonly warning: number;
+  /**
+   * Budget ceiling in USD. `null` means "not explicitly set; resolve
+   * via `projectedCeilingForRepo` against the configured repo's
+   * priors at runtime" (v0.4 Step 3 / A1). Numeric value means user
+   * passed `--ceiling <usd>` explicitly.
+   */
+  readonly ceiling: number | null;
+  /**
+   * Warning threshold in USD. `null` means "auto-derive at 80% of
+   * resolved ceiling." Numeric value means user passed `--warning`.
+   */
+  readonly warning: number | null;
   readonly retry: boolean;
   readonly promptIds?: readonly string[];
   readonly conditions: readonly Condition[];
@@ -77,11 +95,11 @@ export interface Args {
 
 export function parseArgs(argv: readonly string[]): Args {
   let repo: "hono" | "httpx" | "cobra" = "hono";
-  // Defaults calibrated from the partial reference run (see
-  // research/phase-5-cost-calibration.md). Ceiling $14 gives ~50%
-  // headroom over the $9.31 projection from revised priors.
-  let ceiling = 14.0;
-  let warning = 11.0;
+  // Ceiling + warning defaults are priors-derived per repo (v0.4
+  // Step 3 / A1); resolution happens in `main()` after the prompts
+  // file is loaded. `null` here means "not explicitly set."
+  let ceiling: number | null = null;
+  let warning: number | null = null;
   let retry = true;
   let promptIds: readonly string[] | undefined;
   let conditions: readonly Condition[] = VALID_CONDITIONS;
@@ -139,7 +157,10 @@ export function parseArgs(argv: readonly string[]): Args {
       throw new Error(`unknown argument: ${a}`);
     }
   }
-  if (warning >= ceiling) {
+  // Validate warning < ceiling only when both explicit; the
+  // null-default cases derive warning from ceiling at runtime so
+  // the relationship holds by construction.
+  if (warning !== null && ceiling !== null && warning >= ceiling) {
     throw new Error(
       `--warning (${warning}) must be less than --ceiling (${ceiling})`,
     );
@@ -358,10 +379,26 @@ async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
   const outputRoot = path.resolve(ROOT, generateRunRootDir("runs"));
 
+  // Resolve null ceiling/warning to priors-derived defaults (v0.4
+  // Step 3 / A1). Reads the repo's prompt buckets and runs them
+  // through `projectedCeilingForRepo`.
+  const promptsPath = path.resolve(ROOT, "prompts", `${args.repo}.yml`);
+  const loaded = await loadPromptFile(promptsPath);
+  const eligible = filterStep7(loaded);
+  const promptBuckets: Partial<Record<Bucket, number>> = {};
+  for (const p of eligible) {
+    promptBuckets[p.bucket] = (promptBuckets[p.bucket] ?? 0) + 1;
+  }
+  const resolvedCeiling =
+    args.ceiling ?? projectedCeilingForRepo(args.repo, promptBuckets);
+  const resolvedWarning = args.warning ?? resolvedCeiling * 0.8;
+  const ceilingSource = args.ceiling === null ? "priors-derived" : "explicit";
+
   // eslint-disable-next-line no-console
   console.log(
-    `[run-reference] repo=${args.repo} ceiling=$${args.ceiling.toFixed(2)} ` +
-      `warning=$${args.warning.toFixed(2)} retry=${args.retry ? "on" : "off"}`,
+    `[run-reference] repo=${args.repo} ceiling=$${resolvedCeiling.toFixed(2)} ` +
+      `(${ceilingSource}) warning=$${resolvedWarning.toFixed(2)} ` +
+      `retry=${args.retry ? "on" : "off"}`,
   );
   // eslint-disable-next-line no-console
   console.log(`[run-reference] output: ${outputRoot}`);
@@ -414,8 +451,8 @@ async function main(): Promise<void> {
     conditions: args.conditions,
     ...(args.promptIds ? { promptIds: args.promptIds } : {}),
     outputRoot,
-    budgetCeilingUsd: args.ceiling,
-    warningGateUsd: args.warning,
+    budgetCeilingUsd: resolvedCeiling,
+    warningGateUsd: resolvedWarning,
     retryOnCap: args.retry,
     benchmarksRoot: ROOT,
     pinnedRepoSha: PINNED_REPO_SHAS[args.repo],

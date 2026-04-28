@@ -122,6 +122,86 @@ export function lookupCostPrior(
   return repoPriors[bucket]?.[condition] ?? 0.3;
 }
 
+/**
+ * Per-repo retry-overhead multiplier (v0.4 Step 3 / A2). Applied
+ * to `lookupCostPrior` results at the budget gate so that estimates
+ * inflate by observed retry probability.
+ *
+ * Verified against v0.3 reference-run manifests
+ * (`runs/reference/<repo>/run-manifest.json`) — actual_cost /
+ * projected_cost-from-priors:
+ *   - hono:  $17.76 / $9.98 = 1.78x (Phase 5 structural retry
+ *     pattern per scope-doc Stream A A2; large-prompt + LSP-heavy
+ *     substrate yields backoff-retry traffic)
+ *   - httpx: $8.09  / $9.34 = 0.87x (under-projected; no overhead)
+ *   - cobra: $6.85  / $9.09 = 0.75x (under-projected; no overhead)
+ *
+ * Verify-then-set discipline (per v0.4 Step 3 design lock): only
+ * hono gets a non-trivial multiplier; httpx + cobra default to
+ * 1.0x neutral. The field exists per-repo so future evidence
+ * (e.g., a v0.5 reference run with structural retry on a different
+ * substrate) can update specific repos without changing the
+ * lookup signature.
+ */
+export const RETRY_OVERHEAD_V0_3: Record<
+  "hono" | "httpx" | "cobra",
+  number
+> = {
+  hono: 1.78,
+  httpx: 1.0,
+  cobra: 1.0,
+};
+
+/**
+ * Look up a budget-gate cost prior with retry-overhead applied
+ * (v0.4 Step 3 / A2). Equivalent to `lookupCostPrior` × per-repo
+ * `RETRY_OVERHEAD_V0_3` multiplier. Unseeded `repoName` falls
+ * through to a 1.0x neutral overhead.
+ */
+export function lookupCostPriorWithRetry(
+  repoName: string,
+  bucket: Bucket,
+  condition: Condition,
+): number {
+  const base = lookupCostPrior(repoName, bucket, condition);
+  const overhead =
+    RETRY_OVERHEAD_V0_3[repoName as keyof typeof RETRY_OVERHEAD_V0_3] ?? 1.0;
+  return base * overhead;
+}
+
+/**
+ * Compute the priors-derived budget ceiling for a repo (v0.4 Step
+ * 3 / A1). Sums per-cell priors weighted by per-bucket prompt
+ * count, applies retry-overhead, then × `bufferFactor` (default
+ * 1.5x) for unmodeled variance.
+ *
+ * `promptBuckets` is a map from bucket → count of prompts in that
+ * bucket. Caller reads `prompts/<repo>.yml` and constructs this
+ * map (only step-7-eligible buckets — held_out is excluded by
+ * the runner).
+ *
+ * Replaces the hardcoded `--ceiling 14.0` default in
+ * `run-reference.ts` so each repo gets a reasonable default
+ * derived from observed cost shape.
+ */
+export function projectedCeilingForRepo(
+  repoName: string,
+  promptBuckets: Readonly<Partial<Record<Bucket, number>>>,
+  bufferFactor = 1.5,
+): number {
+  const conditions: Condition[] = ["alpha", "ca", "beta", "beta-ca"];
+  let total = 0;
+  for (const [bucket, count] of Object.entries(promptBuckets) as Array<
+    [Bucket, number]
+  >) {
+    if (!count) continue;
+    for (const condition of conditions) {
+      total += lookupCostPriorWithRetry(repoName, bucket, condition) * count;
+    }
+  }
+  return total * bufferFactor;
+}
+
 export interface DispatchOptions {
   readonly condition: Condition;
   readonly prompt: string;

@@ -6,8 +6,11 @@ import type { AlphaAgentOutput } from "./alpha-agent.js";
 import type { Condition } from "./metrics.js";
 import {
   COST_PRIORS_V0_3,
+  RETRY_OVERHEAD_V0_3,
   actualCostUsd,
   lookupCostPrior,
+  lookupCostPriorWithRetry,
+  projectedCeilingForRepo,
   type DispatchFn,
   type DispatchOptions,
   runMatrix,
@@ -579,5 +582,101 @@ describe("runMatrix — per-repo budget gate (V0_3)", () => {
     expect(dispatch).toHaveBeenCalledTimes(0);
     expect(result.halted).toBe("budget_ceiling");
     expect(result.cells).toHaveLength(0);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// v0.4 Step 3 — A1 (priors-derived ceiling) + A2 (retry-overhead modeling)
+// ---------------------------------------------------------------------------
+
+describe("RETRY_OVERHEAD_V0_3", () => {
+  it("hono carries the structural retry multiplier (Phase 5 evidence)", () => {
+    // $17.76 actual / $9.98 projected ≈ 1.78x; matches scope-doc
+    // Stream A A2 documentation. Verified via run-manifest.
+    expect(RETRY_OVERHEAD_V0_3.hono).toBe(1.78);
+  });
+
+  it("httpx + cobra carry neutral 1.0x (no observed structural retry)", () => {
+    // Phase 6/7 manifests show httpx + cobra came in UNDER projection
+    // ($8.09 / $9.34 = 0.87x; $6.85 / $9.09 = 0.75x). Verify-then-set
+    // discipline: only set non-trivial values where evidence exists.
+    expect(RETRY_OVERHEAD_V0_3.httpx).toBe(1.0);
+    expect(RETRY_OVERHEAD_V0_3.cobra).toBe(1.0);
+  });
+});
+
+describe("lookupCostPriorWithRetry", () => {
+  it("multiplies base prior by per-repo overhead", () => {
+    const base = lookupCostPrior("hono", "win", "alpha");
+    const withRetry = lookupCostPriorWithRetry("hono", "win", "alpha");
+    expect(withRetry).toBeCloseTo(base * 1.78, 6);
+  });
+
+  it("returns base prior unchanged when overhead is 1.0x", () => {
+    const base = lookupCostPrior("cobra", "win", "alpha");
+    expect(lookupCostPriorWithRetry("cobra", "win", "alpha")).toBe(base);
+  });
+
+  it("falls back to 1.0x neutral overhead for unseeded repoName", () => {
+    // Forward-compat: future repos without a calibrated overhead
+    // get neutral pass-through instead of throwing or zero-ing.
+    const base = lookupCostPrior("django", "win", "alpha");
+    expect(lookupCostPriorWithRetry("django", "win", "alpha")).toBe(base);
+  });
+});
+
+describe("projectedCeilingForRepo (A1)", () => {
+  it("sums priors × prompt-bucket counts × overhead × buffer", () => {
+    // Hono with the actual v0.3 step-7-eligible bucket distribution:
+    // {win: 4, tie: 1, trick: 1}.
+    const ceiling = projectedCeilingForRepo("hono", {
+      win: 4,
+      tie: 1,
+      trick: 1,
+    });
+    // Expected: (1.95×4 + 1.28×1 + 0.90×1) × 1.78 × 1.5 ≈ $26.65
+    // Sanity: must comfortably exceed observed $17.76 actual cost.
+    expect(ceiling).toBeGreaterThan(17.76);
+    expect(ceiling).toBeCloseTo(26.65, 1);
+  });
+
+  it("cobra ceiling reflects no-overhead pass-through", () => {
+    const ceiling = projectedCeilingForRepo("cobra", {
+      win: 4,
+      tie: 1,
+      trick: 1,
+    });
+    // (1.78×4 + 1.16 + 0.81) × 1.0 × 1.5 ≈ $13.64; comfortably above
+    // observed $6.85 actual.
+    expect(ceiling).toBeGreaterThan(6.85);
+    expect(ceiling).toBeCloseTo(13.64, 1);
+  });
+
+  it("httpx ceiling reflects no-overhead pass-through", () => {
+    const ceiling = projectedCeilingForRepo("httpx", {
+      win: 4,
+      tie: 1,
+      trick: 1,
+    });
+    // (1.83×4 + 1.20 + 0.82) × 1.0 × 1.5 ≈ $14.01; comfortably above
+    // observed $8.09 actual.
+    expect(ceiling).toBeGreaterThan(8.09);
+    expect(ceiling).toBeCloseTo(14.01, 1);
+  });
+
+  it("monotonic in prompt count: doubling buckets doubles the ceiling", () => {
+    const single = projectedCeilingForRepo("cobra", { win: 1 });
+    const doubled = projectedCeilingForRepo("cobra", { win: 2 });
+    expect(doubled).toBeCloseTo(single * 2, 6);
+  });
+
+  it("custom buffer factor applies multiplicatively", () => {
+    const default_ = projectedCeilingForRepo("cobra", { win: 1 });
+    const doubled = projectedCeilingForRepo("cobra", { win: 1 }, 3.0);
+    expect(doubled).toBeCloseTo(default_ * 2, 6);
+  });
+
+  it("empty bucket map yields zero (no prompts → no projected cost)", () => {
+    expect(projectedCeilingForRepo("hono", {})).toBe(0);
   });
 });

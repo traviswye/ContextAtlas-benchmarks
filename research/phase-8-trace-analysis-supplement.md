@@ -119,6 +119,77 @@ flagged cobra cells (vs 4 in v0.2) would reveal whether the
 exploration on previously-flagged prompts. Documented as v0.4
 candidate (§7 below).
 
+#### 3.2.1 v0.4 Step 3 / A7 trace inspection follow-up
+
+Per-cell trace inspection landed in v0.4 Step 3 / A7 (commit
+referenced in this supplement's revision footer). Surface-level
+findings:
+
+**Set diff is more nuanced than "+2 cells" framing above.** The
+net +2 obscures churn: **+3 new** v0.3 cells, **−1 dropped**
+v0.3 cell.
+
+| Cell | v0.2 | v0.3 |
+|---|---|---|
+| `c2-persistent-flag-scope/beta` | flagged | flagged |
+| `c3-hook-lifecycle/beta` | flagged | flagged |
+| `c4-subcommand-resolution/beta` | flagged | flagged |
+| `c6-execute-signature/beta` | flagged | — (dropped) |
+| `c1-command-behavior/beta` | — | **NEW** |
+| `c5-flag-group-constraints/beta` | — | **NEW** |
+| `c6-execute-signature/beta-ca` | — | **NEW** (was beta in v0.2) |
+
+**Behavior pattern in the 3 new v0.3 cells (uniform):** beta
+agents (no MCP) reach for `atlases/cobra/atlas.json` as a
+*structured-grep target* — they invoke `sqlite3 index.db`,
+`grep -oE '"name":"..."'`, and `Read` against the committed
+atlas to extract symbol names + signatures + docstring claim
+text. The pattern is identical to v0.2's flagged cells; the
+substantive difference is **which prompts induce it**.
+
+**Hypothesis (matches §3.2 framing above):** v0.3's docstring-
+claim addition (271 claims vs 143) thickens the searchable
+content surface inside `atlas.json`. Prompts asking about
+specific APIs (`PreRun*`/`PostRun*` lifecycle, `MarkFlags*`
+constraint methods, `Execute*` signatures) find more
+grep-targets in the v0.3 atlas than in v0.2's ADR-only atlas,
+sustaining the atlas-grep loop further into the trace and
+flagging cells that v0.2's slimmer atlas didn't sustain.
+
+**The `c6-execute-signature` shift (beta → beta-ca):** the
+v0.3 c6/beta cell pivoted to source-file exploration (zero
+atlas-path tool calls) while c6/beta-ca repeated the
+atlas-grep pattern via the MCP-equipped agent's Bash fallback.
+Same prompt; different agent landed in different exploration
+strategies. This is a single observation, not a pattern claim.
+
+**Root-cause conclusion.** The contamination is not a NEW
+behavior pattern — it is the *same* atlas-grep behavior with
+v0.3's richer atlas content surface giving it more handholds.
+The architectural fix is clean-workspace mode (Stream D D1 in
+v0.4-SCOPE.md; deferred to v0.5+ conditional gate).
+
+**Cheap-fix evaluation (Q8 threshold ≤30 LOC + no test substrate
+change).** Three candidates considered:
+1. Tighten atlas-visibility filter to args-AND-result-preview —
+   conflicts with Step 12 Commit 1 "args-only" scoping decision;
+   not a 30-LOC change.
+2. Add per-tool predicates (e.g., flag `Read` of atlas.json) —
+   already covered by current path matching; no gap.
+3. Adjust filter regex — current regex already catches all four
+   atlas artifact paths.
+
+**Decision: cheap fix does NOT qualify under Q8 threshold.**
+Document finding (this subsection) + defer to v0.5+ via
+clean-workspace mode (Stream D D1) per scope-doc framing.
+
+**Re-running v0.4 reference matrices on cleaner conditions
+(D1 mode) is the architectural test of this hypothesis.** If
+clean-workspace mode collapses cobra contamination toward
+zero, the docstring-substrate-thickening hypothesis is
+validated; if cobra retains elevated contamination under
+clean-workspace, a different mechanism is at play.
+
 ### 3.3 httpx −8.33pp + hono −5.43pp
 
 Both repos saw contamination rates DECREASE in v0.3. Possible

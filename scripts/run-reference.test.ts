@@ -3,11 +3,14 @@ import { describe, expect, it } from "vitest";
 import { parseArgs } from "./run-reference.js";
 
 describe("parseArgs — defaults", () => {
-  it("no args → full matrix, hono, reference ceilings", () => {
+  it("no args → full matrix, hono, null ceilings (priors-derived in main)", () => {
     const a = parseArgs([]);
     expect(a.repo).toBe("hono");
-    expect(a.ceiling).toBe(14);
-    expect(a.warning).toBe(11);
+    // v0.4 Step 3 / A1: ceiling/warning default to null; main()
+    // resolves via projectedCeilingForRepo. Numeric value means
+    // user passed --ceiling explicitly.
+    expect(a.ceiling).toBeNull();
+    expect(a.warning).toBeNull();
     expect(a.retry).toBe(true);
     expect(a.promptIds).toBeUndefined();
     expect(a.conditions).toEqual(["alpha", "ca", "beta", "beta-ca"]);

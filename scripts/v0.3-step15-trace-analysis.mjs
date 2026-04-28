@@ -118,6 +118,16 @@ function main() {
         perRepo[repo].length > 0
           ? repoContaminated.length / perRepo[repo].length
           : 0,
+      // v0.4 Step 3 A7 prep: additive output extension. The cellIds
+      // were already computed by filterAtlasVisibility (cellId field
+      // on AtlasContaminatedCell) but not persisted under the v0_3
+      // substrate section — only the v0_2_baseline section had them
+      // (sourced from step12-backwards-apply-results.json). Adding
+      // here so v0.4 follow-on work can compute the v0.3-only delta
+      // (set difference: v0.3-flagged − v0.2-flagged) without
+      // re-running the filter. Behavior of flagging logic unchanged;
+      // this is an additive output, not a behavioral modification.
+      contaminatedCellIds: repoContaminated.map((c) => c.cellId).sort(),
     };
     console.log(
       `  ${repo.padEnd(6)} ${repoContaminated.length}/${perRepo[repo].length} (${pct(filterPerRepo[repo].rate)})`,
