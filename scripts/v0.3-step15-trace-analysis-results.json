@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-04-28T14:07:50.555Z",
+  "atlas_visibility_filter": {
+    "v0_3": {
+      "total_cells_analyzed": 72,
+      "contaminated_cells": 16,
+      "contamination_rate": 0.2222222222222222,
+      "per_repo": {
+        "cobra": {
+          "total": 24,
+          "contaminated": 6,
+          "rate": 0.25
+        },
+        "httpx": {
+          "total": 24,
+          "contaminated": 4,
+          "rate": 0.16666666666666666
+        },
+        "hono": {
+          "total": 24,
+          "contaminated": 6,
+          "rate": 0.25
+        }
+      }
+    },
+    "v0_2_baseline": {
+      "contamination_rate": 0.23943661971830985,
+      "per_repo": {
+        "cobra": {
+          "total": 24,
+          "contaminated": 4,
+          "rate": 0.16666666666666666,
+          "contaminatedCellIds": [
+            "c2-persistent-flag-scope/beta",
+            "c3-hook-lifecycle/beta",
+            "c4-subcommand-resolution/beta",
+            "c6-execute-signature/beta"
+          ]
+        },
+        "hono": {
+          "total": 23,
+          "contaminated": 7,
+          "rate": 0.30434782608695654,
+          "contaminatedCellIds": [
+            "h1-context-runtime/beta",
+            "h2-router-contract/beta",
+            "h3-middleware-onion/beta",
+            "h3-middleware-onion/beta-ca",
+            "h4-validator-typeflow/beta",
+            "h5-hono-generics/beta",
+            "h6-fetch-signature/beta"
+          ]
+        },
+        "httpx": {
+          "total": 24,
+          "contaminated": 6,
+          "rate": 0.25,
+          "contaminatedCellIds": [
+            "p2-http3-transport/beta",
+            "p3-custom-auth/beta",
+            "p4-stream-lifecycle/beta",
+            "p5-drop-anyio/beta",
+            "p6-client-get-args/beta",
+            "p6-client-get-args/beta-ca"
+          ]
+        }
+      },
+      "source": "scripts/v0.3-step12-backwards-apply-results.json"
+    }
+  },
+  "chain_alpha": {
+    "v0_3": {
+      "cells_analyzed": 36,
+      "measurable_bundles": 32,
+      "fired_bundles": 0,
+      "firing_rate": 0,
+      "per_repo_per_condition": {
+        "cobra": {
+          "ca": {
+            "total": 2,
+            "fired": 0
+          },
+          "beta-ca": {
+            "total": 7,
+            "fired": 0
+          }
+        },
+        "httpx": {
+          "ca": {
+            "total": 4,
+            "fired": 0
+          },
+          "beta-ca": {
+            "total": 6,
+            "fired": 0
+          }
+        },
+        "hono": {
+          "ca": {
+            "total": 5,
+            "fired": 0
+          },
+          "beta-ca": {
+            "total": 8,
+            "fired": 0
+          }
+        }
+      }
+    },
+    "step6_spotcheck_baseline": 0.875,
+    "trigger_threshold_pp": 20,
+    "delta_pp": -87.5,
+    "trigger_met": true
+  }
+}

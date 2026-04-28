@@ -76,7 +76,7 @@ describe("generateSummary — happy path", () => {
     expect(markdown).toContain("ContextAtlas v0.1 (atlas schema v1.1)");
     expect(markdown).toContain("Claude Code CLI 2.1.117");
     expect(markdown).toContain("hono pinned at `cf2d2b7edcf0`");
-    expect(markdown).toContain("v0.1 baseline measurement");
+    expect(markdown).toContain("v0.3 reference measurement");
   });
 
   it("renders the metrics matrix with one row per prompt, four conditions × 3 columns each", () => {

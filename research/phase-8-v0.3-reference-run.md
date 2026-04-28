@@ -709,14 +709,18 @@ methodology + spot-check + investigation triggers; final
 computed firing rate appears in Commit 6's report and is
 referenced from this synthesis doc post-Commit-6.
 
-**Spot-check (preliminary).** Inspection of v0.3 httpx p4
-beta-ca bundle (longest result_preview, 5,046 chars) showed
-top 4+ INTENTs all `ADR-05 hard` — no chain α firing in
-this single bundle. v0.3 substrate may have lower chain α
-firing rate than Step 6's spot-check baseline (7-of-8 ~87.5%
-under one query) because Stream B docstring claims +
-narrower attribution may align severity tiers more
-consistently. Confirmation pending Commit 6 full computation.
+**Result (per Commit 6 trace-analysis supplement).** Chain α
+firing rate across 32 measurable bundles (ca + beta-ca cells;
+v0.3 substrate): **0.00%**. Investigation trigger fires by
+Δ-magnitude rule (−87.5pp vs Step 6 spot-check baseline),
+but resolves to expected behavior under v0.3 ship config:
+BM25 ranking is flag-accessible-only, default off per Step 7
+B2; without BM25, `get_symbol_context` returns INTENTs in
+natural severity tier order (hard → soft → context); chain α
+firing requires BM25 to promote lower-severity above
+higher-severity, which cannot occur. No code action required.
+Metric activates if BM25 enabled under v0.4 evidence gate.
+Full discussion: `phase-8-trace-analysis-supplement.md` §5.
 
 **Investigation triggers per Step 15 ship criterion 11:**
 - (i) Stream D base rate materially differs from spot-check
