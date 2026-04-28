@@ -1,0 +1,194 @@
+{
+  "prompt_id": "h4-validator-typeflow",
+  "repo": "hono",
+  "condition": "alpha",
+  "target_symbol": "validator",
+  "bucket": "win",
+  "metrics": {
+    "tool_calls": 21,
+    "input_tokens": 209075,
+    "output_tokens": 4111,
+    "total_tokens": 213186,
+    "wall_clock_ms": 78681
+  },
+  "capped": "tokens",
+  "answer": "",
+  "trace": [
+    {
+      "tool": "LS",
+      "args": {
+        "path": "/"
+      },
+      "result_preview": "ERROR: path escapes repo: / resolves to C:\\, outside C:\\CodeWork\\ContextAtlas-benchmarks\\repos\\hono"
+    },
+    {
+      "tool": "LS",
+      "args": {
+        "path": "."
+      },
+      "result_preview": ".contextatlas/\n.devcontainer/\n.editorconfig\n.git/\n.github/\n.gitignore\n.gitpod.yml\n.prettierrc\n.tool-versions\n.vitest.config/\n.vscode/\nLICENSE\nREADME.md\nbenchmarks/\nbuild/\nbun.lock\nbunfig.toml\ncodecov.yml\ndocs/\neslint.config.mjs\njsr.json\npackage.cjs.json\npackage.json\nperf-measures/\nruntime-tests/\nsrc/\ntsconfig.base.json\ntsconfig.build.json\ntsconfig.json\ntsconfig.spec.json\nvitest.config.ts"
+    },
+    {
+      "tool": "LS",
+      "args": {
+        "path": "src"
+      },
+      "result_preview": "adapter/\nclient/\ncompose.test.ts\ncompose.ts\ncontext.test.ts\ncontext.ts\nhelper/\nhono-base.ts\nhono.test.ts\nhono.ts\nhttp-exception.test.ts\nhttp-exception.ts\nindex.ts\njsx/\nmiddleware/\npreset/\nrequest.test.ts\nrequest.ts\nrequest/\nrouter.ts\nrouter/\ntypes.test.ts\ntypes.ts\nutils/\nvalidator/"
+    },
+    {
+      "tool": "LS",
+      "args": {
+        "path": "src/validator"
+      },
+      "result_preview": "index.ts\nutils.test.ts\nutils.ts\nvalidator.test.ts\nvalidator.ts"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "src/validator/validator.ts"
+      },
+      "result_preview": "     1\timport type { Context } from '../context'\n     2\timport { getCookie } from '../helper/cookie'\n     3\timport { HTTPException } from '../http-exception'\n     4\timport type { Env, MiddlewareHandler, TypedResponse, ValidationTargets, FormValue } from '../types'\n     5\timport type { BodyData } from '../utils/body'\n     6\timport { bufferToFormData } from '../utils/buffer'\n     7\timport type { InferInput } from './utils'\n     8\t\n     9\ttype ValidationTargetKeysWithBody = 'form' | 'json'\n    10\ttype ValidationTargetByMethod<M> = M extends 'get' | 'head' // GET and HEAD request must not have a body content.\n    11\t  ? Exclude<keyof ValidationTargets, ValidationTargetKeysWithBody>\n    12\t  : keyof ValidationTargets\n    13\t\n    14\texport type ValidationFunction<\n    15\t  InputType,\n    16\t  OutputType,\n    17\t  E extends Env = {},\n    18\t  P extends string = string,\n    19\t> = (\n    20\t  value: InputType,\n    21\t  c: Context<E, P>\n    22\t) => OutputType | TypedResponse | Promise<OutputType> | Promise<TypedResponse>\n    23\t\n    24\tconst jsonRegex = /^application\\/([a-z-\\.]+\\+)?json(;\\s*[a-zA-Z0-9\\-]+\\=([^;]+))*$/\n    25\tconst multipartRegex = /^multipart\\/form-data(;\\s?boundary=[a-zA-Z0-9'\"()+_,\\-./:=?]+)?$/\n    26\tconst urlencodedRegex = /^application\\/x-www-form-urlencoded(;\\s*[a-zA-Z0-9\\-]+\\=([^;]+))*$/\n    27\t\n    28\texport type ExtractValidationResponse<VF> = VF extends (value: any, c: any) => infer R\n    29\t  ? R extends Promise<infer PR>\n    30\t    ? PR extends TypedResponse<infer T, infer S, infer F>\n    31\t      ? TypedResponse<T, S, F>\n    32\t      : PR extends Response\n    33\t        ? PR\n    34\t        : PR extends undefined\n    35\t          ? never // undefined → never\n    36\t          : never // anything else → never\n    37\t    : R extends TypedResponse<infer T, infer S, infer F>\n    38\t      ? TypedResponse<T, S, F>\n    39\t      : R extends Response\n    40\t        ? R\n    41\t        : R extends undefined\n    42\t          ? never // undefined → never\n    43\t          : never // anything else → never\n    44\t  : never // Can't extract → never\n    45\t\n    46\texport const validator = <\n    47\t  InputType,\n    48\t  P extends string,\n    49\t  M extends string,\n    50\t  U extends ValidationTargetByMethod<M>,\n    51\t  P2 extends string = P,\n    52\t  // Capture the actual validation function as a type\n    53\t  VF extends (\n    54\t    value: unknown extends InputType ? ValidationTargets[U] : InputType,\n    55\t    // eslint-disable-next-line @typescript-eslint/no-explicit-any\n    56\t    c: Context<any, P2>\n    57\t    // eslint-disable-next-line @typescript-eslint/no-explicit-any\n    58\t  ) => any = (\n    59\t    value: unknown extends InputType ? ValidationTargets[U] : InputType,\n    60\t    // eslint-disable-next-line @typescript-eslint/no-explicit-any\n    61\t    c: Context<any, P2>\n    62\t    // eslint-disable-next-line @typescript-eslint/no-explicit-any\n    63\t  ) => any,\n    64\t  V extends {\n    65\t    in: {\n    66\t      [K in U]: K extends 'json'\n    67\t        ? unknown extends InputType\n    68\t          ? ExtractValidatorOutput<VF>\n    69\t          : InputType\n    70\t        : InferInput<ExtractValidatorOutput<VF>, K, FormValue>\n    71\t    }\n    72\t    out: { [K in U]: ExtractValidatorOutput<VF> }\n    73\t  } = {\n    74\t    in: {\n    75\t      [K in U]: K extends 'json'\n    76\t        ? unknown extends InputType\n    77\t          ? ExtractValidatorOutput<VF>\n    78\t          : InputType\n    79\t        : InferInput<ExtractValidatorOutput<VF>, K, FormValue>\n    80\t    }\n    81\t    out: { [K in U]: ExtractValidatorOutput<VF> }\n    82\t  },\n    83\t  // eslint-disable-next-line @typescript-eslint/no-explicit-any\n    84\t  E extends Env = any,\n    85\t>(\n    86\t  target: U,\n    87\t  validationFunc: VF\n    88\t): MiddlewareHandler<E, P, V, ExtractValidationResponse<VF>> => {\n    89\t  return async (c, next) => {\n    90\t    let value = {}\n    91\t    const contentType = c.req.header('Content-Type')\n    92\t\n    93\t    switch (target) {\n    94\t      case 'json':\n    95\t        if (!contentType || !jsonRegex.test(contentType)) {\n    96\t          break\n    97\t        }\n    98\t        try {\n    99\t          value = await c.req.json()\n   100\t        } catch {\n   101\t          const message = 'Malformed JSON in request body'\n   102\t          throw new HTTPException(400, { message })\n   103\t        }\n   104\t        break\n   105\t      case 'form': {\n   106\t        if (\n   107\t          !contentType ||\n   108\t          !(multipartRegex.test(contentType) || urlencodedRegex.test(contentType))\n   109\t        ) {\n   110\t          break\n   111\t        }\n   112\t\n   113\t        let formData: FormData\n   114\t\n   115\t        if (c.req.bodyCache.formData) {\n   116\t          formData = await c.req.bodyCache.formData\n   117\t        } else {\n   118\t          try {\n   119\t            const arrayBuffer = await c.req.arrayBuffer()\n   120\t            formData = await bufferToFormData(arrayBuffer, contentType)\n   121\t            c.req.bodyCache.for\n\n[truncated: 2424 additional bytes not shown]"
+    },
+    {
+      "tool": "Grep",
+      "args": {
+        "pattern": "zValidator|zod\"",
+        "output_mode": "files_with_matches"
+      },
+      "result_preview": "C:\\CodeWork\\ContextAtlas-benchmarks\\repos\\hono\\bun.lock\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\hono\\package.json\n"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "src/validator/utils.ts"
+      },
+      "result_preview": "     1\timport type { FormValue, ParsedFormValue, ValidationTargets } from '../types'\n     2\timport type { UnionToIntersection } from '../utils/types'\n     3\t\n     4\t/**\n     5\t * Checks if T is a literal union type (e.g., 'asc' | 'desc')\n     6\t * that should be preserved in input types.\n     7\t * Returns true for union literals, false for single literals or wide types.\n     8\t */\n     9\texport type IsLiteralUnion<T, Base> = [Exclude<T, undefined>] extends [Base]\n    10\t  ? [Exclude<T, undefined>] extends [UnionToIntersection<Exclude<T, undefined>>]\n    11\t    ? false\n    12\t    : true\n    13\t  : false\n    14\t\n    15\t// Check if type is an optional union (T | undefined) but not unknown/any\n    16\ttype IsOptionalUnion<T> = [unknown] extends [T]\n    17\t  ? false // unknown or any\n    18\t  : undefined extends T\n    19\t    ? true\n    20\t    : false\n    21\t\n    22\t// Helper to force TypeScript to expand type aliases\n    23\ttype SimplifyDeep<T> = { [K in keyof T]: T[K] } & {}\n    24\t\n    25\ttype InferInputInner<\n    26\t  Output,\n    27\t  Target extends keyof ValidationTargets,\n    28\t  T extends FormValue,\n    29\t> = SimplifyDeep<{\n    30\t  [K in keyof Output]: IsLiteralUnion<Output[K], string> extends true\n    31\t    ? Output[K]\n    32\t    : IsOptionalUnion<Output[K]> extends true\n    33\t      ? Output[K]\n    34\t      : Target extends 'form'\n    35\t        ? T | T[]\n    36\t        : Target extends 'query'\n    37\t          ? string | string[]\n    38\t          : Target extends 'param'\n    39\t            ? string\n    40\t            : Target extends 'header'\n    41\t              ? string\n    42\t              : Target extends 'cookie'\n    43\t                ? string\n    44\t                : unknown\n    45\t}>\n    46\t\n    47\t/**\n    48\t * Utility type to infer input types for validation targets.\n    49\t * Preserves literal union types (e.g., 'asc' | 'desc') while using\n    50\t * the default ValidationTargets type for other values.\n    51\t *\n    52\t * @example\n    53\t * ```ts\n    54\t * // In @hono/zod-validator or similar:\n    55\t * type Input = InferInput<z.input<Schema>, 'query'>\n    56\t * // { orderBy: 'asc' | 'desc', page: string | string[] }\n    57\t * ```\n    58\t */\n    59\texport type InferInput<\n    60\t  Output,\n    61\t  Target extends keyof ValidationTargets,\n    62\t  T extends FormValue = ParsedFormValue,\n    63\t> = [Exclude<Output, undefined>] extends [never]\n    64\t  ? {}\n    65\t  : [Exclude<Output, undefined>] extends [object]\n    66\t    ? undefined extends Output\n    67\t      ? SimplifyDeep<InferInputInner<Exclude<Output, undefined>, Target, T>> | undefined\n    68\t      : SimplifyDeep<InferInputInner<Output, Target, T>>\n    69\t    : {}"
+    },
+    {
+      "tool": "Grep",
+      "args": {
+        "pattern": "MiddlewareHandler\\b",
+        "path": "src/types.ts",
+        "output_mode": "content"
+      },
+      "result_preview": "83:export type MiddlewareHandler<\r\n95:> = Handler<E, P, I, R> | MiddlewareHandler<E, P, I, R>\r\n1087:    ...handlers: MiddlewareHandler<E2, MergePath<BasePath, '*'>>[]\r\n1092:    handler: MiddlewareHandler<E2, MergePath<BasePath, '*'>>\r\n1101:    ...handlers: [MiddlewareHandler<E2, P>, MiddlewareHandler<E3, P>]\r\n1107:    handler: MiddlewareHandler<E2, MergedPath, any, any>\r\n1118:      MiddlewareHandler<E2, P, any, any>,\r\n1119:      MiddlewareHandler<E3, P, any, any>,\r\n1120:      MiddlewareHandler<E4, P, any, any>,\r\n1132:    ...handlers: [MiddlewareHandler<E2, P>, MiddlewareHandler<E3, P>]\r\n1144:      MiddlewareHandler<E2, P>,\r\n1145:      MiddlewareHandler<E3, P>,\r\n1146:      MiddlewareHandler<E4, P>,\r\n1147:      MiddlewareHandler<E5, P>,\r\n1160:    ...handlers: [MiddlewareHandler<E2, P>, MiddlewareHandler<E3, P>, MiddlewareHandler<E4, P>]\r\n1173:      MiddlewareHandler<E2, P>,\r\n1174:      MiddlewareHandler<E3, P>,\r\n1175:      MiddlewareHandler<E4, P>,\r\n1176:      MiddlewareHandler<E5, P>,\r\n1177:      MiddlewareHandler<E6, P>,\r\n1192:      MiddlewareHandler<E2, P>,\r\n1193:      MiddlewareHandler<E3, P>,\r\n1194:      MiddlewareHandler<E4, P>,\r\n1195:      MiddlewareHandler<E5, P>,\r\n1210:      MiddlewareHandler<E2, P>,\r\n1211:      MiddlewareHandler<E3, P>,\r\n1212:      MiddlewareHandler<E4, P>,\r\n1213:      MiddlewareHandler<E5, P>,\r\n1214:      MiddlewareHandler<E6, P>,\r\n1215:      MiddlewareHandler<E7, P>,\r\n1231:      MiddlewareHandler<E2, P>,\r\n1232:      MiddlewareHandler<E3, P>,\r\n1233:      MiddlewareHandler<E4, P>,\r\n1234:      MiddlewareHandler<E5, P>,\r\n1235:      MiddlewareHandler<E6, P>,\r\n1251:      MiddlewareHandler<E2, P>,\r\n1252:      MiddlewareHandler<E3, P>,\r\n1253:      MiddlewareHandler<E4, P>,\r\n1254:      MiddlewareHandler<E5, P>,\r\n1255:      MiddlewareHandler<E6, P>,\r\n1256:      MiddlewareHandler<E7, P>,\r\n1257:      MiddlewareHandler<E8, P>,\r\n1274:      MiddlewareHandler<E2, P>,\r\n1275:      MiddlewareHandler<E3, P>,\r\n1276:      MiddlewareHandler<E4, P>,\r\n1277:      MiddlewareHandler<E5, P>,\r\n1278:      MiddlewareHandler<E6, P>,\r\n1279:      MiddlewareHandler<E7, P>,\r\n1296:      MiddlewareHandler<E2, P>,\r\n1297:      MiddlewareHandler<E3, P>,\r\n1298:      MiddlewareHandler<E4, P>,\r\n1299:      MiddlewareHandler<E5, P>,\r\n1300:      MiddlewareHandler<E6, P>,\r\n1301:      MiddlewareHandler<E7, P>,\r\n1302:      MiddlewareHandler<E8, P>,\r\n1303:      MiddlewareHandler<E9, P>,\r\n1321:      MiddlewareHandler<E2, P>,\r\n1322:      MiddlewareHandler<E3, P>,\r\n1323:      MiddlewareHandler<E4, P>,\r\n1324:      MiddlewareHandler<E5, P>,\r\n1325:      MiddlewareHandler<E6, P>,\r\n1326:      MiddlewareHandler<E7, P>,\r\n1327:      MiddlewareHandler<E8, P>,\r\n1345:      MiddlewareHandler<E2, P>,\r\n1346:      MiddlewareHandler<E3, P>,\r\n1347:      MiddlewareHandler<E4, P>,\r\n1348:      MiddlewareHandler<E5, P>,\r\n1349:      MiddlewareHandler<E6, P>,\r\n1350:      MiddlewareHandler<E7, P>,\r\n1351:      MiddlewareHandler<E8, P>,\r\n1352:      MiddlewareHandler<E9, P>,\r\n1353:      MiddlewareHandler<E10, P>,\r\n1372:      MiddlewareHandler<E2, P>,\r\n1373:      MiddlewareHandler<E3, P>,\r\n1374:      MiddlewareHandler<E4, P>,\r\n1375:      MiddlewareHandler<E5, P>,\r\n1376:      MiddlewareHandler<E6, P>,\r\n1377:      MiddlewareHandler<E7, P>,\r\n1378:      MiddlewareHandler<E8, P>,\r\n1379:      MiddlewareHandler<E9, P>,\r\n1398:      MiddlewareHandler<E2, P>,\r\n1399:      MiddlewareHandler<E3, P>,\r\n1400:      MiddlewareHandler<E4, P>,\r\n1401:      MiddlewareHandler<E5, P>,\r\n1402:      MiddlewareHandler<E6, P>,\r\n1403:      MiddlewareHandler<E7, P>,\r\n1404:      MiddlewareHandler<E8, P>,\r\n1405:      MiddlewareHandler<E9, P>,\r\n1406:      MiddlewareHandler<E10, P>,\r\n1407:      MiddlewareHandler<E11, P>,\r\n1427:      MiddlewareHandler<E2, P>,\r\n1428:      MiddlewareHandler<E3, P>,\r\n1429:      MiddlewareHandler<E4, P>,\r\n1430:      MiddlewareHandler<E5, P>,\r\n1431:      MiddlewareHandler<E6, P>,\r\n1432:      MiddlewareHandler<E7, P>,\r\n1433:      MiddlewareHandler<E8, P>,\r\n1434:      MiddlewareHandler<E9, P>,\r\n1435:      MiddlewareHandler<E10, P>,\r\n1447:    ...handlers: MiddlewareHandler<E2, MergePath<BasePath, P>>[]\r\n"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "src/types.ts",
+        "offset": 75,
+        "limit": 100
+      },
+      "result_preview": "    75\t\n    76\texport type Handler<\n    77\t  E extends Env = any,\n    78\t  P extends string = any,\n    79\t  I extends Input = BlankInput,\n    80\t  R extends HandlerResponse<any> = any,\n    81\t> = (c: Context<E, P, I>, next: Next) => R\n    82\t\n    83\texport type MiddlewareHandler<\n    84\t  E extends Env = any,\n    85\t  P extends string = string,\n    86\t  I extends Input = {},\n    87\t  R extends HandlerResponse<any> = Response,\n    88\t> = (c: Context<E, P, I>, next: Next) => Promise<R | void>\n    89\t\n    90\texport type H<\n    91\t  E extends Env = any,\n    92\t  P extends string = any,\n    93\t  I extends Input = BlankInput,\n    94\t  R extends HandlerResponse<any> = any,\n    95\t> = Handler<E, P, I, R> | MiddlewareHandler<E, P, I, R>\n    96\t\n    97\t/**\n    98\t * You can extend this interface to define a custom `c.notFound()` Response type.\n    99\t *\n   100\t * @example\n   101\t * declare module 'hono' {\n   102\t *   interface NotFoundResponse extends Response, TypedResponse<string, 404, 'text'> {}\n   103\t * }\n   104\t */\n   105\texport interface NotFoundResponse {}\n   106\t\n   107\texport type NotFoundHandler<E extends Env = any> = (\n   108\t  c: Context<E>\n   109\t) => NotFoundResponse extends Response\n   110\t  ? NotFoundResponse | Promise<NotFoundResponse>\n   111\t  : Response | Promise<Response>\n   112\t\n   113\texport interface HTTPResponseError extends Error {\n   114\t  getResponse: () => Response\n   115\t}\n   116\texport type ErrorHandler<E extends Env = any> = (\n   117\t  err: Error | HTTPResponseError,\n   118\t  c: Context<E>\n   119\t) => Response | Promise<Response>\n   120\t\n   121\t////////////////////////////////////////\n   122\t//////                            //////\n   123\t//////     HandlerInterface       //////\n   124\t//////                            //////\n   125\t////////////////////////////////////////\n   126\t\n   127\texport interface HandlerInterface<\n   128\t  E extends Env = Env,\n   129\t  M extends string = string,\n   130\t  S extends Schema = BlankSchema,\n   131\t  BasePath extends string = '/',\n   132\t  CurrentPath extends string = BasePath,\n   133\t> {\n   134\t  // app.get(handler)\n   135\t  <\n   136\t    P extends string = CurrentPath,\n   137\t    I extends Input = BlankInput,\n   138\t    R extends HandlerResponse<any> = any,\n   139\t    E2 extends Env = E,\n   140\t  >(\n   141\t    handler: H<E2, P, I, R>\n   142\t  ): HonoBase<\n   143\t    IntersectNonAnyTypes<[E, E2]>,\n   144\t    S & ToSchema<M, P, I, MergeTypedResponse<R>>,\n   145\t    BasePath,\n   146\t    CurrentPath\n   147\t  >\n   148\t\n   149\t  // app.get(handler x2)\n   150\t  <\n   151\t    P extends string = CurrentPath,\n   152\t    I extends Input = BlankInput,\n   153\t    I2 extends Input = I,\n   154\t    R extends HandlerResponse<any> = any,\n   155\t    E2 extends Env = E,\n   156\t    E3 extends Env = IntersectNonAnyTypes<[E, E2]>,\n   157\t    M1 extends H<E2, P, I> = H<E2, P, I>,\n   158\t  >(\n   159\t    ...handlers: [H<E2, P, I> & M1, H<E3, P, I2, R>]\n   160\t  ): HonoBase<\n   161\t    IntersectNonAnyTypes<[E, E2, E3]>,\n   162\t    S & ToSchema<M, P, I2, MergeTypedResponse<R> | MergeMiddlewareResponse<M1>>,\n   163\t    BasePath,\n   164\t    CurrentPath\n   165\t  >\n   166\t\n   167\t  // app.get(path, handler)\n   168\t  <\n   169\t    P extends string,\n   170\t    MergedPath extends MergePath<BasePath, P>,\n   171\t    R extends HandlerResponse<any> = any,\n   172\t    I extends Input = BlankInput,\n   173\t    E2 extends Env = E,\n   174\t  >("
+    },
+    {
+      "tool": "Grep",
+      "args": {
+        "pattern": "^export (type|interface) (Input|ToSchema|Schema)\\b",
+        "path": "src/types.ts",
+        "output_mode": "content"
+      },
+      "result_preview": "42:export type Input = {\r\n2210:export type ToSchema<\r\n2241:export type Schema = {\r\n"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "src/types.ts",
+        "offset": 42,
+        "limit": 35
+      },
+      "result_preview": "    42\texport type Input = {\n    43\t  in?: {}\n    44\t  out?: {}\n    45\t  outputFormat?: ResponseFormat\n    46\t}\n    47\t\n    48\texport type BlankSchema = {}\n    49\texport type BlankInput = {}\n    50\t\n    51\t////////////////////////////////////////\n    52\t//////                            //////\n    53\t//////          Routes            //////\n    54\t//////                            //////\n    55\t////////////////////////////////////////\n    56\t\n    57\texport interface RouterRoute {\n    58\t  basePath: string\n    59\t  path: string\n    60\t  method: string\n    61\t  handler: H\n    62\t}\n    63\t\n    64\t////////////////////////////////////////\n    65\t//////                            //////\n    66\t//////          Handlers          //////\n    67\t//////                            //////\n    68\t////////////////////////////////////////\n    69\t\n    70\texport type HandlerResponse<O> =\n    71\t  | Response\n    72\t  | TypedResponse<O>\n    73\t  | Promise<Response | TypedResponse<O>>\n    74\t  | Promise<void>\n    75\t\n    76\texport type Handler<"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "src/types.ts",
+        "offset": 2210,
+        "limit": 70
+      },
+      "result_preview": "  2210\texport type ToSchema<\n  2211\t  M extends string,\n  2212\t  P extends string,\n  2213\t  I extends Input | Input['in'],\n  2214\t  RorO, // Response or Output\n  2215\t> =\n  2216\t  IsAny<RorO> extends true\n  2217\t    ? {\n  2218\t        [K in P]: {\n  2219\t          [K2 in M as AddDollar<K2>]: {\n  2220\t            input: AddParam<ExtractInput<I>, P>\n  2221\t            output: {}\n  2222\t            outputFormat: ResponseFormat\n  2223\t            status: StatusCode\n  2224\t          }\n  2225\t        }\n  2226\t      }\n  2227\t    : [RorO] extends [never]\n  2228\t      ? {}\n  2229\t      : [RorO] extends [Promise<void>]\n  2230\t        ? {}\n  2231\t        : {\n  2232\t            [K in P]: {\n  2233\t              [K2 in M as AddDollar<K2>]: Simplify<\n  2234\t                {\n  2235\t                  input: AddParam<ExtractInput<I>, P>\n  2236\t                } & ToSchemaOutput<RorO, I>\n  2237\t              >\n  2238\t            }\n  2239\t          }\n  2240\t\n  2241\texport type Schema = {\n  2242\t  [Path: string]: {\n  2243\t    [Method: `$${Lowercase<string>}`]: Endpoint\n  2244\t  }\n  2245\t}\n  2246\t\n  2247\ttype AddSchemaIfHasResponse<\n  2248\t  Merged,\n  2249\t  S extends Schema,\n  2250\t  M extends string,\n  2251\t  P extends string,\n  2252\t  I extends Input | Input['in'],\n  2253\t  BasePath extends string,\n  2254\t> = [Merged] extends [Promise<void>] ? S : S & ToSchema<M, MergePath<BasePath, P>, I, Merged>\n  2255\t\n  2256\texport type Endpoint = {\n  2257\t  input: any\n  2258\t  output: any\n  2259\t  outputFormat: ResponseFormat\n  2260\t  status: StatusCode\n  2261\t}\n  2262\t\n  2263\ttype ExtractParams<Path extends string> = string extends Path\n  2264\t  ? Record<string, string>\n  2265\t  : Path extends `${infer _Start}:${infer Param}/${infer Rest}`\n  2266\t    ? { [K in Param | keyof ExtractParams<`/${Rest}`>]: string }\n  2267\t    : Path extends `${infer _Start}:${infer Param}`\n  2268\t      ? { [K in Param]: string }\n  2269\t      : never\n  2270\t\n  2271\ttype FlattenIfIntersect<T> = T extends infer O ? { [K in keyof O]: O[K] } : never\n  2272\t\n  2273\texport type MergeSchemaPath<OrigSchema extends Schema, SubPath extends string> = {\n  2274\t  [P in keyof OrigSchema as MergePath<SubPath, P & string>]: [OrigSchema[P]] extends [\n  2275\t    Record<string, Endpoint>,\n  2276\t  ]\n  2277\t    ? { [M in keyof OrigSchema[P]]: MergeEndpointParamsWithPath<OrigSchema[P][M], SubPath> }\n  2278\t    : never\n  2279\t}"
+    },
+    {
+      "tool": "Grep",
+      "args": {
+        "pattern": "valid\\b",
+        "path": "src/request.ts",
+        "output_mode": "content"
+      },
+      "result_preview": "333:   * @see https://hono.dev/docs/api/request#valid\r\n335:  valid<T extends keyof I & keyof ValidationTargets>(target: T): InputToDataByTarget<I, T>\r\n336:  valid(target: keyof ValidationTargets) {\r\n452: *     const validated = c.req.valid('json')\r\n"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "src/request.ts",
+        "offset": 320,
+        "limit": 30
+      },
+      "result_preview": "   320\t   * @param target - The target of the validation.\n   321\t   * @param data - The validated data to add.\n   322\t   */\n   323\t  addValidatedData(target: keyof ValidationTargets, data: {}) {\n   324\t    this.#validatedData[target] = data\n   325\t  }\n   326\t\n   327\t  /**\n   328\t   * Gets validated data from the request.\n   329\t   *\n   330\t   * @param target - The target of the validation.\n   331\t   * @returns The validated data.\n   332\t   *\n   333\t   * @see https://hono.dev/docs/api/request#valid\n   334\t   */\n   335\t  valid<T extends keyof I & keyof ValidationTargets>(target: T): InputToDataByTarget<I, T>\n   336\t  valid(target: keyof ValidationTargets) {\n   337\t    return this.#validatedData[target] as unknown\n   338\t  }\n   339\t\n   340\t  /**\n   341\t   * `.url()` can get the request url strings.\n   342\t   *\n   343\t   * @see {@link https://hono.dev/docs/api/request#url}\n   344\t   *\n   345\t   * @example\n   346\t   * ```ts\n   347\t   * app.get('/about/me', (c) => {\n   348\t   *   const url = c.req.url // `http://localhost:8787/about/me`\n   349\t   *   ..."
+    },
+    {
+      "tool": "Grep",
+      "args": {
+        "pattern": "InputToDataByTarget",
+        "path": "src",
+        "output_mode": "content"
+      },
+      "result_preview": "C:\\CodeWork\\ContextAtlas-benchmarks\\repos\\hono\\src\\types.test.ts:14:  InputToDataByTarget,\r\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\hono\\src\\types.test.ts:720:    type Actual = InputToDataByTarget<Input, 'json'>\r\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\hono\\src\\types.test.ts:729:    type Actual = InputToDataByTarget<Input, 'form'>\r\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\hono\\src\\request.ts:7:  InputToDataByTarget,\r\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\hono\\src\\request.ts:335:  valid<T extends keyof I & keyof ValidationTargets>(target: T): InputToDataByTarget<I, T>\r\nC:\\CodeWork\\ContextAtlas-benchmarks\\repos\\hono\\src\\types.ts:2430:export type InputToDataByTarget<\r\n"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "src/types.ts",
+        "offset": 2425,
+        "limit": 25
+      },
+      "result_preview": "  2425\t//////                            //////\n  2426\t/////       For HonoRequest       //////\n  2427\t//////                            //////\n  2428\t////////////////////////////////////////\n  2429\t\n  2430\texport type InputToDataByTarget<\n  2431\t  T extends Input['out'],\n  2432\t  Target extends keyof ValidationTargets,\n  2433\t> = T extends {\n  2434\t  [K in Target]: infer R\n  2435\t}\n  2436\t  ? R\n  2437\t  : never\n  2438\t\n  2439\texport type RemoveQuestion<T> = T extends `${infer R}?` ? R : T\n  2440\t\n  2441\t////////////////////////////////////////\n  2442\t//////                            //////\n  2443\t//////         Utilities          //////\n  2444\t//////                            //////\n  2445\t////////////////////////////////////////\n  2446\t\n  2447\texport type ExtractSchema<T> = UnionToIntersection<\n  2448\t  T extends HonoBase<infer _, infer S, any, any> ? S : never\n  2449\t>"
+    },
+    {
+      "tool": "LS",
+      "args": {
+        "path": "src/client"
+      },
+      "result_preview": "client.test.ts\nclient.ts\nfetch-result-please.ts\nindex.ts\ntypes.test.ts\ntypes.ts\nutils.test.ts\nutils.ts"
+    },
+    {
+      "tool": "Grep",
+      "args": {
+        "pattern": "input|InputToData|ExtractInput",
+        "path": "src/client/types.ts",
+        "output_mode": "content"
+      },
+      "result_preview": "68:  [M in keyof ExpandAllMethod<S>]: ExpandAllMethod<S>[M] extends Endpoint & { input: infer R }\r\n84:      | (S[keyof S] extends { input: infer R }\r\n99:      | (S[keyof S] extends { input: infer R }\r\n113:    ? S['$get'] extends { input: infer I }\r\n245:    ? { input: NonNullable<R>; output: O; outputFormat: F; status: S } extends Endpoint\r\n246:      ? { input: NonNullable<R>; output: O; outputFormat: F; status: S }\r\n"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "src/client/types.ts",
+        "offset": 60,
+        "limit": 120
+      },
+      "result_preview": "    60\t        | Record<string, string>\n    61\t        | (() => Record<string, string> | Promise<Record<string, string>>)\n    62\t    }\n    63\t  : {\n    64\t      headers: T | (() => T | Promise<T>)\n    65\t    })\n    66\t\n    67\texport type ClientRequest<Prefix extends string, Path extends string, S extends Schema> = {\n    68\t  [M in keyof ExpandAllMethod<S>]: ExpandAllMethod<S>[M] extends Endpoint & { input: infer R }\n    69\t    ? R extends object\n    70\t      ? HasRequiredKeys<R> extends true\n    71\t        ? (\n    72\t            args: R,\n    73\t            options?: ClientRequestOptions\n    74\t          ) => Promise<ClientResponseOfEndpoint<ExpandAllMethod<S>[M]>>\n    75\t        : (\n    76\t            args?: R,\n    77\t            options?: ClientRequestOptions\n    78\t          ) => Promise<ClientResponseOfEndpoint<ExpandAllMethod<S>[M]>>\n    79\t      : never\n    80\t    : never\n    81\t} & {\n    82\t  $url: <\n    83\t    const Arg extends\n    84\t      | (S[keyof S] extends { input: infer R }\n    85\t          ? R extends { param: infer P }\n    86\t            ? R extends { query: infer Q }\n    87\t              ? { param: P; query: Q }\n    88\t              : { param: P }\n    89\t            : R extends { query: infer Q }\n    90\t              ? { query: Q }\n    91\t              : {}\n    92\t          : {})\n    93\t      | undefined = undefined,\n    94\t  >(\n    95\t    arg?: Arg\n    96\t  ) => HonoURL<Prefix, Path, Arg>\n    97\t  $path: <\n    98\t    const Arg extends\n    99\t      | (S[keyof S] extends { input: infer R }\n   100\t          ? R extends { param: infer P }\n   101\t            ? R extends { query: infer Q }\n   102\t              ? { param: P; query: Q }\n   103\t              : { param: P }\n   104\t            : R extends { query: infer Q }\n   105\t              ? { query: Q }\n   106\t              : {}\n   107\t          : {})\n   108\t      | undefined = undefined,\n   109\t  >(\n   110\t    arg?: Arg\n   111\t  ) => BuildPath<Path, Arg>\n   112\t} & (S['$get'] extends { outputFormat: 'ws' }\n   113\t    ? S['$get'] extends { input: infer I }\n   114\t      ? {\n   115\t          $ws: (args?: I) => WebSocket\n   116\t        }\n   117\t      : {}\n   118\t    : {})\n   119\t\n   120\ttype ClientResponseOfEndpoint<T extends Endpoint = Endpoint> = T extends {\n   121\t  output: infer O\n   122\t  outputFormat: infer F\n   123\t  status: infer S\n   124\t}\n   125\t  ? ClientResponse<O, S extends number ? S : never, F extends ResponseFormat ? F : never>\n   126\t  : never\n   127\t\n   128\texport interface ClientResponse<\n   129\t  T,\n   130\t  U extends number = StatusCode,\n   131\t  F extends ResponseFormat = ResponseFormat,\n   132\t> {\n   133\t  readonly body: ReadableStream | null\n   134\t  readonly bodyUsed: boolean\n   135\t  ok: U extends SuccessStatusCode\n   136\t    ? true\n   137\t    : U extends Exclude<StatusCode, SuccessStatusCode>\n   138\t      ? false\n   139\t      : boolean\n   140\t  redirected: boolean\n   141\t  status: U\n   142\t  statusText: string\n   143\t  type: 'basic' | 'cors' | 'default' | 'error' | 'opaque' | 'opaqueredirect'\n   144\t  headers: Headers\n   145\t  url: string\n   146\t  redirect(url: string, status: number): Response\n   147\t  clone(): Response\n   148\t  bytes(): Promise<Uint8Array<ArrayBuffer>>\n   149\t  json(): F extends 'text' ? Promise<never> : F extends 'json' ? Promise<T> : Promise<unknown>\n   150\t  text(): F extends 'text' ? (T extends string ? Promise<T> : Promise<never>) : Promise<string>\n   151\t  blob(): Promise<Blob>\n   152\t  formData(): Promise<FormData>\n   153\t  arrayBuffer(): Promise<ArrayBuffer>\n   154\t}\n   155\t\n   156\ttype BuildSearch<Arg, Key extends 'query'> = Arg extends { [K in Key]: infer Query }\n   157\t  ? IsEmptyObject<Query> extends true\n   158\t    ? ''\n   159\t    : `?${string}`\n   160\t  : ''\n   161\t\n   162\ttype BuildPathname<P extends string, Arg> = Arg extends { param: infer Param }\n   163\t  ? `${ApplyParam<TrimStartSlash<P>, Param>}`\n   164\t  : `/${TrimStartSlash<P>}`\n   165\t\n   166\ttype BuildPath<P extends string, Arg> = `${BuildPathname<P, Arg>}${BuildSearch<Arg, 'query'>}`\n   167\t\n   168\ttype BuildTypedURL<\n   169\t  Protocol extends string,\n   170\t  Host extends string,\n   171\t  Port extends string,\n   172\t  P extends string,\n   173\t  Arg,\n   174\t> = TypedURL<`${Protocol}:`, Host, Port, BuildPathname<P, Arg>, BuildSearch<Arg, 'query'>>\n   175\t\n   176\ttype HonoURL<Prefix extends string, Path extends string, Arg> =\n   177\t  IsLiteral<Prefix> extends true\n   178\t    ? TrimEndSlash<Prefix> extends `${infer Protocol}://${infer Rest}`\n   179\t      ? Rest extends `${infer Hostname}/${infer P}`"
+    },
+    {
+      "tool": "Grep",
+      "args": {
+        "pattern": "^(export )?type ExtractInput\\b",
+        "path": "src/types.ts",
+        "output_mode": "content"
+      },
+      "result_preview": "37:export type ExtractInput<I extends Input | Input['in']> = I extends Input\r\n"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "src/types.ts",
+        "offset": 37,
+        "limit": 8
+      },
+      "result_preview": "    37\texport type ExtractInput<I extends Input | Input['in']> = I extends Input\n    38\t  ? unknown extends I['in']\n    39\t    ? {}\n    40\t    : I['in']\n    41\t  : I\n    42\texport type Input = {\n    43\t  in?: {}\n    44\t  out?: {}"
+    }
+  ],
+  "cost_usd": 3.44445,
+  "written_at": "2026-04-28T01:04:43.939Z"
+}

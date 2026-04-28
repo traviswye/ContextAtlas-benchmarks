@@ -1,0 +1,196 @@
+{
+  "prompt_id": "h5-hono-generics",
+  "repo": "hono",
+  "condition": "beta",
+  "target_symbol": "Hono",
+  "bucket": "tie",
+  "metrics": {
+    "tool_calls": 17,
+    "input_tokens": 23,
+    "output_tokens": 4242,
+    "total_tokens": 172310,
+    "wall_clock_ms": 69345
+  },
+  "capped": null,
+  "answer": "Based on the Hono atlas, here's what would need to update if you change the `Hono` class's type parameters.\n\n## Background: there are actually two `Hono` class shapes\n\nThe atlas distinguishes a base class and a re-exported wrapper:\n\n- **`HonoBase<E, S, BasePath, CurrentPath>`** — `src/hono-base.ts:98`\n  `class Hono< E extends Env = Env, S extends Schema = {}, BasePath extends string = '/', CurrentPath extends string = BasePath >`\n- **`Hono<E, S, BasePath>` (re-export)** — `src/hono.ts:16`\n  `class Hono<...> extends HonoBase<E, S, BasePath>`\n\nThere are also two preset re-exports of the same shape:\n- `src/preset/quick.ts:13` — `class Hono<...> extends HonoBase<E, S, BasePath>`\n- `src/preset/tiny.ts:11` — `class Hono<...> extends HonoBase<E, S, BasePath>`\n\nSo the first downstream impact is: **`src/hono.ts`, `src/preset/quick.ts`, and `src/preset/tiny.ts` all have to keep their generic list aligned with `HonoBase`**.\n\n## Methods on the class that return `Hono<...>`\n\nThese method signatures bake in `E, S, BasePath, CurrentPath` and would need to be re-shaped:\n\n- `basePath` — `src/hono-base.ts:247` → `Hono<E, S, MergePath<BasePath, SubPath>, MergePath<BasePath, SubPath>>`\n- `mount` — `src/hono-base.ts:328` → `Hono<E, S, BasePath, CurrentPath>`\n- `#clone` — `src/hono-base.ts` (line ~177) → `Hono<E, S, BasePath, CurrentPath>`\n- `route` — `src/hono-base.ts:208` (return type relies on the same params)\n\n## Conditional / inference types that destructure `HonoBase` or `Hono`\n\nThese all pattern-match on the generic positions, so any reordering or new parameter would break them:\n\n- **`ExtractSchema<T>`** — `src/types.ts:2447`\n  `T extends HonoBase<infer _, infer S, any, any> ? S : never`\n- **`ExtractSchemaForStatusCode<T, Status>`** — `src/types.ts:2451` (built on `ExtractSchema`)\n- **`Client<T, Prefix>`** — `src/client/types.ts:311`\n  `T extends HonoBase<any, infer S, any> ? ...`\n- **`ApplyGlobalResponse<App, Def>`** — `src/client/types.ts:358`\n  `App extends HonoBase<infer E, infer _ extends Schema, infer B> ? ... Hono<E, S, B> : never`\n- **`PickResponseByStatusCode<App, U>`** — `src/client/types.ts:388`\n  `App extends HonoBase<infer E, infer _ extends Schema, infer B> ? ... Hono<E, S, B> : never`\n- **`ExtractEnv<T>`** — `src/helper/testing/index.ts:13`\n  `T extends Hono<infer E, Schema, string> ? E : never`\n\n## Helpers / middleware that name the class generically\n\n- **`InitApp<E>`** — `src/helper/factory/index.ts:18` → `(app: Hono<E>) => void`\n- **`MethodOverrideOptions`** — `src/middleware/method-override/index.ts:11` → `app: Hono<any, any, any>`\n\n## Summary of \"must touch\" sites if you change the parameter list\n\n| File | Symbol | Why it breaks |\n|---|---|---|\n| `src/hono.ts` | `Hono` (re-export) | Mirrors `HonoBase` generics |\n| `src/preset/quick.ts` | `Hono` | Mirrors `HonoBase` generics |\n| `src/preset/tiny.ts` | `Hono` | Mirrors `HonoBase` generics |\n| `src/hono-base.ts` | `basePath`, `mount`, `route`, `#clone` | Methods return `Hono<E, S, BasePath, CurrentPath>` |\n| `src/types.ts` | `ExtractSchema`, `ExtractSchemaForStatusCode` | `infer` over `HonoBase` slots |\n| `src/client/types.ts` | `Client`, `ApplyGlobalResponse`, `PickResponseByStatusCode` | `infer` over `HonoBase` slots, return `Hono<...>` |\n| `src/helper/testing/index.ts` | `ExtractEnv` | `T extends Hono<infer E, Schema, string>` |\n| `src/helper/factory/index.ts` | `InitApp` | `Hono<E>` parameter |\n| `src/middleware/method-override/index.ts` | `MethodOverrideOptions` | `Hono<any, any, any>` |\n\nA practical note from the atlas's git log: there is already a commit titled **\"fix(types): replace Hono with HonoBase to get better consistency of types (#3580)\"** — so the project's own pattern is to widen these consumer types to take `HonoBase` instead of `Hono` whenever the generic shape shifts. That's the precedent to follow if your change adds/removes a generic.",
+  "trace": [
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "ls atlases/hono/",
+        "description": "List Hono atlas directory contents"
+      },
+      "result_preview": "atlas.json\nindex.db\nindex.db-shm\nindex.db-wal"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "cd atlases/hono && sqlite3 index.db \".tables\"",
+        "description": "List tables in Hono atlas database"
+      },
+      "result_preview": "This Bash command contains multiple operations. The following part requires approval: sqlite3 index.db \".tables\""
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "sqlite3 atlases/hono/index.db \".tables\"",
+        "description": "List tables in Hono atlas database"
+      },
+      "result_preview": "This command requires approval"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "sqlite3 atlases/hono/index.db \".tables\"",
+        "description": "List tables in Hono atlas database",
+        "dangerouslyDisableSandbox": true
+      },
+      "result_preview": "This command requires approval"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "sqlite3 atlases/hono/index.db \".schema\"",
+        "description": "Show Hono atlas schema"
+      },
+      "result_preview": "This command requires approval"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "head -c 2000 atlases/hono/atlas.json",
+        "description": "Read first part of atlas.json"
+      },
+      "result_preview": "{\n  \"version\": \"1.1\",\n  \"generated_at\": \"2026-04-27T19:56:27.496Z\",\n  \"extracted_at_sha\": \"cf2d2b7edcf07adef2db7614557f4d7f9e2be7ba\",\n  \"generator\": {\n    \"contextatlas_version\": \"0.0.1\",\n    \"contextatlas_commit_sha\": \"4308de5574f332626e0a09e91727f072aee9194b\",\n    \"extraction_model\": \"claude-opus-4-7\"\n  },\n  \"source_shas\": {\n    \"ADR-01-web-standards-zero-deps.md\": \"f0859390aa48e8cb056f926a6ae36a8d30c7cb233bac1553b82649543607fa6b\",\n    \"ADR-02-router-interface-and-presets.md\": \"611b65231bd15a6e7fa7de69e287ad2dfe48c3e419e52d0f5d4606031a762e49\",\n    \"ADR-03-onion-middleware-compose.md\": \"ff0af54899bc79db0167348a1c898512c7a10f9a7696821ec766bb10ba1d362e\",\n    \"ADR-04-type-inference-to-typed-client.md\": \"c48cd13c3a58c91330dfc7bbc227adddb8d785a559c002707e5ec9d8be6d0564\",\n    \"ADR-05-dual-jsx-backends.md\": \"85ca7513ba55ce5eee8e66e6139105044f28033e1e4f4fc7d09cf22c25f02a32\",\n    \"benchmarks/deno/fast.ts\": \"f7057eff513855e0a52f14b90070f7751725e14d52d30a07c9f489fe6f393a58\",\n    \"benchmarks/deno/faster.ts\": \"4cb879d9378a8a882a8899e61d081cf2556c49459d5232609377d1b2bd771c93\",\n    \"benchmarks/deno/hono.ts\": \"4dcbf241f17412be646dc21c6b86b56a8c98846a52aa9c98a25937c0c7d17aca\",\n    \"benchmarks/deno/magalo.ts\": \"7caeca0d3bd5bd1b031bf722e9e5397b0e5ec7ac9b5f95ecfbe77187d251ce6e\",\n    \"benchmarks/deno/oak.ts\": \"ec1ec19d34f83f4dff20cd89756e01c1411357344f39dbe360191ae931b6cd67\",\n    \"benchmarks/deno/opine.ts\": \"d396760194363d099e53e6f53cc8d5c63e56cd13cf3b220e4cad38421edcd2e8\",\n    \"benchmarks/http-server/benchmark.ts\": \"51f5032fe9f6a39a67ce42cbb9144d7e889924f2501288e53ca9c17cdb7f585a\",\n    \"benchmarks/jsx/src/benchmark.ts\": \"54bd8cd257149ad1a0727bd480c4b8f364b5c2cdb84fbda35789a5f0218059d4\",\n    \"benchmarks/jsx/src/hono.ts\": \"5e1530d823ccc42cdbdcdd60f38a737fcef29c9a6734e7d904ba10834ff3e968\",\n    \"benchmarks/jsx/src/nano.ts\": \"214183dc9c358bdaa8ac3582261cfe19187636b52bbb111624d43583acea9d77\",\n    \"benchmarks/jsx/src/page-react.tsx\": \"e654c83d66bdb798c949d6e134008b86be404b8d06d8c48dcb4abef79"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -n \"\\\"Hono\\\"\" atlases/hono/atlas.json | head -20",
+        "description": "Find Hono references in atlas"
+      },
+      "result_preview": "8209:      \"name\": \"Hono\",\n8726:      \"name\": \"Hono\",\n13931:      \"name\": \"Hono\",\n13958:      \"name\": \"Hono\","
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "C:\\CodeWork\\ContextAtlas-benchmarks\\atlases\\hono\\atlas.json",
+        "offset": 8200,
+        "limit": 120
+      },
+      "result_preview": "8200\t      \"name\": \"GetPath\",\n8201\t      \"kind\": \"type\",\n8202\t      \"path\": \"src/hono-base.ts\",\n8203\t      \"line\": 44,\n8204\t      \"signature\": \"type GetPath<E extends Env> = (request: Request, options?: { env?: E['Bindings'] }) => string\",\n8205\t      \"file_sha\": \"068061a01effa9a3af709e30abb5803310868186a177c8f57ed5e1886966fbb1\"\n8206\t    },\n8207\t    {\n8208\t      \"id\": \"sym:ts:src/hono-base.ts:Hono\",\n8209\t      \"name\": \"Hono\",\n8210\t      \"kind\": \"class\",\n8211\t      \"path\": \"src/hono-base.ts\",\n8212\t      \"line\": 98,\n8213\t      \"signature\": \"class Hono< E extends Env = Env, S extends Schema = {}, BasePath extends string = '/', CurrentPath extends string = BasePath, >\",\n8214\t      \"file_sha\": \"068061a01effa9a3af709e30abb5803310868186a177c8f57ed5e1886966fbb1\"\n8215\t    },\n8216\t    {\n8217\t      \"id\": \"sym:ts:src/hono-base.ts:HonoOptions\",\n8218\t      \"name\": \"HonoOptions\",\n8219\t      \"kind\": \"type\",\n8220\t      \"path\": \"src/hono-base.ts\",\n8221\t      \"line\": 46,\n8222\t      \"signature\": \"type HonoOptions<E extends Env> = { /** * `strict` option specifies whether to distinguish whether the last path is a directory or not. * * @see {@link https://hono.dev/docs/api/hono#strict-mode} *\",\n8223\t      \"file_sha\": \"068061a01effa9a3af709e30abb5803310868186a177c8f57ed5e1886966fbb1\"\n8224\t    },\n8225\t    {\n8226\t      \"id\": \"sym:ts:src/hono-base.ts:MountOptionHandler\",\n8227\t      \"name\": \"MountOptionHandler\",\n8228\t      \"kind\": \"type\",\n8229\t      \"path\": \"src/hono-base.ts\",\n8230\t      \"line\": 89,\n8231\t      \"signature\": \"type MountOptionHandler = (c: Context) => unknown\",\n8232\t      \"file_sha\": \"068061a01effa9a3af709e30abb5803310868186a177c8f57ed5e1886966fbb1\"\n8233\t    },\n8234\t    {\n8235\t      \"id\": \"sym:ts:src/hono-base.ts:MountOptions\",\n8236\t      \"name\": \"MountOptions\",\n8237\t      \"kind\": \"type\",\n8238\t      \"path\": \"src/hono-base.ts\",\n8239\t      \"line\": 91,\n8240\t      \"signature\": \"type MountOptions = | MountOptionHandler | { optionHandler?: MountOptionHandler replaceRequest?: MountReplaceRequest | false }\",\n8241\t      \"file_sha\": \"068061a01effa9a3af709e30abb5803310868186a177c8f57ed5e1886966fbb1\"\n8242\t    },\n8243\t    {\n8244\t      \"id\": \"sym:ts:src/hono-base.ts:MountReplaceRequest\",\n8245\t      \"name\": \"MountReplaceRequest\",\n8246\t      \"kind\": \"type\",\n8247\t      \"path\": \"src/hono-base.ts\",\n8248\t      \"line\": 90,\n8249\t      \"signature\": \"type MountReplaceRequest = (originalRequest: Request) => Request\",\n8250\t      \"file_sha\": \"068061a01effa9a3af709e30abb5803310868186a177c8f57ed5e1886966fbb1\"\n8251\t    },\n8252\t    {\n8253\t      \"id\": \"sym:ts:src/hono-base.ts:basePath\",\n8254\t      \"name\": \"basePath\",\n8255\t      \"kind\": \"method\",\n8256\t      \"path\": \"src/hono-base.ts\",\n8257\t      \"line\": 247,\n8258\t      \"signature\": \"basePath<SubPath extends string>( path: SubPath ): Hono<E, S, MergePath<BasePath, SubPath>, MergePath<BasePath, SubPath>>\",\n8259\t      \"file_sha\": \"068061a01effa9a3af709e30abb5803310868186a177c8f57ed5e1886966fbb1\"\n8260\t    },\n8261\t    {\n8262\t      \"id\": \"sym:ts:src/hono-base.ts:errorHandler\",\n8263\t      \"name\": \"errorHandler\",\n8264\t      \"kind\": \"variable\",\n8265\t      \"path\": \"src/hono-base.ts\",\n8266\t      \"line\": 35,\n8267\t      \"file_sha\": \"068061a01effa9a3af709e30abb5803310868186a177c8f57ed5e1886966fbb1\"\n8268\t    },\n8269\t    {\n8270\t      \"id\": \"sym:ts:src/hono-base.ts:mount\",\n8271\t      \"name\": \"mount\",\n8272\t      \"kind\": \"method\",\n8273\t      \"path\": \"src/hono-base.ts\",\n8274\t      \"line\": 328,\n8275\t      \"signature\": \"mount( path: string, applicationHandler: (request: Request, ...args: any) => Response | Promise<Response>, options?: MountOptions ): Hono<E, S, BasePath, CurrentPath>\",\n8276\t      \"file_sha\": \"068061a01effa9a3af709e30abb5803310868186a177c8f57ed5e1886966fbb1\"\n8277\t    },\n8278\t    {\n8279\t      \"id\": \"sym:ts:src/hono-base.ts:notFoundHandler\",\n8280\t      \"name\": \"notFoundHandler\",\n8281\t      \"kind\": \"variable\",\n8282\t      \"path\": \"src/hono-base.ts\",\n8283\t      \"line\": 31,\n8284\t      \"file_sha\": \"068061a01effa9a3af709e30abb5803310868186a177c8f57ed5e1886966fbb1\"\n8285\t    },\n8286\t    {\n8287\t      \"id\": \"sym:ts:src/hono-base.ts:route\",\n8288\t      \"name\": \"route\",\n8289\t      \"kind\": \"method\",\n8290\t      \"path\": \"src/hono-base.ts\",\n8291\t      \"line\": 208,\n8292\t      \"file_sha\": \"068061a01effa9a3af709e30abb5803310868186a177c8f57ed5e1886966fbb1\"\n8293\t    },\n8294\t    {\n8295\t      \"id\": \"sym:ts:src/hono.test.ts:'./context'\",\n8296\t      \"name\": \"'./context'\",\n8297\t      \"kind\": \"module\",\n8298\t      \"path\": \"src/hono.test.ts\",\n8299\t      \"line\": 2796,\n8300\t      \"file_sha\": \"eb2082dcd350fcf8598c23fda819745f41462c9c8d0160da3485e6a2c5564477\"\n8301\t    },\n8302\t    {\n8303\t      \"id\": \"sym:ts:src/hono.test.ts:ContextRenderer\",\n8304\t      \"name\": \"ContextRenderer\",\n8305\t      \"kind\": \"interface\",\n8306\t      \"path\": \"src/hono.test.ts\",\n8307\t      \"line\": 2797,\n8308\t      \"signature\": \"interface ContextRenderer\",\n8309\t      \"file_sha\": \"eb2082dcd350fcf8598c23fda819745f41462c9c8d0160da3485e6a2c5564477\"\n8310\t    },\n8311\t    {\n8312\t    \n\n[truncated: 321 additional bytes not shown]"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "C:\\CodeWork\\ContextAtlas-benchmarks\\atlases\\hono\\atlas.json",
+        "offset": 8720,
+        "limit": 60
+      },
+      "result_preview": "8720\t      \"line\": 18,\n8721\t      \"signature\": \"function throwExpression(errorMessage: string): never\",\n8722\t      \"file_sha\": \"eb2082dcd350fcf8598c23fda819745f41462c9c8d0160da3485e6a2c5564477\"\n8723\t    },\n8724\t    {\n8725\t      \"id\": \"sym:ts:src/hono.ts:Hono\",\n8726\t      \"name\": \"Hono\",\n8727\t      \"kind\": \"class\",\n8728\t      \"path\": \"src/hono.ts\",\n8729\t      \"line\": 16,\n8730\t      \"signature\": \"class Hono< E extends Env = BlankEnv, S extends Schema = BlankSchema, BasePath extends string = '/', > extends HonoBase<E, S, BasePath>\",\n8731\t      \"file_sha\": \"d39498b9bb339bfc72cbc3741d1dbd499b2fb9aa762204418c7a7c241bcae8d4\"\n8732\t    },\n8733\t    {\n8734\t      \"id\": \"sym:ts:src/http-exception.test.ts:describe('HTTPException') callback\",\n8735\t      \"name\": \"describe('HTTPException') callback\",\n8736\t      \"kind\": \"function\",\n8737\t      \"path\": \"src/http-exception.test.ts\",\n8738\t      \"line\": 3,\n8739\t      \"signature\": \"describe('HTTPException', () =>\",\n8740\t      \"file_sha\": \"9b11d05d295f33eafb5e7f410c1f4540174402f24d7d998bdcc6f56e11b7e2df\"\n8741\t    },\n8742\t    {\n8743\t      \"id\": \"sym:ts:src/http-exception.ts:HTTPException\",\n8744\t      \"name\": \"HTTPException\",\n8745\t      \"kind\": \"class\",\n8746\t      \"path\": \"src/http-exception.ts\",\n8747\t      \"line\": 46,\n8748\t      \"signature\": \"class HTTPException extends Error\",\n8749\t      \"file_sha\": \"6f37149536b482d7b654d69cf4c44ef1043679e5c04f635da24fe57f38770c36\"\n8750\t    },\n8751\t    {\n8752\t      \"id\": \"sym:ts:src/http-exception.ts:HTTPExceptionOptions\",\n8753\t      \"name\": \"HTTPExceptionOptions\",\n8754\t      \"kind\": \"type\",\n8755\t      \"path\": \"src/http-exception.ts\",\n8756\t      \"line\": 14,\n8757\t      \"signature\": \"type HTTPExceptionOptions = { res?: Response message?: string cause?: unknown }\",\n8758\t      \"file_sha\": \"6f37149536b482d7b654d69cf4c44ef1043679e5c04f635da24fe57f38770c36\"\n8759\t    },\n8760\t    {\n8761\t      \"id\": \"sym:ts:src/http-exception.ts:getResponse\",\n8762\t      \"name\": \"getResponse\",\n8763\t      \"kind\": \"method\",\n8764\t      \"path\": \"src/http-exception.ts\",\n8765\t      \"line\": 66,\n8766\t      \"signature\": \"getResponse(): Response\",\n8767\t      \"file_sha\": \"6f37149536b482d7b654d69cf4c44ef1043679e5c04f635da24fe57f38770c36\"\n8768\t    },\n8769\t    {\n8770\t      \"id\": \"sym:ts:src/jsx/base.test.tsx:describe('cloneElement') callback\",\n8771\t      \"name\": \"describe('cloneElement') callback\",\n8772\t      \"kind\": \"function\",\n8773\t      \"path\": \"src/jsx/base.test.tsx\",\n8774\t      \"line\": 7,\n8775\t      \"signature\": \"describe('cloneElement', () =>\",\n8776\t      \"file_sha\": \"783c6033821e12ee24acfed92f01c21605d04c87dd76b39f043bb1d0e43e7f0d\"\n8777\t    },\n8778\t    {\n8779\t      \"id\": \"sym:ts:src/jsx/base.ts:Child\","
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -n \"HonoBase\\|extends Hono\\|: Hono<\" atlases/hono/atlas.json | head -30",
+        "description": "Find HonoBase and Hono extensions"
+      },
+      "result_preview": "5052:      \"signature\": \"type ApplyGlobalResponse<App, Def extends GlobalResponseDefinition> = App extends HonoBase<infer E, infer _ extends Schema, infer B> ? ModSchema<ExtractSchema<App>, Def> extends infer S extends Schema ? Hono<E, S, B> : never : never\",\n5132:      \"signature\": \"type Client<T, Prefix extends string> = T extends HonoBase<any, infer S, any> ? S extends Record<infer K, Schema> ? K extends string ? PathToChain<Prefix, K, S> : never\",\n5347:      \"signature\": \"type PickResponseByStatusCode<App, U extends StatusCode> = App extends HonoBase<infer E, infer _ extends Schema, infer B> ? PickSchema<ExtractSchema<App>, U> extends infer S extends Schema ? Hono<E, S, B> : never : never\",\n7055:      \"signature\": \"type InitApp<E extends Env = Env> = (app: Hono<E>) => void\",\n7992:      \"signature\": \"type ExtractEnv<T> = T extends Hono<infer E, Schema, string> ? E : never // eslint-disable-next-line @typescript-eslint/no-explicit-any\",\n8177:      \"signature\": \"#clone(): Hono<E, S, BasePath, CurrentPath>\",\n8258:      \"signature\": \"basePath<SubPath extends string>( path: SubPath ): Hono<E, S, MergePath<BasePath, SubPath>, MergePath<BasePath, SubPath>>\",\n8275:      \"signature\": \"mount( path: string, applicationHandler: (request: Request, ...args: any) => Response | Promise<Response>, options?: MountOptions ): Hono<E, S, BasePath, CurrentPath>\",\n8730:      \"signature\": \"class Hono< E extends Env = BlankEnv, S extends Schema = BlankSchema, BasePath extends string = '/', > extends HonoBase<E, S, BasePath>\",\n13191:      \"signature\": \"type MethodOverrideOptions = { // eslint-disable-next-line @typescript-eslint/no-explicit-any app: Hono<any, any, any> } & ( | { // Default is 'form' and the value is `_method`\",\n13935:      \"signature\": \"class Hono< E extends Env = BlankEnv, S extends Schema = BlankSchema, BasePath extends string = '/', > extends HonoBase<E, S, BasePath>\",\n13962:      \"signature\": \"class Hono< E extends Env = BlankEnv, S extends Schema = BlankSchema, BasePath extends string = '/', > extends HonoBase<E, S, BasePath>\",\n15695:      \"signature\": \"type ExtractSchema<T> = UnionToIntersection< T extends HonoBase<infer _, infer S, any, any> ? S : never >\",\n20062:      \"claim\": \"Route registration must return a HonoBase whose Schema accumulates losslessly as `S & ToSchema<M, P, I, MergeTypedResponse<R>>`.\",\n21345:      \"claim\": \"Hono class extends HonoBase to provide routing setup and customizable options\",\n21347:      \"excerpt\": \"The Hono class extends the functionality of the HonoBase class. It sets up routing and allows for custom options to be passed.\",\n27516:      \"message\": \"fix(types): replace Hono with HonoBase to get better consistency of types (#3580)\","
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "C:\\CodeWork\\ContextAtlas-benchmarks\\atlases\\hono\\atlas.json",
+        "offset": 13920,
+        "limit": 60
+      },
+      "result_preview": "13920\t    {\n13921\t      \"id\": \"sym:ts:src/preset/quick.test.ts:describe('hono/quick preset') callback\",\n13922\t      \"name\": \"describe('hono/quick preset') callback\",\n13923\t      \"kind\": \"function\",\n13924\t      \"path\": \"src/preset/quick.test.ts\",\n13925\t      \"line\": 4,\n13926\t      \"signature\": \"describe('hono/quick preset', () =>\",\n13927\t      \"file_sha\": \"10b23dbe8d4c039522585180738773ccba7c7cbbcf9ac7e26a00154cbb36e2ad\"\n13928\t    },\n13929\t    {\n13930\t      \"id\": \"sym:ts:src/preset/quick.ts:Hono\",\n13931\t      \"name\": \"Hono\",\n13932\t      \"kind\": \"class\",\n13933\t      \"path\": \"src/preset/quick.ts\",\n13934\t      \"line\": 13,\n13935\t      \"signature\": \"class Hono< E extends Env = BlankEnv, S extends Schema = BlankSchema, BasePath extends string = '/', > extends HonoBase<E, S, BasePath>\",\n13936\t      \"file_sha\": \"6f317c3716e424f689eb5577be29bb18146181ae5016bcc499a1f4a1e9f4db9e\"\n13937\t    },\n13938\t    {\n13939\t      \"id\": \"sym:ts:src/preset/tiny.test.ts:describe('Generics for Bindings and Variables') callback\",\n13940\t      \"name\": \"describe('Generics for Bindings and Variables') callback\",\n13941\t      \"kind\": \"function\",\n13942\t      \"path\": \"src/preset/tiny.test.ts\",\n13943\t      \"line\": 11,\n13944\t      \"signature\": \"describe('Generics for Bindings and Variables', () =>\",\n13945\t      \"file_sha\": \"878f9c0cd445bee03e6c13de5ef9a03aa1b9c973b4aab322154bff9015ba4bdf\"\n13946\t    },\n13947\t    {\n13948\t      \"id\": \"sym:ts:src/preset/tiny.test.ts:describe('hono/tiny preset') callback\",\n13949\t      \"name\": \"describe('hono/tiny preset') callback\",\n13950\t      \"kind\": \"function\",\n13951\t      \"path\": \"src/preset/tiny.test.ts\",\n13952\t      \"line\": 4,\n13953\t      \"signature\": \"describe('hono/tiny preset', () =>\",\n13954\t      \"file_sha\": \"878f9c0cd445bee03e6c13de5ef9a03aa1b9c973b4aab322154bff9015ba4bdf\"\n13955\t    },\n13956\t    {\n13957\t      \"id\": \"sym:ts:src/preset/tiny.ts:Hono\",\n13958\t      \"name\": \"Hono\",\n13959\t      \"kind\": \"class\",\n13960\t      \"path\": \"src/preset/tiny.ts\",\n13961\t      \"line\": 11,\n13962\t      \"signature\": \"class Hono< E extends Env = BlankEnv, S extends Schema = BlankSchema, BasePath extends string = '/', > extends HonoBase<E, S, BasePath>\",\n13963\t      \"file_sha\": \"6143d909bb95394e1da8adeb21e19bd52fb9cba3f328a842033a24019a7fde5e\"\n13964\t    },\n13965\t    {\n13966\t      \"id\": \"sym:ts:src/request.test.ts:RecursiveRecord\",\n13967\t      \"name\": \"RecursiveRecord\",\n13968\t      \"kind\": \"type\",\n13969\t      \"path\": \"src/request.test.ts\",\n13970\t      \"line\": 5,\n13971\t      \"signature\": \"type RecursiveRecord<K extends string, T> = { [key in K]: T | RecursiveRecord<K, T> } describe('Query', () => { test('req.query() and req.queries()', () => {\",\n13972\t      \"file_sha\": \"2bc46018cd6dbc62a6532eb02afafb28c78af0a29febff87a28a428f0cc20801\"\n13973\t    },\n13974\t    {\n13975\t      \"id\": \"sym:ts:src/request.test.ts:buffer\",\n13976\t      \"name\": \"buffer\",\n13977\t      \"kind\": \"variable\",\n13978\t      \"path\": \"src/request.test.ts\",\n13979\t      \"line\": 243,"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "C:\\CodeWork\\ContextAtlas-benchmarks\\atlases\\hono\\atlas.json",
+        "offset": 5040,
+        "limit": 120
+      },
+      "result_preview": "5040\t      \"kind\": \"function\",\n5041\t      \"path\": \"src/client/types.test.ts\",\n5042\t      \"line\": 29,\n5043\t      \"signature\": \"describe('without the leading slash', () =>\",\n5044\t      \"file_sha\": \"fdfbbd3ca18d733d62cc585eb794079f78e5437d1495d20425d548e751867541\"\n5045\t    },\n5046\t    {\n5047\t      \"id\": \"sym:ts:src/client/types.ts:ApplyGlobalResponse\",\n5048\t      \"name\": \"ApplyGlobalResponse\",\n5049\t      \"kind\": \"type\",\n5050\t      \"path\": \"src/client/types.ts\",\n5051\t      \"line\": 358,\n5052\t      \"signature\": \"type ApplyGlobalResponse<App, Def extends GlobalResponseDefinition> = App extends HonoBase<infer E, infer _ extends Schema, infer B> ? ModSchema<ExtractSchema<App>, Def> extends infer S extends Schema ? Hono<E, S, B> : never : never\",\n5053\t      \"file_sha\": \"ad9ec820c24911b2fd28c5649a9a6a14ed53e44386c527d8e908bfc568304538\"\n5054\t    },\n5055\t    {\n5056\t      \"id\": \"sym:ts:src/client/types.ts:ApplyParam\",\n5057\t      \"name\": \"ApplyParam\",\n5058\t      \"kind\": \"type\",\n5059\t      \"path\": \"src/client/types.ts\",\n5060\t      \"line\": 194,\n5061\t      \"signature\": \"type ApplyParam< Path extends string, P, Result extends string = '', > = Path extends `${infer Head}/${infer Rest}` ? Head extends `:${infer Param}`\",\n5062\t      \"file_sha\": \"ad9ec820c24911b2fd28c5649a9a6a14ed53e44386c527d8e908bfc568304538\"\n5063\t    },\n5064\t    {\n5065\t      \"id\": \"sym:ts:src/client/types.ts:BuildPath\",\n5066\t      \"name\": \"BuildPath\",\n5067\t      \"kind\": \"type\",\n5068\t      \"path\": \"src/client/types.ts\",\n5069\t      \"line\": 166,\n5070\t      \"signature\": \"type BuildPath<P extends string, Arg> = `${BuildPathname<P, Arg>}${BuildSearch<Arg, 'query'>}`\",\n5071\t      \"file_sha\": \"ad9ec820c24911b2fd28c5649a9a6a14ed53e44386c527d8e908bfc568304538\"\n5072\t    },\n5073\t    {\n5074\t      \"id\": \"sym:ts:src/client/types.ts:BuildPathname\",\n5075\t      \"name\": \"BuildPathname\",\n5076\t      \"kind\": \"type\",\n5077\t      \"path\": \"src/client/types.ts\",\n5078\t      \"line\": 162,\n5079\t      \"signature\": \"type BuildPathname<P extends string, Arg> = Arg extends { param: infer Param } ? `${ApplyParam<TrimStartSlash<P>, Param>}` : `/${TrimStartSlash<P>}`\",\n5080\t      \"file_sha\": \"ad9ec820c24911b2fd28c5649a9a6a14ed53e44386c527d8e908bfc568304538\"\n5081\t    },\n5082\t    {\n5083\t      \"id\": \"sym:ts:src/client/types.ts:BuildSearch\",\n5084\t      \"name\": \"BuildSearch\",\n5085\t      \"kind\": \"type\",\n5086\t      \"path\": \"src/client/types.ts\",\n5087\t      \"line\": 156,\n5088\t      \"signature\": \"type BuildSearch<Arg, Key extends 'query'> = Arg extends { [K in Key]: infer Query } ? IsEmptyObject<Query> extends true ? '' : `?${string}` : ''\",\n5089\t      \"file_sha\": \"ad9ec820c24911b2fd28c5649a9a6a14ed53e44386c527d8e908bfc568304538\"\n5090\t    },\n5091\t    {\n5092\t      \"id\": \"sym:ts:src/client/types.ts:BuildSearchParamsFn\",\n5093\t      \"name\": \"BuildSearchParamsFn\",\n5094\t      \"kind\": \"type\",\n5095\t      \"path\": \"src/client/types.ts\",\n5096\t      \"line\": 30,\n5097\t      \"signature\": \"type BuildSearchParamsFn = (query: Record<string, string | string[]>) => URLSearchParams\",\n5098\t      \"file_sha\": \"ad9ec820c24911b2fd28c5649a9a6a14ed53e44386c527d8e908bfc568304538\"\n5099\t    },\n5100\t    {\n5101\t      \"id\": \"sym:ts:src/client/types.ts:BuildTypedURL\",\n5102\t      \"name\": \"BuildTypedURL\",\n5103\t      \"kind\": \"type\",\n5104\t      \"path\": \"src/client/types.ts\",\n5105\t      \"line\": 168,\n5106\t      \"file_sha\": \"ad9ec820c24911b2fd28c5649a9a6a14ed53e44386c527d8e908bfc568304538\"\n5107\t    },\n5108\t    {\n5109\t      \"id\": \"sym:ts:src/client/types.ts:Callback\",\n5110\t      \"name\": \"Callback\",\n5111\t      \"kind\": \"type\",\n5112\t      \"path\": \"src/client/types.ts\",\n5113\t      \"line\": 320,\n5114\t      \"signature\": \"type Callback = (opts: CallbackOptions) => unknown\",\n5115\t      \"file_sha\": \"ad9ec820c24911b2fd28c5649a9a6a14ed53e44386c527d8e908bfc568304538\"\n5116\t    },\n5117\t    {\n5118\t      \"id\": \"sym:ts:src/client/types.ts:CallbackOptions\",\n5119\t      \"name\": \"CallbackOptions\",\n5120\t      \"kind\": \"interface\",\n5121\t      \"path\": \"src/client/types.ts\",\n5122\t      \"line\": 322,\n5123\t      \"signature\": \"interface CallbackOptions\",\n5124\t      \"file_sha\": \"ad9ec820c24911b2fd28c5649a9a6a14ed53e44386c527d8e908bfc568304538\"\n5125\t    },\n5126\t    {\n5127\t      \"id\": \"sym:ts:src/client/types.ts:Client\",\n5128\t      \"name\": \"Client\",\n5129\t      \"kind\": \"type\",\n5130\t      \"path\": \"src/client/types.ts\",\n5131\t      \"line\": 311,\n5132\t      \"signature\": \"type Client<T, Prefix extends string> = T extends HonoBase<any, infer S, any> ? S extends Record<infer K, Schema> ? K extends string ? PathToChain<Prefix, K, S> : never\",\n5133\t      \"file_sha\": \"ad9ec820c24911b2fd28c5649a9a6a14ed53e44386c527d8e908bfc568304538\"\n5134\t    },\n5135\t    {\n5136\t      \"id\": \"sym:ts:src/client/types.ts:ClientRequest\",\n5137\t      \"name\": \"ClientRequest\",\n5138\t      \"kind\": \"type\",\n5139\t      \"path\": \"src/client/types.ts\",\n5140\t      \"line\": 67,\n5141\t      \"file_sha\": \"ad9ec820c24911b2fd28c5649a9a6a14ed53e44386c527d8e908bfc568304538\"\n5142\t    },\n5143\t    {\n5144\t      \"id\": \"sym:ts:src/client/types.t\n\n[truncated: 1038 additional bytes not shown]"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "C:\\CodeWork\\ContextAtlas-benchmarks\\atlases\\hono\\atlas.json",
+        "offset": 5340,
+        "limit": 20
+      },
+      "result_preview": "5340\t    },\n5341\t    {\n5342\t      \"id\": \"sym:ts:src/client/types.ts:PickResponseByStatusCode\",\n5343\t      \"name\": \"PickResponseByStatusCode\",\n5344\t      \"kind\": \"type\",\n5345\t      \"path\": \"src/client/types.ts\",\n5346\t      \"line\": 388,\n5347\t      \"signature\": \"type PickResponseByStatusCode<App, U extends StatusCode> = App extends HonoBase<infer E, infer _ extends Schema, infer B> ? PickSchema<ExtractSchema<App>, U> extends infer S extends Schema ? Hono<E, S, B> : never : never\",\n5348\t      \"file_sha\": \"ad9ec820c24911b2fd28c5649a9a6a14ed53e44386c527d8e908bfc568304538\"\n5349\t    },\n5350\t    {\n5351\t      \"id\": \"sym:ts:src/client/types.ts:PickRoute\",\n5352\t      \"name\": \"PickRoute\",\n5353\t      \"kind\": \"type\",\n5354\t      \"path\": \"src/client/types.ts\",\n5355\t      \"line\": 365,\n5356\t      \"signature\": \"type PickRoute<R, U extends StatusCode> = R extends Endpoint ? R extends { status: U } ? R : never : R\",\n5357\t      \"file_sha\": \"ad9ec820c24911b2fd28c5649a9a6a14ed53e44386c527d8e908bfc568304538\"\n5358\t    },\n5359\t    {"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "C:\\CodeWork\\ContextAtlas-benchmarks\\atlases\\hono\\atlas.json",
+        "offset": 15685,
+        "limit": 30
+      },
+      "result_preview": "15685\t      \"line\": 2263,\n15686\t      \"signature\": \"type ExtractParams<Path extends string> = string extends Path ? Record<string, string> : Path extends `${infer _Start}:${infer Param}/${infer Rest}` ? { [K in Param | keyof ExtractParams<`/${Rest}`>]: string } : Path extends `${infer _Start}:${infer Param}` ? { [K in Param]: string }\",\n15687\t      \"file_sha\": \"66db6081a897ce664b1c890b97842270f7326616b0d0c1aaa77c5feccd8f5c6e\"\n15688\t    },\n15689\t    {\n15690\t      \"id\": \"sym:ts:src/types.ts:ExtractSchema\",\n15691\t      \"name\": \"ExtractSchema\",\n15692\t      \"kind\": \"type\",\n15693\t      \"path\": \"src/types.ts\",\n15694\t      \"line\": 2447,\n15695\t      \"signature\": \"type ExtractSchema<T> = UnionToIntersection< T extends HonoBase<infer _, infer S, any, any> ? S : never >\",\n15696\t      \"file_sha\": \"66db6081a897ce664b1c890b97842270f7326616b0d0c1aaa77c5feccd8f5c6e\"\n15697\t    },\n15698\t    {\n15699\t      \"id\": \"sym:ts:src/types.ts:ExtractSchemaForStatusCode\",\n15700\t      \"name\": \"ExtractSchemaForStatusCode\",\n15701\t      \"kind\": \"type\",\n15702\t      \"path\": \"src/types.ts\",\n15703\t      \"line\": 2451,\n15704\t      \"signature\": \"type ExtractSchemaForStatusCode<T, Status extends number> = { [Path in keyof ExtractSchema<T>]: { [Method in keyof ExtractSchema<T>[Path]]: Extract< ExtractSchema<T>[Path][Method], { status: Status } >\",\n15705\t      \"file_sha\": \"66db6081a897ce664b1c890b97842270f7326616b0d0c1aaa77c5feccd8f5c6e\"\n15706\t    },\n15707\t    {\n15708\t      \"id\": \"sym:ts:src/types.ts:ExtractTypedResponseOnly\",\n15709\t      \"name\": \"ExtractTypedResponseOnly\",\n15710\t      \"kind\": \"type\",\n15711\t      \"path\": \"src/types.ts\",\n15712\t      \"line\": 2370,\n15713\t      \"signature\": \"type ExtractTypedResponseOnly<T> = T extends TypedResponse ? T : never\",\n15714\t      \"file_sha\": \"66db6081a897ce664b1c890b97842270f7326616b0d0c1aaa77c5feccd8f5c6e\""
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "C:\\CodeWork\\ContextAtlas-benchmarks\\atlases\\hono\\atlas.json",
+        "offset": 7045,
+        "limit": 25
+      },
+      "result_preview": "7045\t      \"line\": 332,\n7046\t      \"signature\": \"class Factory<E extends Env = Env, P extends string = string>\",\n7047\t      \"file_sha\": \"a9aabe8a21c561b6791205661be0089165ede48efae8587ae7afe2acacb97e1c\"\n7048\t    },\n7049\t    {\n7050\t      \"id\": \"sym:ts:src/helper/factory/index.ts:InitApp\",\n7051\t      \"name\": \"InitApp\",\n7052\t      \"kind\": \"type\",\n7053\t      \"path\": \"src/helper/factory/index.ts\",\n7054\t      \"line\": 18,\n7055\t      \"signature\": \"type InitApp<E extends Env = Env> = (app: Hono<E>) => void\",\n7056\t      \"file_sha\": \"a9aabe8a21c561b6791205661be0089165ede48efae8587ae7afe2acacb97e1c\"\n7057\t    },\n7058\t    {\n7059\t      \"id\": \"sym:ts:src/helper/factory/index.ts:createFactory\",\n7060\t      \"name\": \"createFactory\",\n7061\t      \"kind\": \"variable\",\n7062\t      \"path\": \"src/helper/factory/index.ts\",\n7063\t      \"line\": 363,\n7064\t      \"file_sha\": \"a9aabe8a21c561b6791205661be0089165ede48efae8587ae7afe2acacb97e1c\"\n7065\t    },\n7066\t    {\n7067\t      \"id\": \"sym:ts:src/helper/factory/index.ts:createMiddleware\",\n7068\t      \"name\": \"createMiddleware\",\n7069\t      \"kind\": \"variable\","
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "C:\\CodeWork\\ContextAtlas-benchmarks\\atlases\\hono\\atlas.json",
+        "offset": 7980,
+        "limit": 25
+      },
+      "result_preview": "7980\t      \"kind\": \"function\",\n7981\t      \"path\": \"src/helper/testing/index.test.ts\",\n7982\t      \"line\": 4,\n7983\t      \"signature\": \"describe('hono testClient', () =>\",\n7984\t      \"file_sha\": \"75e25b1b24fe00b01d67b6fea7a92b999b7ba0704757a951a68a4f510098ad99\"\n7985\t    },\n7986\t    {\n7987\t      \"id\": \"sym:ts:src/helper/testing/index.ts:ExtractEnv\",\n7988\t      \"name\": \"ExtractEnv\",\n7989\t      \"kind\": \"type\",\n7990\t      \"path\": \"src/helper/testing/index.ts\",\n7991\t      \"line\": 13,\n7992\t      \"signature\": \"type ExtractEnv<T> = T extends Hono<infer E, Schema, string> ? E : never // eslint-disable-next-line @typescript-eslint/no-explicit-any\",\n7993\t      \"file_sha\": \"55a7800cd453d5ca92bc54f89257b89bdd96959f1063b2b7199e00a46b5cfd89\"\n7994\t    },\n7995\t    {\n7996\t      \"id\": \"sym:ts:src/helper/testing/index.ts:testClient\",\n7997\t      \"name\": \"testClient\",\n7998\t      \"kind\": \"variable\",\n7999\t      \"path\": \"src/helper/testing/index.ts\",\n8000\t      \"line\": 16,\n8001\t      \"file_sha\": \"55a7800cd453d5ca92bc54f89257b89bdd96959f1063b2b7199e00a46b5cfd89\"\n8002\t    },\n8003\t    {\n8004\t      \"id\": \"sym:ts:src/helper/websocket/index.test.ts:describe('WSContext') callback\","
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "C:\\CodeWork\\ContextAtlas-benchmarks\\atlases\\hono\\atlas.json",
+        "offset": 13180,
+        "limit": 25
+      },
+      "result_preview": "13180\t      \"kind\": \"variable\",\n13181\t      \"path\": \"src/middleware/method-override/index.ts\",\n13182\t      \"line\": 33,\n13183\t      \"file_sha\": \"a55a06c127f88021f3345a8f1dcc54c6ef31b8c96f69336bb67e6f9a5d170a9f\"\n13184\t    },\n13185\t    {\n13186\t      \"id\": \"sym:ts:src/middleware/method-override/index.ts:MethodOverrideOptions\",\n13187\t      \"name\": \"MethodOverrideOptions\",\n13188\t      \"kind\": \"type\",\n13189\t      \"path\": \"src/middleware/method-override/index.ts\",\n13190\t      \"line\": 11,\n13191\t      \"signature\": \"type MethodOverrideOptions = { // eslint-disable-next-line @typescript-eslint/no-explicit-any app: Hono<any, any, any> } & ( | { // Default is 'form' and the value is `_method`\",\n13192\t      \"file_sha\": \"a55a06c127f88021f3345a8f1dcc54c6ef31b8c96f69336bb67e6f9a5d170a9f\"\n13193\t    },\n13194\t    {\n13195\t      \"id\": \"sym:ts:src/middleware/method-override/index.ts:getExecutionCtx\",\n13196\t      \"name\": \"getExecutionCtx\",\n13197\t      \"kind\": \"variable\",\n13198\t      \"path\": \"src/middleware/method-override/index.ts\",\n13199\t      \"line\": 138,\n13200\t      \"file_sha\": \"a55a06c127f88021f3345a8f1dcc54c6ef31b8c96f69336bb67e6f9a5d170a9f\"\n13201\t    },\n13202\t    {\n13203\t      \"id\": \"sym:ts:src/middleware/method-override/index.ts:methodOverride\",\n13204\t      \"name\": \"methodOverride\","
+    }
+  ],
+  "diagnostics": {
+    "claudeCodeVersion": "2.1.118",
+    "totalCostUsd": 0.32515825,
+    "numTurns": 18,
+    "isError": false,
+    "terminalReason": "completed",
+    "modelUsage": {
+      "claude-haiku-4-5-20251001": {
+        "inputTokens": 358,
+        "outputTokens": 16,
+        "cacheReadInputTokens": 0,
+        "cacheCreationInputTokens": 0,
+        "webSearchRequests": 0,
+        "costUSD": 0.00043799999999999997,
+        "contextWindow": 200000,
+        "maxOutputTokens": 32000
+      },
+      "claude-opus-4-7": {
+        "inputTokens": 23,
+        "outputTokens": 4242,
+        "cacheReadInputTokens": 144648,
+        "cacheCreationInputTokens": 23397,
+        "webSearchRequests": 0,
+        "costUSD": 0.32472024999999993,
+        "contextWindow": 1000000,
+        "maxOutputTokens": 64000
+      }
+    }
+  },
+  "retried": true,
+  "cost_usd": 0.32515825,
+  "written_at": "2026-04-28T01:12:25.342Z"
+}

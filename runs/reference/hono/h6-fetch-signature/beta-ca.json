@@ -1,0 +1,108 @@
+{
+  "prompt_id": "h6-fetch-signature",
+  "repo": "hono",
+  "condition": "beta-ca",
+  "target_symbol": "Hono.fetch",
+  "bucket": "trick",
+  "metrics": {
+    "tool_calls": 7,
+    "input_tokens": 12,
+    "output_tokens": 1900,
+    "total_tokens": 85816,
+    "wall_clock_ms": 45918
+  },
+  "capped": null,
+  "answer": "Here's Hono's `.fetch` signature, from `src/hono-base.ts:473-479`:\n\n```ts\nfetch: (\n  request: Request,\n  Env?: E['Bindings'] | {},\n  executionCtx?: ExecutionContext\n) => Response | Promise<Response>\n```\n\n### What you need to know for mounting\n\n**It's a property, not a prototype method.** It's defined as an arrow-function class field, so `this` is bound — you can pass `app.fetch` directly without needing `.bind(app)`:\n\n```ts\n// Both work:\notherFramework.mount('/api', app.fetch)\notherFramework.mount('/api', (req) => app.fetch(req))\n```\n\n**The signature is intentional and architectural.** Per ADR-01 (a *hard* constraint in the Hono atlas):\n\n> \"Runtime-specific integration must live in `src/adapter/<runtime>/**`, translating native event/request shapes into a Web Standard `Request`, calling `app.fetch(request, env, ctx)`, and shaping the Response back.\"\n>\n> *Rationale:* \"Isolates runtime-specific code from core so the same `app.fetch` signature works everywhere.\"\n\nSo the three-arg `(request, env, ctx)` shape is the universal entry point — every official adapter (Cloudflare Workers/Pages, Bun, Deno, Lambda, service-worker, etc.) ultimately produces this exact call. Mimic that and you're aligned with how Hono itself integrates with hosts.\n\n### Mounting tips\n\n- **`request`** must be a Web Standard `Request`. If your outer framework uses Node `IncomingMessage` (Express/Fastify/etc.), convert it first — or use `@hono/node-server`'s adapters which already do the translation.\n- **`Env`** is optional and runtime-specific (Cloudflare bindings, etc.). Pass `{}` or omit if you don't have one.\n- **`executionCtx`** is optional — supplies `waitUntil`/`passThroughOnException`. Omit for most non-Workers hosts.\n- The return type is `Response | Promise<Response>` (sync or async) — always handle it as a promise on the caller side to be safe.\n\n### Sibling method worth knowing\n\nIf you're testing or invoking from code that has a URL/path string rather than a `Request`, there's `app.request(input, requestInit?, Env?, executionCtx?)` right next to it (line 493) — it constructs the `Request` for you and delegates to `.fetch`.",
+  "trace": [
+    {
+      "tool": "mcp__contextatlas__get_symbol_context",
+      "args": {
+        "symbol": "fetch",
+        "query": "Hono app fetch method signature for mounting"
+      },
+      "result_preview": "SYM fetch@src/adapter/cloudflare-pages/handler.ts:105 method\n  SIG fetch(input: RequestInfo, init?: RequestInit): Promise<Response> } /** * * @description `serveStatic()` is for advanced mode:\n  INTENT ADR-01 hard \"CI must enforce that `package.json` `dependencies` field is empty/absent and that no `node:`/runtime-specific imports exist outside `src/adapter/**` (excepting the documented context-storage case).\"\n    RATIONALE \"Mechanical enforcement so reviewers don't need judgment to catch violations.\"\n  INTENT ADR-01 hard \"Core code must be built entirely on Web Standard APIs (Request, Response, Headers, URL, fetch, ReadableStream, TextEncoder/Decoder, Web Crypto, AbortController, Blob, FormData) with no runtime-specific globals or imports.\"\n    RATIONALE \"Runtime-specific imports in core cause the framework to fail to load on Cloudflare Workers and silently pull polyfills on Deno; only the WHATWG Fetch standard is common across all nine supported runtimes.\"\n  INTENT ADR-01 hard \"Middleware in `src/middleware/**` must prefer Web Standards; runtime-specific imports are only allowed if cross-runtime in practice.\"\n    RATIONALE \"Maintains portability of middleware across all supported runtimes.\"\n  INTENT ADR-01 hard \"Node-specific adapter code must stay outside core in the separate `@hono/node-server` package, not in `src/adapter/`.\"\n    RATIONALE \"Adding it to src/adapter/ would pull Node types into the main hono package and affect every non-Node user's type resolution.\"\n  INTENT ADR-01 hard \"Runtime-specific integration must live in `src/adapter/<runtime>/**`, translating native event/request shapes into a Web Standard Request, calling app.fetch(request, env, ctx), and shaping the Response back.\"\n    RATIONALE \"Isolates runtime-specific code from core so the same app.fetch signature works everywhere; the adapter's job is to produce that call, not modify app behavior.\"\n  INTENT ADR-01 hard \"The `hono` package must have zero runtime dependencies; only devDependencies are permitted.\"\n    RATIONALE \"Runtime deps may not exist on all targeted runtimes, bloat bundles, and expand the supply chain; users install `hono` expecting portability and zero bundle cost.\"\n  INTENT ADR-01 hard \"The only sanctioned `node:` import in middleware is `node:async_hooks` for AsyncLocalStorage in context-storage; future `node:` imports in middleware require explicit ADR-level justification.\"\n    RATIONALE \"AsyncLocalStorage is now supported by Node, Bun, Deno, and Cloudflare Workers, making this exception cross-runtime in practice; the exception is not open-ended.\"\n  INTENT ADR-01 hard \"Third-party middleware that requires dependencies (Zod, OpenAPI, Sentry, Prisma) must ship as separate `@hono/*` packages outside this repo.\"\n    RATIONALE \"Keeps deps opt-in so they don't affect users who don't install them; preserves the zero-dep guarantee of core.\"\n  INTENT ADR-01 context \"Core uses a single `app.fetch(request, env, ctx)` entry point that runs unmodified on any supported runtime.\"\n    RATIONALE \"Because core only uses Web Standards, the same fetch signature works everywhere; adapters produce that call.\"\n  INTENT ADR-01 context \"Per-adapter helpers may legitimately import runtime primitives (e.g., node:fs/promises in bun adapter, node:path in deno adapter, node:crypto in lambda-edge adapter).\"\n    RATIONALE \"These imports only execute on runtimes that provide those modules.\"\n  INTENT ADR-01 context \"Utilities like cookie parsing, query parsing, MIME detection, base64, JWT, UUID, and body reading are hand-implemented in `src/utils/**` rather than delegated to libraries.\"\n    RATIONALE \"Deliberate cost of the zero-dep rule; needed to keep hono/tiny under 12 kB and respect the Workers 1 MB compressed bundle limit.\"\n  INTENT docstring:src/helper/proxy/index.ts context \"proxy wrapper mirrors fetch's parameters and return value, except for proxy-specific options\"\n    RATIONALE \"Establishes API surface compatibility with fetch\"\n  REFS 1 [adapter:1]\n    TOP ref:ts:src/adapter/cloudflare-pages/handler.ts:117\n  GIT last=2025-12-07T19:05:25+09:00 by 114303361+ryuapp@users.noreply.github.com cold (2<5 commits)\n    COMMIT b6f4bcd 2025-12-07 \"chore: bump linter and formatter (#4568)\"\n    COMMIT 7087b13 2025-06-16 \"fix(context): add `props` to `ExecutionContext` (#4030)\"\n"
+    },
+    {
+      "tool": "mcp__contextatlas__find_by_intent",
+      "args": {
+        "query": "Hono app.fetch entry point signature request env ctx",
+        "limit": 5
+      },
+      "result_preview": "MATCHES 5 [query=\"Hono app.fetch entry point signature request env ctx\"]\n  SYM sym:ts:src/client/types.ts:HonoRequest src/client/types.ts:28 type\n    SIG type HonoRequest = (typeof Hono.prototype)['request']\n    INTENT ADR-01 context \"Core uses a single `app.fetch(request, env, ctx)` entry point that runs unmodified on any supported runtime.\"\n  SYM sym:ts:src/request.ts:HonoRequest src/request.ts:36 class\n    SIG class HonoRequest<P extends string = '/', I extends Input['out'] = {}>\n    INTENT ADR-01 context \"Core uses a single `app.fetch(request, env, ctx)` entry point that runs unmodified on any supported runtime.\"\n  SYM sym:ts:src/adapter/cloudflare-pages/handler.ts:fetch src/adapter/cloudflare-pages/handler.ts:105 method\n    SIG fetch(input: RequestInfo, init?: RequestInit): Promise<Response> } /** * * @description `serveStatic()` is for advanced mode:\n    INTENT ADR-01 context \"Core uses a single `app.fetch(request, env, ctx)` entry point that runs unmodified on any supported runtime.\"\n  SYM sym:ts:src/hono-base.ts:Hono src/hono-base.ts:98 class\n    SIG class Hono< E extends Env = Env, S extends Schema = {}, BasePath extends string = '/', CurrentPath extends string = BasePath, >\n    INTENT ADR-01 context \"Core uses a single `app.fetch(request, env, ctx)` entry point that runs unmodified on any supported runtime.\"\n  SYM sym:ts:src/hono.ts:Hono src/hono.ts:16 class\n    SIG class Hono< E extends Env = BlankEnv, S extends Schema = BlankSchema, BasePath extends string = '/', > extends HonoBase<E, S, BasePath>\n    INTENT ADR-01 context \"Core uses a single `app.fetch(request, env, ctx)` entry point that runs unmodified on any supported runtime.\"\n"
+    },
+    {
+      "tool": "mcp__contextatlas__get_symbol_context",
+      "args": {
+        "symbol": "Hono",
+        "query": "fetch method signature"
+      },
+      "result_preview": "ERR disambiguation_required\n  MESSAGE Symbol 'Hono' matches 4 candidates. Pass file_hint to disambiguate.\n  CAND sym:ts:src/hono-base.ts:Hono src/hono-base.ts:98 class\n  CAND sym:ts:src/hono.ts:Hono src/hono.ts:16 class\n  CAND sym:ts:src/preset/quick.ts:Hono src/preset/quick.ts:13 class\n  CAND sym:ts:src/preset/tiny.ts:Hono src/preset/tiny.ts:11 class"
+    },
+    {
+      "tool": "mcp__contextatlas__get_symbol_context",
+      "args": {
+        "symbol": "Hono",
+        "file_hint": "src/hono-base.ts",
+        "query": "fetch method signature mounting",
+        "depth": "deep"
+      },
+      "result_preview": "SYM Hono@src/hono-base.ts:98 class\n  SIG class Hono< E extends Env = Env, S extends Schema = {}, BasePath extends string = '/', CurrentPath extends string = BasePath, >\n  INTENT ADR-01 hard \"CI must enforce that `package.json` `dependencies` field is empty/absent and that no `node:`/runtime-specific imports exist outside `src/adapter/**` (excepting the documented context-storage case).\"\n    RATIONALE \"Mechanical enforcement so reviewers don't need judgment to catch violations.\"\n    EXCERPT \"any non-empty `dependencies` field fails CI; any `node:` import outside `src/adapter/**` (with the `node:async_hooks` exception) fails a grep-based lint.\"\n  INTENT ADR-01 hard \"Core code must be built entirely on Web Standard APIs (Request, Response, Headers, URL, fetch, ReadableStream, TextEncoder/Decoder, Web Crypto, AbortController, Blob, FormData) with no runtime-specific globals or imports.\"\n    RATIONALE \"Runtime-specific imports in core cause the framework to fail to load on Cloudflare Workers and silently pull polyfills on Deno; only the WHATWG Fetch standard is common across all nine supported runtimes.\"\n    EXCERPT \"Core code is built entirely on Web Standard APIs. Permitted primitives: Request, Response, Headers, URL, URLSearchParams, fetch, ReadableStream / WritableStream / TransformStream, TextEncoder / TextDecoder, globalThis.crypto (Web Crypto), AbortController / AbortSignal, Blob, FormData. No runtime-specific globals or imports.\"\n  INTENT ADR-01 hard \"Middleware in `src/middleware/**` must prefer Web Standards; runtime-specific imports are only allowed if cross-runtime in practice.\"\n    RATIONALE \"Maintains portability of middleware across all supported runtimes.\"\n    EXCERPT \"Middleware in `src/middleware/**` must prefer Web Standards; where a runtime-specific import is unavoidable it must be cross-runtime in practice\"\n  INTENT ADR-01 hard \"Node-specific adapter code must stay outside core in the separate `@hono/node-server` package, not in `src/adapter/`.\"\n    RATIONALE \"Adding it to src/adapter/ would pull Node types into the main hono package and affect every non-Node user's type resolution.\"\n    EXCERPT \"`@hono/node-server` is a separate package even though Node is a supported runtime, because adding it to `src/adapter/` would pull Node types into the main `hono` package and affect every non-Node user's type resolution.\"\n  INTENT ADR-01 hard \"Runtime-specific integration must live in `src/adapter/<runtime>/**`, translating native event/request shapes into a Web Standard Request, calling app.fetch(request, env, ctx), and shaping the Response back.\"\n    RATIONALE \"Isolates runtime-specific code from core so the same app.fetch signature works everywhere; the adapter's job is to produce that call, not modify app behavior.\"\n    EXCERPT \"Runtime-specific integration lives in `src/adapter/<runtime>/**`. Each adapter translates the runtime's native event/request shape into a Web Standard `Request`, invokes `app.fetch(request, env, ctx)` on core\"\n  INTENT ADR-01 hard \"The `hono` package must have zero runtime dependencies; only devDependencies are permitted.\"\n    RATIONALE \"Runtime deps may not exist on all targeted runtimes, bloat bundles, and expand the supply chain; users install `hono` expecting portability and zero bundle cost.\"\n    EXCERPT \"The `hono` package has zero runtime dependencies. `package.json` lists only `devDependencies`. New dependencies in the `dependencies` field are rejected.\"\n  INTENT ADR-01 hard \"The only sanctioned `node:` import in middleware is `node:async_hooks` for AsyncLocalStorage in context-storage; future `node:` imports in middleware require explicit ADR-level justification.\"\n    RATIONALE \"AsyncLocalStorage is now supported by Node, Bun, Deno, and Cloudflare Workers, making this exception cross-runtime in practice; the exception is not open-ended.\"\n    EXCERPT \"the single current example is `node:async_hooks` for `AsyncLocalStorage` in `src/middleware/context-storage/index.ts`, now supported by Node, Bun, Deno, and Cloudflare Workers\"\n  INTENT ADR-01 hard \"Third-party middleware that requires dependencies (Zod, OpenAPI, Sentry, Prisma) must ship as separate `@hono/*` packages outside this repo.\"\n    RATIONALE \"Keeps deps opt-in so they don't affect users who don't install them; preserves the zero-dep guarantee of core.\"\n    EXCERPT \"Middleware that needs deps (Zod validation, OpenAPI generation, Sentry, Prisma integration) ships under `@hono/*` scope or user-owned packages.\"\n  INTENT ADR-03 hard \"Bug fixes in compose.ts must verify the one-handler fast-path still works, and vice versa\"\n    RATIONALE \"Two distinct dispatch paths exist that can diverge\"\n    EXCERPT \"Fixing a bug in `compose.ts` without verifying the one-handler path still works (or vice versa) is a trap.\"\n  INTENT ADR-03 hard \"Middleware must call await next() at most once; calling next() twice throws 'next() called multiple times'\"\n    RATIONALE \"Prevents bugs where middleware accidentally advances the chain\n\n[truncated: 17094 additional bytes not shown]"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -n \"fetch\" atlases/hono/index.db 2>/dev/null | head -5; echo \"---\"; find . -path ./atlases -prune -o -name \"hono-base.ts\" -print 2>/dev/null",
+        "description": "Search for hono-base.ts source file"
+      },
+      "result_preview": "Binary file atlases/hono/index.db matches\n---\n./repos/hono/src/hono-base.ts"
+    },
+    {
+      "tool": "Bash",
+      "args": {
+        "command": "grep -n \"fetch\" repos/hono/src/hono-base.ts | head -20",
+        "description": "Find fetch method in hono-base.ts"
+      },
+      "result_preview": "463:   * `.fetch()` will be entry point of your app.\n465:   * @see {@link https://hono.dev/docs/api/hono#fetch}\n473:  fetch: (\n500:      return this.fetch(requestInit ? new Request(input, requestInit) : input, Env, executionCtx)\n503:    return this.fetch(\n514:   * `.fire()` automatically adds a global fetch event listener.\n533:    addEventListener('fetch', (event: FetchEventLike): void => {"
+    },
+    {
+      "tool": "Read",
+      "args": {
+        "file_path": "repos/hono/src/hono-base.ts",
+        "offset": 460,
+        "limit": 50
+      },
+      "result_preview": "460\t  }\n461\t\n462\t  /**\n463\t   * `.fetch()` will be entry point of your app.\n464\t   *\n465\t   * @see {@link https://hono.dev/docs/api/hono#fetch}\n466\t   *\n467\t   * @param {Request} request - request Object of request\n468\t   * @param {Env} Env - env Object\n469\t   * @param {ExecutionContext} - context of execution\n470\t   * @returns {Response | Promise<Response>} response of request\n471\t   *\n472\t   */\n473\t  fetch: (\n474\t    request: Request,\n475\t    Env?: E['Bindings'] | {},\n476\t    executionCtx?: ExecutionContext\n477\t  ) => Response | Promise<Response> = (request, ...rest) => {\n478\t    return this.#dispatch(request, rest[1], rest[0], request.method)\n479\t  }\n480\t\n481\t  /**\n482\t   * `.request()` is a useful method for testing.\n483\t   * You can pass a URL or pathname to send a GET request.\n484\t   * app will return a Response object.\n485\t   * ```ts\n486\t   * test('GET /hello is ok', async () => {\n487\t   *   const res = await app.request('/hello')\n488\t   *   expect(res.status).toBe(200)\n489\t   * })\n490\t   * ```\n491\t   * @see https://hono.dev/docs/api/hono#request\n492\t   */\n493\t  request = (\n494\t    input: Request | string | URL,\n495\t    requestInit?: RequestInit,\n496\t    Env?: E['Bindings'] | {},\n497\t    executionCtx?: ExecutionContext\n498\t  ): Response | Promise<Response> => {\n499\t    if (input instanceof Request) {\n500\t      return this.fetch(requestInit ? new Request(input, requestInit) : input, Env, executionCtx)\n501\t    }\n502\t    input = input.toString()\n503\t    return this.fetch(\n504\t      new Request(\n505\t        /^https?:\\/\\//.test(input) ? input : `http://localhost${mergePath('/', input)}`,\n506\t        requestInit\n507\t      ),\n508\t      Env,\n509\t      executionCtx"
+    }
+  ],
+  "diagnostics": {
+    "claudeCodeVersion": "2.1.118",
+    "totalCostUsd": 0.17345850000000002,
+    "numTurns": 8,
+    "isError": false,
+    "terminalReason": "completed",
+    "modelUsage": {
+      "claude-haiku-4-5-20251001": {
+        "inputTokens": 365,
+        "outputTokens": 16,
+        "cacheReadInputTokens": 0,
+        "cacheCreationInputTokens": 0,
+        "webSearchRequests": 0,
+        "costUSD": 0.000445,
+        "contextWindow": 200000,
+        "maxOutputTokens": 32000
+      },
+      "claude-opus-4-7": {
+        "inputTokens": 12,
+        "outputTokens": 1900,
+        "cacheReadInputTokens": 69382,
+        "cacheCreationInputTokens": 14522,
+        "webSearchRequests": 0,
+        "costUSD": 0.17301350000000001,
+        "contextWindow": 1000000,
+        "maxOutputTokens": 64000
+      }
+    }
+  },
+  "cost_usd": 0.17345850000000002,
+  "written_at": "2026-04-28T01:15:16.028Z"
+}

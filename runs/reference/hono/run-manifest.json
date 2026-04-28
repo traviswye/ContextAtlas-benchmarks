@@ -1,15 +1,15 @@
 {
   "manifest_version": "1.0",
-  "generated_at": "2026-04-23T16:44:03.442Z",
+  "generated_at": "2026-04-28T01:15:16.029Z",
   "repo_name": "hono",
   "pinned_repo_sha": "cf2d2b7edcf07adef2db7614557f4d7f9e2be7ba",
   "contextatlas": {
-    "version_label": "ContextAtlas v0.1 (atlas schema v1.1)",
-    "commit_sha": "6f8d8ae91a0133d1a5323001be4e869e9036fe0a",
-    "dist_mtime": "2026-04-22T23:56:34.586Z"
+    "version_label": "ContextAtlas v0.3-dev (atlas schema v1.3)",
+    "commit_sha": "6576b4743a7bf3b5c7d490e69441d77332392fdc",
+    "dist_mtime": "2026-04-27T03:14:39.369Z"
   },
   "benchmarks": {
-    "commit_sha": "be65a96566fda3ef247c981537e9113276a8fc9e"
+    "commit_sha": "7a6c6f9e1fc4a51e0ca6a74b1a8a2d702555e65a"
   },
   "claude_cli_version": "2.1.118",
   "model": "claude-opus-4-7",
@@ -19,13 +19,9 @@
     "beta",
     "beta-ca"
   ],
-  "budget_ceiling_usd": 14,
-  "total_cost_usd": 14.04762725,
-  "halted": "budget_ceiling",
-  "halted_at": {
-    "prompt": "h6-fetch-signature",
-    "condition": "beta-ca"
-  },
+  "budget_ceiling_usd": 22,
+  "total_cost_usd": 17.763052499999997,
+  "halted": null,
   "cells": [
     {
       "prompt_id": "h1-context-runtime",
@@ -33,14 +29,14 @@
       "bucket": "win",
       "artifact_path": "hono/h1-context-runtime/alpha.json",
       "metrics": {
-        "tool_calls": 18,
-        "input_tokens": 140289,
-        "output_tokens": 3405,
-        "total_tokens": 143694,
-        "wall_clock_ms": 214934
+        "tool_calls": 14,
+        "input_tokens": 128088,
+        "output_tokens": 2852,
+        "total_tokens": 130940,
+        "wall_clock_ms": 54594
       },
       "capped": null,
-      "cost_usd": 2.35971
+      "cost_usd": 2.13522
     },
     {
       "prompt_id": "h1-context-runtime",
@@ -48,29 +44,31 @@
       "bucket": "win",
       "artifact_path": "hono/h1-context-runtime/ca.json",
       "metrics": {
-        "tool_calls": 9,
-        "input_tokens": 89495,
-        "output_tokens": 2353,
-        "total_tokens": 91848,
-        "wall_clock_ms": 178901
+        "tool_calls": 7,
+        "input_tokens": 63921,
+        "output_tokens": 2254,
+        "total_tokens": 66175,
+        "wall_clock_ms": 42068
       },
       "capped": null,
-      "cost_usd": 1.5189
+      "cost_usd": 1.127865
     },
     {
       "prompt_id": "h1-context-runtime",
       "condition": "beta",
       "bucket": "win",
-      "artifact_path": "hono/h1-context-runtime/beta.json",
+      "artifact_path": "hono/h1-context-runtime/beta.capped-retry.json",
       "metrics": {
         "tool_calls": 12,
-        "input_tokens": 18,
-        "output_tokens": 3783,
-        "total_tokens": 132722,
-        "wall_clock_ms": 78692
+        "input_tokens": 25,
+        "output_tokens": 773,
+        "total_tokens": 205614,
+        "wall_clock_ms": 30551
       },
-      "capped": null,
-      "cost_usd": 0.29354575
+      "capped": "tokens",
+      "cost_usd": 0.05835,
+      "retried": true,
+      "both_capped": true
     },
     {
       "prompt_id": "h1-context-runtime",
@@ -78,14 +76,14 @@
       "bucket": "win",
       "artifact_path": "hono/h1-context-runtime/beta-ca.json",
       "metrics": {
-        "tool_calls": 13,
-        "input_tokens": 16,
-        "output_tokens": 3582,
-        "total_tokens": 67702,
-        "wall_clock_ms": 62433
+        "tool_calls": 5,
+        "input_tokens": 9,
+        "output_tokens": 2811,
+        "total_tokens": 46468,
+        "wall_clock_ms": 48967
       },
       "capped": null,
-      "cost_usd": 0.21945475
+      "cost_usd": 0.17145699999999997
     },
     {
       "prompt_id": "h2-router-contract",
@@ -93,14 +91,14 @@
       "bucket": "win",
       "artifact_path": "hono/h2-router-contract/alpha.json",
       "metrics": {
-        "tool_calls": 11,
-        "input_tokens": 28857,
-        "output_tokens": 2197,
-        "total_tokens": 31054,
-        "wall_clock_ms": 52664
+        "tool_calls": 10,
+        "input_tokens": 27046,
+        "output_tokens": 2190,
+        "total_tokens": 29236,
+        "wall_clock_ms": 31743
       },
       "capped": null,
-      "cost_usd": 0.59763
+      "cost_usd": 0.56994
     },
     {
       "prompt_id": "h2-router-contract",
@@ -108,14 +106,14 @@
       "bucket": "win",
       "artifact_path": "hono/h2-router-contract/ca.json",
       "metrics": {
-        "tool_calls": 5,
-        "input_tokens": 25134,
-        "output_tokens": 2072,
-        "total_tokens": 27206,
-        "wall_clock_ms": 37715
+        "tool_calls": 3,
+        "input_tokens": 23833,
+        "output_tokens": 1444,
+        "total_tokens": 25277,
+        "wall_clock_ms": 28300
       },
       "capped": null,
-      "cost_usd": 0.53241
+      "cost_usd": 0.465795
     },
     {
       "prompt_id": "h2-router-contract",
@@ -123,14 +121,14 @@
       "bucket": "win",
       "artifact_path": "hono/h2-router-contract/beta.json",
       "metrics": {
-        "tool_calls": 8,
-        "input_tokens": 14,
-        "output_tokens": 2667,
-        "total_tokens": 72921,
-        "wall_clock_ms": 54249
+        "tool_calls": 9,
+        "input_tokens": 15,
+        "output_tokens": 2796,
+        "total_tokens": 72835,
+        "wall_clock_ms": 48214
       },
       "capped": null,
-      "cost_usd": 0.25260325
+      "cost_usd": 0.22324425
     },
     {
       "prompt_id": "h2-router-contract",
@@ -138,14 +136,14 @@
       "bucket": "win",
       "artifact_path": "hono/h2-router-contract/beta-ca.json",
       "metrics": {
-        "tool_calls": 16,
-        "input_tokens": 21,
-        "output_tokens": 3462,
-        "total_tokens": 106426,
-        "wall_clock_ms": 68967
+        "tool_calls": 5,
+        "input_tokens": 10,
+        "output_tokens": 1874,
+        "total_tokens": 54447,
+        "wall_clock_ms": 37937
       },
       "capped": null,
-      "cost_usd": 0.21515550000000003
+      "cost_usd": 0.156312
     },
     {
       "prompt_id": "h3-middleware-onion",
@@ -154,13 +152,13 @@
       "artifact_path": "hono/h3-middleware-onion/alpha.json",
       "metrics": {
         "tool_calls": 5,
-        "input_tokens": 15817,
-        "output_tokens": 1920,
-        "total_tokens": 17737,
-        "wall_clock_ms": 33978
+        "input_tokens": 14232,
+        "output_tokens": 1921,
+        "total_tokens": 16153,
+        "wall_clock_ms": 31634
       },
       "capped": null,
-      "cost_usd": 0.381255
+      "cost_usd": 0.357555
     },
     {
       "prompt_id": "h3-middleware-onion",
@@ -169,13 +167,13 @@
       "artifact_path": "hono/h3-middleware-onion/ca.json",
       "metrics": {
         "tool_calls": 5,
-        "input_tokens": 20728,
-        "output_tokens": 2115,
-        "total_tokens": 22843,
-        "wall_clock_ms": 42323
+        "input_tokens": 23462,
+        "output_tokens": 2104,
+        "total_tokens": 25566,
+        "wall_clock_ms": 36905
       },
       "capped": null,
-      "cost_usd": 0.469545
+      "cost_usd": 0.50973
     },
     {
       "prompt_id": "h3-middleware-onion",
@@ -183,14 +181,15 @@
       "bucket": "win",
       "artifact_path": "hono/h3-middleware-onion/beta.json",
       "metrics": {
-        "tool_calls": 12,
-        "input_tokens": 18,
-        "output_tokens": 3327,
-        "total_tokens": 83677,
-        "wall_clock_ms": 64472
+        "tool_calls": 7,
+        "input_tokens": 11,
+        "output_tokens": 2241,
+        "total_tokens": 27233,
+        "wall_clock_ms": 34450
       },
       "capped": null,
-      "cost_usd": 0.25195475
+      "cost_usd": 0.09405425,
+      "retried": true
     },
     {
       "prompt_id": "h3-middleware-onion",
@@ -198,29 +197,31 @@
       "bucket": "win",
       "artifact_path": "hono/h3-middleware-onion/beta-ca.json",
       "metrics": {
-        "tool_calls": 6,
-        "input_tokens": 12,
-        "output_tokens": 1709,
-        "total_tokens": 29678,
-        "wall_clock_ms": 37133
+        "tool_calls": 5,
+        "input_tokens": 10,
+        "output_tokens": 2115,
+        "total_tokens": 36979,
+        "wall_clock_ms": 38560
       },
       "capped": null,
-      "cost_usd": 0.06905675
+      "cost_usd": 0.137404
     },
     {
       "prompt_id": "h4-validator-typeflow",
       "condition": "alpha",
       "bucket": "win",
-      "artifact_path": "hono/h4-validator-typeflow/alpha.json",
+      "artifact_path": "hono/h4-validator-typeflow/alpha.capped-retry.json",
       "metrics": {
-        "tool_calls": 21,
-        "input_tokens": 175560,
-        "output_tokens": 4265,
-        "total_tokens": 179825,
-        "wall_clock_ms": 286903
+        "tool_calls": 20,
+        "input_tokens": 217079,
+        "output_tokens": 2467,
+        "total_tokens": 219546,
+        "wall_clock_ms": 52317
       },
-      "capped": null,
-      "cost_usd": 2.953275
+      "capped": "tokens",
+      "cost_usd": 3.44121,
+      "retried": true,
+      "both_capped": true
     },
     {
       "prompt_id": "h4-validator-typeflow",
@@ -228,14 +229,14 @@
       "bucket": "win",
       "artifact_path": "hono/h4-validator-typeflow/ca.json",
       "metrics": {
-        "tool_calls": 6,
-        "input_tokens": 22127,
-        "output_tokens": 2455,
-        "total_tokens": 24582,
-        "wall_clock_ms": 68189
+        "tool_calls": 8,
+        "input_tokens": 46923,
+        "output_tokens": 3430,
+        "total_tokens": 50353,
+        "wall_clock_ms": 63208
       },
       "capped": null,
-      "cost_usd": 0.51603
+      "cost_usd": 0.961095
     },
     {
       "prompt_id": "h4-validator-typeflow",
@@ -243,14 +244,14 @@
       "bucket": "win",
       "artifact_path": "hono/h4-validator-typeflow/beta.json",
       "metrics": {
-        "tool_calls": 15,
-        "input_tokens": 21,
-        "output_tokens": 4057,
-        "total_tokens": 119987,
-        "wall_clock_ms": 66033
+        "tool_calls": 17,
+        "input_tokens": 23,
+        "output_tokens": 5114,
+        "total_tokens": 137719,
+        "wall_clock_ms": 86276
       },
       "capped": null,
-      "cost_usd": 0.28648175
+      "cost_usd": 0.32464575
     },
     {
       "prompt_id": "h4-validator-typeflow",
@@ -258,14 +259,14 @@
       "bucket": "win",
       "artifact_path": "hono/h4-validator-typeflow/beta-ca.json",
       "metrics": {
-        "tool_calls": 8,
-        "input_tokens": 12,
-        "output_tokens": 1981,
-        "total_tokens": 31457,
-        "wall_clock_ms": 39852
+        "tool_calls": 5,
+        "input_tokens": 9,
+        "output_tokens": 2408,
+        "total_tokens": 39975,
+        "wall_clock_ms": 47908
       },
       "capped": null,
-      "cost_usd": 0.09641625
+      "cost_usd": 0.139741
     },
     {
       "prompt_id": "h5-hono-generics",
@@ -274,13 +275,13 @@
       "artifact_path": "hono/h5-hono-generics/alpha.json",
       "metrics": {
         "tool_calls": 11,
-        "input_tokens": 40694,
-        "output_tokens": 2455,
-        "total_tokens": 43149,
-        "wall_clock_ms": 36305
+        "input_tokens": 38021,
+        "output_tokens": 2620,
+        "total_tokens": 40641,
+        "wall_clock_ms": 36830
       },
       "capped": null,
-      "cost_usd": 0.794535
+      "cost_usd": 0.766815
     },
     {
       "prompt_id": "h5-hono-generics",
@@ -289,30 +290,29 @@
       "artifact_path": "hono/h5-hono-generics/ca.json",
       "metrics": {
         "tool_calls": 13,
-        "input_tokens": 64560,
-        "output_tokens": 2652,
-        "total_tokens": 67212,
-        "wall_clock_ms": 112278
+        "input_tokens": 55873,
+        "output_tokens": 2738,
+        "total_tokens": 58611,
+        "wall_clock_ms": 44489
       },
       "capped": null,
-      "cost_usd": 1.1673
+      "cost_usd": 1.043445
     },
     {
       "prompt_id": "h5-hono-generics",
       "condition": "beta",
       "bucket": "tie",
-      "artifact_path": "hono/h5-hono-generics/beta.capped-retry.json",
+      "artifact_path": "hono/h5-hono-generics/beta.json",
       "metrics": {
-        "tool_calls": 18,
-        "input_tokens": 31,
-        "output_tokens": 1195,
-        "total_tokens": 203025,
-        "wall_clock_ms": 46375
+        "tool_calls": 17,
+        "input_tokens": 23,
+        "output_tokens": 4242,
+        "total_tokens": 172310,
+        "wall_clock_ms": 69345
       },
-      "capped": "tokens",
-      "cost_usd": 0.09009,
-      "retried": true,
-      "both_capped": true
+      "capped": null,
+      "cost_usd": 0.32515825,
+      "retried": true
     },
     {
       "prompt_id": "h5-hono-generics",
@@ -320,15 +320,14 @@
       "bucket": "tie",
       "artifact_path": "hono/h5-hono-generics/beta-ca.json",
       "metrics": {
-        "tool_calls": 8,
-        "input_tokens": 14,
-        "output_tokens": 1631,
-        "total_tokens": 38787,
-        "wall_clock_ms": 37747
+        "tool_calls": 3,
+        "input_tokens": 8,
+        "output_tokens": 1894,
+        "total_tokens": 34279,
+        "wall_clock_ms": 36327
       },
       "capped": null,
-      "cost_usd": 0.07072149999999999,
-      "retried": true
+      "cost_usd": 0.18109799999999998
     },
     {
       "prompt_id": "h6-fetch-signature",
@@ -337,13 +336,13 @@
       "artifact_path": "hono/h6-fetch-signature/alpha.json",
       "metrics": {
         "tool_calls": 3,
-        "input_tokens": 6615,
-        "output_tokens": 950,
-        "total_tokens": 7565,
-        "wall_clock_ms": 14810
+        "input_tokens": 6666,
+        "output_tokens": 1007,
+        "total_tokens": 7673,
+        "wall_clock_ms": 16080
       },
       "capped": null,
-      "cost_usd": 0.170475
+      "cost_usd": 0.175515
     },
     {
       "prompt_id": "h6-fetch-signature",
@@ -352,13 +351,13 @@
       "artifact_path": "hono/h6-fetch-signature/ca.json",
       "metrics": {
         "tool_calls": 4,
-        "input_tokens": 12989,
-        "output_tokens": 1285,
-        "total_tokens": 14274,
-        "wall_clock_ms": 20297
+        "input_tokens": 14789,
+        "output_tokens": 996,
+        "total_tokens": 15785,
+        "wall_clock_ms": 17193
       },
       "capped": null,
-      "cost_usd": 0.29121
+      "cost_usd": 0.296535
     },
     {
       "prompt_id": "h6-fetch-signature",
@@ -366,14 +365,29 @@
       "bucket": "trick",
       "artifact_path": "hono/h6-fetch-signature/beta.json",
       "metrics": {
-        "tool_calls": 15,
-        "input_tokens": 21,
-        "output_tokens": 3079,
-        "total_tokens": 131315,
-        "wall_clock_ms": 51798
+        "tool_calls": 14,
+        "input_tokens": 20,
+        "output_tokens": 3009,
+        "total_tokens": 134925,
+        "wall_clock_ms": 55156
       },
       "capped": null,
-      "cost_usd": 0.252067
+      "cost_usd": 0.2708745
+    },
+    {
+      "prompt_id": "h6-fetch-signature",
+      "condition": "beta-ca",
+      "bucket": "trick",
+      "artifact_path": "hono/h6-fetch-signature/beta-ca.json",
+      "metrics": {
+        "tool_calls": 7,
+        "input_tokens": 12,
+        "output_tokens": 1900,
+        "total_tokens": 85816,
+        "wall_clock_ms": 45918
+      },
+      "capped": null,
+      "cost_usd": 0.17345850000000002
     }
   ]
 }
