@@ -1,0 +1,87 @@
+[
+  {
+    "cell": {
+      "repo": "httpx",
+      "promptId": "p4-stream-lifecycle",
+      "condition": "ca",
+      "anchor": "Theme 1.2 fix anchor"
+    },
+    "trial": 1,
+    "tokens": 30018,
+    "calls": 6,
+    "costUsd": 0.57249,
+    "capped": null,
+    "errored": null,
+    "wallClockMs": 37595,
+    "outDir": "C:\\CodeWork\\ContextAtlas-benchmarks\\runs\\2026-04-29T05-36-15-709Z",
+    "artifactPath": "C:\\CodeWork\\ContextAtlas-benchmarks\\runs\\2026-04-29T05-36-15-709Z\\httpx\\p4-stream-lifecycle\\ca.json"
+  },
+  {
+    "cell": {
+      "repo": "cobra",
+      "promptId": "c3-hook-lifecycle",
+      "condition": "beta-ca",
+      "anchor": "win-bucket (cobra 2nd-highest; c4 reserved for cell 5)"
+    },
+    "trial": 1,
+    "tokens": 24849,
+    "calls": 4,
+    "costUsd": 0.11918849999999999,
+    "capped": null,
+    "errored": null,
+    "wallClockMs": 57122,
+    "outDir": "C:\\CodeWork\\ContextAtlas-benchmarks\\runs\\2026-04-29T05-36-52-571Z",
+    "artifactPath": "C:\\CodeWork\\ContextAtlas-benchmarks\\runs\\2026-04-29T05-36-52-571Z\\cobra\\c3-hook-lifecycle\\beta-ca.json"
+  },
+  {
+    "cell": {
+      "repo": "httpx",
+      "promptId": "p2-http3-transport",
+      "condition": "beta-ca",
+      "anchor": "win-bucket (httpx 2nd-highest; p4 reserved for cell 1)"
+    },
+    "trial": 1,
+    "tokens": 19135,
+    "calls": 2,
+    "costUsd": 0.07251650000000001,
+    "capped": null,
+    "errored": null,
+    "wallClockMs": 36314,
+    "outDir": "C:\\CodeWork\\ContextAtlas-benchmarks\\runs\\2026-04-29T05-37-49-695Z",
+    "artifactPath": "C:\\CodeWork\\ContextAtlas-benchmarks\\runs\\2026-04-29T05-37-49-695Z\\httpx\\p2-http3-transport\\beta-ca.json"
+  },
+  {
+    "cell": {
+      "repo": "hono",
+      "promptId": "h1-context-runtime",
+      "condition": "beta-ca",
+      "anchor": "win-bucket (hono highest; no overlap)"
+    },
+    "trial": 1,
+    "tokens": 46890,
+    "calls": 5,
+    "costUsd": 0.1658825,
+    "capped": null,
+    "errored": null,
+    "wallClockMs": 79508,
+    "outDir": "C:\\CodeWork\\ContextAtlas-benchmarks\\runs\\2026-04-29T05-38-26-001Z",
+    "artifactPath": "C:\\CodeWork\\ContextAtlas-benchmarks\\runs\\2026-04-29T05-38-26-001Z\\hono\\h1-context-runtime\\beta-ca.json"
+  },
+  {
+    "cell": {
+      "repo": "cobra",
+      "promptId": "c4-subcommand-resolution",
+      "condition": "beta-ca",
+      "anchor": "Theme 1.1 multi-symbol API closure"
+    },
+    "trial": 1,
+    "tokens": 27199,
+    "calls": 4,
+    "costUsd": 0.13006525,
+    "capped": null,
+    "errored": null,
+    "wallClockMs": 59984,
+    "outDir": "C:\\CodeWork\\ContextAtlas-benchmarks\\runs\\2026-04-29T05-39-45-525Z",
+    "artifactPath": "C:\\CodeWork\\ContextAtlas-benchmarks\\runs\\2026-04-29T05-39-45-525Z\\cobra\\c4-subcommand-resolution\\beta-ca.json"
+  }
+]
