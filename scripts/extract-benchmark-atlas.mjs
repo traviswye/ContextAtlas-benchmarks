@@ -23,6 +23,8 @@ import {
   runExtractionPipeline,
   extractDocstringsForFile,
 } from "contextatlas/dist/extraction/pipeline.js";
+import { extractCommitMessagesForRepo } from "contextatlas/dist/extraction/commit-message-extractor.js";
+import { computeExcludePatterns } from "contextatlas/dist/config/exclude-patterns.js";
 import { createExtractionClient } from "contextatlas/dist/extraction/anthropic-client.js";
 import { walkSourceFiles } from "contextatlas/dist/extraction/file-walker.js";
 import { buildSymbolInventory } from "contextatlas/dist/extraction/resolver.js";
@@ -43,24 +45,31 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(fileURLToPath(new URL(".", import.meta.url)), "..");
 
+// Per-repo metadata: language, sentinel symbol, source extensions.
+//
+// v0.4 Step 5 (Gap 2 path a): per-repo `excludePattern` regex hack
+// REMOVED. Stream B now uses the unified config-driven
+// `computeExcludePatterns(config)` helper, which combines the
+// language-default patterns from main-repo's `exclude-patterns.ts`
+// with any user augmentations from `config.extraction.excludePattern`.
+// The previous regex defaults are subsumed by the new defaults
+// (`**/tests/**`, `**/test/**`, `**/*.test.ts(x)`, `**/*.spec.ts(x)`,
+// `**/test_*.py`, `**/*_test.py`, `**/*_test.go`).
 const SUPPORTED = {
   hono: {
     language: "typescript",
     sentinel: "Hono",
     extensions: [".ts", ".tsx"],
-    excludePattern: /\.test\.tsx?$/,
   },
   httpx: {
     language: "python",
     sentinel: "Client",
     extensions: [".py"],
-    excludePattern: /(^|[/\\])(test_[^/\\]+\.py|[^/\\]+_test\.py)$/,
   },
   cobra: {
     language: "go",
     sentinel: "Command",
     extensions: [".go"],
-    excludePattern: /_test\.go$/,
   },
 };
 
@@ -116,14 +125,18 @@ async function runStreamBPass({
   adapter,
   languageCode,
   extensions,
-  excludePattern,
+  excludePatterns,
   anthropicClient,
 }) {
-  const allFiles = walkSourceFiles(repoDir, extensions);
-  const sourceFiles = allFiles.filter((f) => !excludePattern.test(f.relPath));
+  // v0.4 Step 5 (Gap 2 path a): walkSourceFiles applies the
+  // unified config-driven exclusion at file-discovery time. The
+  // post-walk regex filter is removed; identical behavior is now
+  // produced by main-repo `walkSourceFiles` + minimatch matchers
+  // built from `computeExcludePatterns(config)`.
+  const sourceFiles = walkSourceFiles(repoDir, extensions, excludePatterns);
   console.log(
     `[${repoName}] Stream B [${languageCode}]: ${sourceFiles.length} source files ` +
-      `(filtered ${allFiles.length - sourceFiles.length} test files)`,
+      `(${excludePatterns.length} exclude pattern${excludePatterns.length === 1 ? "" : "s"} applied)`,
   );
 
   // Build a fresh inventory for Stream B. runExtractionPipeline's
@@ -322,6 +335,12 @@ async function extractOne(repoName) {
     // Stream B docstring-extraction pass per language (Step 14
     // ship criterion 4 — claim count materially higher than v0.2's
     // ADR-only count once docstring claims land).
+    //
+    // v0.4 Step 5 (Gap 2 path a): exclude patterns derived from the
+    // unified config (Step 2 / A4). Removes per-repo regex hack;
+    // defaults cover the same surface plus directory-pattern cases
+    // the regex missed (`runtime-tests/`, `benchmarks/test/`).
+    const excludePatterns = computeExcludePatterns(config);
     console.log(`\n[${repoName}] running Stream B docstring extraction...`);
     const streamBResults = [];
     for (const lang of config.languages) {
@@ -339,7 +358,7 @@ async function extractOne(repoName) {
         adapter: langAdapter,
         languageCode: lang,
         extensions: meta.extensions,
-        excludePattern: meta.excludePattern,
+        excludePatterns,
         anthropicClient: extractionClient,
       });
       streamBResults.push({ language: lang, ...sb });
@@ -384,6 +403,65 @@ async function extractOne(repoName) {
       }
     }
 
+    // Stream C — commit-message extraction (v0.4 Step 4 / Gap 1).
+    //
+    // Architectural-intent claims extracted from git commit messages
+    // via existing EXTRACTION_PROMPT. Uses the same symbol inventory
+    // built during Stream B for candidate resolution. Idempotency
+    // keyed on commit SHA via source_shas table; re-runs skip
+    // already-extracted commits.
+    //
+    // Q3 threshold (≥30 claims/repo on at least 2 of 3 repos AND
+    // any single repo above 50) gates per-atlas integration. The
+    // claim-density measurement happens here; Q3 partial-pass
+    // decision lands at Step 5 synthesis time (after all three
+    // repos extracted).
+    //
+    // Inventory rebuild: Stream B already built one but it's local
+    // to runStreamBPass. Rebuilding for Stream C keeps the
+    // boundaries clean; cost is per-repo cheap (LSP listSymbols
+    // calls; no API spend). Walks source files via the same
+    // unified excludePatterns as Stream B for symbol consistency.
+    console.log(`\n[${repoName}] running Stream C commit-message extraction...`);
+    const streamCFiles = walkSourceFiles(repoDir, meta.extensions, excludePatterns);
+    const streamCAdapters = new Map();
+    for (const lang of config.languages) {
+      const a = adapters.get(lang);
+      if (a) streamCAdapters.set(lang, a);
+    }
+    const streamCInventory = await buildSymbolInventory(streamCAdapters, streamCFiles);
+    const streamCResult = await extractCommitMessagesForRepo(
+      db,
+      repoDir,
+      config,
+      streamCInventory,
+      extractionClient,
+    );
+    const streamCCostUsd = computeCostUsd(streamCResult.totalUsage);
+    console.log(`\n[${repoName}] Stream C summary:`);
+    console.log(`  Total commits (--no-merges): ${streamCResult.commitsTotal}`);
+    console.log(`  Filter-matched commits:      ${streamCResult.commitsFiltered}`);
+    console.log(`  Commits extracted:           ${streamCResult.commitsExtracted}`);
+    console.log(`  Commits skipped (idempotent):${streamCResult.commitsSkippedIdempotent}`);
+    console.log(`  Claims written:              ${streamCResult.claimsWritten}`);
+    console.log(`  Claims with resolved syms:   ${streamCResult.claimsWithSymbols}`);
+    console.log(`  Cost USD:                    $${streamCCostUsd.toFixed(4)}`);
+    console.log(`  Errors:                      ${streamCResult.errors.length}`);
+    for (const e of streamCResult.errors) {
+      console.error(`  ERROR commit ${e.sha.slice(0, 8)}: ${e.error}`);
+    }
+    // Q3 threshold check — informational; partial-pass decision is
+    // a Step 5 synthesis concern across all three repos.
+    const q3Pass30 = streamCResult.claimsWritten >= 30;
+    const q3Pass50 = streamCResult.claimsWritten >= 50;
+    console.log(
+      `  Q3 threshold (>=30): ${q3Pass30 ? "PASS" : "FAIL"} ` +
+        `(${streamCResult.claimsWritten} claims)`,
+    );
+    if (q3Pass50) {
+      console.log(`  Q3 ceiling (>=50):   PASS — eligible to satisfy "any single repo above 50" requirement`);
+    }
+
     // Re-export atlas to include Stream B claims. runExtractionPipeline's
     // internal atlas-export is gated on input-SHA changes (didModify);
     // a second pipeline pass would NOT re-emit since ADR SHAs are
@@ -420,13 +498,16 @@ async function extractOne(repoName) {
     const atlas = JSON.parse(readFileSync(atlasPath, "utf-8"));
     const symbols = Array.isArray(atlas.symbols) ? atlas.symbols : [];
     const claims = Array.isArray(atlas.claims) ? atlas.claims : [];
-    const docstringClaims = claims.filter((c) =>
-      typeof c?.source === "string" && c.source.startsWith("docstring:"),
+    const docstringClaims = claims.filter(
+      (c) => typeof c?.source === "string" && c.source.startsWith("docstring:"),
     );
-    const adrClaims = claims.length - docstringClaims.length;
+    const commitClaims = claims.filter(
+      (c) => typeof c?.source === "string" && c.source.startsWith("commit:"),
+    );
+    const adrClaims = claims.length - docstringClaims.length - commitClaims.length;
     console.log(
       `[${repoName}] atlas.json: ${symbols.length} symbols, ${claims.length} claims ` +
-        `(${docstringClaims.length} docstring + ${adrClaims} ADR)`,
+        `(${adrClaims} ADR + ${docstringClaims.length} docstring + ${commitClaims.length} commit)`,
     );
     if (symbols.length === 0) throw new Error("Atlas has zero symbols");
     if (claims.length === 0) throw new Error("Atlas has zero claims");
@@ -436,6 +517,10 @@ async function extractOne(repoName) {
           "or atlas re-export failed to surface them. Investigate before commit.",
       );
     }
+    // Commit-claim count is informational, NOT a hard error: per Q3
+    // bimodal-aware threshold, some repos legitimately ship with zero
+    // commit-message claims (low-density-source repos). The threshold
+    // decision happens at Step 5 synthesis across all three repos.
 
     // Verify atlas v1.3 provenance fields landed.
     const generator = atlas.generator ?? {};

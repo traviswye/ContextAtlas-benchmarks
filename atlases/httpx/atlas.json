@@ -1,10 +1,10 @@
 {
-  "version": "1.1",
-  "generated_at": "2026-04-27T16:48:02.461Z",
+  "version": "1.3",
+  "generated_at": "2026-04-29T00:56:44.455Z",
   "extracted_at_sha": "26d48e0634e6ee9cdc0533996db289ce4b430177",
   "generator": {
-    "contextatlas_version": "0.0.1",
-    "contextatlas_commit_sha": "4308de5574f332626e0a09e91727f072aee9194b",
+    "contextatlas_version": "0.0.1-benchmark",
+    "contextatlas_commit_sha": "212569e414e10a83534af034325007cca34ff929",
     "extraction_model": "claude-opus-4-7"
   },
   "source_shas": {
@@ -13,6 +13,9 @@
     "ADR-03-transport-abstraction.md": "505bccedd57974b6c5f76f503861fcb55656d1b0929b915dc22fa65cbbcab1d2",
     "ADR-04-generator-based-auth-flow.md": "28337fe40674ffc8962b453cc23aa252d89634e793daa8ee58489b155159a6dc",
     "ADR-05-explicit-streaming.md": "8d3c1f401ba389355703fae0b34655a4adbd4b41eeafc16b120dd2353c90c1df",
+    "commit:0e73be83a8e133521c8c0cd7426a33cda196eef0": "0e73be83a8e133521c8c0cd7426a33cda196eef0",
+    "commit:6a99f6f2b3a638719f70200de9983f80d618ee1c": "6a99f6f2b3a638719f70200de9983f80d618ee1c",
+    "commit:cabd1c095e52e2f67ab63ec17941d3a539d7c877": "cabd1c095e52e2f67ab63ec17941d3a539d7c877",
     "httpx/__init__.py": "4fa3160a66ce47265690b2b0502c6d4da4d9e77de05ad0c7cacab3c0af4c8935",
     "httpx/__version__.py": "fbbecde0a559094201ca3e78fc2c2e325ad0f604c37f3299087f62a0488b990c",
     "httpx/_api.py": "8936fc710d8deeca17bfe6e8dc9f089231301b090e97dc0cf00e2e6249e6d79a",
@@ -35,13 +38,7 @@
     "httpx/_types.py": "661d3440e537d3d0e3f0d716e0df9380b80c8001536c41a16ba043c271cd8395",
     "httpx/_urlparse.py": "10e6c9322fd2c25367faa722c226487a94e8ec31aa7b685deaeed2d7613048ed",
     "httpx/_urls.py": "99dcffb4d02bf54ecffdfa54a83c5b94df44b16f08cffc49709c184d0be459da",
-    "httpx/_utils.py": "6aa82151b2ce3101a9004d8317641f3d4bd822d5eb9c2d2001d4d48b7ca9efb0",
-    "tests/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "tests/client/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "tests/common.py": "783549d8511be61c7341e0622fe6b168fc16ba11f3661c60fd216e22c5c68805",
-    "tests/concurrency.py": "7a905da02ddefc5ff443526df3c4e83ef9d2fb289ee8a2c425ee4d6754cb53aa",
-    "tests/conftest.py": "308ef5180b2717e9b0aff36a3e0d68e635b9e1820660c607103a5b05f819fb83",
-    "tests/models/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    "httpx/_utils.py": "6aa82151b2ce3101a9004d8317641f3d4bd822d5eb9c2d2001d4d48b7ca9efb0"
   },
   "symbols": [
     {
@@ -12368,8 +12365,32 @@
       "source_path": "httpx/_api.py",
       "source_sha": "8936fc710d8deeca17bfe6e8dc9f089231301b090e97dc0cf00e2e6249e6d79a",
       "severity": "context",
-      "claim": "trust_env toggles whether environment variables are consulted for configuration",
-      "rationale": "Controls whether external environment influences request behavior",
+      "claim": "auth parameter expects an authentication class instance",
+      "rationale": "Authentication is pluggable via a class abstraction",
+      "excerpt": "An authentication class to use when sending the request.",
+      "symbol_ids": [
+        "sym:py:httpx/_api.py:__all__"
+      ]
+    },
+    {
+      "source": "docstring:httpx/_api.py",
+      "source_path": "httpx/_api.py",
+      "source_sha": "8936fc710d8deeca17bfe6e8dc9f089231301b090e97dc0cf00e2e6249e6d79a",
+      "severity": "context",
+      "claim": "proxy parameter routes all traffic through a single proxy URL",
+      "rationale": "Defines proxy routing scope as global to the request",
+      "excerpt": "A proxy URL where all the traffic should be routed.",
+      "symbol_ids": [
+        "sym:py:httpx/_api.py:__all__"
+      ]
+    },
+    {
+      "source": "docstring:httpx/_api.py",
+      "source_path": "httpx/_api.py",
+      "source_sha": "8936fc710d8deeca17bfe6e8dc9f089231301b090e97dc0cf00e2e6249e6d79a",
+      "severity": "context",
+      "claim": "trust_env toggles whether environment variables are used for configuration",
+      "rationale": "Controls whether ambient environment influences request behavior",
       "excerpt": "Enables or disables usage of environment variables for configuration.",
       "symbol_ids": [
         "sym:py:httpx/_api.py:__all__"
@@ -12380,8 +12401,8 @@
       "source_path": "httpx/_api.py",
       "source_sha": "8936fc710d8deeca17bfe6e8dc9f089231301b090e97dc0cf00e2e6249e6d79a",
       "severity": "context",
-      "claim": "verify parameter accepts True (default CA bundle SSL context), False (disable verification), or an ssl.SSLContext instance for custom context",
-      "rationale": "Encodes the security default and customization surface for TLS verification",
+      "claim": "verify parameter accepts True (default CA bundle SSL context), False (disables verification), or a custom ssl.SSLContext instance",
+      "rationale": "Encodes TLS verification policy as a parameter default; disabling verification has security implications",
       "excerpt": "Either `True` to use an SSL context with the default CA bundle, `False` to disable verification, or an instance of `ssl.SSLContext` to use a custom context.",
       "symbol_ids": [
         "sym:py:httpx/_api.py:__all__"
@@ -12403,9 +12424,9 @@
       "source": "docstring:httpx/_api.py",
       "source_path": "httpx/_api.py",
       "source_sha": "8936fc710d8deeca17bfe6e8dc9f089231301b090e97dc0cf00e2e6249e6d79a",
-      "severity": "soft",
-      "claim": "GET requests should not include a request body, so data, files, json and content parameters are unavailable on this function",
-      "rationale": "Aligns with HTTP semantics that GET requests should not carry a request body",
+      "severity": "hard",
+      "claim": "GET requests do not support data, files, json, or content body parameters",
+      "rationale": "GET requests should not include a request body, so these parameters are not exposed on the GET function",
       "excerpt": "the `data`, `files`, `json` and `content` parameters are not available on this function, as `GET` requests should not include a request body",
       "symbol_ids": [
         "sym:py:httpx/_api.py:get"
@@ -12415,9 +12436,9 @@
       "source": "docstring:httpx/_api.py",
       "source_path": "httpx/_api.py",
       "source_sha": "8936fc710d8deeca17bfe6e8dc9f089231301b090e97dc0cf00e2e6249e6d79a",
-      "severity": "hard",
-      "claim": "HEAD requests should not include a request body, so data, files, json, and content parameters are not available on this function",
-      "rationale": "HEAD requests semantically should not carry a body, enforced by omitting body-related parameters",
+      "severity": "soft",
+      "claim": "HEAD requests should not include a request body, so data, files, json, and content parameters are unavailable",
+      "rationale": "HEAD requests semantically should not carry a body",
       "excerpt": "the `data`, `files`, `json` and `content` parameters are not available on this function, as `HEAD` requests should not include a request body",
       "symbol_ids": [
         "sym:py:httpx/_api.py:head"
@@ -12427,9 +12448,9 @@
       "source": "docstring:httpx/_api.py",
       "source_path": "httpx/_api.py",
       "source_sha": "8936fc710d8deeca17bfe6e8dc9f089231301b090e97dc0cf00e2e6249e6d79a",
-      "severity": "hard",
-      "claim": "OPTIONS request function does not accept data, files, json, or content parameters because OPTIONS requests should not include a request body",
-      "rationale": "OPTIONS requests semantically should not carry a request body, so the API omits body-related parameters",
+      "severity": "soft",
+      "claim": "OPTIONS requests should not include a request body, so data/files/json/content parameters are not available",
+      "rationale": "Semantic alignment with HTTP OPTIONS method which is not expected to carry a body",
       "excerpt": "the `data`, `files`, `json` and `content` parameters are not available on this function, as `OPTIONS` requests should not include a request body",
       "symbol_ids": [
         "sym:py:httpx/_api.py:options"
@@ -12440,20 +12461,8 @@
       "source_path": "httpx/_api.py",
       "source_sha": "8936fc710d8deeca17bfe6e8dc9f089231301b090e97dc0cf00e2e6249e6d79a",
       "severity": "context",
-      "claim": "proxy parameter routes all traffic through a single proxy URL",
-      "rationale": "Describes routing behavior of the request",
-      "excerpt": "A proxy URL where all the traffic should be routed.",
-      "symbol_ids": [
-        "sym:py:httpx/_api.py:request"
-      ]
-    },
-    {
-      "source": "docstring:httpx/_api.py",
-      "source_path": "httpx/_api.py",
-      "source_sha": "8936fc710d8deeca17bfe6e8dc9f089231301b090e97dc0cf00e2e6249e6d79a",
-      "severity": "context",
-      "claim": "trust_env controls whether environment variables are used for configuration",
-      "rationale": "Environment-driven configuration is an architectural toggle affecting behavior across deployments",
+      "claim": "trust_env parameter toggles whether environment variables are used for configuration",
+      "rationale": "Controls implicit configuration sourcing from the environment",
       "excerpt": "Enables or disables usage of environment variables for configuration.",
       "symbol_ids": [
         "sym:py:httpx/_api.py:request"
@@ -12465,7 +12474,7 @@
       "source_sha": "8936fc710d8deeca17bfe6e8dc9f089231301b090e97dc0cf00e2e6249e6d79a",
       "severity": "context",
       "claim": "verify parameter accepts True (default CA bundle SSL context), False (disable verification), or a custom ssl.SSLContext instance",
-      "rationale": "The parameter encodes a security-relevant default; disabling verification has security implications",
+      "rationale": "Encodes TLS verification policy as a parameter default, affecting security posture",
       "excerpt": "Either `True` to use an SSL context with the default CA bundle, `False` to disable verification, or an instance of `ssl.SSLContext` to use a custom context.",
       "symbol_ids": [
         "sym:py:httpx/_api.py:request"
@@ -12476,8 +12485,8 @@
       "source_path": "httpx/_api.py",
       "source_sha": "8936fc710d8deeca17bfe6e8dc9f089231301b090e97dc0cf00e2e6249e6d79a",
       "severity": "context",
-      "claim": "See Streaming Responses documentation for details",
-      "rationale": "External reference for further reading",
+      "claim": "See also: Streaming Responses (quickstart guide)",
+      "rationale": "Cross-reference to related documentation",
       "excerpt": "See also: [Streaming Responses][0]",
       "symbol_ids": [
         "sym:py:httpx/_api.py:stream"
@@ -12488,9 +12497,9 @@
       "source_path": "httpx/_api.py",
       "source_sha": "8936fc710d8deeca17bfe6e8dc9f089231301b090e97dc0cf00e2e6249e6d79a",
       "severity": "context",
-      "claim": "Streaming variant of httpx.request that streams the response body instead of loading it fully into memory",
-      "rationale": "Distinguishes this function from httpx.request by memory/streaming behavior",
-      "excerpt": "Alternative to `httpx.request()` that streams the response body instead of loading it into memory at once.",
+      "claim": "Streams the response body instead of loading it into memory at once",
+      "rationale": "Distinguishes this function from httpx.request by its streaming behavior, relevant for memory usage",
+      "excerpt": "streams the response body instead of loading it into memory at once",
       "symbol_ids": [
         "sym:py:httpx/_api.py:stream"
       ]
@@ -12501,7 +12510,7 @@
       "source_sha": "0cc30f73ece1adfdf86b47d9c5c35ce651a708ed41f5df23fce1ef471900c6a6",
       "severity": "context",
       "claim": "Custom authentication schemes are implemented by subclassing Auth and overriding auth_flow().",
-      "rationale": "Describes the extension mechanism for authentication schemes.",
+      "rationale": "Describes the extension mechanism for custom auth schemes.",
       "excerpt": "To implement a custom authentication scheme, subclass `Auth` and override the `.auth_flow()` method.",
       "symbol_ids": [
         "sym:py:httpx/_auth.py:Auth",
@@ -12527,9 +12536,9 @@
       "source_path": "httpx/_auth.py",
       "source_sha": "0cc30f73ece1adfdf86b47d9c5c35ce651a708ed41f5df23fce1ef471900c6a6",
       "severity": "soft",
-      "claim": "When the auth scheme performs I/O or uses synchronization primitives, override sync_auth_flow() and/or async_auth_flow() instead of auth_flow() so Client and AsyncClient use specialized implementations.",
-      "rationale": "I/O or locking in a generic auth_flow could block or misbehave; specialized sync/async variants are recommended.",
-      "excerpt": "If the authentication scheme does I/O such as disk access or network calls, or uses synchronization primitives such as locks, you should override `.sync_auth_flow()` and/or `.async_auth_flow()` instead of `.auth_flow()`",
+      "claim": "If the auth scheme performs I/O or uses synchronization primitives, override sync_auth_flow() and/or async_auth_flow() instead of auth_flow().",
+      "rationale": "Specialized sync/async implementations are used by Client and AsyncClient respectively, avoiding blocking or incorrect behavior.",
+      "excerpt": "you should override `.sync_auth_flow()` and/or `.async_auth_flow()` instead of `.auth_flow()` to provide specialized implementations that will be used by `Client` and `AsyncClient` respectively.",
       "symbol_ids": [
         "sym:py:httpx/_auth.py:Auth",
         "sym:py:httpx/_auth.py:async_auth_flow",
@@ -12544,8 +12553,8 @@
       "source_path": "httpx/_auth.py",
       "source_sha": "0cc30f73ece1adfdf86b47d9c5c35ce651a708ed41f5df23fce1ef471900c6a6",
       "severity": "context",
-      "claim": "Looks up basic auth credentials from a netrc file based on the URL host",
-      "rationale": "Describes the credential resolution mechanism",
+      "claim": "Uses a netrc file to look up basic auth credentials by URL host",
+      "rationale": "Describes the credential lookup mechanism",
       "excerpt": "Use a 'netrc' file to lookup basic auth credentials based on the url host.",
       "symbol_ids": [
         "sym:py:httpx/_auth.py:NetRCAuth"
@@ -12556,9 +12565,9 @@
       "source_path": "httpx/_auth.py",
       "source_sha": "0cc30f73ece1adfdf86b47d9c5c35ce651a708ed41f5df23fce1ef471900c6a6",
       "severity": "soft",
-      "claim": "If the auth scheme performs I/O or uses synchronization primitives, override sync_auth_flow() and/or async_auth_flow() instead of auth_flow() to provide specialized implementations used by Client and AsyncClient.",
-      "rationale": "Specialized sync/async implementations are needed when the auth flow blocks or uses locks, so Client and AsyncClient can use the appropriate variant.",
-      "excerpt": "you should override `.sync_auth_flow()` and/or `.async_auth_flow()` instead of `.auth_flow()` to provide specialized implementations that will be used by `Client` and `AsyncClient` respectively",
+      "claim": "If the authentication scheme performs I/O or uses synchronization primitives, override sync_auth_flow() and/or async_auth_flow() instead of auth_flow() to provide specialized implementations used by Client and AsyncClient.",
+      "rationale": "Specialized sync/async implementations are needed when I/O or locking is involved so Client and AsyncClient use the appropriate flow.",
+      "excerpt": "you should override `.sync_auth_flow()` and/or `.async_auth_flow()` instead of `.auth_flow()` to provide specialized implementations that will be used by `Client` and `AsyncClient` respectively.",
       "symbol_ids": [
         "sym:py:httpx/_auth.py:__all__",
         "sym:py:httpx/_auth.py:async_auth_flow",
@@ -12573,7 +12582,7 @@
       "source_path": "httpx/_auth.py",
       "source_sha": "0cc30f73ece1adfdf86b47d9c5c35ce651a708ed41f5df23fce1ef471900c6a6",
       "severity": "context",
-      "claim": "Default async authentication implementation defers to .auth_flow()",
+      "claim": "By default, the async auth flow defers to .auth_flow()",
       "rationale": "Documents the default delegation behavior",
       "excerpt": "By default, this defers to `.auth_flow()`.",
       "symbol_ids": [
@@ -12586,8 +12595,8 @@
       "source_path": "httpx/_auth.py",
       "source_sha": "0cc30f73ece1adfdf86b47d9c5c35ce651a708ed41f5df23fce1ef471900c6a6",
       "severity": "soft",
-      "claim": "Override the async auth flow method when the authentication scheme performs I/O or uses concurrency primitives",
-      "rationale": "Default implementation defers to sync auth_flow; async override needed for I/O or concurrency to avoid blocking",
+      "claim": "Override the async authentication flow method when the authentication scheme performs I/O or uses concurrency primitives",
+      "rationale": "Default implementation defers to sync auth_flow(), which is unsuitable for I/O-bound or concurrent auth schemes",
       "excerpt": "You should override this method when the authentication scheme does I/O and/or uses concurrency primitives.",
       "symbol_ids": [
         "sym:py:httpx/_auth.py:async_auth_flow",
@@ -12599,45 +12608,8 @@
       "source_path": "httpx/_auth.py",
       "source_sha": "0cc30f73ece1adfdf86b47d9c5c35ce651a708ed41f5df23fce1ef471900c6a6",
       "severity": "context",
-      "claim": "A return or end-of-generator causes the client to return the last response obtained from the server",
-      "rationale": "Defines termination semantics of the auth flow generator",
-      "excerpt": "A `return` (or reaching the end of the generator) will result in the client returning the last response obtained from the server.",
-      "symbol_ids": [
-        "sym:py:httpx/_auth.py:auth_flow"
-      ]
-    },
-    {
-      "source": "docstring:httpx/_auth.py",
-      "source_path": "httpx/_auth.py",
-      "source_sha": "0cc30f73ece1adfdf86b47d9c5c35ce651a708ed41f5df23fce1ef471900c6a6",
-      "severity": "context",
-      "claim": "Auth flow may dispatch multiple requests as needed",
-      "rationale": "Clarifies that multi-step authentication is supported",
-      "excerpt": "You can dispatch as many requests as is necessary.",
-      "symbol_ids": [
-        "sym:py:httpx/_auth.py:auth_flow"
-      ]
-    },
-    {
-      "source": "docstring:httpx/_auth.py",
-      "source_path": "httpx/_auth.py",
-      "source_sha": "0cc30f73ece1adfdf86b47d9c5c35ce651a708ed41f5df23fce1ef471900c6a6",
-      "severity": "context",
       "claim": "Authentication flow is implemented as a generator that yields requests and receives responses via .send()",
-      "rationale": "Describes the protocol contract between auth flow and client",
-      "excerpt": "The client will `.send()` the response back into the flow generator.",
-      "symbol_ids": [
-        "sym:py:httpx/_auth.py:auth_flow",
-        "sym:py:httpx/_client.py:send"
-      ]
-    },
-    {
-      "source": "docstring:httpx/_auth.py",
-      "source_path": "httpx/_auth.py",
-      "source_sha": "0cc30f73ece1adfdf86b47d9c5c35ce651a708ed41f5df23fce1ef471900c6a6",
-      "severity": "context",
-      "claim": "Authentication flow is implemented as a generator that yields requests and receives responses via .send()",
-      "rationale": "Describes the protocol contract between the client and the auth flow",
+      "rationale": "Describes the protocol between the client and the auth flow generator",
       "excerpt": "The client will `.send()` the response back into the flow generator.",
       "symbol_ids": [
         "sym:py:httpx/_auth.py:auth_flow",
@@ -12650,8 +12622,8 @@
       "source_sha": "0cc30f73ece1adfdf86b47d9c5c35ce651a708ed41f5df23fce1ef471900c6a6",
       "severity": "context",
       "claim": "Authentication flow is implemented as a generator that yields requests; the client sends responses back via .send()",
-      "rationale": "Describes the protocol/contract for the auth flow generator",
-      "excerpt": "To dispatch a request, `yield` it",
+      "rationale": "Describes the generator-based protocol contract between auth flow and client",
+      "excerpt": "The client will `.send()` the response back into the flow generator.",
       "symbol_ids": [
         "sym:py:httpx/_auth.py:auth_flow",
         "sym:py:httpx/_client.py:send"
@@ -12663,7 +12635,7 @@
       "source_sha": "0cc30f73ece1adfdf86b47d9c5c35ce651a708ed41f5df23fce1ef471900c6a6",
       "severity": "context",
       "claim": "Authentication flow is implemented as a generator: yield a request to dispatch it, and the client sends the response back into the generator",
-      "rationale": "Describes the generator-based protocol for auth flows",
+      "rationale": "Describes the generator-based protocol for auth_flow",
       "excerpt": "To dispatch a request, `yield` it",
       "symbol_ids": [
         "sym:py:httpx/_auth.py:auth_flow",
@@ -12675,12 +12647,38 @@
       "source_path": "httpx/_auth.py",
       "source_sha": "0cc30f73ece1adfdf86b47d9c5c35ce651a708ed41f5df23fce1ef471900c6a6",
       "severity": "context",
-      "claim": "Authentication flow is implemented as a generator: yield a request to dispatch it; the client sends the response back into the generator",
-      "rationale": "Describes the protocol contract between auth flow and client",
+      "claim": "Authentication flow is implemented as a generator: yield a request to dispatch, receive the response via generator send, and return to terminate with the last response.",
+      "rationale": "Describes the generator-based protocol the client uses to drive the auth flow.",
+      "excerpt": "The client will `.send()` the response back into the flow generator.",
+      "symbol_ids": [
+        "sym:py:httpx/_auth.py:auth_flow",
+        "sym:py:httpx/_client.py:send"
+      ]
+    },
+    {
+      "source": "docstring:httpx/_auth.py",
+      "source_path": "httpx/_auth.py",
+      "source_sha": "0cc30f73ece1adfdf86b47d9c5c35ce651a708ed41f5df23fce1ef471900c6a6",
+      "severity": "context",
+      "claim": "Authentication flow is implemented as a generator: yield requests and receive responses via generator.send()",
+      "rationale": "Describes the protocol between the client and the auth flow generator",
       "excerpt": "To dispatch a request, `yield` it",
       "symbol_ids": [
         "sym:py:httpx/_auth.py:auth_flow",
         "sym:py:httpx/_client.py:send"
+      ]
+    },
+    {
+      "source": "docstring:httpx/_auth.py",
+      "source_path": "httpx/_auth.py",
+      "source_sha": "0cc30f73ece1adfdf86b47d9c5c35ce651a708ed41f5df23fce1ef471900c6a6",
+      "severity": "context",
+      "claim": "By default, the synchronous authentication flow defers to .auth_flow()",
+      "rationale": "Describes default delegation behavior",
+      "excerpt": "By default, this defers to `.auth_flow()`.",
+      "symbol_ids": [
+        "sym:py:httpx/_auth.py:auth_flow",
+        "sym:py:httpx/_auth.py:sync_auth_flow"
       ]
     },
     {
@@ -12689,7 +12687,19 @@
       "source_sha": "0cc30f73ece1adfdf86b47d9c5c35ce651a708ed41f5df23fce1ef471900c6a6",
       "severity": "context",
       "claim": "Multiple requests may be dispatched within a single auth flow",
-      "rationale": "Indicates flexibility in number of dispatched requests",
+      "rationale": "Clarifies that the flow is not limited to one request",
+      "excerpt": "You can dispatch as many requests as is necessary.",
+      "symbol_ids": [
+        "sym:py:httpx/_auth.py:auth_flow"
+      ]
+    },
+    {
+      "source": "docstring:httpx/_auth.py",
+      "source_path": "httpx/_auth.py",
+      "source_sha": "0cc30f73ece1adfdf86b47d9c5c35ce651a708ed41f5df23fce1ef471900c6a6",
+      "severity": "context",
+      "claim": "Multiple requests may be dispatched within a single auth flow.",
+      "rationale": "Documents that the flow supports arbitrarily many request/response cycles.",
       "excerpt": "You can dispatch as many requests as is necessary.",
       "symbol_ids": [
         "sym:py:httpx/_auth.py:auth_flow"
@@ -12700,8 +12710,8 @@
       "source_path": "httpx/_auth.py",
       "source_sha": "0cc30f73ece1adfdf86b47d9c5c35ce651a708ed41f5df23fce1ef471900c6a6",
       "severity": "soft",
-      "claim": "Override sync_auth_flow when the authentication scheme performs I/O or uses concurrency primitives; default delegates to .auth_flow()",
-      "rationale": "Default implementation defers to .auth_flow() which may be inappropriate for schemes with I/O or concurrency",
+      "claim": "Override the synchronous authentication flow method when the authentication scheme does I/O or uses concurrency primitives",
+      "rationale": "Default implementation defers to auth_flow, which may not be appropriate for I/O or concurrency-using schemes",
       "excerpt": "You should override this method when the authentication scheme does I/O and/or uses concurrency primitives.",
       "symbol_ids": [
         "sym:py:httpx/_auth.py:auth_flow",
@@ -12713,32 +12723,8 @@
       "source_path": "httpx/_auth.py",
       "source_sha": "0cc30f73ece1adfdf86b47d9c5c35ce651a708ed41f5df23fce1ef471900c6a6",
       "severity": "context",
-      "claim": "Returning (or ending the generator) causes the client to return the last response obtained from the server",
-      "rationale": "Defines termination semantics of the auth flow generator",
-      "excerpt": "A `return` (or reaching the end of the generator) will result in the client returning the last response obtained from the server.",
-      "symbol_ids": [
-        "sym:py:httpx/_auth.py:auth_flow"
-      ]
-    },
-    {
-      "source": "docstring:httpx/_auth.py",
-      "source_path": "httpx/_auth.py",
-      "source_sha": "0cc30f73ece1adfdf86b47d9c5c35ce651a708ed41f5df23fce1ef471900c6a6",
-      "severity": "context",
-      "claim": "Returning or ending the generator causes the client to return the last response from the server",
+      "claim": "Returning or ending the generator causes the client to return the last response obtained from the server",
       "rationale": "Defines termination semantics of the auth flow",
-      "excerpt": "A `return` (or reaching the end of the generator) will result in the client returning the last response obtained from the server.",
-      "symbol_ids": [
-        "sym:py:httpx/_auth.py:auth_flow"
-      ]
-    },
-    {
-      "source": "docstring:httpx/_auth.py",
-      "source_path": "httpx/_auth.py",
-      "source_sha": "0cc30f73ece1adfdf86b47d9c5c35ce651a708ed41f5df23fce1ef471900c6a6",
-      "severity": "context",
-      "claim": "Returning or ending the generator causes the client to return the last response from the server",
-      "rationale": "Specifies termination semantics of the auth flow",
       "excerpt": "A `return` (or reaching the end of the generator) will result in the client returning the last response obtained from the server.",
       "symbol_ids": [
         "sym:py:httpx/_auth.py:auth_flow"
@@ -12761,9 +12747,9 @@
       "source_path": "httpx/_auth.py",
       "source_sha": "0cc30f73ece1adfdf86b47d9c5c35ce651a708ed41f5df23fce1ef471900c6a6",
       "severity": "context",
-      "claim": "The flow may dispatch any number of requests",
-      "rationale": "Indicates flexibility in number of requests within an auth flow",
-      "excerpt": "You can dispatch as many requests as is necessary.",
+      "claim": "Returning or ending the generator causes the client to return the last response obtained from the server",
+      "rationale": "Defines termination semantics of the auth flow generator",
+      "excerpt": "A `return` (or reaching the end of the generator) will result in the client returning the last response obtained from the server.",
       "symbol_ids": [
         "sym:py:httpx/_auth.py:auth_flow"
       ]
@@ -12773,35 +12759,11 @@
       "source_path": "httpx/_auth.py",
       "source_sha": "0cc30f73ece1adfdf86b47d9c5c35ce651a708ed41f5df23fce1ef471900c6a6",
       "severity": "context",
-      "claim": "The flow may dispatch multiple requests as needed",
-      "rationale": "Clarifies that auth flows are not limited to a single request",
-      "excerpt": "You can dispatch as many requests as is necessary.",
-      "symbol_ids": [
-        "sym:py:httpx/_auth.py:auth_flow"
-      ]
-    },
-    {
-      "source": "docstring:httpx/_auth.py",
-      "source_path": "httpx/_auth.py",
-      "source_sha": "0cc30f73ece1adfdf86b47d9c5c35ce651a708ed41f5df23fce1ef471900c6a6",
-      "severity": "context",
-      "claim": "The flow may dispatch multiple requests as needed",
-      "rationale": "Indicates flexibility in number of round-trips",
-      "excerpt": "You can dispatch as many requests as is necessary.",
-      "symbol_ids": [
-        "sym:py:httpx/_auth.py:auth_flow"
-      ]
-    },
-    {
-      "source": "docstring:httpx/_auth.py",
-      "source_path": "httpx/_auth.py",
-      "source_sha": "0cc30f73ece1adfdf86b47d9c5c35ce651a708ed41f5df23fce1ef471900c6a6",
-      "severity": "context",
-      "claim": "A return or end-of-generator causes the client to return the last response obtained from the server",
+      "claim": "Returning or reaching end of generator causes the client to return the last response from the server",
       "rationale": "Defines termination semantics of the auth flow",
       "excerpt": "A `return` (or reaching the end of the generator) will result in the client returning the last response obtained from the server.",
       "symbol_ids": [
-        "sym:py:httpx/_auth.py:requires_request_body"
+        "sym:py:httpx/_auth.py:auth_flow"
       ]
     },
     {
@@ -12809,8 +12771,44 @@
       "source_path": "httpx/_auth.py",
       "source_sha": "0cc30f73ece1adfdf86b47d9c5c35ce651a708ed41f5df23fce1ef471900c6a6",
       "severity": "context",
-      "claim": "Authentication flow is implemented as a generator: yield a request to dispatch it, and the client sends the response back into the generator",
-      "rationale": "Describes the generator-based protocol for the auth_flow contract",
+      "claim": "The auth flow may dispatch multiple requests as needed",
+      "rationale": "Indicates flexibility of the auth flow protocol",
+      "excerpt": "You can dispatch as many requests as is necessary.",
+      "symbol_ids": [
+        "sym:py:httpx/_auth.py:auth_flow"
+      ]
+    },
+    {
+      "source": "docstring:httpx/_auth.py",
+      "source_path": "httpx/_auth.py",
+      "source_sha": "0cc30f73ece1adfdf86b47d9c5c35ce651a708ed41f5df23fce1ef471900c6a6",
+      "severity": "context",
+      "claim": "The flow may dispatch multiple requests as needed",
+      "rationale": "Clarifies that multi-request flows are supported",
+      "excerpt": "You can dispatch as many requests as is necessary.",
+      "symbol_ids": [
+        "sym:py:httpx/_auth.py:auth_flow"
+      ]
+    },
+    {
+      "source": "docstring:httpx/_auth.py",
+      "source_path": "httpx/_auth.py",
+      "source_sha": "0cc30f73ece1adfdf86b47d9c5c35ce651a708ed41f5df23fce1ef471900c6a6",
+      "severity": "context",
+      "claim": "The flow may dispatch multiple requests as needed",
+      "rationale": "Indicates flexibility in the auth flow protocol",
+      "excerpt": "You can dispatch as many requests as is necessary.",
+      "symbol_ids": [
+        "sym:py:httpx/_auth.py:auth_flow"
+      ]
+    },
+    {
+      "source": "docstring:httpx/_auth.py",
+      "source_path": "httpx/_auth.py",
+      "source_sha": "0cc30f73ece1adfdf86b47d9c5c35ce651a708ed41f5df23fce1ef471900c6a6",
+      "severity": "context",
+      "claim": "Authentication flow is implemented as a generator: yield a request to dispatch it, and the client sends the response back into the generator.",
+      "rationale": "Describes the generator-based protocol for the auth flow.",
       "excerpt": "To dispatch a request, `yield` it",
       "symbol_ids": [
         "sym:py:httpx/_auth.py:requires_request_body",
@@ -12822,8 +12820,20 @@
       "source_path": "httpx/_auth.py",
       "source_sha": "0cc30f73ece1adfdf86b47d9c5c35ce651a708ed41f5df23fce1ef471900c6a6",
       "severity": "context",
-      "claim": "Multiple requests may be dispatched within a single auth flow",
-      "rationale": "Clarifies that the flow is not limited to a single request/response pair",
+      "claim": "Returning (or ending the generator) causes the client to return the last response obtained from the server.",
+      "rationale": "Defines termination semantics of the auth flow generator.",
+      "excerpt": "A `return` (or reaching the end of the generator) will result in the client returning the last response obtained from the server.",
+      "symbol_ids": [
+        "sym:py:httpx/_auth.py:requires_request_body"
+      ]
+    },
+    {
+      "source": "docstring:httpx/_auth.py",
+      "source_path": "httpx/_auth.py",
+      "source_sha": "0cc30f73ece1adfdf86b47d9c5c35ce651a708ed41f5df23fce1ef471900c6a6",
+      "severity": "context",
+      "claim": "The flow may dispatch as many requests as needed.",
+      "rationale": "Indicates no fixed limit on requests within an auth flow.",
       "excerpt": "You can dispatch as many requests as is necessary.",
       "symbol_ids": [
         "sym:py:httpx/_auth.py:requires_request_body"
@@ -12835,7 +12845,7 @@
       "source_sha": "0cc30f73ece1adfdf86b47d9c5c35ce651a708ed41f5df23fce1ef471900c6a6",
       "severity": "context",
       "claim": "Authentication flow is implemented as a generator: yield a request to dispatch it, and the client sends the response back into the generator",
-      "rationale": "Describes the protocol for implementing auth_flow as a coroutine-style generator",
+      "rationale": "Describes the generator-based protocol for the auth flow",
       "excerpt": "To dispatch a request, `yield` it",
       "symbol_ids": [
         "sym:py:httpx/_auth.py:requires_response_body",
@@ -12847,9 +12857,9 @@
       "source_path": "httpx/_auth.py",
       "source_sha": "0cc30f73ece1adfdf86b47d9c5c35ce651a708ed41f5df23fce1ef471900c6a6",
       "severity": "context",
-      "claim": "Multiple requests may be dispatched within a single auth flow",
-      "rationale": "Clarifies that the flow supports multi-step authentication",
-      "excerpt": "You can dispatch as many requests as is necessary.",
+      "claim": "Returning (or ending the generator) causes the client to return the last response obtained from the server",
+      "rationale": "Defines termination semantics of the auth flow generator",
+      "excerpt": "A `return` (or reaching the end of the generator) will result in the client returning the last response obtained from the server.",
       "symbol_ids": [
         "sym:py:httpx/_auth.py:requires_response_body"
       ]
@@ -12859,9 +12869,9 @@
       "source_path": "httpx/_auth.py",
       "source_sha": "0cc30f73ece1adfdf86b47d9c5c35ce651a708ed41f5df23fce1ef471900c6a6",
       "severity": "context",
-      "claim": "Returning (or generator end) causes the client to return the last response obtained from the server",
-      "rationale": "Defines termination semantics of the auth flow generator",
-      "excerpt": "A `return` (or reaching the end of the generator) will result in the client returning the last response obtained from the server.",
+      "claim": "The auth flow may dispatch multiple requests as needed",
+      "rationale": "Clarifies that multiple yields are supported",
+      "excerpt": "You can dispatch as many requests as is necessary.",
       "symbol_ids": [
         "sym:py:httpx/_auth.py:requires_response_body"
       ]
@@ -12871,9 +12881,9 @@
       "source_path": "httpx/_client.py",
       "source_sha": "6d4d83aa2af328c1e7471ca5d4cf5f9ac8a601b11fdf62b55dfba88afd824516",
       "severity": "context",
-      "claim": "A sentinel USE_CLIENT_DEFAULT distinguishes 'unset' (use client default) from None (explicitly disable)",
-      "rationale": "None has distinct semantics (disable/override) from omitting a parameter, so a sentinel is needed to represent the 'unset' state",
-      "excerpt": "The default \"unset\" state indicates that whatever default is set on the client should be used. This is different to setting `None`, which explicitly disables the parameter, possibly overriding a client default.",
+      "claim": "A sentinel USE_CLIENT_DEFAULT distinguishes 'unset' (use client default) from None (explicitly disable parameter)",
+      "rationale": "None cannot represent 'unset' because None has its own meaning (explicitly disable, overriding client default)",
+      "excerpt": "we need to be able to indicate the default \"unset\" state, in a way that is distinctly different to using `None`",
       "symbol_ids": [
         "sym:py:httpx/_api.py:request",
         "sym:py:httpx/_client.py:USE_CLIENT_DEFAULT",
@@ -12890,9 +12900,9 @@
       "source_path": "httpx/_client.py",
       "source_sha": "6d4d83aa2af328c1e7471ca5d4cf5f9ac8a601b11fdf62b55dfba88afd824516",
       "severity": "context",
-      "claim": "timeout=None explicitly disables the timeout rather than falling back to client default",
-      "rationale": "Illustrates the distinction between unset and None for the timeout parameter",
-      "excerpt": "Including `timeout=None` will ensure no timeout is used.",
+      "claim": "Passing timeout=None disables the timeout entirely rather than falling back to the client default",
+      "rationale": "Distinguishes explicit None semantics from omitted parameter semantics",
+      "excerpt": "Including `timeout=None` will ensure no timeout is used",
       "symbol_ids": [
         "sym:py:httpx/_api.py:request",
         "sym:py:httpx/_client.py:UseClientDefault",
@@ -12907,20 +12917,8 @@
       "source_path": "httpx/_client.py",
       "source_sha": "6d4d83aa2af328c1e7471ca5d4cf5f9ac8a601b11fdf62b55dfba88afd824516",
       "severity": "context",
-      "claim": "A custom transport class may be supplied to handle sending requests over the network.",
-      "rationale": "Documents an extension point for the network layer.",
-      "excerpt": "**transport** - *(optional)* A transport class to use for sending requests over the network.",
-      "symbol_ids": [
-        "sym:py:httpx/_client.py:AsyncClient"
-      ]
-    },
-    {
-      "source": "docstring:httpx/_client.py",
-      "source_path": "httpx/_client.py",
-      "source_sha": "6d4d83aa2af328c1e7471ca5d4cf5f9ac8a601b11fdf62b55dfba88afd824516",
-      "severity": "context",
-      "claim": "AsyncClient instances can be shared between tasks.",
-      "rationale": "Indicates concurrency-safety / sharing semantics relevant to architectural use.",
+      "claim": "AsyncClient is safe to share between asynchronous tasks",
+      "rationale": "Indicates concurrency-sharing semantics for the client instance",
       "excerpt": "It can be shared between tasks.",
       "symbol_ids": [
         "sym:py:httpx/_client.py:AsyncClient"
@@ -12931,8 +12929,20 @@
       "source_path": "httpx/_client.py",
       "source_sha": "6d4d83aa2af328c1e7471ca5d4cf5f9ac8a601b11fdf62b55dfba88afd824516",
       "severity": "context",
-      "claim": "AsyncClient is an asynchronous HTTP client providing connection pooling, HTTP/2, redirects, and cookie persistence.",
-      "rationale": "Describes the architectural role and built-in capabilities of the client.",
+      "claim": "HTTP/2 support is disabled by default (http2 defaults to False)",
+      "rationale": "Default protocol behavior must be explicitly opted into",
+      "excerpt": "A boolean indicating if HTTP/2 support should be enabled. Defaults to `False`.",
+      "symbol_ids": [
+        "sym:py:httpx/_client.py:AsyncClient"
+      ]
+    },
+    {
+      "source": "docstring:httpx/_client.py",
+      "source_path": "httpx/_client.py",
+      "source_sha": "6d4d83aa2af328c1e7471ca5d4cf5f9ac8a601b11fdf62b55dfba88afd824516",
+      "severity": "context",
+      "claim": "Provides connection pooling, HTTP/2, redirects, and cookie persistence as built-in features",
+      "rationale": "Describes the architectural capabilities of the asynchronous HTTP client",
       "excerpt": "An asynchronous HTTP client, with connection pooling, HTTP/2, redirects, cookie persistence, etc.",
       "symbol_ids": [
         "sym:py:httpx/_client.py:AsyncClient"
@@ -12943,32 +12953,8 @@
       "source_path": "httpx/_client.py",
       "source_sha": "6d4d83aa2af328c1e7471ca5d4cf5f9ac8a601b11fdf62b55dfba88afd824516",
       "severity": "context",
-      "claim": "HTTP/2 support is disabled by default and must be opted into via the http2 parameter.",
-      "rationale": "Default protocol behavior is an architectural fact consumers may need to know.",
-      "excerpt": "**http2** - *(optional)* A boolean indicating if HTTP/2 support should be enabled. Defaults to `False`.",
-      "symbol_ids": [
-        "sym:py:httpx/_client.py:AsyncClient"
-      ]
-    },
-    {
-      "source": "docstring:httpx/_client.py",
-      "source_path": "httpx/_client.py",
-      "source_sha": "6d4d83aa2af328c1e7471ca5d4cf5f9ac8a601b11fdf62b55dfba88afd824516",
-      "severity": "context",
-      "claim": "The verify parameter encodes the TLS verification policy: True uses the default CA bundle, False disables verification, or an ssl.SSLContext can be supplied.",
-      "rationale": "The parameter encodes a security default; disabling verification has architectural security implications.",
-      "excerpt": "**verify** - *(optional)* Either `True` to use an SSL context with the default CA bundle, `False` to disable verification, or an instance of `ssl.SSLContext` to use a custom context.",
-      "symbol_ids": [
-        "sym:py:httpx/_client.py:AsyncClient"
-      ]
-    },
-    {
-      "source": "docstring:httpx/_client.py",
-      "source_path": "httpx/_client.py",
-      "source_sha": "6d4d83aa2af328c1e7471ca5d4cf5f9ac8a601b11fdf62b55dfba88afd824516",
-      "severity": "context",
-      "claim": "default_encoding defaults to 'utf-8' for decoding response text when Content-Type lacks charset; a callable may be provided for automatic detection.",
-      "rationale": "Defines fallback decoding behavior and extension hook.",
+      "claim": "default_encoding for response text decoding is 'utf-8' when no charset is in Content-Type; may be set to a callable for automatic detection",
+      "rationale": "Specifies fallback decoding behavior and extension point for charset detection",
       "excerpt": "The default encoding to use for decoding response text, if no charset information is included in a response Content-Type header. Set to a callable for automatic character set detection. Default: \"utf-8\".",
       "symbol_ids": [
         "sym:py:httpx/_client.py:AsyncClient"
@@ -12979,9 +12965,21 @@
       "source_path": "httpx/_client.py",
       "source_sha": "6d4d83aa2af328c1e7471ca5d4cf5f9ac8a601b11fdf62b55dfba88afd824516",
       "severity": "context",
-      "claim": "trust_env controls whether environment variables are consulted for configuration.",
-      "rationale": "Environment-variable opt-in/opt-out is an architectural configuration toggle.",
-      "excerpt": "**trust_env** - *(optional)* Enables or disables usage of environment variables for configuration.",
+      "claim": "trust_env parameter toggles whether environment variables are used for configuration",
+      "rationale": "Affects implicit configuration sources from the environment",
+      "excerpt": "Enables or disables usage of environment variables for configuration.",
+      "symbol_ids": [
+        "sym:py:httpx/_client.py:AsyncClient"
+      ]
+    },
+    {
+      "source": "docstring:httpx/_client.py",
+      "source_path": "httpx/_client.py",
+      "source_sha": "6d4d83aa2af328c1e7471ca5d4cf5f9ac8a601b11fdf62b55dfba88afd824516",
+      "severity": "context",
+      "claim": "verify parameter controls TLS verification: True uses default CA bundle, False disables verification, or accepts a custom ssl.SSLContext",
+      "rationale": "Encodes the TLS security default and the means to disable or customize verification",
+      "excerpt": "Either `True` to use an SSL context with the default CA bundle, `False` to disable verification, or an instance of `ssl.SSLContext` to use a custom context.",
       "symbol_ids": [
         "sym:py:httpx/_client.py:AsyncClient"
       ]
@@ -12992,7 +12990,7 @@
       "source_sha": "6d4d83aa2af328c1e7471ca5d4cf5f9ac8a601b11fdf62b55dfba88afd824516",
       "severity": "context",
       "claim": "Async byte stream is bound to a response instance and ensures response.elapsed is set once the response is closed",
-      "rationale": "Describes the binding between the byte stream and response lifecycle for elapsed-time tracking",
+      "rationale": "Describes the stream's responsibility for tracking elapsed time tied to response lifecycle",
       "excerpt": "An async byte stream that is bound to a given response instance, and that ensures the `response.elapsed` is set once the response is closed.",
       "symbol_ids": [
         "sym:py:httpx/_client.py:BoundAsyncStream"
@@ -13003,8 +13001,8 @@
       "source_path": "httpx/_client.py",
       "source_sha": "6d4d83aa2af328c1e7471ca5d4cf5f9ac8a601b11fdf62b55dfba88afd824516",
       "severity": "context",
-      "claim": "Byte stream is bound to a response instance and ensures response.elapsed is set when the response is closed",
-      "rationale": "Describes the binding between the byte stream and the response, and the side effect of setting elapsed on close",
+      "claim": "Byte stream is bound to a response instance and ensures response.elapsed is set once the response is closed",
+      "rationale": "Describes the coupling between the stream lifecycle and the response timing measurement",
       "excerpt": "A byte stream that is bound to a given response instance, and that ensures the `response.elapsed` is set once the response is closed.",
       "symbol_ids": [
         "sym:py:httpx/_client.py:BoundSyncStream"
@@ -13016,7 +13014,7 @@
       "source_sha": "6d4d83aa2af328c1e7471ca5d4cf5f9ac8a601b11fdf62b55dfba88afd824516",
       "severity": "context",
       "claim": "Byte stream is bound to a response instance and ensures response.elapsed is set when the response is closed",
-      "rationale": "Describes the binding between the stream and the response, and the side effect on elapsed timing",
+      "rationale": "Describes the coupling between the byte stream lifecycle and the response timing measurement",
       "excerpt": "A byte stream that is bound to a given response instance, and that ensures the `response.elapsed` is set once the response is closed.",
       "symbol_ids": [
         "sym:py:httpx/_client.py:CLOSED"
@@ -13027,8 +13025,8 @@
       "source_path": "httpx/_client.py",
       "source_sha": "6d4d83aa2af328c1e7471ca5d4cf5f9ac8a601b11fdf62b55dfba88afd824516",
       "severity": "context",
-      "claim": "Client is thread-safe and can be shared between threads",
-      "rationale": "Indicates intended concurrency model for the client",
+      "claim": "Client instances are thread-safe and can be shared between threads",
+      "rationale": "Concurrency property of the client affecting how consumers use it",
       "excerpt": "It can be shared between threads.",
       "symbol_ids": [
         "sym:py:httpx/_client.py:Client"
@@ -13040,7 +13038,7 @@
       "source_sha": "6d4d83aa2af328c1e7471ca5d4cf5f9ac8a601b11fdf62b55dfba88afd824516",
       "severity": "context",
       "claim": "Client provides connection pooling, HTTP/2, redirects, and cookie persistence",
-      "rationale": "Describes the architectural responsibilities of the client",
+      "rationale": "Describes the architectural capabilities of the client",
       "excerpt": "An HTTP client, with connection pooling, HTTP/2, redirects, cookie persistence, etc.",
       "symbol_ids": [
         "sym:py:httpx/_client.py:Client"
@@ -13052,7 +13050,7 @@
       "source_sha": "6d4d83aa2af328c1e7471ca5d4cf5f9ac8a601b11fdf62b55dfba88afd824516",
       "severity": "context",
       "claim": "HTTP/2 support is disabled by default",
-      "rationale": "Default protocol behavior affects performance and compatibility",
+      "rationale": "Default protocol behavior is HTTP/1.x unless explicitly opted in",
       "excerpt": "A boolean indicating if HTTP/2 support should be enabled. Defaults to `False`.",
       "symbol_ids": [
         "sym:py:httpx/_client.py:Client"
@@ -13063,8 +13061,8 @@
       "source_path": "httpx/_client.py",
       "source_sha": "6d4d83aa2af328c1e7471ca5d4cf5f9ac8a601b11fdf62b55dfba88afd824516",
       "severity": "context",
-      "claim": "default_encoding falls back to utf-8 when response Content-Type lacks charset; can be set to a callable for autodetection",
-      "rationale": "Describes decoding fallback behavior and extensibility",
+      "claim": "default_encoding falls back to utf-8 when response lacks charset; can be a callable for autodetection",
+      "rationale": "Defines decoding fallback behavior for response text",
       "excerpt": "The default encoding to use for decoding response text, if no charset information is included in a response Content-Type header. Set to a callable for automatic character set detection. Default: \"utf-8\".",
       "symbol_ids": [
         "sym:py:httpx/_client.py:Client"
@@ -13075,8 +13073,8 @@
       "source_path": "httpx/_client.py",
       "source_sha": "6d4d83aa2af328c1e7471ca5d4cf5f9ac8a601b11fdf62b55dfba88afd824516",
       "severity": "context",
-      "claim": "trust_env toggles whether environment variables are used for configuration",
-      "rationale": "Affects configuration sourcing and reproducibility",
+      "claim": "trust_env controls whether environment variables are used for configuration",
+      "rationale": "Affects configuration source and reproducibility across environments",
       "excerpt": "Enables or disables usage of environment variables for configuration.",
       "symbol_ids": [
         "sym:py:httpx/_client.py:Client"
@@ -13087,8 +13085,8 @@
       "source_path": "httpx/_client.py",
       "source_sha": "6d4d83aa2af328c1e7471ca5d4cf5f9ac8a601b11fdf62b55dfba88afd824516",
       "severity": "context",
-      "claim": "verify parameter controls SSL verification: True uses default CA bundle, False disables verification, or accepts a custom ssl.SSLContext",
-      "rationale": "Encodes a security-relevant default and configuration surface",
+      "claim": "verify parameter encodes SSL trust policy: True uses default CA bundle, False disables verification, or accepts a custom ssl.SSLContext",
+      "rationale": "Security-relevant default; disabling verification has implications",
       "excerpt": "Either `True` to use an SSL context with the default CA bundle, `False` to disable verification, or an instance of `ssl.SSLContext` to use a custom context.",
       "symbol_ids": [
         "sym:py:httpx/_client.py:Client"
@@ -13100,7 +13098,7 @@
       "source_sha": "6d4d83aa2af328c1e7471ca5d4cf5f9ac8a601b11fdf62b55dfba88afd824516",
       "severity": "context",
       "claim": "Byte stream is bound to a response instance and ensures response.elapsed is set when the response is closed",
-      "rationale": "Describes the coupling between the stream and response lifecycle for tracking elapsed time",
+      "rationale": "Describes the binding between the byte stream and response lifecycle for timing measurement",
       "excerpt": "A byte stream that is bound to a given response instance, and that ensures the `response.elapsed` is set once the response is closed.",
       "symbol_ids": [
         "sym:py:httpx/_client.py:OPENED"
@@ -13112,7 +13110,7 @@
       "source_sha": "6d4d83aa2af328c1e7471ca5d4cf5f9ac8a601b11fdf62b55dfba88afd824516",
       "severity": "context",
       "claim": "Byte stream is bound to a response instance and ensures response.elapsed is set when the response is closed",
-      "rationale": "Describes the coupling between the byte stream and response lifecycle for timing instrumentation",
+      "rationale": "Describes the binding relationship and side effect of closing the response",
       "excerpt": "A byte stream that is bound to a given response instance, and that ensures the `response.elapsed` is set once the response is closed.",
       "symbol_ids": [
         "sym:py:httpx/_client.py:UNOPENED"
@@ -13123,9 +13121,9 @@
       "source_path": "httpx/_client.py",
       "source_sha": "6d4d83aa2af328c1e7471ca5d4cf5f9ac8a601b11fdf62b55dfba88afd824516",
       "severity": "soft",
-      "claim": "USE_CLIENT_DEFAULT is intended for internal use only; user code should not reference it",
+      "claim": "User code should not need to use the USE_CLIENT_DEFAULT constant; it is for internal use",
       "rationale": "The sentinel is an internal mechanism for representing omitted parameters",
-      "excerpt": "Note that user code shouldn't need to use the `USE_CLIENT_DEFAULT` constant, but it is used internally when a parameter is not included.",
+      "excerpt": "user code shouldn't need to use the `USE_CLIENT_DEFAULT` constant, but it is used internally when a parameter is not included",
       "symbol_ids": [
         "sym:py:httpx/_client.py:USE_CLIENT_DEFAULT",
         "sym:py:httpx/_client.py:UseClientDefault"
@@ -13147,8 +13145,7 @@
         "sym:py:httpx/_client.py:params",
         "sym:py:httpx/_models.py:cookies",
         "sym:py:httpx/_models.py:url",
-        "sym:py:httpx/_urls.py:params",
-        "sym:py:tests/conftest.py:url"
+        "sym:py:httpx/_urls.py:params"
       ]
     },
     {
@@ -13157,13 +13154,12 @@
       "source_sha": "6d4d83aa2af328c1e7471ca5d4cf5f9ac8a601b11fdf62b55dfba88afd824516",
       "severity": "context",
       "claim": "url argument is merged with any base_url set on the client",
-      "rationale": "Describes URL resolution behavior relative to client base_url",
+      "rationale": "Describes URL resolution behavior relative to client configuration",
       "excerpt": "The `url` argument is merged with any `base_url` set on the client.",
       "symbol_ids": [
         "sym:py:httpx/_client.py:base_url",
         "sym:py:httpx/_client.py:build_request",
-        "sym:py:httpx/_models.py:url",
-        "sym:py:tests/conftest.py:url"
+        "sym:py:httpx/_models.py:url"
       ]
     },
     {
@@ -13171,20 +13167,8 @@
       "source_path": "httpx/_client.py",
       "source_sha": "6d4d83aa2af328c1e7471ca5d4cf5f9ac8a601b11fdf62b55dfba88afd824516",
       "severity": "context",
-      "claim": "See also: Request instances documentation",
-      "rationale": "Cross-reference to related documentation",
-      "excerpt": "See also: [Request instances][0]",
-      "symbol_ids": [
-        "sym:py:httpx/_client.py:build_request"
-      ]
-    },
-    {
-      "source": "docstring:httpx/_client.py",
-      "source_path": "httpx/_client.py",
-      "source_sha": "6d4d83aa2af328c1e7471ca5d4cf5f9ac8a601b11fdf62b55dfba88afd824516",
-      "severity": "context",
-      "claim": "Parameters are merged with client-level configuration; see Merging of configuration documentation",
-      "rationale": "Indicates that request-level parameters interact with client-level configuration",
+      "claim": "Parameters are merged with client-level configuration per the Merging of configuration documentation",
+      "rationale": "Indicates parameter resolution semantics depend on client-level config merging rules",
       "excerpt": "See `Client.build_request()`, `Client.send()` and\n[Merging of configuration][0] for how the various parameters\nare merged with client-level configuration.",
       "symbol_ids": [
         "sym:py:httpx/_client.py:request"
@@ -13195,9 +13179,9 @@
       "source_path": "httpx/_client.py",
       "source_sha": "6d4d83aa2af328c1e7471ca5d4cf5f9ac8a601b11fdf62b55dfba88afd824516",
       "severity": "context",
-      "claim": "Parameters are merged with client-level configuration; see Merging of configuration documentation.",
-      "rationale": "Indicates that method-level parameters interact with client-level configuration via a documented merging strategy.",
-      "excerpt": "See `Client.build_request()`, `Client.send()` and\n[Merging of configuration][0] for how the various parameters\nare merged with client-level configuration.",
+      "claim": "Parameters are merged with client-level configuration per the Merging of configuration rules",
+      "rationale": "Indicates that method-level parameters interact with client-level configuration through a defined merging process",
+      "excerpt": "See `Client.build_request()`, `Client.send()` and [Merging of configuration][0] for how the various parameters are merged with client-level configuration.",
       "symbol_ids": [
         "sym:py:httpx/_client.py:request"
       ]
@@ -13219,8 +13203,8 @@
       "source_path": "httpx/_client.py",
       "source_sha": "6d4d83aa2af328c1e7471ca5d4cf5f9ac8a601b11fdf62b55dfba88afd824516",
       "severity": "context",
-      "claim": "This operation is equivalent to calling Client.build_request() followed by Client.send().",
-      "rationale": "Documents the composition of this method in terms of lower-level client primitives.",
+      "claim": "This operation is equivalent to calling Client.build_request() followed by Client.send()",
+      "rationale": "Documents the composition of the request method in terms of lower-level client operations",
       "excerpt": "Equivalent to:\n\n```python\nrequest = client.build_request(...)\nresponse = client.send(request, ...)\n```",
       "symbol_ids": [
         "sym:py:httpx/_client.py:request"
@@ -13231,8 +13215,8 @@
       "source_path": "httpx/_client.py",
       "source_sha": "6d4d83aa2af328c1e7471ca5d4cf5f9ac8a601b11fdf62b55dfba88afd824516",
       "severity": "soft",
-      "claim": "Prefer building requests with Client.build_request() so client-level configuration is merged in; passing an explicit httpx.Request() is also supported.",
-      "rationale": "Recommends the typical usage to ensure client-level configuration is included.",
+      "claim": "Prefer building requests with Client.build_request() to merge client-level configuration, though explicit httpx.Request() is supported.",
+      "rationale": "Recommends the build_request path so client configuration is applied.",
       "excerpt": "Typically you'll want to build one with `Client.build_request()` so that any client-level configuration is merged into the request",
       "symbol_ids": [
         "sym:py:httpx/_client.py:send"
@@ -13243,8 +13227,8 @@
       "source_path": "httpx/_client.py",
       "source_sha": "6d4d83aa2af328c1e7471ca5d4cf5f9ac8a601b11fdf62b55dfba88afd824516",
       "severity": "soft",
-      "claim": "Prefer building requests with Client.build_request() so client-level configuration is merged in; passing an explicit httpx.Request() is also supported.",
-      "rationale": "Recommendation to use build_request for proper configuration merging.",
+      "claim": "Prefer building requests with Client.build_request() to merge client-level configuration, though passing an explicit httpx.Request() is supported.",
+      "rationale": "Recommends the build_request path so client configuration is applied.",
       "excerpt": "Typically you'll want to build one with `Client.build_request()` so that any client-level configuration is merged into the request",
       "symbol_ids": [
         "sym:py:httpx/_client.py:send"
@@ -13255,8 +13239,8 @@
       "source_path": "httpx/_client.py",
       "source_sha": "6d4d83aa2af328c1e7471ca5d4cf5f9ac8a601b11fdf62b55dfba88afd824516",
       "severity": "context",
-      "claim": "Request is sent as-is, unmodified; client-level configuration is not merged unless the request was built via Client.build_request().",
-      "rationale": "Explains that send does not apply client-level configuration, so callers typically construct via build_request to get merging behavior.",
+      "claim": "Request is sent as-is, unmodified; client-level configuration is not applied unless the request was built via Client.build_request().",
+      "rationale": "Explains that passing an explicit httpx.Request() bypasses client-level configuration merging.",
       "excerpt": "The request is sent as-is, unmodified.",
       "symbol_ids": [
         "sym:py:httpx/_client.py:send"
@@ -13279,20 +13263,8 @@
       "source_path": "httpx/_client.py",
       "source_sha": "6d4d83aa2af328c1e7471ca5d4cf5f9ac8a601b11fdf62b55dfba88afd824516",
       "severity": "context",
-      "claim": "See also: Request instances documentation.",
-      "rationale": "Cross-reference to related documentation.",
-      "excerpt": "See also: [Request instances][0]",
-      "symbol_ids": [
-        "sym:py:httpx/_client.py:send"
-      ]
-    },
-    {
-      "source": "docstring:httpx/_client.py",
-      "source_path": "httpx/_client.py",
-      "source_sha": "6d4d83aa2af328c1e7471ca5d4cf5f9ac8a601b11fdf62b55dfba88afd824516",
-      "severity": "context",
-      "claim": "The request is sent as-is, unmodified; client-level configuration is not applied unless the request was built via Client.build_request().",
-      "rationale": "Explains that send() does not merge client-level configuration into the passed request.",
+      "claim": "The request is sent as-is, unmodified; client-level configuration is not merged unless the request was built via Client.build_request().",
+      "rationale": "Explains that explicit Request() instances bypass client-level configuration merging.",
       "excerpt": "The request is sent as-is, unmodified.",
       "symbol_ids": [
         "sym:py:httpx/_client.py:send"
@@ -13303,19 +13275,7 @@
       "source_path": "httpx/_client.py",
       "source_sha": "6d4d83aa2af328c1e7471ca5d4cf5f9ac8a601b11fdf62b55dfba88afd824516",
       "severity": "context",
-      "claim": "Parameters match those of httpx.request",
-      "rationale": "Indicates parameter parity with httpx.request",
-      "excerpt": "**Parameters**: See `httpx.request`.",
-      "symbol_ids": [
-        "sym:py:httpx/_client.py:stream"
-      ]
-    },
-    {
-      "source": "docstring:httpx/_client.py",
-      "source_path": "httpx/_client.py",
-      "source_sha": "6d4d83aa2af328c1e7471ca5d4cf5f9ac8a601b11fdf62b55dfba88afd824516",
-      "severity": "context",
-      "claim": "See Streaming Responses documentation for related guidance",
+      "claim": "See Streaming Responses documentation for details",
       "rationale": "Cross-reference to related documentation",
       "excerpt": "See also: [Streaming Responses][0]",
       "symbol_ids": [
@@ -13327,8 +13287,8 @@
       "source_path": "httpx/_client.py",
       "source_sha": "6d4d83aa2af328c1e7471ca5d4cf5f9ac8a601b11fdf62b55dfba88afd824516",
       "severity": "context",
-      "claim": "See also: Streaming Responses documentation",
-      "rationale": "Cross-reference to related documentation on streaming",
+      "claim": "See also: Streaming Responses (quickstart)",
+      "rationale": "Cross-reference to related documentation",
       "excerpt": "See also: [Streaming Responses][0]",
       "symbol_ids": [
         "sym:py:httpx/_client.py:stream"
@@ -13339,8 +13299,8 @@
       "source_path": "httpx/_client.py",
       "source_sha": "6d4d83aa2af328c1e7471ca5d4cf5f9ac8a601b11fdf62b55dfba88afd824516",
       "severity": "context",
-      "claim": "Streaming alternative to httpx.request() that avoids loading the response body into memory at once",
-      "rationale": "Documents the function's purpose as a memory-conscious alternative for response handling",
+      "claim": "Streams response body instead of loading entire body into memory at once",
+      "rationale": "Provides a memory-efficient alternative to httpx.request for large responses",
       "excerpt": "Alternative to `httpx.request()` that streams the response body instead of loading it into memory at once.",
       "symbol_ids": [
         "sym:py:httpx/_client.py:stream"
@@ -13352,8 +13312,8 @@
       "source_sha": "6d4d83aa2af328c1e7471ca5d4cf5f9ac8a601b11fdf62b55dfba88afd824516",
       "severity": "context",
       "claim": "Streams the response body instead of loading it into memory at once",
-      "rationale": "Distinguishes this function from httpx.request by its streaming behavior, relevant for memory-sensitive use cases",
-      "excerpt": "Alternative to `httpx.request()` that streams the response body instead of loading it into memory at once.",
+      "rationale": "Provides a streaming alternative to httpx.request for cases where loading the full body into memory is undesirable",
+      "excerpt": "streams the response body instead of loading it into memory at once",
       "symbol_ids": [
         "sym:py:httpx/_client.py:stream"
       ]
@@ -13363,9 +13323,9 @@
       "source_path": "httpx/_config.py",
       "source_sha": "2c3f11b64d97d5d1da84a8e8c9270ce611eb329ad3cb2a2464f612d23e6dc891",
       "severity": "context",
-      "claim": "keepalive_expiry sets a time limit (seconds) on idle keep-alive connections",
-      "rationale": "Defines the unit and meaning of the expiry parameter",
-      "excerpt": "Time limit on idle keep-alive connections in seconds",
+      "claim": "keepalive_expiry sets a time limit on idle keep-alive connections in seconds",
+      "rationale": "Controls how long idle keep-alive connections persist",
+      "excerpt": "Time limit on idle keep-alive connections in seconds.",
       "symbol_ids": [
         "sym:py:httpx/_config.py:Limits"
       ]
@@ -13375,9 +13335,9 @@
       "source_path": "httpx/_config.py",
       "source_sha": "2c3f11b64d97d5d1da84a8e8c9270ce611eb329ad3cb2a2464f612d23e6dc891",
       "severity": "context",
-      "claim": "max_keepalive_connections controls how many keep-alive connections the pool maintains below a threshold",
-      "rationale": "Describes the role of the parameter in the connection pool",
-      "excerpt": "Allow the connection pool to maintain keep-alive connections below this point",
+      "claim": "max_connections caps the maximum number of concurrent connections that may be established",
+      "rationale": "Defines the upper bound for concurrent connections",
+      "excerpt": "The maximum number of concurrent connections that may be established.",
       "symbol_ids": [
         "sym:py:httpx/_config.py:Limits"
       ]
@@ -13388,7 +13348,7 @@
       "source_sha": "2c3f11b64d97d5d1da84a8e8c9270ce611eb329ad3cb2a2464f612d23e6dc891",
       "severity": "soft",
       "claim": "max_keepalive_connections should be less than or equal to max_connections",
-      "rationale": "Keep-alive connection pool size is bounded by the total connection limit",
+      "rationale": "Keep-alive pool sizing must not exceed total connection cap",
       "excerpt": "Should be less than or equal to `max_connections`",
       "symbol_ids": [
         "sym:py:httpx/_config.py:Limits"
@@ -13398,9 +13358,9 @@
       "source": "docstring:httpx/_content.py",
       "source_path": "httpx/_content.py",
       "source_sha": "c52ee6d7a5d05256e2a7209087d08cee952b1c962befdec7d85890ad0f32e984",
-      "severity": "soft",
-      "claim": "After pickle serialization, request/response is detached from its I/O stream; stream operations should raise httpx.StreamClosed",
-      "rationale": "Pickling breaks the association with the underlying stream, so further I/O is invalid",
+      "severity": "hard",
+      "claim": "After pickle serialization, request/response objects are detached from their I/O stream and stream operations must raise httpx.StreamClosed",
+      "rationale": "Pickled requests/responses cannot retain stream attachment, so any stream operation is invalid and should signal closure",
       "excerpt": "If a request or response is serialized using pickle, then it is no longer attached to a stream for I/O purposes. Any stream operations should result in `httpx.StreamClosed`.",
       "symbol_ids": [
         "sym:py:httpx/_content.py:UnattachedStream"
@@ -13412,8 +13372,8 @@
       "source_sha": "46a3b6982e6c6cdd994b4aa35c7ca55d08f6fd645bad80e987356f547296f915",
       "severity": "context",
       "claim": "Brotli decoding requires installing either the 'brotlipy' or 'brotli' package",
-      "rationale": "External dependency requirement for brotli decoding support",
-      "excerpt": "Requires `pip install brotlipy`. ... or   `pip install brotli`.",
+      "rationale": "External dependency required for brotli decoding support",
+      "excerpt": "Requires `pip install brotlipy`. See: https://brotlipy.readthedocs.io/\n    or   `pip install brotli`.",
       "symbol_ids": [
         "sym:py:httpx/_decoders.py:BrotliDecoder"
       ]
@@ -13424,8 +13384,8 @@
       "source_sha": "46a3b6982e6c6cdd994b4aa35c7ca55d08f6fd645bad80e987356f547296f915",
       "severity": "context",
       "claim": "Implementation supports both 'brotlipy' and 'Brotli' packages because they share an import name",
-      "rationale": "Explains why a single code path can handle two distinct packages",
-      "excerpt": "Supports both 'brotlipy' and 'Brotli' packages since they share an import name.",
+      "rationale": "Explains why a single code path handles two distinct packages",
+      "excerpt": "Supports both 'brotlipy' and 'Brotli' packages since they share an import name. The top branches are for 'brotlipy' and bottom branches for 'Brotli'",
       "symbol_ids": [
         "sym:py:httpx/_decoders.py:BrotliDecoder"
       ]
@@ -13435,8 +13395,8 @@
       "source_path": "httpx/_decoders.py",
       "source_sha": "46a3b6982e6c6cdd994b4aa35c7ca55d08f6fd645bad80e987356f547296f915",
       "severity": "context",
-      "claim": "Behaviour matches stdlib splitlines but processes input iteratively",
-      "rationale": "Documents equivalence to stdlib splitlines while supporting incremental reading",
+      "claim": "Matches stdlib splitlines behavior but processes input iteratively for incremental line reading",
+      "rationale": "Establishes behavioral equivalence with stdlib while differentiating on iterative processing",
       "excerpt": "Has the same behaviour as the stdllib splitlines, but handling the input iteratively.",
       "symbol_ids": [
         "sym:py:httpx/_decoders.py:LineDecoder"
@@ -13447,21 +13407,9 @@
       "source_path": "httpx/_decoders.py",
       "source_sha": "46a3b6982e6c6cdd994b4aa35c7ca55d08f6fd645bad80e987356f547296f915",
       "severity": "context",
-      "claim": "Implements zstd decoding per RFC 8878",
-      "rationale": "Identifies the standard governing the decoder behavior",
-      "excerpt": "Handle 'zstd' RFC 8878 decoding.",
-      "symbol_ids": [
-        "sym:py:httpx/_decoders.py:ZStandardDecoder"
-      ]
-    },
-    {
-      "source": "docstring:httpx/_decoders.py",
-      "source_path": "httpx/_decoders.py",
-      "source_sha": "46a3b6982e6c6cdd994b4aa35c7ca55d08f6fd645bad80e987356f547296f915",
-      "severity": "context",
       "claim": "Zstd decoding support requires the zstandard package, optionally installed via httpx[zstd] extra",
-      "rationale": "Documents the optional dependency needed to enable RFC 8878 zstd decoding",
-      "excerpt": "Requires `pip install zstandard`. Can be installed as a dependency of httpx using `pip install httpx[zstd]`.",
+      "rationale": "Documents the dependency required to enable RFC 8878 zstd decoding",
+      "excerpt": "Requires `pip install zstandard`.",
       "symbol_ids": [
         "sym:py:httpx/_decoders.py:ZStandardDecoder"
       ]
@@ -13471,8 +13419,20 @@
       "source_path": "httpx/_exceptions.py",
       "source_sha": "a995701364ad5d395c26882b8d9e4f6304e6100d12d771d9cc3d8aca848f1abe",
       "severity": "context",
-      "claim": "Serves as the common base class for RequestError and HTTPStatusError, enabling unified exception handling around request issuance and raise_for_status calls.",
-      "rationale": "Allows consumers to catch both error families with a single except clause when issuing requests and calling raise_for_status.",
+      "claim": "Looking up a cookie by name when multiple cookies share that name raises this error",
+      "rationale": "Describes the condition under which the error occurs",
+      "excerpt": "Attempted to lookup a cookie by name, but multiple cookies existed.",
+      "symbol_ids": [
+        "sym:py:httpx/_exceptions.py:CookieConflict"
+      ]
+    },
+    {
+      "source": "docstring:httpx/_exceptions.py",
+      "source_path": "httpx/_exceptions.py",
+      "source_sha": "a995701364ad5d395c26882b8d9e4f6304e6100d12d771d9cc3d8aca848f1abe",
+      "severity": "context",
+      "claim": "HTTPError serves as the common base class for RequestError and HTTPStatusError, enabling unified exception handling across request issuance and status checking.",
+      "rationale": "Allows a single except clause to cover both transport-level and status-level failures.",
       "excerpt": "Base class for `RequestError` and `HTTPStatusError`. Useful for `try...except` blocks when issuing a request, and then calling `.raise_for_status()`.",
       "symbol_ids": [
         "sym:py:httpx/_exceptions.py:HTTPError",
@@ -13486,8 +13446,8 @@
       "source_path": "httpx/_exceptions.py",
       "source_sha": "a995701364ad5d395c26882b8d9e4f6304e6100d12d771d9cc3d8aca848f1abe",
       "severity": "context",
-      "claim": "HTTPError serves as a common base class for RequestError and HTTPStatusError, enabling unified exception handling around request issuance and raise_for_status().",
-      "rationale": "Allows a single try/except to cover both request-issuance failures and status-check failures.",
+      "claim": "HTTPError serves as a common base class for RequestError and HTTPStatusError to enable unified exception handling around request issuance and raise_for_status() calls.",
+      "rationale": "Allows try/except blocks to catch both request-issuing errors and status errors via a single base type.",
       "excerpt": "Base class for `RequestError` and `HTTPStatusError`. Useful for `try...except` blocks when issuing a request, and then calling `.raise_for_status()`.",
       "symbol_ids": [
         "sym:py:httpx/_exceptions.py:HTTPStatusError",
@@ -13501,7 +13461,7 @@
       "source_path": "httpx/_exceptions.py",
       "source_sha": "a995701364ad5d395c26882b8d9e4f6304e6100d12d771d9cc3d8aca848f1abe",
       "severity": "hard",
-      "claim": "Requests instantiated explicitly must include the mandatory Host header before being sent via client.send()",
+      "claim": "Request instances sent directly via client.send() must include the mandatory Host: header",
       "rationale": "Omitting the Host header constitutes a protocol violation by the client",
       "excerpt": "failed to include the mandatory `Host:` header, and then issued it directly using `client.send()`",
       "symbol_ids": [
@@ -13514,12 +13474,36 @@
       "source_path": "httpx/_exceptions.py",
       "source_sha": "a995701364ad5d395c26882b8d9e4f6304e6100d12d771d9cc3d8aca848f1abe",
       "severity": "context",
-      "claim": "Context manager attaches the given request context to any RequestError exceptions raised within the block",
+      "claim": "Context manager attaches the given request context to RequestError exceptions raised within the block",
       "rationale": "Describes the behavior of the context manager for enriching exceptions with request context",
       "excerpt": "A context manager that can be used to attach the given request context to any `RequestError` exceptions that are raised within the block.",
       "symbol_ids": [
         "sym:py:httpx/_exceptions.py:RequestError",
         "sym:py:httpx/_exceptions.py:request_context"
+      ]
+    },
+    {
+      "source": "docstring:httpx/_models.py",
+      "source_path": "httpx/_models.py",
+      "source_sha": "cf5fe378aeba8c35ebeaf85a49d1e149b07a87e6f7953eed34127c8cc41c62a1",
+      "severity": "context",
+      "claim": "HTTP headers are represented as a case-insensitive multi-dict",
+      "rationale": "Describes the data structure semantics for headers, allowing multiple values per key and case-insensitive lookup",
+      "excerpt": "HTTP headers, as a case-insensitive multi-dict.",
+      "symbol_ids": [
+        "sym:py:httpx/_models.py:Headers"
+      ]
+    },
+    {
+      "source": "docstring:httpx/_models.py",
+      "source_path": "httpx/_models.py",
+      "source_sha": "cf5fe378aeba8c35ebeaf85a49d1e149b07a87e6f7953eed34127c8cc41c62a1",
+      "severity": "context",
+      "claim": "Multiple headers sharing the same key are concatenated with commas when returning a single header value",
+      "rationale": "Behavior follows RFC 7230 section 3.2.2 for combining header field values",
+      "excerpt": "If there are multiple headers with the same key, then we concatenate them with commas. See: https://tools.ietf.org/html/rfc7230#section-3.2.2",
+      "symbol_ids": [
+        "sym:py:httpx/_models.py:__getitem__"
       ]
     },
     {
@@ -13539,32 +13523,8 @@
       "source_path": "httpx/_models.py",
       "source_sha": "cf5fe378aeba8c35ebeaf85a49d1e149b07a87e6f7953eed34127c8cc41c62a1",
       "severity": "context",
-      "claim": "Multiple headers with the same key are concatenated with commas per RFC 7230 §3.2.2",
-      "rationale": "Documents the behavior for combining duplicate header values, referencing the HTTP spec",
-      "excerpt": "If there are multiple headers with the same key, then we concatenate them with commas. See: https://tools.ietf.org/html/rfc7230#section-3.2.2",
-      "symbol_ids": [
-        "sym:py:httpx/_models.py:__getitem__"
-      ]
-    },
-    {
-      "source": "docstring:httpx/_models.py",
-      "source_path": "httpx/_models.py",
-      "source_sha": "cf5fe378aeba8c35ebeaf85a49d1e149b07a87e6f7953eed34127c8cc41c62a1",
-      "severity": "context",
-      "claim": "Setting a header by key replaces any duplicate entries while retaining insertion order",
-      "rationale": "Describes the behavior of the set operation regarding duplicates and ordering",
-      "excerpt": "Set the header `key` to `value`, removing any duplicate entries. Retains insertion order.",
-      "symbol_ids": [
-        "sym:py:httpx/_models.py:__setitem__"
-      ]
-    },
-    {
-      "source": "docstring:httpx/_models.py",
-      "source_path": "httpx/_models.py",
-      "source_sha": "cf5fe378aeba8c35ebeaf85a49d1e149b07a87e6f7953eed34127c8cc41c62a1",
-      "severity": "context",
-      "claim": "Iterator decodes response content supporting gzip, deflate, brotli, and zstd encodings",
-      "rationale": "Describes the purpose of the byte-iterator: handling multiple content encodings transparently",
+      "claim": "Byte iterator decodes gzip, deflate, brotli, and zstd encoded responses",
+      "rationale": "Describes the purpose of the iterator: handling multiple content encodings transparently",
       "excerpt": "This allows us to handle gzip, deflate, brotli, and zstd encoded responses.",
       "symbol_ids": [
         "sym:py:httpx/_models.py:aiter_bytes"
@@ -13575,20 +13535,8 @@
       "source_path": "httpx/_models.py",
       "source_sha": "cf5fe378aeba8c35ebeaf85a49d1e149b07a87e6f7953eed34127c8cc41c62a1",
       "severity": "context",
-      "claim": "When a header has multiple occurrences, values are concatenated with commas",
-      "rationale": "Describes how the header retrieval handles repeated headers",
-      "excerpt": "If multiple occurrences of the header occur then concatenate them together with commas.",
-      "symbol_ids": [
-        "sym:py:httpx/_models.py:get"
-      ]
-    },
-    {
-      "source": "docstring:httpx/_models.py",
-      "source_path": "httpx/_models.py",
-      "source_sha": "cf5fe378aeba8c35ebeaf85a49d1e149b07a87e6f7953eed34127c8cc41c62a1",
-      "severity": "context",
-      "claim": "When multiple occurrences of a header exist, values are concatenated with commas",
-      "rationale": "Describes return behavior for headers with multiple values",
+      "claim": "When a header has multiple occurrences, values are concatenated together with commas",
+      "rationale": "Describes return behavior for retrieving header values with duplicates",
       "excerpt": "If multiple occurrences of the header occur then concatenate them together with commas.",
       "symbol_ids": [
         "sym:py:httpx/_models.py:get"
@@ -13599,9 +13547,9 @@
       "source_path": "httpx/_models.py",
       "source_sha": "cf5fe378aeba8c35ebeaf85a49d1e149b07a87e6f7953eed34127c8cc41c62a1",
       "severity": "soft",
-      "claim": "Not all 3xx responses indicate a URL redirect; use has_redirect_location to detect properly formed URL redirections.",
-      "rationale": "A 3xx status code alone is insufficient to confirm a redirect; the dedicated property handles validation of redirect location.",
-      "excerpt": "Use `response.has_redirect_location` to determine responses with a properly formed URL redirection.",
+      "claim": "Not all 3xx status code responses indicate a URL redirect; use has_redirect_location to identify properly formed URL redirections",
+      "rationale": "A 3xx status alone is insufficient to determine whether a response is an actual redirect with a valid Location",
+      "excerpt": "not all responses with a 3xx status code indicate a URL redirect. Use `response.has_redirect_location` to determine responses with a properly formed URL redirection.",
       "symbol_ids": [
         "sym:py:httpx/_models.py:has_redirect_location",
         "sym:py:httpx/_models.py:is_redirect"
@@ -13613,7 +13561,7 @@
       "source_sha": "cf5fe378aeba8c35ebeaf85a49d1e149b07a87e6f7953eed34127c8cc41c62a1",
       "severity": "context",
       "claim": "Iterator decodes response content supporting gzip, deflate, brotli, and zstd encodings",
-      "rationale": "Describes the purpose and capability of the byte-iterator",
+      "rationale": "Describes the purpose of the byte-iterator: handling multiple content encodings transparently",
       "excerpt": "This allows us to handle gzip, deflate, brotli, and zstd encoded responses.",
       "symbol_ids": [
         "sym:py:httpx/_models.py:iter_bytes"
@@ -13624,8 +13572,8 @@
       "source_path": "httpx/_models.py",
       "source_sha": "cf5fe378aeba8c35ebeaf85a49d1e149b07a87e6f7953eed34127c8cc41c62a1",
       "severity": "context",
-      "claim": "Headers are returned as a list of (key, value) pairs allowing multiple occurrences of the same key without concatenation",
-      "rationale": "Preserves duplicate header keys instead of merging them into a comma-separated value",
+      "claim": "Headers are returned as a list of (key, value) pairs preserving multiple occurrences of the same key without comma-concatenation",
+      "rationale": "Preserves header multiplicity rather than collapsing duplicates into a single comma-separated value",
       "excerpt": "Allow multiple occurrences of the same key without concatenating into a single comma separated value.",
       "symbol_ids": [
         "sym:py:httpx/_models.py:multi_items"
@@ -13636,8 +13584,8 @@
       "source_path": "httpx/_transports/asgi.py",
       "source_sha": "deac203fe158b2aea28b3e6e112ea2f175fbfb502e25acd7cfe0bab680bd14d8",
       "severity": "context",
-      "claim": "ASGITransport is a custom AsyncTransport that sends requests directly to an ASGI app, bypassing the network.",
-      "rationale": "Establishes the architectural role of the transport: in-process delivery to an ASGI application.",
+      "claim": "ASGITransport is a custom AsyncTransport for sending requests directly to an ASGI app, bypassing the network",
+      "rationale": "Defines the architectural purpose of this transport — in-process dispatch to ASGI apps, used for testing and embedded scenarios",
       "excerpt": "A custom AsyncTransport that handles sending requests directly to an ASGI app.",
       "symbol_ids": [
         "sym:py:httpx/_transports/asgi.py:ASGITransport"
@@ -13647,10 +13595,10 @@
       "source": "docstring:httpx/_transports/asgi.py",
       "source_path": "httpx/_transports/asgi.py",
       "source_sha": "deac203fe158b2aea28b3e6e112ea2f175fbfb502e25acd7cfe0bab680bd14d8",
-      "severity": "soft",
-      "claim": "raise_app_exceptions defaults to True; can be set to False for use cases such as testing the content of a client 500 response.",
-      "rationale": "Default behavior re-raises app exceptions; disabling is a deliberate testing affordance.",
-      "excerpt": "Default to `True`. Can be set to `False` for use cases such as testing the content of a client 500 response.",
+      "severity": "context",
+      "claim": "raise_app_exceptions defaults to True; can be set to False to allow inspecting 500 responses instead of propagating app exceptions",
+      "rationale": "Encodes a default behavior choice relevant to error-propagation architecture between transport and app",
+      "excerpt": "Boolean indicating if exceptions in the application should be raised. Default to `True`. Can be set to `False` for use cases such as testing the content of a client 500 response.",
       "symbol_ids": [
         "sym:py:httpx/_transports/asgi.py:ASGITransport"
       ]
@@ -13660,8 +13608,8 @@
       "source_path": "httpx/_transports/base.py",
       "source_sha": "96e98f1da0ab25b6d5e950cfa6c7e1750d35e8c2a5f427be09309203eae44725",
       "severity": "soft",
-      "claim": "Developers should typically use the Client class higher-level API rather than calling this transport API directly",
-      "rationale": "Client class provides higher level user-facing API niceties",
+      "claim": "Developers typically should not call this API directly; use the Client class for higher-level user-facing API.",
+      "rationale": "Client provides higher level user-facing API niceties.",
       "excerpt": "Developers shouldn't typically ever need to call into this API directly, since the Client class provides all the higher level user-facing API niceties.",
       "symbol_ids": [
         "sym:py:httpx/_client.py:Client",
@@ -13673,9 +13621,9 @@
       "source_path": "httpx/_transports/base.py",
       "source_sha": "96e98f1da0ab25b6d5e950cfa6c7e1750d35e8c2a5f427be09309203eae44725",
       "severity": "soft",
-      "claim": "To properly release network resources, either consume the response stream immediately via response.stream.read() or wrap handle_request in try/finally to ensure the stream is closed",
-      "rationale": "Required to properly release network resources",
-      "excerpt": "In order to properly release any network resources, the response stream should *either* be consumed immediately, with a call to `response.stream.read()`, or else the `handle_request` call should be followed with a try/finally block to ensuring the stream is always closed.",
+      "claim": "To properly release network resources, either consume the response stream immediately via response.stream.read() or wrap handle_request in try/finally to ensure the stream is closed.",
+      "rationale": "Network resources are not released unless the stream is consumed or closed.",
+      "excerpt": "In order to properly release any network resources, the response stream should *either* be consumed immediately... or else the `handle_request` call should be followed with a try/finally block to ensuring the stream is always closed.",
       "symbol_ids": [
         "sym:py:httpx/_transports/base.py:handle_request",
         "sym:py:httpx/_transports/default.py:handle_request",
@@ -13688,9 +13636,9 @@
       "source_path": "httpx/_transports/wsgi.py",
       "source_sha": "c28e59ea367cb9bb06c20559a7cfb1dd207ef57544b77f2a46812c2aa2c17fa2",
       "severity": "context",
-      "claim": "WSGITransport is a custom transport for sending requests directly to a WSGI app, usable via Client(app=app) or by passing an explicit transport instance for additional configuration.",
-      "rationale": "Describes the purpose and two usage patterns for the transport.",
-      "excerpt": "A custom transport that handles sending requests directly to an WSGI app.",
+      "claim": "WSGITransport can be configured explicitly to pass additional arguments like script_name and remote_addr, beyond the simple app= shortcut on Client",
+      "rationale": "Explicit transport instantiation enables configuration not exposed via the Client(app=...) shortcut",
+      "excerpt": "Alternatively, you can setup the transport instance explicitly. This allows you to include any additional configuration arguments specific to the WSGITransport class",
       "symbol_ids": [
         "sym:py:httpx/_transports/wsgi.py:WSGITransport"
       ]
@@ -13700,9 +13648,9 @@
       "source_path": "httpx/_transports/wsgi.py",
       "source_sha": "c28e59ea367cb9bb06c20559a7cfb1dd207ef57544b77f2a46812c2aa2c17fa2",
       "severity": "soft",
-      "claim": "raise_app_exceptions defaults to True; set to False for use cases like testing the content of a client 500 response.",
-      "rationale": "Encodes a default behavior and a recommended override scenario for testing error responses.",
-      "excerpt": "Can be set to `False` for use cases such as testing the content of a client 500 response.",
+      "claim": "raise_app_exceptions defaults to True; set to False to allow inspecting client 500 responses (e.g., in tests)",
+      "rationale": "Default surfaces app exceptions to the caller; opting out is a deliberate testing affordance",
+      "excerpt": "Boolean indicating if exceptions in the application should be raised. Default to `True`. Can be set to `False` for use cases such as testing the content of a client 500 response.",
       "symbol_ids": [
         "sym:py:httpx/_transports/wsgi.py:WSGITransport"
       ]
@@ -13712,9 +13660,21 @@
       "source_path": "httpx/_urlparse.py",
       "source_sha": "10e6c9322fd2c25367faa722c226487a94e8ec31aa7b685deaeed2d7613048ed",
       "severity": "context",
-      "claim": "API accepts both individual URL components and complete URL strings",
-      "rationale": "Flexible input shapes for callers",
+      "claim": "API supports passing individual components as well as a complete URL string",
+      "rationale": "Documents the input flexibility of the API",
       "excerpt": "The API supports passing individual components, as well as the complete URL string.",
+      "symbol_ids": [
+        "sym:py:httpx/_urlparse.py:<module>"
+      ]
+    },
+    {
+      "source": "docstring:httpx/_urlparse.py",
+      "source_path": "httpx/_urlparse.py",
+      "source_sha": "10e6c9322fd2c25367faa722c226487a94e8ec31aa7b685deaeed2d7613048ed",
+      "severity": "context",
+      "claim": "Custom urlparse implementation provides URL validation and normalization per RFC3986",
+      "rationale": "Establishes the module's purpose and standards conformance",
+      "excerpt": "An implementation of `urlparse` that provides URL validation and normalization as described by RFC3986.",
       "symbol_ids": [
         "sym:py:httpx/_urlparse.py:<module>",
         "sym:py:httpx/_urlparse.py:urlparse"
@@ -13725,8 +13685,32 @@
       "source_path": "httpx/_urlparse.py",
       "source_sha": "10e6c9322fd2c25367faa722c226487a94e8ec31aa7b685deaeed2d7613048ed",
       "severity": "context",
-      "claim": "Custom urlparse implementation is used instead of Python stdlib for stricter RFC3986 compliance",
-      "rationale": "Stdlib urlparse provides less complete validation and lacks distinctions needed by this module",
+      "claim": "Handles scheme, hostname, port, and path normalization, and normalizes IDNA hostnames to encoded form",
+      "rationale": "Describes normalization behavior consumers can rely on",
+      "excerpt": "It handles scheme, hostname, port, and path normalization.",
+      "symbol_ids": [
+        "sym:py:httpx/_urlparse.py:<module>"
+      ]
+    },
+    {
+      "source": "docstring:httpx/_urlparse.py",
+      "source_path": "httpx/_urlparse.py",
+      "source_sha": "10e6c9322fd2c25367faa722c226487a94e8ec31aa7b685deaeed2d7613048ed",
+      "severity": "context",
+      "claim": "Replaces previous reliance on the rfc3986 package to reduce indirection",
+      "rationale": "Documents historical dependency replacement rationale",
+      "excerpt": "Previously we relied on the excellent `rfc3986` package to handle URL parsing and validation, but this module provides a simpler alternative, with less indirection required.",
+      "symbol_ids": [
+        "sym:py:httpx/_urlparse.py:<module>"
+      ]
+    },
+    {
+      "source": "docstring:httpx/_urlparse.py",
+      "source_path": "httpx/_urlparse.py",
+      "source_sha": "10e6c9322fd2c25367faa722c226487a94e8ec31aa7b685deaeed2d7613048ed",
+      "severity": "context",
+      "claim": "This implementation is used instead of Python's stdlib urlparse for more complete validation and to distinguish empty vs absent querystrings",
+      "rationale": "Justifies why stdlib is not used; preserves trailing '?' semantics",
       "excerpt": "We rely on this implementation rather than the one in Python's stdlib",
       "symbol_ids": [
         "sym:py:httpx/_urlparse.py:<module>",
@@ -13738,60 +13722,8 @@
       "source_path": "httpx/_urlparse.py",
       "source_sha": "10e6c9322fd2c25367faa722c226487a94e8ec31aa7b685deaeed2d7613048ed",
       "severity": "context",
-      "claim": "Distinguishes empty querystring from absent querystring (URLs with trailing '?')",
-      "rationale": "Preserves semantic difference between URLs that stdlib would conflate",
-      "excerpt": "It properly differentiates between an empty querystring and an absent querystring, to distinguish URLs with a trailing '?'.",
-      "symbol_ids": [
-        "sym:py:httpx/_urlparse.py:<module>",
-        "sym:py:httpx/_urlparse.py:urlparse"
-      ]
-    },
-    {
-      "source": "docstring:httpx/_urlparse.py",
-      "source_path": "httpx/_urlparse.py",
-      "source_sha": "10e6c9322fd2c25367faa722c226487a94e8ec31aa7b685deaeed2d7613048ed",
-      "severity": "context",
-      "claim": "IDNA hostnames are normalized to their encoded form",
-      "rationale": "Ensures consistent hostname representation",
-      "excerpt": "It supports IDNA hostnames, normalizing them to their encoded form.",
-      "symbol_ids": [
-        "sym:py:httpx/_urlparse.py:<module>",
-        "sym:py:httpx/_urlparse.py:urlparse"
-      ]
-    },
-    {
-      "source": "docstring:httpx/_urlparse.py",
-      "source_path": "httpx/_urlparse.py",
-      "source_sha": "10e6c9322fd2c25367faa722c226487a94e8ec31aa7b685deaeed2d7613048ed",
-      "severity": "context",
-      "claim": "Performs normalization of scheme, hostname, port, and path",
-      "rationale": "Provides canonical URL forms",
-      "excerpt": "It handles scheme, hostname, port, and path normalization.",
-      "symbol_ids": [
-        "sym:py:httpx/_urlparse.py:<module>",
-        "sym:py:httpx/_urlparse.py:urlparse"
-      ]
-    },
-    {
-      "source": "docstring:httpx/_urlparse.py",
-      "source_path": "httpx/_urlparse.py",
-      "source_sha": "10e6c9322fd2c25367faa722c226487a94e8ec31aa7b685deaeed2d7613048ed",
-      "severity": "context",
-      "claim": "Replaces prior dependency on the rfc3986 package to reduce indirection",
-      "rationale": "Simpler alternative to the previous external dependency",
-      "excerpt": "Previously we relied on the excellent `rfc3986` package to handle URL parsing and validation, but this module provides a simpler alternative, with less indirection required.",
-      "symbol_ids": [
-        "sym:py:httpx/_urlparse.py:<module>",
-        "sym:py:httpx/_urlparse.py:urlparse"
-      ]
-    },
-    {
-      "source": "docstring:httpx/_urlparse.py",
-      "source_path": "httpx/_urlparse.py",
-      "source_sha": "10e6c9322fd2c25367faa722c226487a94e8ec31aa7b685deaeed2d7613048ed",
-      "severity": "context",
-      "claim": "Existing '%xx' escape sequences are omitted (not re-encoded) during percent-encoding",
-      "rationale": "Prevents double-encoding of already-escaped sequences",
+      "claim": "Existing '%xx' escape sequences are omitted (not re-encoded) when quoting",
+      "rationale": "Avoids double-encoding already-escaped sequences",
       "excerpt": "Use percent-encoding to quote a string, omitting existing '%xx' escape sequences.",
       "symbol_ids": [
         "sym:py:httpx/_urlparse.py:quote"
@@ -13801,9 +13733,9 @@
       "source": "docstring:httpx/_urlparse.py",
       "source_path": "httpx/_urlparse.py",
       "source_sha": "10e6c9322fd2c25367faa722c226487a94e8ec31aa7b685deaeed2d7613048ed",
-      "severity": "context",
-      "claim": "Unreserved characters per RFC 3986 are always treated as safe and not escaped, regardless of the safe parameter",
-      "rationale": "Defines baseline behavior aligned with RFC 3986 section 2.3",
+      "severity": "hard",
+      "claim": "Unreserved characters are always treated as safe during percent-encoding",
+      "rationale": "Conformance with RFC 3986 section 2.3 requires unreserved characters to be safe regardless of the safe parameter",
       "excerpt": "Unreserved characters are always treated as safe.",
       "symbol_ids": [
         "sym:py:httpx/_urlparse.py:quote"
@@ -13814,8 +13746,8 @@
       "source_path": "httpx/_urlparse.py",
       "source_sha": "10e6c9322fd2c25367faa722c226487a94e8ec31aa7b685deaeed2d7613048ed",
       "severity": "context",
-      "claim": "Path validation rules vary depending on whether the URL contains a scheme or authority component",
-      "rationale": "Describes conditional validation behavior tied to URL structure per RFC 3986 section 3.3",
+      "claim": "Path validation rules vary depending on whether the URL contains a scheme or authority component, per RFC 3986 section 3.3",
+      "rationale": "Describes that path validation behavior is conditional on URL structure, referencing RFC 3986",
       "excerpt": "Path validation rules that depend on if the URL contains a scheme or authority component.",
       "symbol_ids": [
         "sym:py:httpx/_urlparse.py:validate_path"
@@ -13826,8 +13758,8 @@
       "source_path": "httpx/_urls.py",
       "source_sha": "99dcffb4d02bf54ecffdfa54a83c5b94df44b16f08cffc49709c184d0be459da",
       "severity": "context",
-      "claim": "Query string is exposed as raw bytes excluding the leading '?' because URL decoding requires parsing into key/value pairs first",
-      "rationale": "Bytewise interface is necessary since URL decoding cannot be performed on the raw representation until keys and values are parsed",
+      "claim": "Query string is exposed as raw bytes excluding the leading '?' because URL decoding cannot occur before parsing keys and values into QueryParams",
+      "rationale": "Bytewise interface is necessary since decoding requires prior parsing into key/value structure",
       "excerpt": "This is necessarily a bytewise interface, because we cannot perform URL decoding of this representation until we've parsed the keys and values into a QueryParams instance.",
       "symbol_ids": [
         "sym:py:httpx/_urls.py:QueryParams",
@@ -13838,9 +13770,22 @@
       "source": "docstring:httpx/_urls.py",
       "source_path": "httpx/_urls.py",
       "source_sha": "99dcffb4d02bf54ecffdfa54a83c5b94df44b16f08cffc49709c184d0be459da",
+      "severity": "hard",
+      "claim": "Default ports for http, https, ws, wss, and ftp schemes are always treated as None",
+      "rationale": "Defines a deterministic normalization rule consumers must account for when reading .port",
+      "excerpt": "Default ports for \"http\", \"https\", \"ws\", \"wss\", and \"ftp\" schemes are always treated as `None`",
+      "symbol_ids": [
+        "sym:py:httpx/_urls.py:URL",
+        "sym:py:httpx/_urls.py:port"
+      ]
+    },
+    {
+      "source": "docstring:httpx/_urls.py",
+      "source_path": "httpx/_urls.py",
+      "source_sha": "99dcffb4d02bf54ecffdfa54a83c5b94df44b16f08cffc49709c184d0be459da",
       "severity": "soft",
-      "claim": "Prefer url.username and url.password over url.userinfo because they handle URL escaping",
-      "rationale": "userinfo is raw bytes without escaping; username/password are safer for typical usage",
+      "claim": "Prefer url.username and url.password over url.userinfo since they handle URL escaping",
+      "rationale": "userinfo is raw bytes without URL escaping",
       "excerpt": "Usually you'll want to work with `url.username` and `url.password` instead, which handle the URL escaping.",
       "symbol_ids": [
         "sym:py:httpx/_urls.py:URL"
@@ -13851,9 +13796,9 @@
       "source_path": "httpx/_urls.py",
       "source_sha": "99dcffb4d02bf54ecffdfa54a83c5b94df44b16f08cffc49709c184d0be459da",
       "severity": "context",
-      "claim": "URL class performs port normalization per WHATWG spec; default ports for http, https, ws, wss, and ftp schemes are treated as None",
-      "rationale": "Consumers need to know default ports normalize to None when comparing or inspecting URLs",
-      "excerpt": "Default ports for \"http\", \"https\", \"ws\", \"wss\", and \"ftp\" schemes are always treated as `None`.",
+      "claim": "URL class performs port normalization per the WHATWG spec",
+      "rationale": "Explains normalization behavior of the URL class",
+      "excerpt": "the URL class performs port normalization as per the WHATWG spec",
       "symbol_ids": [
         "sym:py:httpx/_urls.py:URL",
         "sym:py:httpx/_urls.py:port"
@@ -13865,7 +13810,7 @@
       "source_sha": "99dcffb4d02bf54ecffdfa54a83c5b94df44b16f08cffc49709c184d0be459da",
       "severity": "context",
       "claim": "url.host is normalized to lowercase and represents IDNs in unicode without IDNA encoding",
-      "rationale": "Defines representation of host for internationalized domain names",
+      "rationale": "Defines representation of internationalized domain names",
       "excerpt": "Internationalized domain names are represented in unicode, without IDNA encoding applied.",
       "symbol_ids": [
         "sym:py:httpx/_urls.py:URL"
@@ -13876,8 +13821,8 @@
       "source_path": "httpx/_urls.py",
       "source_sha": "99dcffb4d02bf54ecffdfa54a83c5b94df44b16f08cffc49709c184d0be459da",
       "severity": "context",
-      "claim": "url.port is None or an integer; default ports for http, https, ws, wss, and ftp schemes are normalized to None",
-      "rationale": "Default ports are stripped to normalize URL equality",
+      "claim": "url.port is None or integer; default ports for http, https, ws, wss, and ftp schemes are normalized to None",
+      "rationale": "Default port normalization affects URL equality and port checks",
       "excerpt": "URLs that include the default port for \"http\", \"https\", \"ws\", \"wss\", and \"ftp\" schemes have their port normalized to `None`.",
       "symbol_ids": [
         "sym:py:httpx/_urls.py:URL"
@@ -13888,7 +13833,7 @@
       "source_path": "httpx/_urls.py",
       "source_sha": "99dcffb4d02bf54ecffdfa54a83c5b94df44b16f08cffc49709c184d0be459da",
       "severity": "context",
-      "claim": "url.query is raw bytes without URL escaping because proper escaping requires decoding parameter names and values",
+      "claim": "url.query is raw bytes without URL escaping because proper escaping requires decoding parameter names and values individually",
       "rationale": "Explains why query is exposed as raw bytes",
       "excerpt": "A URL query string portion can only be properly URL escaped when decoding the parameter names and values themselves.",
       "symbol_ids": [
@@ -13900,8 +13845,8 @@
       "source_path": "httpx/_urls.py",
       "source_sha": "99dcffb4d02bf54ecffdfa54a83c5b94df44b16f08cffc49709c184d0be459da",
       "severity": "context",
-      "claim": "url.raw_host is lowercased and IDNA-encoded",
-      "rationale": "Distinguishes raw_host from host representation",
+      "claim": "url.raw_host is normalized to lowercase and IDNA encoded",
+      "rationale": "Distinguishes raw_host encoding from host",
       "excerpt": "`url.raw_host` is normalized to always be lowercased, and is IDNA encoded.",
       "symbol_ids": [
         "sym:py:httpx/_urls.py:URL"
@@ -13912,8 +13857,8 @@
       "source_path": "httpx/_urls.py",
       "source_sha": "99dcffb4d02bf54ecffdfa54a83c5b94df44b16f08cffc49709c184d0be459da",
       "severity": "soft",
-      "claim": "url.raw_path is raw bytes of path and query without URL escaping, used as the HTTP request target; prefer url.path for typical use",
-      "rationale": "raw_path is the wire-level target; path is the convenient API",
+      "claim": "url.raw_path is raw bytes of path and query without URL escaping; used as the target when constructing HTTP requests; prefer url.path for normal use",
+      "rationale": "raw_path is the wire-level target; path is more user-friendly",
       "excerpt": "This portion is used as the target when constructing HTTP requests. Usually you'll want to work with `url.path` instead.",
       "symbol_ids": [
         "sym:py:httpx/_urls.py:URL"
@@ -13925,7 +13870,7 @@
       "source_sha": "99dcffb4d02bf54ecffdfa54a83c5b94df44b16f08cffc49709c184d0be459da",
       "severity": "context",
       "claim": "url.scheme is normalized to always be lowercased",
-      "rationale": "Documents normalization behavior consumers can rely on",
+      "rationale": "Documents normalization behavior of the scheme component",
       "excerpt": "`url.scheme` is normalized to always be lowercased.",
       "symbol_ids": [
         "sym:py:httpx/_urls.py:URL"
@@ -13936,8 +13881,20 @@
       "source_path": "httpx/_urls.py",
       "source_sha": "99dcffb4d02bf54ecffdfa54a83c5b94df44b16f08cffc49709c184d0be459da",
       "severity": "soft",
-      "claim": "Prefer url.username and url.password over url.userinfo, since the former handle URL escaping",
-      "rationale": "userinfo is raw bytes without URL escaping; username/password handle escaping",
+      "claim": "Prefer url.path over url.raw_path; raw_path is raw bytes of path+query used as the HTTP request target",
+      "rationale": "raw_path is the wire-format target, but consumers usually want the decoded path",
+      "excerpt": "This portion is used as the target when constructing HTTP requests. Usually you'll want to work with `url.path` instead.",
+      "symbol_ids": [
+        "sym:py:httpx/_urls.py:__all__"
+      ]
+    },
+    {
+      "source": "docstring:httpx/_urls.py",
+      "source_path": "httpx/_urls.py",
+      "source_sha": "99dcffb4d02bf54ecffdfa54a83c5b94df44b16f08cffc49709c184d0be459da",
+      "severity": "soft",
+      "claim": "Prefer url.username and url.password over url.userinfo, which is raw bytes without URL escaping",
+      "rationale": "username/password handle URL escaping; userinfo does not",
       "excerpt": "Usually you'll want to work with `url.username` and `url.password` instead, which handle the URL escaping.",
       "symbol_ids": [
         "sym:py:httpx/_urls.py:__all__"
@@ -13948,8 +13905,8 @@
       "source_path": "httpx/_urls.py",
       "source_sha": "99dcffb4d02bf54ecffdfa54a83c5b94df44b16f08cffc49709c184d0be459da",
       "severity": "context",
-      "claim": "url.host is lowercased and represents IDNs in unicode without IDNA encoding",
-      "rationale": "Defines representation of host attribute for internationalized domain names",
+      "claim": "url.host is lowercased and represents IDN in unicode without IDNA encoding",
+      "rationale": "Describes normalization and encoding form of the host attribute",
       "excerpt": "`url.host` is normalized to always be lowercased. Internationalized domain names are represented in unicode, without IDNA encoding applied.",
       "symbol_ids": [
         "sym:py:httpx/_urls.py:__all__"
@@ -13960,8 +13917,8 @@
       "source_path": "httpx/_urls.py",
       "source_sha": "99dcffb4d02bf54ecffdfa54a83c5b94df44b16f08cffc49709c184d0be459da",
       "severity": "context",
-      "claim": "url.port is None or integer; default ports for http, https, ws, wss, and ftp schemes are normalized to None",
-      "rationale": "Defines port normalization behavior including equality semantics",
+      "claim": "url.port is None or integer; default ports for http, https, ws, wss, ftp are normalized to None",
+      "rationale": "Documents port normalization behavior affecting URL equality",
       "excerpt": "URLs that include the default port for \"http\", \"https\", \"ws\", \"wss\", and \"ftp\" schemes have their port normalized to `None`.",
       "symbol_ids": [
         "sym:py:httpx/_urls.py:__all__"
@@ -13972,8 +13929,8 @@
       "source_path": "httpx/_urls.py",
       "source_sha": "99dcffb4d02bf54ecffdfa54a83c5b94df44b16f08cffc49709c184d0be459da",
       "severity": "context",
-      "claim": "url.query is raw bytes without URL escaping; query strings can only be properly URL escaped when decoding parameter names and values themselves",
-      "rationale": "Explains why query is exposed as raw bytes",
+      "claim": "url.query is raw bytes without URL escaping; proper escaping requires decoding parameter names and values",
+      "rationale": "Explains why query is exposed as raw bytes rather than escaped",
       "excerpt": "A URL query string portion can only be properly URL escaped when decoding the parameter names and values themselves.",
       "symbol_ids": [
         "sym:py:httpx/_urls.py:__all__"
@@ -13985,20 +13942,8 @@
       "source_sha": "99dcffb4d02bf54ecffdfa54a83c5b94df44b16f08cffc49709c184d0be459da",
       "severity": "context",
       "claim": "url.raw_host is lowercased and IDNA encoded",
-      "rationale": "Defines representation of raw_host attribute",
+      "rationale": "Distinguishes raw_host encoding from host",
       "excerpt": "`url.raw_host` is normalized to always be lowercased, and is IDNA encoded.",
-      "symbol_ids": [
-        "sym:py:httpx/_urls.py:__all__"
-      ]
-    },
-    {
-      "source": "docstring:httpx/_urls.py",
-      "source_path": "httpx/_urls.py",
-      "source_sha": "99dcffb4d02bf54ecffdfa54a83c5b94df44b16f08cffc49709c184d0be459da",
-      "severity": "soft",
-      "claim": "url.raw_path is raw bytes of path and query without URL escaping, used as the target when constructing HTTP requests; prefer url.path for general use",
-      "rationale": "raw_path serves a specific protocol role; path is the higher-level interface",
-      "excerpt": "This portion is used as the target when constructing HTTP requests. Usually you'll want to work with `url.path` instead.",
       "symbol_ids": [
         "sym:py:httpx/_urls.py:__all__"
       ]
@@ -14009,7 +13954,7 @@
       "source_sha": "99dcffb4d02bf54ecffdfa54a83c5b94df44b16f08cffc49709c184d0be459da",
       "severity": "context",
       "claim": "url.scheme is normalized to always be lowercased",
-      "rationale": "Documents normalization behavior of the scheme attribute",
+      "rationale": "Documents normalization behavior of the scheme component",
       "excerpt": "`url.scheme` is normalized to always be lowercased.",
       "symbol_ids": [
         "sym:py:httpx/_urls.py:__all__"
@@ -14020,8 +13965,8 @@
       "source_path": "httpx/_urls.py",
       "source_sha": "99dcffb4d02bf54ecffdfa54a83c5b94df44b16f08cffc49709c184d0be459da",
       "severity": "context",
-      "claim": "When a key occurs multiple times in query params, get() returns only the first value",
-      "rationale": "Documents the selection behavior for duplicate keys",
+      "claim": "When a query parameter key occurs multiple times, get() returns only the first value",
+      "rationale": "Documents single-value retrieval semantics for duplicate keys",
       "excerpt": "If the key occurs more than once, then only the first value is returned.",
       "symbol_ids": [
         "sym:py:httpx/_urls.py:get"
@@ -14032,8 +13977,20 @@
       "source_path": "httpx/_urls.py",
       "source_sha": "99dcffb4d02bf54ecffdfa54a83c5b94df44b16f08cffc49709c184d0be459da",
       "severity": "hard",
-      "claim": "URL host is always normalized to lowercase with IDNA hosts decoded into unicode",
-      "rationale": "Consumers can rely on normalized lowercase unicode host representation",
+      "claim": "IDNA-encoded hosts are decoded into unicode form",
+      "rationale": "Punycode (xn--) hosts are returned as their unicode equivalent",
+      "excerpt": "with IDNA hosts decoded into unicode",
+      "symbol_ids": [
+        "sym:py:httpx/_urls.py:host"
+      ]
+    },
+    {
+      "source": "docstring:httpx/_urls.py",
+      "source_path": "httpx/_urls.py",
+      "source_sha": "99dcffb4d02bf54ecffdfa54a83c5b94df44b16f08cffc49709c184d0be459da",
+      "severity": "hard",
+      "claim": "URL host is always normalized to lowercase",
+      "rationale": "Guarantees consistent host representation for comparisons and lookups",
       "excerpt": "Always normalized to lowercase, with IDNA hosts decoded into unicode.",
       "symbol_ids": [
         "sym:py:httpx/_urls.py:host"
@@ -14044,11 +14001,11 @@
       "source_path": "httpx/_urls.py",
       "source_sha": "99dcffb4d02bf54ecffdfa54a83c5b94df44b16f08cffc49709c184d0be459da",
       "severity": "context",
-      "claim": "multi_items returns all query param items including duplicate keys",
-      "rationale": "Describes behavior preserving duplicates rather than collapsing them",
-      "excerpt": "Return all items in the query params. Allow duplicate keys to occur.",
+      "claim": "Format is either <host> or <host>:<port> as bytes",
+      "rationale": "Describes the value shape and byte encoding",
+      "excerpt": "Either `<host>` or `<host>:<port>` as bytes.",
       "symbol_ids": [
-        "sym:py:httpx/_urls.py:multi_items"
+        "sym:py:httpx/_urls.py:netloc"
       ]
     },
     {
@@ -14056,8 +14013,8 @@
       "source_path": "httpx/_urls.py",
       "source_sha": "99dcffb4d02bf54ecffdfa54a83c5b94df44b16f08cffc49709c184d0be459da",
       "severity": "context",
-      "claim": "Property may be used for generating the value of a request Host header",
-      "rationale": "Describes intended use",
+      "claim": "Property may be used to generate the value of a request Host header",
+      "rationale": "Describes intended use of the property",
       "excerpt": "This property may be used for generating the value of a request \"Host\" header.",
       "symbol_ids": [
         "sym:py:httpx/_urls.py:netloc"
@@ -14069,7 +14026,7 @@
       "source_sha": "99dcffb4d02bf54ecffdfa54a83c5b94df44b16f08cffc49709c184d0be459da",
       "severity": "hard",
       "claim": "Value is always normalized to lowercase and IDNA encoded",
-      "rationale": "Normalization is asserted as invariant",
+      "rationale": "Normalization invariant on the property's value",
       "excerpt": "Always normalized to lowercase, and IDNA encoded.",
       "symbol_ids": [
         "sym:py:httpx/_urls.py:netloc"
@@ -14081,7 +14038,7 @@
       "source_sha": "99dcffb4d02bf54ecffdfa54a83c5b94df44b16f08cffc49709c184d0be459da",
       "severity": "context",
       "claim": "URL query parameters are exposed as an immutable multidict",
-      "rationale": "Immutability and multidict shape define how consumers interact with parsed query parameters",
+      "rationale": "Describes the data structure used to represent parsed query parameters",
       "excerpt": "neatly parsed and packaged into an immutable multidict representation",
       "symbol_ids": [
         "sym:py:httpx/_urls.py:params"
@@ -14092,8 +14049,8 @@
       "source_path": "httpx/_urls.py",
       "source_sha": "99dcffb4d02bf54ecffdfa54a83c5b94df44b16f08cffc49709c184d0be459da",
       "severity": "context",
-      "claim": "The path attribute returns the URL path excluding the query string, URL-decoded",
-      "rationale": "Describes the semantics of the path property: query string is stripped and percent-encoding is decoded",
+      "claim": "URL path is returned URL-decoded and excludes the query string",
+      "rationale": "Describes the semantics of the path property",
       "excerpt": "The URL path as a string. Excluding the query string, and URL decoded.",
       "symbol_ids": [
         "sym:py:httpx/_urls.py:path"
@@ -14105,7 +14062,7 @@
       "source_sha": "99dcffb4d02bf54ecffdfa54a83c5b94df44b16f08cffc49709c184d0be459da",
       "severity": "hard",
       "claim": "raw_host is always normalized to lowercase and IDNA encoded",
-      "rationale": "Defines invariant behavior of the raw_host property for consumers relying on its normalized form",
+      "rationale": "Guarantees a consistent normalized byte representation of the host for consumers",
       "excerpt": "Always normalized to lowercase, and IDNA encoded.",
       "symbol_ids": [
         "sym:py:httpx/_urls.py:raw_host"
@@ -14115,21 +14072,9 @@
       "source": "docstring:httpx/_urls.py",
       "source_path": "httpx/_urls.py",
       "source_sha": "99dcffb4d02bf54ecffdfa54a83c5b94df44b16f08cffc49709c184d0be459da",
-      "severity": "context",
-      "claim": "Target field contains complete URL path and query string as raw bytes, used when constructing HTTP requests",
-      "rationale": "Describes purpose and format of the target value",
-      "excerpt": "The complete URL path and query string as raw bytes. Used as the target when constructing HTTP requests.",
-      "symbol_ids": [
-        "sym:py:httpx/_urls.py:raw_path"
-      ]
-    },
-    {
-      "source": "docstring:httpx/_urls.py",
-      "source_path": "httpx/_urls.py",
-      "source_sha": "99dcffb4d02bf54ecffdfa54a83c5b94df44b16f08cffc49709c184d0be459da",
       "severity": "hard",
       "claim": "URL scheme raw bytes are always normalised to lowercase",
-      "rationale": "Guarantees consistent lowercase representation for scheme comparisons",
+      "rationale": "Guarantees consistent casing for scheme comparisons",
       "excerpt": "Always normalised to lowercase.",
       "symbol_ids": [
         "sym:py:httpx/_urls.py:raw_scheme"
@@ -14141,7 +14086,7 @@
       "source_sha": "99dcffb4d02bf54ecffdfa54a83c5b94df44b16f08cffc49709c184d0be459da",
       "severity": "hard",
       "claim": "URL scheme is always normalised to lowercase",
-      "rationale": "Guarantees consistent casing for scheme comparisons",
+      "rationale": "Consumers can rely on lowercase scheme without performing their own normalization",
       "excerpt": "Always normalised to lowercase.",
       "symbol_ids": [
         "sym:py:httpx/_urls.py:scheme"
@@ -14152,8 +14097,8 @@
       "source_path": "httpx/_utils.py",
       "source_sha": "6aa82151b2ce3101a9004d8317641f3d4bd822d5eb9c2d2001d4d48b7ca9efb0",
       "severity": "context",
-      "claim": "URLPattern instances are sortable by priority to enable matching from most specific to least specific",
-      "rationale": "Sorting by priority supports specificity-ordered matching",
+      "claim": "Priority enables sorting URLPattern instances to match from most specific to least specific",
+      "rationale": "Explains the purpose of the priority field for ordering pattern matching",
       "excerpt": "The priority allows URLPattern instances to be sortable, so that we can match from most specific to least specific.",
       "symbol_ids": [
         "sym:py:httpx/_utils.py:URLPattern",
@@ -14164,9 +14109,9 @@
       "source": "docstring:httpx/_utils.py",
       "source_path": "httpx/_utils.py",
       "source_sha": "6aa82151b2ce3101a9004d8317641f3d4bd822d5eb9c2d2001d4d48b7ca9efb0",
-      "severity": "hard",
-      "claim": "Length of a file-like stream is determined without reading the stream into memory",
-      "rationale": "Avoiding loading the stream into memory is an explicit architectural constraint on the implementation",
+      "severity": "context",
+      "claim": "Length of a file-like stream is computed without reading it into memory",
+      "rationale": "Avoiding loading the stream into memory is a performance/resource consideration",
       "excerpt": "return its length in number of bytes without reading it into memory",
       "symbol_ids": [
         "sym:py:httpx/_utils.py:peek_filelike_length"
@@ -14179,33 +14124,9 @@
       "severity": "soft",
       "claim": "Boolean values are coerced using JSON-style 'true'/'false' representation",
       "rationale": "Establishes a preferred string representation for booleans during coercion",
-      "excerpt": "we prefer JSON-style 'true'/'false' for boolean values here",
+      "excerpt": "Note that we prefer JSON-style 'true'/'false' for boolean values here.",
       "symbol_ids": [
         "sym:py:httpx/_utils.py:primitive_value_to_str"
-      ]
-    },
-    {
-      "source": "docstring:tests/concurrency.py",
-      "source_path": "tests/concurrency.py",
-      "source_sha": "7a905da02ddefc5ff443526df3c4e83ef9d2fb289ee8a2c425ee4d6754cb53aa",
-      "severity": "context",
-      "claim": "Module provides async environment-agnostic concurrency utilities scoped to test usage only",
-      "rationale": "Indicates the utilities are test-only helpers, not production code",
-      "excerpt": "Async environment-agnostic concurrency utilities that are only used in tests.",
-      "symbol_ids": [
-        "sym:py:tests/concurrency.py:<module>"
-      ]
-    },
-    {
-      "source": "docstring:tests/conftest.py",
-      "source_path": "tests/conftest.py",
-      "source_sha": "308ef5180b2717e9b0aff36a3e0d68e635b9e1820660c607103a5b05f819fb83",
-      "severity": "context",
-      "claim": "Test fixture isolates os.environ per-test, removing the need to mock os.environ",
-      "rationale": "Explains the purpose of the utility: keeping environment state clean across tests",
-      "excerpt": "Keeps os.environ clean for every test without having to mock os.environ",
-      "symbol_ids": [
-        "sym:py:tests/conftest.py:ENVIRONMENT_VARIABLES"
       ]
     }
   ],

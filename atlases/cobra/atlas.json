@@ -1,10 +1,10 @@
 {
   "version": "1.3",
-  "generated_at": "2026-04-27T16:35:38.372Z",
+  "generated_at": "2026-04-28T23:16:29.148Z",
   "extracted_at_sha": "88b30ab89da2d0d0abb153818746c5a2d30eccec",
   "generator": {
     "contextatlas_version": "0.0.1-benchmark",
-    "contextatlas_commit_sha": "4308de5574f332626e0a09e91727f072aee9194b",
+    "contextatlas_commit_sha": "212569e414e10a83534af034325007cca34ff929",
     "extraction_model": "claude-opus-4-7"
   },
   "source_shas": {
@@ -24,6 +24,13 @@
     "command.go": "5a58ba98c4031edeca001b5ad6bc908d0a9b42233f2558424501b8fac1b2c4bc",
     "command_notwin.go": "189050b67f01d0d3a9b63c57e73a95a8d17223ecd80d06a1cda2942651176885",
     "command_win.go": "6f056c824de5cfc8ccf8ac9d1852ba8a509f87275d7ba2b89d36056b6eefd749",
+    "commit:117698a604b65e80a1ad5b76df67b604bcd992e0": "117698a604b65e80a1ad5b76df67b604bcd992e0",
+    "commit:1d71ff02701cb01f7e9980754da9c95cb92252d2": "1d71ff02701cb01f7e9980754da9c95cb92252d2",
+    "commit:4af7b64d31989e78e86d65304f693a6d9c77c932": "4af7b64d31989e78e86d65304f693a6d9c77c932",
+    "commit:70e53f62be77e03f376be845efacbd99c00024ca": "70e53f62be77e03f376be845efacbd99c00024ca",
+    "commit:c3e48f996d750efba3cbb928ab94de5c16cbf86c": "c3e48f996d750efba3cbb928ab94de5c16cbf86c",
+    "commit:cb27ce11fba1a33e42233dea2658805c62a17e74": "cb27ce11fba1a33e42233dea2658805c62a17e74",
+    "commit:fc81d2003469e2a5c440306d04a6d82a54065979": "fc81d2003469e2a5c440306d04a6d82a54065979",
     "completions.go": "913e9f34a82f3ded82dc3e5c89e3595d51c819c3a719112d8ce833daab6d61b6",
     "doc/man_docs.go": "5e681ab5432641229d5b951b6a2ff475eff15889c0a628a4e3063bcc35e3feee",
     "doc/md_docs.go": "7f20210c66ec5ed4421f33cbdf1aae75894274f3d1584817a5873f6103828cee",
@@ -8098,23 +8105,11 @@
       "source_path": "active_help.go",
       "source_sha": "d25e08c959824b9bfd07d1f7266bc69ad5982c6d5ac7f6e5ee897c711e30401a",
       "severity": "context",
-      "claim": "AppendActiveHelp can be called multiple times, before and/or after completions are added; repeated calls with the same array append ActiveHelp lines shown below previous ones.",
-      "rationale": "Describes ordering and accumulation behavior of ActiveHelp output.",
-      "excerpt": "Each time this function is called with the same array, the new ActiveHelp line will be shown below the previous ones when completion is triggered.",
+      "claim": "GetActiveHelpConfig reads the per-program ActiveHelp environment variable named <PROGRAM>_ACTIVE_HELP, derived from the root command name uppercased with non-ASCII-alphanumeric characters replaced by '_'.",
+      "rationale": "Describes how the ActiveHelp configuration is resolved from environment variables.",
+      "excerpt": "GetActiveHelpConfig returns the value of the ActiveHelp environment variable <PROGRAM>_ACTIVE_HELP where <PROGRAM> is the name of the root command in upper case, with all non-ASCII-alphanumeric characters replaced by `_`.",
       "symbol_ids": [
-        "sym:go:active_help.go:AppendActiveHelp"
-      ]
-    },
-    {
-      "source": "docstring:active_help.go",
-      "source_path": "active_help.go",
-      "source_sha": "d25e08c959824b9bfd07d1f7266bc69ad5982c6d5ac7f6e5ee897c711e30401a",
-      "severity": "soft",
-      "claim": "The array parameter passed to AppendActiveHelp should be the same array that will contain the completions.",
-      "rationale": "Ensures ActiveHelp lines are associated with the correct completion array.",
-      "excerpt": "The array parameter should be the array that will contain the completions.",
-      "symbol_ids": [
-        "sym:go:active_help.go:AppendActiveHelp"
+        "sym:go:active_help.go:GetActiveHelpConfig"
       ]
     },
     {
@@ -8122,23 +8117,23 @@
       "source_path": "active_help.go",
       "source_sha": "d25e08c959824b9bfd07d1f7266bc69ad5982c6d5ac7f6e5ee897c711e30401a",
       "severity": "context",
-      "claim": "ActiveHelp environment variable name is derived from root command name uppercased with non-ASCII-alphanumeric characters replaced by underscore",
-      "rationale": "Defines the env var naming convention used to look up ActiveHelp configuration per program",
-      "excerpt": "<PROGRAM>_ACTIVE_HELP where <PROGRAM> is the name of the root command in upper case, with all non-ASCII-alphanumeric characters replaced by `_`",
+      "claim": "The global COBRA_ACTIVE_HELP=0 environment variable overrides per-program configuration, forcing the result to '0'.",
+      "rationale": "Documents a global kill-switch precedence over per-program ActiveHelp settings.",
+      "excerpt": "It will always return \"0\" if the global environment variable COBRA_ACTIVE_HELP is set to \"0\".",
       "symbol_ids": [
         "sym:go:active_help.go:GetActiveHelpConfig"
       ]
     },
     {
-      "source": "docstring:active_help.go",
-      "source_path": "active_help.go",
-      "source_sha": "d25e08c959824b9bfd07d1f7266bc69ad5982c6d5ac7f6e5ee897c711e30401a",
-      "severity": "hard",
-      "claim": "Global COBRA_ACTIVE_HELP=\"0\" overrides per-program ActiveHelp config and forces return value of \"0\"",
-      "rationale": "Provides a global kill-switch that always takes precedence over program-specific settings",
-      "excerpt": "It will always return \"0\" if the global environment variable COBRA_ACTIVE_HELP is set to \"0\"",
+      "source": "docstring:args.go",
+      "source_path": "args.go",
+      "source_sha": "0e0bd2b59e79d54442d40e35bc57004d8a10945f4ada382a2fb970603b05929c",
+      "severity": "context",
+      "claim": "ArbitraryArgs never returns an error",
+      "rationale": "Describes behavioral guarantee of the function — callers can rely on a non-error return.",
+      "excerpt": "ArbitraryArgs never returns an error.",
       "symbol_ids": [
-        "sym:go:active_help.go:GetActiveHelpConfig"
+        "sym:go:args.go:ArbitraryArgs"
       ]
     },
     {
@@ -8158,38 +8153,12 @@
       ]
     },
     {
-      "source": "docstring:args.go",
-      "source_path": "args.go",
-      "source_sha": "0e0bd2b59e79d54442d40e35bc57004d8a10945f4ada382a2fb970603b05929c",
-      "severity": "context",
-      "claim": "ExactValidArgs validates that there are exactly N positional args and all are in the Command's ValidArgs field",
-      "rationale": "Describes the validation behavior of the function",
-      "excerpt": "returns an error if there are not exactly N positional args OR there are any positional args that are not in the `ValidArgs` field of `Command`",
-      "symbol_ids": [
-        "sym:go:args.go:ExactValidArgs",
-        "sym:go:command.go:Command"
-      ]
-    },
-    {
-      "source": "docstring:args.go",
-      "source_path": "args.go",
-      "source_sha": "0e0bd2b59e79d54442d40e35bc57004d8a10945f4ada382a2fb970603b05929c",
-      "severity": "context",
-      "claim": "OnlyValidArgs validates that all positional args belong to Command.ValidArgs, returning an error otherwise",
-      "rationale": "Describes the validation behavior of OnlyValidArgs",
-      "excerpt": "OnlyValidArgs returns an error if there are any positional args that are not in the `ValidArgs` field of `Command`",
-      "symbol_ids": [
-        "sym:go:args.go:OnlyValidArgs",
-        "sym:go:command.go:Command"
-      ]
-    },
-    {
       "source": "docstring:cobra.go",
       "source_path": "cobra.go",
       "source_sha": "705333c3f58582f4ac4c77d439cba277ede26678f5f7230c60980cd704c619b2",
       "severity": "context",
       "claim": "Command name matching is case-sensitive by default; EnableCaseInsensitive opts into case-insensitive matching",
-      "rationale": "Documents the default behavior and the toggle for changing it",
+      "rationale": "Documents the default case-sensitivity behavior and the opt-in flag to change it",
       "excerpt": "EnableCaseInsensitive allows case-insensitive commands names. (case sensitive by default)",
       "symbol_ids": [
         "sym:go:cobra.go:EnableCaseInsensitive"
@@ -8200,8 +8169,8 @@
       "source_path": "cobra.go",
       "source_sha": "705333c3f58582f4ac4c77d439cba277ede26678f5f7230c60980cd704c619b2",
       "severity": "context",
-      "claim": "Command sorting is enabled by default; set EnableCommandSorting to false to disable",
-      "rationale": "Describes default behavior and how to opt out",
+      "claim": "Command sorting is enabled by default; set EnableCommandSorting to false to disable.",
+      "rationale": "Describes default behavior and the toggle for disabling command sorting.",
       "excerpt": "EnableCommandSorting controls sorting of the slice of commands, which is turned on by default. To disable sorting, set it to false.",
       "symbol_ids": [
         "sym:go:cobra.go:EnableCommandSorting"
@@ -8211,8 +8180,20 @@
       "source": "docstring:cobra.go",
       "source_path": "cobra.go",
       "source_sha": "705333c3f58582f4ac4c77d439cba277ede26678f5f7230c60980cd704c619b2",
+      "severity": "soft",
+      "claim": "Automatic prefix matching should be enabled with caution in CLI tools",
+      "rationale": "Auto-enabling prefix matching is described as potentially dangerous",
+      "excerpt": "Automatic prefix matching can be a dangerous thing to automatically enable in CLI tools.",
+      "symbol_ids": [
+        "sym:go:cobra.go:EnablePrefixMatching"
+      ]
+    },
+    {
+      "source": "docstring:cobra.go",
+      "source_path": "cobra.go",
+      "source_sha": "705333c3f58582f4ac4c77d439cba277ede26678f5f7230c60980cd704c619b2",
       "severity": "context",
-      "claim": "EnablePrefixMatching toggles automatic prefix matching for CLI commands",
+      "claim": "EnablePrefixMatching toggles automatic prefix matching for commands",
       "rationale": "Describes the purpose of the flag",
       "excerpt": "EnablePrefixMatching allows setting automatic prefix matching.",
       "symbol_ids": [
@@ -8224,9 +8205,9 @@
       "source_path": "cobra.go",
       "source_sha": "705333c3f58582f4ac4c77d439cba277ede26678f5f7230c60980cd704c619b2",
       "severity": "soft",
-      "claim": "Enabling automatic prefix matching in CLI tools is cautioned against due to potential danger",
-      "rationale": "Author warns that automatic prefix matching can be dangerous when enabled by default",
-      "excerpt": "Automatic prefix matching can be a dangerous thing to automatically enable in CLI tools.",
+      "claim": "Set EnablePrefixMatching to true to enable prefix matching",
+      "rationale": "Imperative procedural guidance for enabling the feature",
+      "excerpt": "Set this to true to enable it.",
       "symbol_ids": [
         "sym:go:cobra.go:EnablePrefixMatching"
       ]
@@ -8236,8 +8217,8 @@
       "source_path": "cobra.go",
       "source_sha": "705333c3f58582f4ac4c77d439cba277ede26678f5f7230c60980cd704c619b2",
       "severity": "context",
-      "claim": "Default behavior is disabled, executing only the first run hook found rather than traversing parents",
-      "rationale": "Documents the default to inform consumers of opt-in semantics",
+      "claim": "By default traversal is disabled and only the first run hook found is executed",
+      "rationale": "Documents the default behavior when the flag is not set",
       "excerpt": "By default this is disabled, which means only the first run hook to be found is executed.",
       "symbol_ids": [
         "sym:go:cobra.go:EnableTraverseRunHooks"
@@ -8248,8 +8229,8 @@
       "source_path": "cobra.go",
       "source_sha": "705333c3f58582f4ac4c77d439cba277ede26678f5f7230c60980cd704c619b2",
       "severity": "context",
-      "claim": "EnableTraverseRunHooks toggles execution of persistent pre-run and post-run hooks from all parent commands",
-      "rationale": "Describes the behavior controlled by the flag",
+      "claim": "EnableTraverseRunHooks causes persistent pre-run and post-run hooks from all parent commands to be executed",
+      "rationale": "Describes the behavior toggled by this flag",
       "excerpt": "EnableTraverseRunHooks executes persistent pre-run and post-run hooks from all parents.",
       "symbol_ids": [
         "sym:go:cobra.go:EnableTraverseRunHooks"
@@ -8260,8 +8241,8 @@
       "source_path": "cobra.go",
       "source_sha": "705333c3f58582f4ac4c77d439cba277ede26678f5f7230c60980cd704c619b2",
       "severity": "hard",
-      "claim": "Eq supports only int and string types; unsupported types cause a panic",
-      "rationale": "Passing unsupported types triggers a runtime panic, so callers must restrict inputs to int or string",
+      "claim": "Eq supports only int and string types; other types cause a panic",
+      "rationale": "Passing unsupported types results in a runtime panic, so callers must restrict inputs to int or string.",
       "excerpt": "Supported types are int and string. Unsupported types will panic.",
       "symbol_ids": [
         "sym:go:cobra.go:Eq"
@@ -8272,8 +8253,8 @@
       "source_path": "cobra.go",
       "source_sha": "705333c3f58582f4ac4c77d439cba277ede26678f5f7230c60980cd704c619b2",
       "severity": "context",
-      "claim": "Gt compares lengths for Arrays, Chans, Maps, and Slices; compares Ints directly; parses strings as ints before comparing",
-      "rationale": "Describes how Gt handles different input types",
+      "claim": "Gt compares two values; for Arrays, Chans, Maps, and Slices it compares lengths, ints are compared directly, and strings are parsed as ints before comparison",
+      "rationale": "Describes type-specific comparison semantics of the Gt function",
       "excerpt": "In case of types Arrays, Chans, Maps and Slices, Gt will compare their lengths. Ints are compared directly while strings are first parsed as ints and then compared.",
       "symbol_ids": [
         "sym:go:cobra.go:Gt"
@@ -8284,9 +8265,9 @@
       "source_path": "cobra.go",
       "source_sha": "705333c3f58582f4ac4c77d439cba277ede26678f5f7230c60980cd704c619b2",
       "severity": "context",
-      "claim": "Mousetrap functionality is Microsoft Windows-only",
-      "rationale": "Platform scoping informs when this configuration is relevant",
-      "excerpt": "Works only on Microsoft Windows.",
+      "claim": "Mousetrap functionality works only on Microsoft Windows",
+      "rationale": "Platform constraint on feature availability",
+      "excerpt": "Works only on Microsoft Windows",
       "symbol_ids": [
         "sym:go:cobra.go:MousetrapDisplayDuration"
       ]
@@ -8296,8 +8277,8 @@
       "source_path": "cobra.go",
       "source_sha": "705333c3f58582f4ac4c77d439cba277ede26678f5f7230c60980cd704c619b2",
       "severity": "context",
-      "claim": "MousetrapDisplayDuration controls display duration of MousetrapHelpText when CLI is launched from explorer.exe on Windows",
-      "rationale": "Describes the purpose of the variable in the Windows-from-explorer scenario",
+      "claim": "MousetrapDisplayDuration controls display duration of MousetrapHelpText on Windows when CLI is started from explorer.exe",
+      "rationale": "Describes the purpose of the variable",
       "excerpt": "MousetrapDisplayDuration controls how long the MousetrapHelpText message is displayed on Windows if the CLI is started from explorer.exe",
       "symbol_ids": [
         "sym:go:cobra.go:MousetrapDisplayDuration",
@@ -8309,7 +8290,7 @@
       "source_path": "cobra.go",
       "source_sha": "705333c3f58582f4ac4c77d439cba277ede26678f5f7230c60980cd704c619b2",
       "severity": "soft",
-      "claim": "Set MousetrapDisplayDuration to 0 to wait for return key press instead of timed display",
+      "claim": "Set MousetrapDisplayDuration to 0 to wait for the return key to be pressed",
       "rationale": "Imperative procedural guidance for configuring behavior",
       "excerpt": "Set to 0 to wait for the return key to be pressed",
       "symbol_ids": [
@@ -8321,9 +8302,9 @@
       "source_path": "cobra.go",
       "source_sha": "705333c3f58582f4ac4c77d439cba277ede26678f5f7230c60980cd704c619b2",
       "severity": "soft",
-      "claim": "Set MousetrapHelpText to empty string to disable the mousetrap entirely",
+      "claim": "To disable the mousetrap, set MousetrapHelpText to a blank string",
       "rationale": "Procedural guidance for disabling the feature",
-      "excerpt": "To disable the mousetrap, just set MousetrapHelpText to blank string",
+      "excerpt": "To disable the mousetrap, just set MousetrapHelpText to blank string (\"\")",
       "symbol_ids": [
         "sym:go:cobra.go:MousetrapDisplayDuration",
         "sym:go:cobra.go:MousetrapHelpText"
@@ -8334,9 +8315,9 @@
       "source_path": "cobra.go",
       "source_sha": "705333c3f58582f4ac4c77d439cba277ede26678f5f7230c60980cd704c619b2",
       "severity": "context",
-      "claim": "MousetrapHelpText only takes effect on Microsoft Windows",
-      "rationale": "Platform scope of the feature",
-      "excerpt": "Works only on Microsoft Windows.",
+      "claim": "MousetrapHelpText displays an information splash screen on Windows when the CLI is launched from explorer.exe",
+      "rationale": "Describes platform-specific UX behavior for CLIs started outside a terminal",
+      "excerpt": "MousetrapHelpText enables an information splash screen on Windows if the CLI is started from explorer.exe",
       "symbol_ids": [
         "sym:go:cobra.go:MousetrapHelpText"
       ]
@@ -8346,9 +8327,9 @@
       "source_path": "cobra.go",
       "source_sha": "705333c3f58582f4ac4c77d439cba277ede26678f5f7230c60980cd704c619b2",
       "severity": "context",
-      "claim": "MousetrapHelpText shows an information splash screen on Windows when the CLI is launched from explorer.exe",
-      "rationale": "Describes the purpose of the variable and the trigger condition",
-      "excerpt": "MousetrapHelpText enables an information splash screen on Windows if the CLI is started from explorer.exe",
+      "claim": "MousetrapHelpText only takes effect on Microsoft Windows",
+      "rationale": "Platform scoping informs cross-platform expectations",
+      "excerpt": "Works only on Microsoft Windows.",
       "symbol_ids": [
         "sym:go:cobra.go:MousetrapHelpText"
       ]
@@ -8359,7 +8340,7 @@
       "source_sha": "705333c3f58582f4ac4c77d439cba277ede26678f5f7230c60980cd704c619b2",
       "severity": "soft",
       "claim": "Set MousetrapHelpText to an empty string to disable the mousetrap splash screen",
-      "rationale": "Imperative procedural guidance for opting out of the behavior",
+      "rationale": "Procedural guidance for opting out of the default behavior",
       "excerpt": "To disable the mousetrap, just set this variable to blank string (\"\")",
       "symbol_ids": [
         "sym:go:cobra.go:MousetrapHelpText"
@@ -8370,21 +8351,9 @@
       "source_path": "command.go",
       "source_sha": "5a58ba98c4031edeca001b5ad6bc908d0a9b42233f2558424501b8fac1b2c4bc",
       "severity": "context",
-      "claim": "ArgsLenAtDash returns the length of c.Flags().Args at the moment a -- was encountered during argument parsing",
-      "rationale": "Describes the semantics of the function relative to the position of -- in args",
-      "excerpt": "ArgsLenAtDash will return the length of c.Flags().Args at the moment when a -- was found during args parsing.",
-      "symbol_ids": [
-        "sym:go:command.go:(*Command).ArgsLenAtDash"
-      ]
-    },
-    {
-      "source": "docstring:command.go",
-      "source_path": "command.go",
-      "source_sha": "5a58ba98c4031edeca001b5ad6bc908d0a9b42233f2558424501b8fac1b2c4bc",
-      "severity": "context",
-      "claim": "Context returns the previously set context from ExecuteContext or SetContext, or nil if neither was used",
-      "rationale": "Describes the return value semantics of Context",
-      "excerpt": "If command was executed with ExecuteContext or the context was set with SetContext, the previously set context will be returned. Otherwise, nil is returned.",
+      "claim": "Context returns the previously set context (via ExecuteContext or SetContext), or nil if none was set.",
+      "rationale": "Describes return value behavior of Context method.",
+      "excerpt": "Context returns underlying command context. If command was executed with ExecuteContext or the context was set with SetContext, the previously set context will be returned. Otherwise, nil is returned.",
       "symbol_ids": [
         "sym:go:command.go:(*Command).Context"
       ]
@@ -8394,8 +8363,8 @@
       "source_path": "command.go",
       "source_sha": "5a58ba98c4031edeca001b5ad6bc908d0a9b42233f2558424501b8fac1b2c4bc",
       "severity": "soft",
-      "claim": "Execute and ExecuteC replace a nil command context with context.Background, so Context returns a background context after these run",
-      "rationale": "Caller should be aware that calling Execute/ExecuteC mutates a nil context into context.Background, affecting subsequent Context() calls",
+      "claim": "Execute and ExecuteC replace a nil command context with context.Background, so Context returns a background context after they run.",
+      "rationale": "Caller should be aware that nil contexts are silently replaced after Execute/ExecuteC.",
       "excerpt": "Notice that a call to Execute and ExecuteC will replace a nil context of a command with a context.Background",
       "symbol_ids": [
         "sym:go:command.go:(*Command).Context"
@@ -8406,8 +8375,20 @@
       "source_path": "command.go",
       "source_sha": "5a58ba98c4031edeca001b5ad6bc908d0a9b42233f2558424501b8fac1b2c4bc",
       "severity": "context",
-      "claim": "Execute uses os.Args[1:] by default and traverses the command tree to match commands and their flags",
-      "rationale": "Describes how Execute processes arguments through the command tree",
+      "claim": "DisplayName falls back to Name() when CommandDisplayNameAnnoation annotation is not set",
+      "rationale": "Documents the fallback behavior for determining display name in help text",
+      "excerpt": "Returns command Name() If CommandDisplayNameAnnoation is not set",
+      "symbol_ids": [
+        "sym:go:command.go:(*Command).DisplayName"
+      ]
+    },
+    {
+      "source": "docstring:command.go",
+      "source_path": "command.go",
+      "source_sha": "5a58ba98c4031edeca001b5ad6bc908d0a9b42233f2558424501b8fac1b2c4bc",
+      "severity": "context",
+      "claim": "Execute defaults to using os.Args[1:] when traversing the command tree to match commands and flags",
+      "rationale": "Describes the default input source and traversal behavior of Execute",
       "excerpt": "Execute uses the args (os.Args[1:] by default) and run through the command tree finding appropriate matches for commands and then corresponding flags.",
       "symbol_ids": [
         "sym:go:command.go:(*Command).Execute"
@@ -8418,9 +8399,9 @@
       "source_path": "command.go",
       "source_sha": "5a58ba98c4031edeca001b5ad6bc908d0a9b42233f2558424501b8fac1b2c4bc",
       "severity": "context",
-      "claim": "ExecuteContext behaves like Execute but attaches a context retrievable via cmd.Context() inside *Run lifecycle or ValidArgs functions",
-      "rationale": "Describes how to access the context set by ExecuteContext within command lifecycle hooks",
-      "excerpt": "ExecuteContext is the same as Execute(), but sets the ctx on the command. Retrieve ctx by calling cmd.Context() inside your *Run lifecycle or ValidArgs functions.",
+      "claim": "ExecuteContext behaves like Execute() but attaches a context to the command, retrievable via cmd.Context() inside *Run lifecycle or ValidArgs functions",
+      "rationale": "Describes how to access the context set by ExecuteContext",
+      "excerpt": "Retrieve ctx by calling cmd.Context() inside your \\*Run lifecycle or ValidArgs functions",
       "symbol_ids": [
         "sym:go:command.go:(*Command).ExecuteContext"
       ]
@@ -8430,9 +8411,9 @@
       "source_path": "command.go",
       "source_sha": "5a58ba98c4031edeca001b5ad6bc908d0a9b42233f2558424501b8fac1b2c4bc",
       "severity": "context",
-      "claim": "ExecuteContextC sets the context on the command; retrieve it via cmd.Context() inside *Run lifecycle or ValidArgs functions",
-      "rationale": "Documents how context propagation works for command execution",
-      "excerpt": "ExecuteContextC is the same as ExecuteC(), but sets the ctx on the command. Retrieve ctx by calling cmd.Context() inside your *Run lifecycle or ValidArgs functions.",
+      "claim": "ExecuteContextC behaves like ExecuteC but attaches a context to the command, retrievable via cmd.Context() inside *Run lifecycle or ValidArgs functions",
+      "rationale": "Describes how to access the context set by ExecuteContextC",
+      "excerpt": "Retrieve ctx by calling cmd.Context() inside your *Run lifecycle or ValidArgs functions",
       "symbol_ids": [
         "sym:go:command.go:(*Command).ExecuteContextC"
       ]
@@ -8444,7 +8425,7 @@
       "severity": "context",
       "claim": "Help output can be customized by overriding HelpFunc",
       "rationale": "Describes the extension point for customizing help behavior",
-      "excerpt": "Can be defined by user by overriding HelpFunc.",
+      "excerpt": "Can be defined by user by overriding HelpFunc",
       "symbol_ids": [
         "sym:go:command.go:(*Command).Help"
       ]
@@ -8454,8 +8435,20 @@
       "source_path": "command.go",
       "source_sha": "5a58ba98c4031edeca001b5ad6bc908d0a9b42233f2558424501b8fac1b2c4bc",
       "severity": "context",
-      "claim": "HelpTemplate is retained for backwards compatibility",
-      "rationale": "Indicates the function exists primarily to preserve compatibility, signaling it may not be the preferred API going forward",
+      "claim": "HelpFunc resolves help function by checking command, then parent, then falling back to default help behavior",
+      "rationale": "Describes lookup/fallback chain for help function resolution",
+      "excerpt": "HelpFunc returns either the function set by SetHelpFunc for this command or a parent, or it returns a function with default help behavior.",
+      "symbol_ids": [
+        "sym:go:command.go:(*Command).HelpFunc"
+      ]
+    },
+    {
+      "source": "docstring:command.go",
+      "source_path": "command.go",
+      "source_sha": "5a58ba98c4031edeca001b5ad6bc908d0a9b42233f2558424501b8fac1b2c4bc",
+      "severity": "context",
+      "claim": "HelpTemplate is retained for backwards-compatibility reasons",
+      "rationale": "Indicates the function exists to preserve compatibility, signaling it may not be the preferred API going forward",
       "excerpt": "This function is kept for backwards-compatibility reasons.",
       "symbol_ids": [
         "sym:go:command.go:(*Command).HelpTemplate"
@@ -8466,8 +8459,8 @@
       "source_path": "command.go",
       "source_sha": "5a58ba98c4031edeca001b5ad6bc908d0a9b42233f2558424501b8fac1b2c4bc",
       "severity": "context",
-      "claim": "InheritedFlags does not modify the flags of the current command; it returns current state only",
-      "rationale": "Clarifies that the function is a read-only accessor for inherited flags",
+      "claim": "InheritedFlags returns the current state of inherited flags without modifying the current command's flags",
+      "rationale": "Documents that the function is a pure read-only accessor",
       "excerpt": "This function does not modify the flags of the current command, it's purpose is to return the current state.",
       "symbol_ids": [
         "sym:go:command.go:(*Command).InheritedFlags"
@@ -8478,8 +8471,8 @@
       "source_path": "command.go",
       "source_sha": "5a58ba98c4031edeca001b5ad6bc908d0a9b42233f2558424501b8fac1b2c4bc",
       "severity": "context",
-      "claim": "InitDefaultHelpCmd is a no-op if the command already has a help command or has no subcommands",
-      "rationale": "Describes idempotent/guarded behavior of the initializer",
+      "claim": "InitDefaultHelpCmd is a no-op if c already has a help command or has no subcommands",
+      "rationale": "Describes idempotent/conditional behavior of the initializer",
       "excerpt": "If c already has help command or c has no subcommands, it will do nothing.",
       "symbol_ids": [
         "sym:go:command.go:(*Command).InitDefaultHelpCmd"
@@ -8491,7 +8484,7 @@
       "source_sha": "5a58ba98c4031edeca001b5ad6bc908d0a9b42233f2558424501b8fac1b2c4bc",
       "severity": "context",
       "claim": "InitDefaultHelpCmd is invoked automatically during command execution or when help/usage is called",
-      "rationale": "Explains automatic invocation context so callers typically need not call it manually",
+      "rationale": "Explains when the function runs implicitly so callers don't need to invoke it manually",
       "excerpt": "It is called automatically by executing the c or by calling help and usage.",
       "symbol_ids": [
         "sym:go:command.go:(*Command).InitDefaultHelpCmd"
@@ -8502,9 +8495,9 @@
       "source_path": "command.go",
       "source_sha": "5a58ba98c4031edeca001b5ad6bc908d0a9b42233f2558424501b8fac1b2c4bc",
       "severity": "context",
-      "claim": "If the command already has a help flag, InitDefaultHelpFlag is a no-op",
-      "rationale": "Avoids overwriting an existing help flag",
-      "excerpt": "If c already has help flag, it will do nothing.",
+      "claim": "InitDefaultHelpFlag is idempotent: if the command already has a help flag, it does nothing",
+      "rationale": "Describes safe re-invocation behavior so callers don't need to guard against duplicate help flags",
+      "excerpt": "If c already has help flag, it will do nothing",
       "symbol_ids": [
         "sym:go:command.go:(*Command).InitDefaultHelpFlag"
       ]
@@ -8515,8 +8508,8 @@
       "source_sha": "5a58ba98c4031edeca001b5ad6bc908d0a9b42233f2558424501b8fac1b2c4bc",
       "severity": "context",
       "claim": "InitDefaultHelpFlag is invoked automatically during command execution or when help/usage is called",
-      "rationale": "Describes when the default help flag initialization runs",
-      "excerpt": "It is called automatically by executing the c or by calling help and usage.",
+      "rationale": "Explains that explicit invocation is generally unnecessary",
+      "excerpt": "It is called automatically by executing the c or by calling help and usage",
       "symbol_ids": [
         "sym:go:command.go:(*Command).InitDefaultHelpFlag"
       ]
@@ -8526,32 +8519,8 @@
       "source_path": "command.go",
       "source_sha": "5a58ba98c4031edeca001b5ad6bc908d0a9b42233f2558424501b8fac1b2c4bc",
       "severity": "context",
-      "claim": "InitDefaultVersionFlag is a no-op if the command already has a version flag",
-      "rationale": "Avoids overwriting existing user-defined version flags",
-      "excerpt": "If c already has a version flag, it will do nothing.",
-      "symbol_ids": [
-        "sym:go:command.go:(*Command).InitDefaultVersionFlag"
-      ]
-    },
-    {
-      "source": "docstring:command.go",
-      "source_path": "command.go",
-      "source_sha": "5a58ba98c4031edeca001b5ad6bc908d0a9b42233f2558424501b8fac1b2c4bc",
-      "severity": "context",
-      "claim": "InitDefaultVersionFlag is a no-op when c.Version is empty",
-      "rationale": "Version flag is only added when a version string is set",
-      "excerpt": "If c.Version is empty, it will do nothing.",
-      "symbol_ids": [
-        "sym:go:command.go:(*Command).InitDefaultVersionFlag"
-      ]
-    },
-    {
-      "source": "docstring:command.go",
-      "source_path": "command.go",
-      "source_sha": "5a58ba98c4031edeca001b5ad6bc908d0a9b42233f2558424501b8fac1b2c4bc",
-      "severity": "context",
-      "claim": "InitDefaultVersionFlag is invoked automatically when the command executes",
-      "rationale": "Documents that callers do not need to invoke this manually",
+      "claim": "InitDefaultVersionFlag is invoked automatically during command execution",
+      "rationale": "Callers do not need to invoke it manually",
       "excerpt": "It is called automatically by executing the c.",
       "symbol_ids": [
         "sym:go:command.go:(*Command).InitDefaultVersionFlag"
@@ -8562,7 +8531,31 @@
       "source_path": "command.go",
       "source_sha": "5a58ba98c4031edeca001b5ad6bc908d0a9b42233f2558424501b8fac1b2c4bc",
       "severity": "context",
-      "claim": "An additional help topic command is defined as one that is not runnable/hidden/deprecated and has no sub-commands that are runnable/hidden/deprecated.",
+      "claim": "No-op when c.Version is empty",
+      "rationale": "Version flag only added when a version is defined",
+      "excerpt": "If c.Version is empty, it will do nothing.",
+      "symbol_ids": [
+        "sym:go:command.go:(*Command).InitDefaultVersionFlag"
+      ]
+    },
+    {
+      "source": "docstring:command.go",
+      "source_path": "command.go",
+      "source_sha": "5a58ba98c4031edeca001b5ad6bc908d0a9b42233f2558424501b8fac1b2c4bc",
+      "severity": "context",
+      "claim": "No-op when the command already has a version flag",
+      "rationale": "Avoids overwriting an existing flag",
+      "excerpt": "If c already has a version flag, it will do nothing.",
+      "symbol_ids": [
+        "sym:go:command.go:(*Command).InitDefaultVersionFlag"
+      ]
+    },
+    {
+      "source": "docstring:command.go",
+      "source_path": "command.go",
+      "source_sha": "5a58ba98c4031edeca001b5ad6bc908d0a9b42233f2558424501b8fac1b2c4bc",
+      "severity": "context",
+      "claim": "An additional help topic command is one that is not runnable, hidden, or deprecated, and has no sub commands that are runnable, hidden, or deprecated.",
       "rationale": "Defines the criteria used by IsAdditionalHelpTopicCommand to classify commands.",
       "excerpt": "additional help topic command is determined by the fact that it is NOT runnable/hidden/deprecated, and has no sub commands that are runnable/hidden/deprecated",
       "symbol_ids": [
@@ -8575,7 +8568,7 @@
       "source_sha": "5a58ba98c4031edeca001b5ad6bc908d0a9b42233f2558424501b8fac1b2c4bc",
       "severity": "context",
       "claim": "LocalFlags returns the local FlagSet set in the current command without modifying the command's flags",
-      "rationale": "Describes the purpose of LocalFlags as a read-only accessor for current state",
+      "rationale": "Describes the read-only purpose of the function",
       "excerpt": "This function does not modify the flags of the current command, it's purpose is to return the current state.",
       "symbol_ids": [
         "sym:go:command.go:(*Command).LocalFlags"
@@ -8587,7 +8580,7 @@
       "source_sha": "5a58ba98c4031edeca001b5ad6bc908d0a9b42233f2558424501b8fac1b2c4bc",
       "severity": "context",
       "claim": "LocalNonPersistentFlags returns flags specific to the command that do not persist to subcommands",
-      "rationale": "Describes the scope of these flags as non-inherited by subcommands",
+      "rationale": "Describes the scope of these flags as non-inheriting",
       "excerpt": "LocalNonPersistentFlags are flags specific to this command which will NOT persist to subcommands",
       "symbol_ids": [
         "sym:go:command.go:(*Command).LocalNonPersistentFlags"
@@ -8599,7 +8592,7 @@
       "source_sha": "5a58ba98c4031edeca001b5ad6bc908d0a9b42233f2558424501b8fac1b2c4bc",
       "severity": "context",
       "claim": "The function does not modify the current command's flags; it only returns current state",
-      "rationale": "Clarifies that the function is a read-only accessor",
+      "rationale": "Clarifies that the call is read-only with respect to command state",
       "excerpt": "This function does not modify the flags of the current command, it's purpose is to return the current state",
       "symbol_ids": [
         "sym:go:command.go:(*Command).LocalNonPersistentFlags"
@@ -8610,8 +8603,8 @@
       "source_path": "command.go",
       "source_sha": "5a58ba98c4031edeca001b5ad6bc908d0a9b42233f2558424501b8fac1b2c4bc",
       "severity": "context",
-      "claim": "NonInheritedFlags returns flags not inherited from parent commands without modifying current command's flags",
-      "rationale": "Describes function behavior and its read-only nature",
+      "claim": "NonInheritedFlags returns flags not inherited from parent commands without modifying the current command's flags",
+      "rationale": "Describes the read-only nature of the function for returning current state",
       "excerpt": "This function does not modify the flags of the current command, it's purpose is to return the current state.",
       "symbol_ids": [
         "sym:go:command.go:(*Command).NonInheritedFlags"
@@ -8622,8 +8615,8 @@
       "source_path": "command.go",
       "source_sha": "5a58ba98c4031edeca001b5ad6bc908d0a9b42233f2558424501b8fac1b2c4bc",
       "severity": "context",
-      "claim": "Print writes to the defined output, falling back to Stderr when no output is set",
-      "rationale": "Describes the fallback behavior of the Print convenience method",
+      "claim": "Print writes to the defined output, falling back to Stderr when output is not set",
+      "rationale": "Describes convenience behavior and fallback target for the Print method",
       "excerpt": "Print is a convenience method to Print to the defined output, fallback to Stderr if not set.",
       "symbol_ids": [
         "sym:go:command.go:(*Command).Print"
@@ -8634,9 +8627,9 @@
       "source_path": "command.go",
       "source_sha": "5a58ba98c4031edeca001b5ad6bc908d0a9b42233f2558424501b8fac1b2c4bc",
       "severity": "context",
-      "claim": "PrintErr prints to the defined Err output, falling back to Stderr when Err is not set",
-      "rationale": "Describes the fallback behavior of the convenience method",
-      "excerpt": "PrintErr is a convenience method to Print to the defined Err output, fallback to Stderr if not set.",
+      "claim": "PrintErr writes to the defined Err output, falling back to Stderr if Err is not set",
+      "rationale": "Describes fallback behavior of the convenience method",
+      "excerpt": "convenience method to Print to the defined Err output, fallback to Stderr if not set",
       "symbol_ids": [
         "sym:go:command.go:(*Command).PrintErr"
       ]
@@ -8646,8 +8639,8 @@
       "source_path": "command.go",
       "source_sha": "5a58ba98c4031edeca001b5ad6bc908d0a9b42233f2558424501b8fac1b2c4bc",
       "severity": "context",
-      "claim": "PrintErrf writes to the configured Err output, falling back to Stderr when Err is not set",
-      "rationale": "Documents the output target resolution behavior of the convenience method",
+      "claim": "PrintErrf writes to the defined Err output, falling back to Stderr if Err is not set",
+      "rationale": "Describes the output destination behavior of the convenience method",
       "excerpt": "convenience method to Printf to the defined Err output, fallback to Stderr if not set",
       "symbol_ids": [
         "sym:go:command.go:(*Command).PrintErrf"
@@ -8670,8 +8663,8 @@
       "source_path": "command.go",
       "source_sha": "5a58ba98c4031edeca001b5ad6bc908d0a9b42233f2558424501b8fac1b2c4bc",
       "severity": "context",
-      "claim": "Printf writes to the defined output, falling back to Stderr when no output is set",
-      "rationale": "Describes the fallback behavior of the convenience method",
+      "claim": "Printf writes to the defined output, falling back to Stderr if no output is set",
+      "rationale": "Describes fallback behavior when output is not configured",
       "excerpt": "Printf is a convenience method to Printf to the defined output, fallback to Stderr if not set.",
       "symbol_ids": [
         "sym:go:command.go:(*Command).Printf"
@@ -8694,8 +8687,8 @@
       "source_path": "command.go",
       "source_sha": "5a58ba98c4031edeca001b5ad6bc908d0a9b42233f2558424501b8fac1b2c4bc",
       "severity": "context",
-      "claim": "SetArgs defaults command arguments to os.Args[1:] but can be overridden",
-      "rationale": "Overriding is particularly useful when testing",
+      "claim": "SetArgs defaults command arguments to os.Args[1:] but can be overridden, which is useful for testing",
+      "rationale": "Describes default behavior and override use case for testing",
       "excerpt": "It is set to os.Args[1:] by default, if desired, can be overridden particularly useful when testing.",
       "symbol_ids": [
         "sym:go:command.go:(*Command).SetArgs"
@@ -8707,8 +8700,8 @@
       "source_sha": "5a58ba98c4031edeca001b5ad6bc908d0a9b42233f2558424501b8fac1b2c4bc",
       "severity": "context",
       "claim": "Context set via SetContext is overwritten when ExecuteContext or ExecuteContextC is called",
-      "rationale": "Documents interaction between SetContext and the Execute*Context methods so callers understand precedence",
-      "excerpt": "This context will be overwritten by Command.ExecuteContext or Command.ExecuteContextC.",
+      "rationale": "Callers should be aware that explicit context-setting is superseded by Execute*Context methods",
+      "excerpt": "This context will be overwritten by Command.ExecuteContext or Command.ExecuteContextC",
       "symbol_ids": [
         "sym:go:command.go:(*Command).SetContext"
       ]
@@ -8730,8 +8723,8 @@
       "source_path": "command.go",
       "source_sha": "5a58ba98c4031edeca001b5ad6bc908d0a9b42233f2558424501b8fac1b2c4bc",
       "severity": "context",
-      "claim": "SetErrPrefix configures a custom prefix for error messages",
-      "rationale": "Describes the purpose of the function for application customization",
+      "claim": "SetErrPrefix allows applications to configure a custom error message prefix",
+      "rationale": "Describes the purpose of the function for customizing error output",
       "excerpt": "SetErrPrefix sets error message prefix to be used. Application can use it to set custom prefix.",
       "symbol_ids": [
         "sym:go:command.go:(*Command).SetErrPrefix"
@@ -8742,8 +8735,8 @@
       "source_path": "command.go",
       "source_sha": "5a58ba98c4031edeca001b5ad6bc908d0a9b42233f2558424501b8fac1b2c4bc",
       "severity": "context",
-      "claim": "Sets a normalization function on all flag sets and propagates to child commands",
-      "rationale": "Describes the propagation behavior of the normalization function",
+      "claim": "Sets a normalization function applied to all flag sets and child commands",
+      "rationale": "Describes the propagation behavior of the normalization function across command hierarchies",
       "excerpt": "SetGlobalNormalizationFunc sets a normalization function to all flag sets and also to child commands.",
       "symbol_ids": [
         "sym:go:command.go:(*Command).SetGlobalNormalizationFunc"
@@ -8754,8 +8747,8 @@
       "source_path": "command.go",
       "source_sha": "5a58ba98c4031edeca001b5ad6bc908d0a9b42233f2558424501b8fac1b2c4bc",
       "severity": "soft",
-      "claim": "Users should avoid cyclic dependencies on commands when using this function",
-      "rationale": "Cyclic dependencies on commands could cause issues with the global normalization propagation",
+      "claim": "Users should avoid creating cyclic dependencies on commands when using the global normalization function",
+      "rationale": "Cyclic dependencies on commands are cautioned against in the context of applying normalization to all flag sets and child commands",
       "excerpt": "The user should not have a cyclic dependency on commands.",
       "symbol_ids": [
         "sym:go:command.go:(*Command).SetGlobalNormalizationFunc"
@@ -8779,7 +8772,7 @@
       "source_sha": "5a58ba98c4031edeca001b5ad6bc908d0a9b42233f2558424501b8fac1b2c4bc",
       "severity": "context",
       "claim": "If newOut is nil, os.Stdout is used as the default destination for usage messages",
-      "rationale": "Documents the default fallback behavior when no output destination is provided",
+      "rationale": "Documents the nil-handling default behavior of SetOut",
       "excerpt": "If newOut is nil, os.Stdout is used.",
       "symbol_ids": [
         "sym:go:command.go:(*Command).SetOut"
@@ -8814,20 +8807,8 @@
       "source_path": "command.go",
       "source_sha": "5a58ba98c4031edeca001b5ad6bc908d0a9b42233f2558424501b8fac1b2c4bc",
       "severity": "context",
-      "claim": "Usage function can be defined by the application via SetUsageFunc",
-      "rationale": "Describes that usage behavior is customizable by the application",
-      "excerpt": "SetUsageFunc sets usage function. Usage can be defined by application.",
-      "symbol_ids": [
-        "sym:go:command.go:(*Command).SetUsageFunc"
-      ]
-    },
-    {
-      "source": "docstring:command.go",
-      "source_path": "command.go",
-      "source_sha": "5a58ba98c4031edeca001b5ad6bc908d0a9b42233f2558424501b8fac1b2c4bc",
-      "severity": "context",
-      "claim": "Usage output can be customized by overriding UsageFunc",
-      "rationale": "Describes extension point for customizing command usage output",
+      "claim": "Default usage output can be customized by overriding UsageFunc",
+      "rationale": "Describes extension point for customizing usage display",
       "excerpt": "Can be defined by user by overriding UsageFunc",
       "symbol_ids": [
         "sym:go:command.go:(*Command).Usage"
@@ -8838,8 +8819,8 @@
       "source_path": "command.go",
       "source_sha": "5a58ba98c4031edeca001b5ad6bc908d0a9b42233f2558424501b8fac1b2c4bc",
       "severity": "context",
-      "claim": "UsageFunc returns the function set by SetUsageFunc on this command or a parent, falling back to a default usage function",
-      "rationale": "Describes resolution order for usage function lookup",
+      "claim": "UsageFunc returns the function set by SetUsageFunc for this command or a parent, falling back to a default usage function",
+      "rationale": "Describes lookup behavior and fallback for usage function resolution",
       "excerpt": "UsageFunc returns either the function set by SetUsageFunc for this command or a parent, or it returns a default usage function.",
       "symbol_ids": [
         "sym:go:command.go:(*Command).UsageFunc"
@@ -8850,8 +8831,8 @@
       "source_path": "command.go",
       "source_sha": "5a58ba98c4031edeca001b5ad6bc908d0a9b42233f2558424501b8fac1b2c4bc",
       "severity": "context",
-      "claim": "UsageTemplate is retained for backwards compatibility",
-      "rationale": "Indicates the function exists to preserve compatibility rather than for new use",
+      "claim": "UsageTemplate is retained for backwards-compatibility reasons",
+      "rationale": "Indicates the function exists primarily to preserve compatibility, signaling callers should be aware it may not be the preferred API",
       "excerpt": "This function is kept for backwards-compatibility reasons.",
       "symbol_ids": [
         "sym:go:command.go:(*Command).UsageTemplate"
@@ -8862,8 +8843,8 @@
       "source_path": "command.go",
       "source_sha": "5a58ba98c4031edeca001b5ad6bc908d0a9b42233f2558424501b8fac1b2c4bc",
       "severity": "context",
-      "claim": "VersionTemplate is retained for backwards compatibility",
-      "rationale": "Indicates the function exists to preserve compatibility, not because it is the preferred API",
+      "claim": "VersionTemplate is retained for backwards-compatibility reasons",
+      "rationale": "Indicates the function exists to preserve backwards compatibility, signaling it may be legacy API",
       "excerpt": "This function is kept for backwards-compatibility reasons.",
       "symbol_ids": [
         "sym:go:command.go:(*Command).VersionTemplate"
@@ -8874,8 +8855,8 @@
       "source_path": "command.go",
       "source_sha": "5a58ba98c4031edeca001b5ad6bc908d0a9b42233f2558424501b8fac1b2c4bc",
       "severity": "context",
-      "claim": "Cobra commands require usage and description definitions as part of the command definition",
-      "rationale": "Ensures usability of the resulting CLI",
+      "claim": "Command definitions should include usage and description fields for usability",
+      "rationale": "Cobra's API design requires usage and description as part of command definition; this is descriptive of how the library works rather than an assertive constraint on consumers",
       "excerpt": "Cobra requires you to define the usage and description as part of your command definition to ensure usability.",
       "symbol_ids": [
         "sym:go:command.go:Command"
@@ -8898,9 +8879,9 @@
       "source_path": "completions.go",
       "source_sha": "913e9f34a82f3ded82dc3e5c89e3595d51c819c3a719112d8ce833daab6d61b6",
       "severity": "context",
-      "claim": "For flag file extension filtering, MarkFlagFilename/MarkPersistentFlagFilename are shortcuts to using ShellCompDirectiveFilterFileExt explicitly; the BashCompFilenameExt annotation provides equivalent behavior.",
-      "rationale": "Documents alternative APIs that achieve the same file-extension filtering behavior for flags.",
-      "excerpt": "For flags, using Command.MarkFlagFilename() and Command.MarkPersistentFlagFilename() is a shortcut to using this directive explicitly.",
+      "claim": "For flags, MarkFlagFilename/MarkPersistentFlagFilename are shortcuts for applying the file extension filter directive; BashCompFilenameExt annotation provides equivalent behavior",
+      "rationale": "Documents alternative APIs that achieve the same file-extension filtering behavior for flag completions",
+      "excerpt": "using Command.MarkFlagFilename() and Command.MarkPersistentFlagFilename() is a shortcut to using this directive explicitly",
       "symbol_ids": [
         "sym:go:bash_completions.go:BashCompFilenameExt",
         "sym:go:completions.go:ShellCompDirectiveFilterFileExt"
@@ -8912,7 +8893,7 @@
       "source_sha": "913e9f34a82f3ded82dc3e5c89e3595d51c819c3a719112d8ce833daab6d61b6",
       "severity": "context",
       "claim": "BashCompSubdirsInDir annotation provides equivalent directory-filtering behavior but only applies to flags.",
-      "rationale": "Clarifies the scope difference between the directive and the annotation.",
+      "rationale": "Clarifies the relationship and scope difference between the directive and the annotation.",
       "excerpt": "The BashCompSubdirsInDir annotation can be used to obtain the same behavior but only for flags.",
       "symbol_ids": [
         "sym:go:bash_completions.go:BashCompSubdirsInDir",
@@ -8924,9 +8905,9 @@
       "source_path": "completions.go",
       "source_sha": "913e9f34a82f3ded82dc3e5c89e3595d51c819c3a719112d8ce833daab6d61b6",
       "severity": "context",
-      "claim": "ShellCompDirectiveFilterDirs restricts file completion to directory names; to search within a subdirectory, returned completions should specify that directory.",
-      "rationale": "Describes the directive's behavior and how to scope directory completion.",
-      "excerpt": "ShellCompDirectiveFilterDirs indicates that only directory names should be provided in file completion.  To request directory names within another directory, the returned completions should specify the directory within which to search.",
+      "claim": "ShellCompDirectiveFilterDirs restricts file completion to directory names; to scope to a subdirectory, completions should specify the search directory.",
+      "rationale": "Describes the directive's behavior and how to scope completions to a specific directory.",
+      "excerpt": "ShellCompDirectiveFilterDirs indicates that only directory names should be provided in file completion.",
       "symbol_ids": [
         "sym:go:bash_completions.go:BashCompSubdirsInDir",
         "sym:go:completions.go:ShellCompDirectiveFilterDirs"
@@ -8937,8 +8918,8 @@
       "source_path": "completions.go",
       "source_sha": "913e9f34a82f3ded82dc3e5c89e3595d51c819c3a719112d8ce833daab6d61b6",
       "severity": "context",
-      "claim": "InitDefaultCompletionCmd is a no-op when completion is disabled, the command has no subcommands, or a 'completion' command already exists",
-      "rationale": "Documents the conditions under which the default completion command is not added, preventing duplicate or unwanted commands",
+      "claim": "InitDefaultCompletionCmd is a no-op when completion is explicitly disabled, when c has no subcommands, or when c already has a 'completion' command",
+      "rationale": "Describes guard conditions that prevent adding a redundant or unwanted completion command",
       "excerpt": "This function will do nothing if any of the following is true: 1- the feature has been explicitly disabled by the program, 2- c has no subcommands (to avoid creating one), 3- c already has a 'completion' command provided by the program.",
       "symbol_ids": [
         "sym:go:completions.go:(*Command).InitDefaultCompletionCmd"
@@ -8949,9 +8930,9 @@
       "source_path": "completions.go",
       "source_sha": "913e9f34a82f3ded82dc3e5c89e3595d51c819c3a719112d8ce833daab6d61b6",
       "severity": "context",
-      "claim": "Pre-defined completion functions FixedCompletions and NoFileCompletions are available, or callers can define their own",
-      "rationale": "Informs users of reusable completion helpers to avoid reimplementing common patterns",
-      "excerpt": "You can use pre-defined completion functions such as [FixedCompletions]... or [NoFileCompletions]..., or you can define your own.",
+      "claim": "Pre-defined completion functions like FixedCompletions and NoFileCompletions can be used, or custom completion functions can be defined",
+      "rationale": "Describes available options for providing flag completion behavior",
+      "excerpt": "You can use pre-defined completion functions such as FixedCompletions or NoFileCompletions, or you can define your own.",
       "symbol_ids": [
         "sym:go:completions.go:(*Command).RegisterFlagCompletionFunc",
         "sym:go:completions.go:FixedCompletions",
@@ -8963,23 +8944,9 @@
       "source_path": "completions.go",
       "source_sha": "913e9f34a82f3ded82dc3e5c89e3595d51c819c3a719112d8ce833daab6d61b6",
       "severity": "context",
-      "claim": "RegisterFlagCompletionFunc registers a function to provide completion for a flag",
-      "rationale": "Describes the purpose of the function for registering flag completion handlers",
-      "excerpt": "RegisterFlagCompletionFunc should be called to register a function to provide completion for a flag.",
-      "symbol_ids": [
-        "sym:go:completions.go:(*Command).RegisterFlagCompletionFunc",
-        "sym:go:completions.go:FixedCompletions",
-        "sym:go:completions.go:NoFileCompletions"
-      ]
-    },
-    {
-      "source": "docstring:completions.go",
-      "source_path": "completions.go",
-      "source_sha": "913e9f34a82f3ded82dc3e5c89e3595d51c819c3a719112d8ce833daab6d61b6",
-      "severity": "context",
-      "claim": "CompDebug writes to the same file used by the completion script for its logs",
-      "rationale": "Describes where debug output is routed so it does not interfere with completion output",
-      "excerpt": "CompDebug prints the specified string to the same file as where the completion script prints its logs",
+      "claim": "Completion debug output is written to the same log file used by the completion script, not to stdout.",
+      "rationale": "Describes where CompDebug routes its output.",
+      "excerpt": "CompDebug prints the specified string to the same file as where the completion script prints its logs.",
       "symbol_ids": [
         "sym:go:completions.go:CompDebug"
       ]
@@ -8989,9 +8956,9 @@
       "source_path": "completions.go",
       "source_sha": "913e9f34a82f3ded82dc3e5c89e3595d51c819c3a719112d8ce833daab6d61b6",
       "severity": "hard",
-      "claim": "Completion printouts must not be written to stdout",
-      "rationale": "Output on stdout would be wrongly interpreted as actual completion choices by the completion script",
-      "excerpt": "completion printouts should never be on stdout as they would be wrongly interpreted as actual completion choices by the completion script",
+      "claim": "Completion printouts must never go to stdout, since the completion script would misinterpret them as completion choices.",
+      "rationale": "Writing completion logs to stdout would corrupt completion behavior by being parsed as choices.",
+      "excerpt": "completion printouts should never be on stdout as they would be wrongly interpreted as actual completion choices",
       "symbol_ids": [
         "sym:go:completions.go:CompDebug"
       ]
@@ -9001,8 +8968,8 @@
       "source_path": "completions.go",
       "source_sha": "913e9f34a82f3ded82dc3e5c89e3595d51c819c3a719112d8ce833daab6d61b6",
       "severity": "context",
-      "claim": "Debug logs are only emitted when BASH_COMP_DEBUG_FILE environment variable points to a file path",
-      "rationale": "Logging is gated on user-configured environment variable to avoid unintended output",
+      "claim": "Debug logs are only emitted when BASH_COMP_DEBUG_FILE environment variable is set to a file path",
+      "rationale": "Describes the activation condition for debug log output",
       "excerpt": "Such logs are only printed when the user has set the environment variable BASH_COMP_DEBUG_FILE to the path of some file to be used.",
       "symbol_ids": [
         "sym:go:completions.go:CompDebugln"
@@ -9013,20 +8980,8 @@
       "source_path": "completions.go",
       "source_sha": "913e9f34a82f3ded82dc3e5c89e3595d51c819c3a719112d8ce833daab6d61b6",
       "severity": "context",
-      "claim": "Output is written to the same file as the completion script's logs",
-      "rationale": "Shares log destination with completion script for unified debugging",
-      "excerpt": "prints the specified string with a newline at the end to the same file as where the completion script prints its logs",
-      "symbol_ids": [
-        "sym:go:completions.go:CompDebugln"
-      ]
-    },
-    {
-      "source": "docstring:completions.go",
-      "source_path": "completions.go",
-      "source_sha": "913e9f34a82f3ded82dc3e5c89e3595d51c819c3a719112d8ce833daab6d61b6",
-      "severity": "context",
-      "claim": "Completion strings support two formats: a bare completion choice, or a choice with textual description separated by a TAB",
-      "rationale": "Defines the wire format for completion entries",
+      "claim": "Completion strings support two formats: a bare completion choice, or a choice with a textual description separated by a TAB",
+      "rationale": "Defines the wire format consumers produce for shell completions",
       "excerpt": "two formats are supported:\n\n  - the completion choice\n  - the completion choice with a textual description (separated by a TAB).",
       "symbol_ids": [
         "sym:go:completions.go:Completion",
@@ -9039,7 +8994,7 @@
       "source_sha": "913e9f34a82f3ded82dc3e5c89e3595d51c819c3a719112d8ce833daab6d61b6",
       "severity": "context",
       "claim": "CompletionWithDesc can be used to construct a completion string with a textual description",
-      "rationale": "Documents the helper for building described completions",
+      "rationale": "Documents the helper for producing the description-bearing format",
       "excerpt": "CompletionWithDesc can be used to create a completion string with a textual description.",
       "symbol_ids": [
         "sym:go:completions.go:Completion",
@@ -9051,8 +9006,21 @@
       "source_path": "completions.go",
       "source_sha": "913e9f34a82f3ded82dc3e5c89e3595d51c819c3a719112d8ce833daab6d61b6",
       "severity": "context",
-      "claim": "The Go type alias is purely documentation-oriented; any string is acceptable in its place",
-      "rationale": "Clarifies that the alias does not enforce a distinct type",
+      "claim": "CompletionWithDesc returns a Completion with a description using the TAB delimited format",
+      "rationale": "Describes the encoding format used to attach descriptions to completions",
+      "excerpt": "CompletionWithDesc returns a Completion with a description by using the TAB delimited format.",
+      "symbol_ids": [
+        "sym:go:completions.go:Completion",
+        "sym:go:completions.go:CompletionWithDesc"
+      ]
+    },
+    {
+      "source": "docstring:completions.go",
+      "source_path": "completions.go",
+      "source_sha": "913e9f34a82f3ded82dc3e5c89e3595d51c819c3a719112d8ce833daab6d61b6",
+      "severity": "context",
+      "claim": "The type is a Go type alias for string used purely for documentation clarity; any plain string is acceptable",
+      "rationale": "Clarifies that the alias imposes no type-level constraint on callers",
       "excerpt": "Go type alias is used to provide a more descriptive name in the documentation, but any string can be used.",
       "symbol_ids": [
         "sym:go:completions.go:Completion"
@@ -9064,7 +9032,7 @@
       "source_sha": "913e9f34a82f3ded82dc3e5c89e3595d51c819c3a719112d8ce833daab6d61b6",
       "severity": "context",
       "claim": "FixedCompletions returns a CompletionFunc that always returns the same results, usable with RegisterFlagCompletionFunc and ValidArgsFunction",
-      "rationale": "Describes the purpose and integration points of FixedCompletions",
+      "rationale": "Describes the purpose and integration points of the helper",
       "excerpt": "FixedCompletions can be used to create a completion function which always returns the same results.",
       "symbol_ids": [
         "sym:go:completions.go:CompletionFunc",
@@ -9076,22 +9044,9 @@
       "source_path": "completions.go",
       "source_sha": "913e9f34a82f3ded82dc3e5c89e3595d51c819c3a719112d8ce833daab6d61b6",
       "severity": "context",
-      "claim": "NoFileCompletions disables file completion for commands that should not trigger file completions",
-      "rationale": "Describes the purpose of the function for use as a completion handler",
+      "claim": "NoFileCompletions disables file completion for commands that should not trigger it; satisfies CompletionFunc and is usable with Command.RegisterFlagCompletionFunc and Command.ValidArgsFunction",
+      "rationale": "Describes the purpose and integration points of NoFileCompletions",
       "excerpt": "NoFileCompletions can be used to disable file completion for commands that should not trigger file completions.",
-      "symbol_ids": [
-        "sym:go:completions.go:CompletionFunc",
-        "sym:go:completions.go:NoFileCompletions"
-      ]
-    },
-    {
-      "source": "docstring:completions.go",
-      "source_path": "completions.go",
-      "source_sha": "913e9f34a82f3ded82dc3e5c89e3595d51c819c3a719112d8ce833daab6d61b6",
-      "severity": "context",
-      "claim": "Satisfies the CompletionFunc signature; usable with Command.RegisterFlagCompletionFunc and Command.ValidArgsFunction",
-      "rationale": "Indicates the integration points for this function within Cobra's completion API",
-      "excerpt": "This method satisfies CompletionFunc. It can be used with Command.RegisterFlagCompletionFunc and for Command.ValidArgsFunction.",
       "symbol_ids": [
         "sym:go:completions.go:CompletionFunc",
         "sym:go:completions.go:NoFileCompletions"
@@ -9106,18 +9061,7 @@
       "rationale": "Describes the purpose of the CompletionOptions type",
       "excerpt": "CompletionOptions are the options to control shell completion",
       "symbol_ids": [
-        "sym:go:completions.go:CompletionOptions"
-      ]
-    },
-    {
-      "source": "docstring:completions.go",
-      "source_path": "completions.go",
-      "source_sha": "913e9f34a82f3ded82dc3e5c89e3595d51c819c3a719112d8ce833daab6d61b6",
-      "severity": "context",
-      "claim": "ShellCompDirective is a bit map representing shell completion behaviors",
-      "rationale": "Describes the type's role as a bit map of behaviors the shell can be instructed to have after completions are provided",
-      "excerpt": "ShellCompDirective is a bit map representing the different behaviors the shell can be instructed to have once completions have been provided.",
-      "symbol_ids": [
+        "sym:go:completions.go:CompletionOptions",
         "sym:go:completions.go:ShellCompDirective"
       ]
     },
@@ -9126,8 +9070,8 @@
       "source_path": "completions.go",
       "source_sha": "913e9f34a82f3ded82dc3e5c89e3595d51c819c3a719112d8ce833daab6d61b6",
       "severity": "hard",
-      "claim": "ShellCompDirectiveDefault must be the last entry in the iota sequence to preserve correct iota counting",
-      "rationale": "Placing it elsewhere would mess up the iota count for the directive constants",
+      "claim": "ShellCompDirectiveDefault must be declared last in the iota sequence to preserve correct iota values",
+      "rationale": "Reordering would corrupt the iota-based numeric values of the directive constants",
       "excerpt": "This one must be last to avoid messing up the iota count.",
       "symbol_ids": [
         "sym:go:completions.go:ShellCompDirectiveDefault"
@@ -9138,9 +9082,21 @@
       "source_path": "completions.go",
       "source_sha": "913e9f34a82f3ded82dc3e5c89e3595d51c819c3a719112d8ce833daab6d61b6",
       "severity": "context",
-      "claim": "Directive signals the shell to suppress file completion fallback when no completions are provided",
-      "rationale": "Describes the purpose of the directive constant",
-      "excerpt": "ShellCompDirectiveNoFileComp indicates that the shell should not provide file completion even when no completion is provided.",
+      "claim": "ShellCompDirectiveDefault signals the shell to perform its default completion behavior after provided completions",
+      "rationale": "Describes the semantic purpose of the directive",
+      "excerpt": "indicates to let the shell perform its default behavior after completions have been provided",
+      "symbol_ids": [
+        "sym:go:completions.go:ShellCompDirectiveDefault"
+      ]
+    },
+    {
+      "source": "docstring:completions.go",
+      "source_path": "completions.go",
+      "source_sha": "913e9f34a82f3ded82dc3e5c89e3595d51c819c3a719112d8ce833daab6d61b6",
+      "severity": "context",
+      "claim": "Directive indicates the shell should not provide file completion even when no completion is provided",
+      "rationale": "Describes the behavior signaled by this directive value",
+      "excerpt": "indicates that the shell should not provide file completion even when no completion is provided",
       "symbol_ids": [
         "sym:go:completions.go:ShellCompDirectiveNoFileComp"
       ]
@@ -9150,8 +9106,8 @@
       "source_path": "completions.go",
       "source_sha": "913e9f34a82f3ded82dc3e5c89e3595d51c819c3a719112d8ce833daab6d61b6",
       "severity": "context",
-      "claim": "ShellCompDirectiveNoSpace signals shells to suppress trailing space after a completion, even when only one completion is provided",
-      "rationale": "Describes the behavior controlled by this directive constant",
+      "claim": "Directive signals shell to suppress trailing space after a single completion",
+      "rationale": "Describes the behavioral effect of the directive constant",
       "excerpt": "ShellCompDirectiveNoSpace indicates that the shell should not add a space after the completion even if there is a single completion provided.",
       "symbol_ids": [
         "sym:go:completions.go:ShellCompDirectiveNoSpace"
@@ -9162,9 +9118,9 @@
       "source_path": "completions.go",
       "source_sha": "913e9f34a82f3ded82dc3e5c89e3595d51c819c3a719112d8ce833daab6d61b6",
       "severity": "context",
-      "claim": "Hidden command name used to request shell completion results without descriptions, invoked by shell completion scripts",
-      "rationale": "Identifies the purpose and consumer of this constant",
-      "excerpt": "ShellCompNoDescRequestCmd is the name of the hidden command that is used to request completion results without their description.  It is used by the shell completion scripts.",
+      "claim": "ShellCompNoDescRequestCmd is a hidden command for requesting completion results without descriptions, used by shell completion scripts",
+      "rationale": "Describes the purpose and consumer of this hidden command",
+      "excerpt": "ShellCompNoDescRequestCmd is the name of the hidden command that is used to request completion results without their description. It is used by the shell completion scripts.",
       "symbol_ids": [
         "sym:go:completions.go:ShellCompNoDescRequestCmd"
       ]
@@ -9175,7 +9131,7 @@
       "source_sha": "913e9f34a82f3ded82dc3e5c89e3595d51c819c3a719112d8ce833daab6d61b6",
       "severity": "context",
       "claim": "ShellCompRequestCmd is a hidden command used to request completion results, invoked by shell completion scripts",
-      "rationale": "Describes the purpose and consumer of this identifier",
+      "rationale": "Describes the purpose and consumer of the symbol",
       "excerpt": "ShellCompRequestCmd is the name of the hidden command that is used to request completion results from the program.  It is used by the shell completion scripts.",
       "symbol_ids": [
         "sym:go:completions.go:ShellCompRequestCmd"
@@ -9187,7 +9143,7 @@
       "source_sha": "913e9f34a82f3ded82dc3e5c89e3595d51c819c3a719112d8ce833daab6d61b6",
       "severity": "context",
       "claim": "SliceValue is a reduced version of pflag.SliceValue used to detect flags accepting multiple values for repeated completion",
-      "rationale": "Explains the purpose of SliceValue: identifying multi-value flags so completion can be offered multiple times",
+      "rationale": "Explains the purpose of the type: identifying multi-value flags so completion can be provided multiple times",
       "excerpt": "It is used to detect flags that accept multiple values and therefore can provide completion multiple times.",
       "symbol_ids": [
         "sym:go:completions.go:SliceValue"
@@ -9198,8 +9154,8 @@
       "source_path": "doc/man_docs.go",
       "source_sha": "5e681ab5432641229d5b951b6a2ff475eff15889c0a628a4e3063bcc35e3feee",
       "severity": "context",
-      "claim": "The header argument is optional and may be nil",
-      "rationale": "Documents that header is an optional input",
+      "claim": "The header argument may be nil",
+      "rationale": "Documents that header is optional",
       "excerpt": "The header argument may be nil",
       "symbol_ids": [
         "sym:go:doc/man_docs.go:GenMan"
@@ -9210,9 +9166,9 @@
       "source_path": "doc/man_docs.go",
       "source_sha": "5e681ab5432641229d5b951b6a2ff475eff15889c0a628a4e3063bcc35e3feee",
       "severity": "hard",
-      "claim": "The w writer argument must not be nil when calling GenMan",
-      "rationale": "Output destination is required; nil writer would have nowhere to write the man page",
-      "excerpt": "obviously w may not",
+      "claim": "The writer argument w must not be nil when calling GenMan",
+      "rationale": "Function writes output to w, so a nil writer would fail",
+      "excerpt": "The header argument may be nil, however obviously w may not.",
       "symbol_ids": [
         "sym:go:doc/man_docs.go:GenMan"
       ]
@@ -9222,20 +9178,8 @@
       "source_path": "doc/man_docs.go",
       "source_sha": "5e681ab5432641229d5b951b6a2ff475eff15889c0a628a4e3063bcc35e3feee",
       "severity": "context",
-      "claim": "Current time is used as a default when Date is unset",
-      "rationale": "Documents default-value behavior for unset fields",
-      "excerpt": "We will use the current time if Date is unset",
-      "symbol_ids": [
-        "sym:go:doc/man_docs.go:GenManHeader"
-      ]
-    },
-    {
-      "source": "docstring:doc/man_docs.go",
-      "source_path": "doc/man_docs.go",
-      "source_sha": "5e681ab5432641229d5b951b6a2ff475eff15889c0a628a4e3063bcc35e3feee",
-      "severity": "context",
-      "claim": "GenManHeader represents the .TH header fields of a man page (title, section, date, source, manual)",
-      "rationale": "Describes the purpose and structure of GenManHeader",
+      "claim": "GenManHeader mirrors the .TH header of man pages, containing title, section, date, source, and manual fields",
+      "rationale": "Describes the structural purpose of GenManHeader",
       "excerpt": "GenManHeader is a lot like the .TH header at the start of man pages. These include the title, section, date, source, and manual.",
       "symbol_ids": [
         "sym:go:doc/man_docs.go:GenManHeader"
@@ -9246,8 +9190,20 @@
       "source_path": "doc/man_docs.go",
       "source_sha": "5e681ab5432641229d5b951b6a2ff475eff15889c0a628a4e3063bcc35e3feee",
       "severity": "context",
-      "claim": "Source defaults to \"Auto generated by spf13/cobra\" when unset",
-      "rationale": "Documents default-value behavior for unset fields",
+      "claim": "If Date is unset, the current time is used as default",
+      "rationale": "Documents default-value behavior for unset Date field",
+      "excerpt": "We will use the current time if Date is unset",
+      "symbol_ids": [
+        "sym:go:doc/man_docs.go:GenManHeader"
+      ]
+    },
+    {
+      "source": "docstring:doc/man_docs.go",
+      "source_path": "doc/man_docs.go",
+      "source_sha": "5e681ab5432641229d5b951b6a2ff475eff15889c0a628a4e3063bcc35e3feee",
+      "severity": "context",
+      "claim": "If Source is unset, it defaults to \"Auto generated by spf13/cobra\"",
+      "rationale": "Documents default-value behavior for unset Source field",
       "excerpt": "will use \"Auto generated by spf13/cobra\" if the Source is unset",
       "symbol_ids": [
         "sym:go:doc/man_docs.go:GenManHeader"
@@ -9258,9 +9214,9 @@
       "source_path": "doc/man_docs.go",
       "source_sha": "5e681ab5432641229d5b951b6a2ff475eff15889c0a628a4e3063bcc35e3feee",
       "severity": "soft",
-      "claim": "Function may not work correctly if command names contain '-' due to filename collision ambiguity",
-      "rationale": "Dash-containing command names produce undefined output file resolution",
-      "excerpt": "This function may not work correctly if your command names have `-` in them.",
+      "claim": "Function may not work correctly if command names contain '-' characters due to filename collisions between nested subcommands",
+      "rationale": "Hyphens in command names create undefined behavior when nested subcommand paths produce the same output filename",
+      "excerpt": "This function may not work correctly if your command names have `-` in them",
       "symbol_ids": [
         "sym:go:doc/man_docs.go:GenManTree"
       ]
@@ -9270,9 +9226,9 @@
       "source_path": "doc/man_docs.go",
       "source_sha": "5e681ab5432641229d5b951b6a2ff475eff15889c0a628a4e3063bcc35e3feee",
       "severity": "context",
-      "claim": "GenManTree generates a man page for the command and all descendants in the given directory",
+      "claim": "GenManTree generates man pages for the command and all descendants in the given directory",
       "rationale": "Describes the function's behavior",
-      "excerpt": "GenManTree will generate a man page for this command and all descendants in the directory given.",
+      "excerpt": "GenManTree will generate a man page for this command and all descendants in the directory given",
       "symbol_ids": [
         "sym:go:doc/man_docs.go:GenManTree"
       ]
@@ -9282,9 +9238,9 @@
       "source_path": "doc/man_docs.go",
       "source_sha": "5e681ab5432641229d5b951b6a2ff475eff15889c0a628a4e3063bcc35e3feee",
       "severity": "context",
-      "claim": "The header argument may be nil",
-      "rationale": "Documents acceptable input",
-      "excerpt": "The header may be nil.",
+      "claim": "The header parameter may be nil",
+      "rationale": "Describes accepted input",
+      "excerpt": "The header may be nil",
       "symbol_ids": [
         "sym:go:doc/man_docs.go:GenManTree"
       ]
@@ -9295,7 +9251,7 @@
       "source_sha": "5e681ab5432641229d5b951b6a2ff475eff15889c0a628a4e3063bcc35e3feee",
       "severity": "context",
       "claim": "GenManTreeOptions is used only by GenManTreeFromOpts for man page generation",
-      "rationale": "Describes the scope/usage of the options struct",
+      "rationale": "Describes the scope of usage for the options struct",
       "excerpt": "GenManTreeOptions is the options for generating the man pages. Used only in GenManTreeFromOpts.",
       "symbol_ids": [
         "sym:go:doc/man_docs.go:GenManTreeFromOpts",
@@ -9307,8 +9263,8 @@
       "source_path": "doc/man_docs.go",
       "source_sha": "5e681ab5432641229d5b951b6a2ff475eff15889c0a628a4e3063bcc35e3feee",
       "severity": "context",
-      "claim": "Generated man pages are written to the opts.Path directory",
-      "rationale": "Describes output location for generated man pages",
+      "claim": "Generated man pages are written to the directory specified by opts.Path",
+      "rationale": "Describes output location behavior of the function",
       "excerpt": "The pages are written to the opts.Path directory.",
       "symbol_ids": [
         "sym:go:doc/man_docs.go:GenManTreeFromOpts"
@@ -9318,37 +9274,37 @@
       "source": "docstring:doc/md_docs.go",
       "source_path": "doc/md_docs.go",
       "source_sha": "7f20210c66ec5ed4421f33cbdf1aae75894274f3d1584817a5873f6103828cee",
+      "severity": "soft",
+      "claim": "Function may not work correctly when command names contain hyphens, due to filename collision ambiguity between nested subcommand paths",
+      "rationale": "Hyphenated command names can produce ambiguous output filenames where it is undefined which command's help is written to a given file",
+      "excerpt": "This function may not work correctly if your command names have `-` in them.",
+      "symbol_ids": [
+        "sym:go:doc/md_docs.go:GenMarkdownTree"
+      ]
+    },
+    {
+      "source": "docstring:doc/md_docs.go",
+      "source_path": "doc/md_docs.go",
+      "source_sha": "7f20210c66ec5ed4421f33cbdf1aae75894274f3d1584817a5873f6103828cee",
       "severity": "context",
-      "claim": "GenMarkdownTreeCustom mirrors GenMarkdownTree but accepts custom filePrepender and linkHandler",
-      "rationale": "Describes the relationship and customization points of the function variant",
+      "claim": "GenMarkdownTree generates a markdown page for the command and all descendants in the given directory",
+      "rationale": "Describes the function's purpose and scope",
+      "excerpt": "GenMarkdownTree will generate a markdown page for this command and all descendants in the directory given.",
+      "symbol_ids": [
+        "sym:go:doc/md_docs.go:GenMarkdownTree"
+      ]
+    },
+    {
+      "source": "docstring:doc/md_docs.go",
+      "source_path": "doc/md_docs.go",
+      "source_sha": "7f20210c66ec5ed4421f33cbdf1aae75894274f3d1584817a5873f6103828cee",
+      "severity": "context",
+      "claim": "GenMarkdownTreeCustom behaves like GenMarkdownTree but accepts custom filePrepender and linkHandler",
+      "rationale": "Describes the relationship and customization points of the function",
       "excerpt": "GenMarkdownTreeCustom is the same as GenMarkdownTree, but with custom filePrepender and linkHandler.",
       "symbol_ids": [
         "sym:go:doc/md_docs.go:GenMarkdownTree",
         "sym:go:doc/md_docs.go:GenMarkdownTreeCustom"
-      ]
-    },
-    {
-      "source": "docstring:doc/md_docs.go",
-      "source_path": "doc/md_docs.go",
-      "source_sha": "7f20210c66ec5ed4421f33cbdf1aae75894274f3d1584817a5873f6103828cee",
-      "severity": "context",
-      "claim": "Generates a markdown page for the command and all descendants in the given directory",
-      "rationale": "Describes the function's purpose and output location",
-      "excerpt": "GenMarkdownTree will generate a markdown page for this command and all descendants in the directory given",
-      "symbol_ids": [
-        "sym:go:doc/md_docs.go:GenMarkdownTree"
-      ]
-    },
-    {
-      "source": "docstring:doc/md_docs.go",
-      "source_path": "doc/md_docs.go",
-      "source_sha": "7f20210c66ec5ed4421f33cbdf1aae75894274f3d1584817a5873f6103828cee",
-      "severity": "soft",
-      "claim": "May not work correctly if command names contain '-'; collisions between hyphenated names and nested subcommands produce undefined output file assignment",
-      "rationale": "Hyphens in command names can cause filename collisions where it is undefined which help output ends up in which file",
-      "excerpt": "This function may not work correctly if your command names have `-` in them",
-      "symbol_ids": [
-        "sym:go:doc/md_docs.go:GenMarkdownTree"
       ]
     },
     {
@@ -9368,21 +9324,9 @@
       "source_path": "doc/rest_docs.go",
       "source_sha": "201b0d96f84c8dcd9d101071fb44680c0c2e466750a2e559ff9a977c593af385",
       "severity": "soft",
-      "claim": "Function may not work correctly when command names contain hyphens, due to filename collisions between nested subcommands",
-      "rationale": "Hyphens in command names create ambiguous output filenames (e.g., cmd-sub-third.1 could come from multiple command paths)",
-      "excerpt": "This function may not work correctly if your command names have `-` in them.",
-      "symbol_ids": [
-        "sym:go:doc/rest_docs.go:GenReSTTree"
-      ]
-    },
-    {
-      "source": "docstring:doc/rest_docs.go",
-      "source_path": "doc/rest_docs.go",
-      "source_sha": "201b0d96f84c8dcd9d101071fb44680c0c2e466750a2e559ff9a977c593af385",
-      "severity": "context",
-      "claim": "GenReSTTree generates a ReST page for the command and all descendants in the given directory",
-      "rationale": "Describes the function's purpose and output",
-      "excerpt": "GenReSTTree will generate a ReST page for this command and all descendants in the directory given.",
+      "claim": "Command names containing '-' may cause filename collisions and undefined output",
+      "rationale": "Subcommand names with dashes can produce identical output filenames, making it undefined which help output is written",
+      "excerpt": "This function may not work correctly if your command names have `-` in them",
       "symbol_ids": [
         "sym:go:doc/rest_docs.go:GenReSTTree"
       ]
@@ -9393,7 +9337,7 @@
       "source_sha": "201b0d96f84c8dcd9d101071fb44680c0c2e466750a2e559ff9a977c593af385",
       "severity": "context",
       "claim": "GenReSTTreeCustom mirrors GenReSTTree but accepts custom filePrepender and linkHandler",
-      "rationale": "Describes the relationship between the two functions and the customization points",
+      "rationale": "Documents the relationship between the two functions and the customization points",
       "excerpt": "GenReSTTreeCustom is the same as GenReSTTree, but with custom filePrepender and linkHandler.",
       "symbol_ids": [
         "sym:go:doc/rest_docs.go:GenReSTTree",
@@ -9401,15 +9345,15 @@
       ]
     },
     {
-      "source": "docstring:doc/yaml_docs.go",
-      "source_path": "doc/yaml_docs.go",
-      "source_sha": "4389a720d4f25fdd4832bf69d9f230a659b218cb56d45b73fd6fcdb335a65415",
+      "source": "docstring:doc/rest_docs.go",
+      "source_path": "doc/rest_docs.go",
+      "source_sha": "201b0d96f84c8dcd9d101071fb44680c0c2e466750a2e559ff9a977c593af385",
       "severity": "context",
-      "claim": "GenYamlTree generates yaml structured ref files for the command and all descendants into a given directory",
-      "rationale": "Describes the function's purpose and output structure",
-      "excerpt": "GenYamlTree creates yaml structured ref files for this command and all descendants in the directory given.",
+      "claim": "Generates a ReST page for the command and all descendants in the given directory",
+      "rationale": "Describes the function's purpose and output location",
+      "excerpt": "GenReSTTree will generate a ReST page for this command and all descendants in the directory given",
       "symbol_ids": [
-        "sym:go:doc/yaml_docs.go:GenYamlTree"
+        "sym:go:doc/rest_docs.go:GenReSTTree"
       ]
     },
     {
@@ -9417,8 +9361,8 @@
       "source_path": "doc/yaml_docs.go",
       "source_sha": "4389a720d4f25fdd4832bf69d9f230a659b218cb56d45b73fd6fcdb335a65415",
       "severity": "soft",
-      "claim": "GenYamlTree may produce undefined output when command names contain hyphens, due to filename collisions between nested subcommands and hyphenated names",
-      "rationale": "Hyphens in command names create ambiguous output filenames (e.g., cmd-sub-third.1 could refer to multiple command paths)",
+      "claim": "GenYamlTree may produce undefined output when command names contain hyphens, due to filename collisions between nested subcommands",
+      "rationale": "Hyphens in command names can collide with the hyphen-separated filename convention, making it ambiguous which command's help ends up in a given file",
       "excerpt": "This function may not work correctly if your command names have `-` in them.",
       "symbol_ids": [
         "sym:go:doc/yaml_docs.go:GenYamlTree"
@@ -9429,8 +9373,8 @@
       "source_path": "flag_groups.go",
       "source_sha": "13efd58bf023ce69992d1be06afd37d6ebd4e60ff48eb18c6db1ce883b7a64c9",
       "severity": "context",
-      "claim": "Flags marked mutually exclusive cause Cobra to error if more than one is provided at invocation",
-      "rationale": "Describes behavior of MarkFlagsMutuallyExclusive annotation mechanism",
+      "claim": "Marking flags as mutually exclusive causes Cobra to error if the command is invoked with more than one flag from the set",
+      "rationale": "Describes behavior of the mutual exclusion annotation mechanism",
       "excerpt": "Cobra errors if the command is invoked with more than one flag from the given set of flags",
       "symbol_ids": [
         "sym:go:flag_groups.go:(*Command).MarkFlagsMutuallyExclusive"
@@ -9441,8 +9385,8 @@
       "source_path": "flag_groups.go",
       "source_sha": "13efd58bf023ce69992d1be06afd37d6ebd4e60ff48eb18c6db1ce883b7a64c9",
       "severity": "context",
-      "claim": "MarkFlagsOneRequired causes Cobra to error if the command is invoked without at least one flag from the given set",
-      "rationale": "Describes the behavior of the function in enforcing that at least one flag from a group is provided",
+      "claim": "MarkFlagsOneRequired annotates flags so the command errors if invoked without at least one flag from the given set",
+      "rationale": "Describes the function's behavior in enforcing that at least one flag from a group is provided",
       "excerpt": "Cobra errors if the command is invoked without at least one flag from the given set of flags",
       "symbol_ids": [
         "sym:go:flag_groups.go:(*Command).MarkFlagsOneRequired"
@@ -9453,8 +9397,8 @@
       "source_path": "flag_groups.go",
       "source_sha": "13efd58bf023ce69992d1be06afd37d6ebd4e60ff48eb18c6db1ce883b7a64c9",
       "severity": "context",
-      "claim": "MarkFlagsRequiredTogether annotates flags so Cobra errors when only a subset of the group is provided",
-      "rationale": "Describes the behavior of the function: enforcing all-or-none flag usage",
+      "claim": "Flags marked together via MarkFlagsRequiredTogether cause Cobra to error if the command is invoked with a subset but not all of those flags",
+      "rationale": "Describes how the annotation enforces all-or-nothing flag usage",
       "excerpt": "marks the given flags with annotations so that Cobra errors if the command is invoked with a subset (but not all) of the given flags",
       "symbol_ids": [
         "sym:go:flag_groups.go:(*Command).MarkFlagsRequiredTogether"
@@ -9464,10 +9408,24 @@
       "source": "docstring:shell_completions.go",
       "source_path": "shell_completions.go",
       "source_sha": "f722f5f5ff7019c793ee5d81bb3099e3843e2c7de491e6bdc5b64984d9b9598e",
-      "severity": "context",
-      "claim": "MarkFlagCustom adds the BashCompCustom annotation to the named flag so the bash completion script calls function f",
-      "rationale": "Describes the mechanism by which MarkFlagCustom integrates with bash completion",
-      "excerpt": "MarkFlagCustom adds the BashCompCustom annotation to the named flag, if it exists. The bash completion script will call the bash function f for the flag.",
+      "severity": "soft",
+      "claim": "Prefer RegisterFlagCompletionFunc over MarkFlagCustom for cross-shell completion support",
+      "rationale": "MarkFlagCustom only works for bash, while RegisterFlagCompletionFunc works across all shells",
+      "excerpt": "It is recommended to instead use c.RegisterFlagCompletionFunc(...) which allows to register a Go function which will work across all shells.",
+      "symbol_ids": [
+        "sym:go:bash_completions.go:BashCompCustom",
+        "sym:go:shell_completions.go:(*Command).MarkFlagCustom",
+        "sym:go:shell_completions.go:MarkFlagCustom"
+      ]
+    },
+    {
+      "source": "docstring:shell_completions.go",
+      "source_path": "shell_completions.go",
+      "source_sha": "f722f5f5ff7019c793ee5d81bb3099e3843e2c7de491e6bdc5b64984d9b9598e",
+      "severity": "soft",
+      "claim": "Prefer RegisterFlagCompletionFunc over MarkFlagCustom for cross-shell completion support",
+      "rationale": "MarkFlagCustom only works for bash completion, while RegisterFlagCompletionFunc registers a Go function that works across all shells",
+      "excerpt": "It is recommended to instead use c.RegisterFlagCompletionFunc(...) which allows to register a Go function which will work across all shells.",
       "symbol_ids": [
         "sym:go:bash_completions.go:BashCompCustom",
         "sym:go:shell_completions.go:MarkFlagCustom"
@@ -9478,37 +9436,10 @@
       "source_path": "shell_completions.go",
       "source_sha": "f722f5f5ff7019c793ee5d81bb3099e3843e2c7de491e6bdc5b64984d9b9598e",
       "severity": "context",
-      "claim": "MarkFlagCustom only works for bash completion",
-      "rationale": "Limits applicability of this annotation to a single shell",
+      "claim": "MarkFlagCustom only functions with bash completion",
+      "rationale": "Limits applicability of the function to a single shell environment",
       "excerpt": "This will only work for bash completion.",
       "symbol_ids": [
-        "sym:go:bash_completions.go:BashCompCustom",
-        "sym:go:shell_completions.go:(*Command).MarkFlagCustom",
-        "sym:go:shell_completions.go:MarkFlagCustom"
-      ]
-    },
-    {
-      "source": "docstring:shell_completions.go",
-      "source_path": "shell_completions.go",
-      "source_sha": "f722f5f5ff7019c793ee5d81bb3099e3843e2c7de491e6bdc5b64984d9b9598e",
-      "severity": "soft",
-      "claim": "MarkFlagCustom only works for bash completion; prefer RegisterFlagCompletionFunc for cross-shell support",
-      "rationale": "RegisterFlagCompletionFunc allows registering a Go function that works across all shells, while MarkFlagCustom is bash-only",
-      "excerpt": "It is recommended to instead use c.RegisterFlagCompletionFunc(...) which allows to register a Go function which will work across all shells.",
-      "symbol_ids": [
-        "sym:go:bash_completions.go:BashCompCustom",
-        "sym:go:shell_completions.go:MarkFlagCustom"
-      ]
-    },
-    {
-      "source": "docstring:shell_completions.go",
-      "source_path": "shell_completions.go",
-      "source_sha": "f722f5f5ff7019c793ee5d81bb3099e3843e2c7de491e6bdc5b64984d9b9598e",
-      "severity": "soft",
-      "claim": "Prefer c.RegisterFlagCompletionFunc(...) over MarkFlagCustom to support all shells via a Go function",
-      "rationale": "Cross-shell compatibility through a Go-based completion function",
-      "excerpt": "It is recommended to instead use c.RegisterFlagCompletionFunc(...) which allows to register a Go function which will work across all shells.",
-      "symbol_ids": [
         "sym:go:shell_completions.go:(*Command).MarkFlagCustom",
         "sym:go:shell_completions.go:MarkFlagCustom"
       ]
@@ -9518,8 +9449,8 @@
       "source_path": "shell_completions.go",
       "source_sha": "f722f5f5ff7019c793ee5d81bb3099e3843e2c7de491e6bdc5b64984d9b9598e",
       "severity": "context",
-      "claim": "MarkFlagFilename limits shell completion for a named flag to specified file extensions",
-      "rationale": "Describes the function's behavior in coordinating with shell completion implementations",
+      "claim": "MarkFlagFilename limits shell completion suggestions for the named flag to the specified file extensions",
+      "rationale": "Describes the function's purpose for shell completion integration",
       "excerpt": "MarkFlagFilename instructs the various shell completion implementations to limit completions for the named flag to the specified file extensions.",
       "symbol_ids": [
         "sym:go:shell_completions.go:(*Command).MarkFlagFilename",
@@ -9531,9 +9462,9 @@
       "source_path": "shell_completions.go",
       "source_sha": "f722f5f5ff7019c793ee5d81bb3099e3843e2c7de491e6bdc5b64984d9b9598e",
       "severity": "context",
-      "claim": "MarkFlagRequired causes the command to report an error if invoked without the named flag and prioritizes it in shell completion",
-      "rationale": "Describes the behavior of the function for callers deciding when to use it",
-      "excerpt": "instructs the various shell completion implementations to prioritize the named flag when performing completion, and causes your command to report an error if invoked without the flag",
+      "claim": "MarkFlagRequired prioritizes the named flag in shell completions and causes the command to error if invoked without it",
+      "rationale": "Describes the behavior of the function for callers deciding whether to use it",
+      "excerpt": "MarkFlagRequired instructs the various shell completion implementations to prioritize the named flag when performing completion, and causes your command to report an error if invoked without the flag.",
       "symbol_ids": [
         "sym:go:shell_completions.go:(*Command).MarkFlagRequired",
         "sym:go:shell_completions.go:MarkFlagRequired"
@@ -9544,8 +9475,8 @@
       "source_path": "shell_completions.go",
       "source_sha": "f722f5f5ff7019c793ee5d81bb3099e3843e2c7de491e6bdc5b64984d9b9598e",
       "severity": "context",
-      "claim": "Limits shell completion for the named persistent flag to directory names",
-      "rationale": "Describes the behavior of the function for shell completion integration",
+      "claim": "MarkPersistentFlagDirname limits shell completions for the named persistent flag to directory names",
+      "rationale": "Describes the function's effect on shell completion behavior",
       "excerpt": "instructs the various shell completion implementations to limit completions for the named persistent flag to directory names",
       "symbol_ids": [
         "sym:go:shell_completions.go:(*Command).MarkPersistentFlagDirname"
@@ -9556,7 +9487,7 @@
       "source_path": "shell_completions.go",
       "source_sha": "f722f5f5ff7019c793ee5d81bb3099e3843e2c7de491e6bdc5b64984d9b9598e",
       "severity": "context",
-      "claim": "Limits shell completion suggestions for a named persistent flag to specified file extensions",
+      "claim": "MarkPersistentFlagFilename limits shell completion for the named persistent flag to specified file extensions",
       "rationale": "Describes the function's effect on shell completion behavior",
       "excerpt": "MarkPersistentFlagFilename instructs the various shell completion implementations to limit completions for the named persistent flag to the specified file extensions.",
       "symbol_ids": [
@@ -9568,9 +9499,9 @@
       "source_path": "shell_completions.go",
       "source_sha": "f722f5f5ff7019c793ee5d81bb3099e3843e2c7de491e6bdc5b64984d9b9598e",
       "severity": "context",
-      "claim": "Marking a persistent flag as required causes shell completions to prioritize it and the command to error if invoked without the flag",
-      "rationale": "Describes the behavior of MarkPersistentFlagRequired for completion prioritization and required-flag enforcement",
-      "excerpt": "MarkPersistentFlagRequired instructs the various shell completion implementations to prioritize the named persistent flag when performing completion, and causes your command to report an error if invoked without the flag.",
+      "claim": "Marking a persistent flag as required causes the command to error if invoked without that flag and prioritizes it in shell completion",
+      "rationale": "Describes the behavior of MarkPersistentFlagRequired, including completion prioritization and required-flag enforcement",
+      "excerpt": "instructs the various shell completion implementations to prioritize the named persistent flag when performing completion, and causes your command to report an error if invoked without the flag",
       "symbol_ids": [
         "sym:go:shell_completions.go:(*Command).MarkPersistentFlagRequired"
       ]
@@ -9580,8 +9511,20 @@
       "source_path": "shell_completions.go",
       "source_sha": "f722f5f5ff7019c793ee5d81bb3099e3843e2c7de491e6bdc5b64984d9b9598e",
       "severity": "context",
-      "claim": "MarkFlagFilename limits shell completion suggestions for a named flag to specified file extensions",
-      "rationale": "Describes the function's purpose for shell completion integration",
+      "claim": "MarkFlagCustom only functions for bash completion",
+      "rationale": "Limits applicability of the annotation to a single shell",
+      "excerpt": "This will only work for bash completion.",
+      "symbol_ids": [
+        "sym:go:shell_completions.go:MarkFlagCustom"
+      ]
+    },
+    {
+      "source": "docstring:shell_completions.go",
+      "source_path": "shell_completions.go",
+      "source_sha": "f722f5f5ff7019c793ee5d81bb3099e3843e2c7de491e6bdc5b64984d9b9598e",
+      "severity": "context",
+      "claim": "MarkFlagFilename limits shell completion suggestions for the named flag to specified file extensions",
+      "rationale": "Describes the function's purpose for shell completion behavior",
       "excerpt": "MarkFlagFilename instructs the various shell completion implementations to limit completions for the named flag to the specified file extensions.",
       "symbol_ids": [
         "sym:go:shell_completions.go:MarkFlagFilename"
@@ -9592,9 +9535,9 @@
       "source_path": "shell_completions.go",
       "source_sha": "f722f5f5ff7019c793ee5d81bb3099e3843e2c7de491e6bdc5b64984d9b9598e",
       "severity": "context",
-      "claim": "MarkFlagRequired prioritizes the named flag in shell completion and causes the command to error if invoked without it",
+      "claim": "MarkFlagRequired causes the command to report an error if invoked without the flag and signals shell completion to prioritize it",
       "rationale": "Describes the behavior of the function for callers",
-      "excerpt": "MarkFlagRequired instructs the various shell completion implementations to prioritize the named flag when performing completion, and causes your command to report an error if invoked without the flag.",
+      "excerpt": "instructs the various shell completion implementations to prioritize the named flag when performing completion, and causes your command to report an error if invoked without the flag",
       "symbol_ids": [
         "sym:go:shell_completions.go:MarkFlagRequired"
       ]
@@ -9604,8 +9547,8 @@
       "source_path": "zsh_completions.go",
       "source_sha": "4162ecfe4536e58dbe4f3c205b0bd17eb05f06cc74b2efdd9aae07cbdbc2ac94",
       "severity": "context",
-      "claim": "Use ValidArgsFunction with ShellCompDirectiveFilterFileExt to achieve file extension filtering",
-      "rationale": "Documented replacement mechanism for file extension filtering",
+      "claim": "Use ValidArgsFunction with ShellCompDirectiveFilterFileExt for file extension filtering.",
+      "rationale": "Documents the replacement mechanism for file extension filtering.",
       "excerpt": "To achieve file extension filtering, one can use ValidArgsFunction and ShellCompDirectiveFilterFileExt",
       "symbol_ids": [
         "sym:go:completions.go:ShellCompDirectiveFilterFileExt",
@@ -9617,8 +9560,8 @@
       "source_path": "zsh_completions.go",
       "source_sha": "4162ecfe4536e58dbe4f3c205b0bd17eb05f06cc74b2efdd9aae07cbdbc2ac94",
       "severity": "context",
-      "claim": "Use ValidArgsFunction with ShellCompDirectiveNoFileComp to disable file completion per-argument",
-      "rationale": "Documented replacement mechanism for disabling file completion",
+      "claim": "Use ValidArgsFunction with ShellCompDirectiveNoFileComp to disable file completion per-argument.",
+      "rationale": "Documents the replacement mechanism for disabling file completion.",
       "excerpt": "One can disable file completion on a per-argument basis by using ValidArgsFunction and ShellCompDirectiveNoFileComp",
       "symbol_ids": [
         "sym:go:completions.go:ShellCompDirectiveNoFileComp",
@@ -9630,8 +9573,8 @@
       "source_path": "zsh_completions.go",
       "source_sha": "4162ecfe4536e58dbe4f3c205b0bd17eb05f06cc74b2efdd9aae07cbdbc2ac94",
       "severity": "context",
-      "claim": "File completion is done by default for every argument when no other completion is specified",
-      "rationale": "Describes the new default behavior replacing the deprecated function",
+      "claim": "File completion is performed by default for every argument when no other completion is specified.",
+      "rationale": "Describes the default completion behavior replacing the deprecated function.",
       "excerpt": "when no other completion is specified, file completion is done by default for every argument",
       "symbol_ids": [
         "sym:go:zsh_completions.go:(*Command).MarkZshCompPositionalArgumentFile"
@@ -9642,8 +9585,8 @@
       "source_path": "zsh_completions.go",
       "source_sha": "4162ecfe4536e58dbe4f3c205b0bd17eb05f06cc74b2efdd9aae07cbdbc2ac94",
       "severity": "hard",
-      "claim": "MarkZshCompPositionalArgumentFile is deprecated and disabled",
-      "rationale": "It only worked for zsh and was inconsistent with Bash completion",
+      "claim": "MarkZshCompPositionalArgumentFile is deprecated and disabled.",
+      "rationale": "It only worked for zsh and was inconsistent with Bash completion behavior.",
       "excerpt": "MarkZshCompPositionalArgumentFile only worked for zsh and its behavior was not consistent with Bash completion. It has therefore been disabled.",
       "symbol_ids": [
         "sym:go:zsh_completions.go:(*Command).MarkZshCompPositionalArgumentFile"
@@ -9654,9 +9597,21 @@
       "source_path": "zsh_completions.go",
       "source_sha": "4162ecfe4536e58dbe4f3c205b0bd17eb05f06cc74b2efdd9aae07cbdbc2ac94",
       "severity": "hard",
-      "claim": "MarkZshCompPositionalArgumentWords is deprecated and disabled; use ValidArgs (first arg only) or ValidArgsFunction (any arg) for cross-shell behavior",
-      "rationale": "It only worked for zsh and has been disabled, so consumers must migrate to alternatives that work across all shells",
-      "excerpt": "MarkZshCompPositionalArgumentWords only worked for zsh. It has therefore been disabled. To achieve the same behavior across all shells, one can use ValidArgs (for the first argument only) or ValidArgsFunction for any argument",
+      "claim": "MarkZshCompPositionalArgumentWords is deprecated and disabled because it only worked for zsh",
+      "rationale": "It has been disabled and marked Deprecated; cross-shell behavior should be achieved via ValidArgs or ValidArgsFunction",
+      "excerpt": "MarkZshCompPositionalArgumentWords only worked for zsh. It has therefore been disabled.",
+      "symbol_ids": [
+        "sym:go:zsh_completions.go:(*Command).MarkZshCompPositionalArgumentWords"
+      ]
+    },
+    {
+      "source": "docstring:zsh_completions.go",
+      "source_path": "zsh_completions.go",
+      "source_sha": "4162ecfe4536e58dbe4f3c205b0bd17eb05f06cc74b2efdd9aae07cbdbc2ac94",
+      "severity": "soft",
+      "claim": "Use ValidArgs (first argument only) or ValidArgsFunction (any argument) as the cross-shell replacement",
+      "rationale": "Provides portable equivalents to the deprecated zsh-only mechanism",
+      "excerpt": "To achieve the same behavior across all shells, one can use ValidArgs (for the first argument only) or ValidArgsFunction for any argument",
       "symbol_ids": [
         "sym:go:zsh_completions.go:(*Command).MarkZshCompPositionalArgumentWords"
       ]

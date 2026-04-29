@@ -1,10 +1,10 @@
 {
-  "version": "1.1",
-  "generated_at": "2026-04-27T19:56:27.496Z",
+  "version": "1.3",
+  "generated_at": "2026-04-29T03:33:55.658Z",
   "extracted_at_sha": "cf2d2b7edcf07adef2db7614557f4d7f9e2be7ba",
   "generator": {
-    "contextatlas_version": "0.0.1",
-    "contextatlas_commit_sha": "4308de5574f332626e0a09e91727f072aee9194b",
+    "contextatlas_version": "0.0.1-benchmark",
+    "contextatlas_commit_sha": "212569e414e10a83534af034325007cca34ff929",
     "extraction_model": "claude-opus-4-7"
   },
   "source_shas": {
@@ -37,6 +37,200 @@
     "benchmarks/jsx/src/react-jsx/react.ts": "78f78f0721a6439d31e975cf4d44d2544d9a7ec82bf61632c01a2d763fd245ae",
     "benchmarks/jsx/src/react.ts": "8435b8fb5f6cec7da89f9e8423708650aad43fc81a96ad72ad629ced1584f069",
     "benchmarks/utils/src/get-path.ts": "d8816c5490ec5daf247ab7db52cc03068b640b1433c62220ccca9277687ad862",
+    "commit:007e145eec73ed16e466a1a84395c488c9744cff": "007e145eec73ed16e466a1a84395c488c9744cff",
+    "commit:029cf71303c1633a7d70d3296c192ae0b46e152d": "029cf71303c1633a7d70d3296c192ae0b46e152d",
+    "commit:0370cac372aee2997dcb2ad1e4d89120e6d13326": "0370cac372aee2997dcb2ad1e4d89120e6d13326",
+    "commit:039cac90eaa915edd920a1f2b66fc78e41208b5c": "039cac90eaa915edd920a1f2b66fc78e41208b5c",
+    "commit:03fc36f7931bcff3f2e1b50d1f6029d39ddcbee4": "03fc36f7931bcff3f2e1b50d1f6029d39ddcbee4",
+    "commit:04e5897b7d37fbdc5cbdaf3bd8fbe9bc6c1a8a1b": "04e5897b7d37fbdc5cbdaf3bd8fbe9bc6c1a8a1b",
+    "commit:05747404e8b27f570f98f1d7fb8bee0bf5480926": "05747404e8b27f570f98f1d7fb8bee0bf5480926",
+    "commit:06fcf687f5233ad5dfb546ab4f4dbe68c9658675": "06fcf687f5233ad5dfb546ab4f4dbe68c9658675",
+    "commit:0735e0cc5690aef555cc251c9a5647dfc11adb34": "0735e0cc5690aef555cc251c9a5647dfc11adb34",
+    "commit:0800accacdc489cd2faad151077e1fdd74bca10b": "0800accacdc489cd2faad151077e1fdd74bca10b",
+    "commit:0802633e7b97e5ce38c1f37b5a1669501cde0484": "0802633e7b97e5ce38c1f37b5a1669501cde0484",
+    "commit:0a4c7bb6c5d0e9bd5f436486215482813fe3ef5b": "0a4c7bb6c5d0e9bd5f436486215482813fe3ef5b",
+    "commit:0a6afc2c74a273b04ec9ce2e31056577d2abd1b7": "0a6afc2c74a273b04ec9ce2e31056577d2abd1b7",
+    "commit:0a974ffeb63c10e3de91965d8d87b2dc3c986288": "0a974ffeb63c10e3de91965d8d87b2dc3c986288",
+    "commit:0af31fa5c3fbc64d191cf243528c8ff763495e4a": "0af31fa5c3fbc64d191cf243528c8ff763495e4a",
+    "commit:0b59827ada2c2821e3a52586316211558d41d0a2": "0b59827ada2c2821e3a52586316211558d41d0a2",
+    "commit:0e8f26ad2fc20169865dbd2dca7bc592e6910d6b": "0e8f26ad2fc20169865dbd2dca7bc592e6910d6b",
+    "commit:1282473f85e2a0648331b94507c3ae019beed4a4": "1282473f85e2a0648331b94507c3ae019beed4a4",
+    "commit:15938b489610ace2631cd84ef168416832f886da": "15938b489610ace2631cd84ef168416832f886da",
+    "commit:16adde746be3a76a6d450eebb118b87db9ec37d3": "16adde746be3a76a6d450eebb118b87db9ec37d3",
+    "commit:17e4455f1fb5b618764c40301a03b36d9fee77c7": "17e4455f1fb5b618764c40301a03b36d9fee77c7",
+    "commit:190e122180dda4b51e46cbe21a301ccbec1b1f3d": "190e122180dda4b51e46cbe21a301ccbec1b1f3d",
+    "commit:190f6e28e2ca85ce3d1f2f54db1310f5f3eab134": "190f6e28e2ca85ce3d1f2f54db1310f5f3eab134",
+    "commit:1a5a42654b0445fafbe94344e9a95181b2ac0623": "1a5a42654b0445fafbe94344e9a95181b2ac0623",
+    "commit:1af7e58ae03608e17fb0a08a70a1efe2a3121d7d": "1af7e58ae03608e17fb0a08a70a1efe2a3121d7d",
+    "commit:1da43aee3be0ed2a991ee7199a32ed3ad4ad8fe5": "1da43aee3be0ed2a991ee7199a32ed3ad4ad8fe5",
+    "commit:1db161e34392f840099bc32ef651ad1da2abf07f": "1db161e34392f840099bc32ef651ad1da2abf07f",
+    "commit:1eb49b8d9606195631c4f14dab6ea50bf8909848": "1eb49b8d9606195631c4f14dab6ea50bf8909848",
+    "commit:224ec367f3915dc24cdf3493e0030b8b0231ed72": "224ec367f3915dc24cdf3493e0030b8b0231ed72",
+    "commit:22b5f532b47d5e7e6d22dd843d0586b390f81a51": "22b5f532b47d5e7e6d22dd843d0586b390f81a51",
+    "commit:2333706d28c84d314f7fe596565b841e4e93778d": "2333706d28c84d314f7fe596565b841e4e93778d",
+    "commit:23d96a9b0817b44a62c68ab8928dc4ae956b75d9": "23d96a9b0817b44a62c68ab8928dc4ae956b75d9",
+    "commit:27521e68c2a0793daab82c26879b2d46e272491b": "27521e68c2a0793daab82c26879b2d46e272491b",
+    "commit:2a24b98e55d17a9cf0e12cf243463d0db3d48c72": "2a24b98e55d17a9cf0e12cf243463d0db3d48c72",
+    "commit:2af8f2c5d1e990fd8cdaba2993b117421bc17991": "2af8f2c5d1e990fd8cdaba2993b117421bc17991",
+    "commit:2e3919aa4c8856ad10573c8c6a90ef4188c33b6d": "2e3919aa4c8856ad10573c8c6a90ef4188c33b6d",
+    "commit:3179adc1c243aaff00a8134e026c594c0118350e": "3179adc1c243aaff00a8134e026c594c0118350e",
+    "commit:32ba5ba8360e0b8e1cb2b681af22469a9a3f7175": "32ba5ba8360e0b8e1cb2b681af22469a9a3f7175",
+    "commit:336afc812d7a8c536def4cea6d3e375f2fdef9c7": "336afc812d7a8c536def4cea6d3e375f2fdef9c7",
+    "commit:34514bc560207988ee4db7b2b94e506f0bf34d64": "34514bc560207988ee4db7b2b94e506f0bf34d64",
+    "commit:37df3dd7d396f116c201bc486ac8edc4acf0b36b": "37df3dd7d396f116c201bc486ac8edc4acf0b36b",
+    "commit:394aea104c3c2119d0bf08a1ac4eb746146052d8": "394aea104c3c2119d0bf08a1ac4eb746146052d8",
+    "commit:397c12e18139f8aed48c3803aabf5f90e22f0c7a": "397c12e18139f8aed48c3803aabf5f90e22f0c7a",
+    "commit:3a7259bec224addb33c49496c3944a3bdb21ddcc": "3a7259bec224addb33c49496c3944a3bdb21ddcc",
+    "commit:3aad86c78c06522aa7cd149ebb5ac20e68135158": "3aad86c78c06522aa7cd149ebb5ac20e68135158",
+    "commit:3d6820b46e51622435aeb0cacc6434d722581aa2": "3d6820b46e51622435aeb0cacc6434d722581aa2",
+    "commit:3fecc045e448be2f2a7d6ef2f4b7dc45b6e0a6dd": "3fecc045e448be2f2a7d6ef2f4b7dc45b6e0a6dd",
+    "commit:413c936c602bc793d3262beb74878253b9c5e0e4": "413c936c602bc793d3262beb74878253b9c5e0e4",
+    "commit:41ee1bba727fff0d8e096e8c5f602b13e64af1c0": "41ee1bba727fff0d8e096e8c5f602b13e64af1c0",
+    "commit:45d612d641d112fd024675c47806f30ed50ac36e": "45d612d641d112fd024675c47806f30ed50ac36e",
+    "commit:473a6f09991c4b400f05c66bfd953f577c2fda58": "473a6f09991c4b400f05c66bfd953f577c2fda58",
+    "commit:48d2adcf73a257b6c991ce1479b521777921ec37": "48d2adcf73a257b6c991ce1479b521777921ec37",
+    "commit:49025e0aad32c9455611518a9a0577e19d4d447e": "49025e0aad32c9455611518a9a0577e19d4d447e",
+    "commit:49ce5376846bc7eba14104764cfbbe71ea809a3a": "49ce5376846bc7eba14104764cfbbe71ea809a3a",
+    "commit:49ffd5115302b9d0898b0b4b627ebb3a9686ca47": "49ffd5115302b9d0898b0b4b627ebb3a9686ca47",
+    "commit:4a173c947d014b7049843e01106d5bf40f35a76b": "4a173c947d014b7049843e01106d5bf40f35a76b",
+    "commit:4a9cd272f8e8ca9bb5b959e34604aa35de03ccd5": "4a9cd272f8e8ca9bb5b959e34604aa35de03ccd5",
+    "commit:4b39eba6182be6f64036060586c4de2120061361": "4b39eba6182be6f64036060586c4de2120061361",
+    "commit:4bf923746e2353f4c18de720a84abf6226420eee": "4bf923746e2353f4c18de720a84abf6226420eee",
+    "commit:4e38e132288e43fe80b1a97618dbd038270543e1": "4e38e132288e43fe80b1a97618dbd038270543e1",
+    "commit:4ea7c99d4153352d9dbe43eff088f3e898dbb4a9": "4ea7c99d4153352d9dbe43eff088f3e898dbb4a9",
+    "commit:500fcaa9e1e2968b33b7c10c3cede5cfd892bfa0": "500fcaa9e1e2968b33b7c10c3cede5cfd892bfa0",
+    "commit:5125c780f0c2bb6d353379a70e7d65951355e36c": "5125c780f0c2bb6d353379a70e7d65951355e36c",
+    "commit:51264492269c0f842697736825e47903ae868bca": "51264492269c0f842697736825e47903ae868bca",
+    "commit:563aeec9be0fdceaa154ee6c6d46e1a29e56f047": "563aeec9be0fdceaa154ee6c6d46e1a29e56f047",
+    "commit:58127d7fea361a65607dff8c9c5cc2b73a6abe47": "58127d7fea361a65607dff8c9c5cc2b73a6abe47",
+    "commit:5976a60232fba7d436fd308723ff141791541ec6": "5976a60232fba7d436fd308723ff141791541ec6",
+    "commit:5b29d4235eca41e2a2bc705d6955d23483dd7957": "5b29d4235eca41e2a2bc705d6955d23483dd7957",
+    "commit:5be46992bcc3a1601be795e0618d41c2ddf066e0": "5be46992bcc3a1601be795e0618d41c2ddf066e0",
+    "commit:5cb8cd343545831b9fe2d2db0c93ecbddf7dd8ea": "5cb8cd343545831b9fe2d2db0c93ecbddf7dd8ea",
+    "commit:5fa31858be0441cad67a2b1c5f5553ee513353bc": "5fa31858be0441cad67a2b1c5f5553ee513353bc",
+    "commit:60d811558eb247c25e058de0b57370a6639cce95": "60d811558eb247c25e058de0b57370a6639cce95",
+    "commit:60df36b294b552e87c0382b3b50d603c0297c625": "60df36b294b552e87c0382b3b50d603c0297c625",
+    "commit:61bee9f65115771c307519a1dee1281365850b45": "61bee9f65115771c307519a1dee1281365850b45",
+    "commit:6561c5e4e6cc4bd74c9ea6f4da5f84e73db73e49": "6561c5e4e6cc4bd74c9ea6f4da5f84e73db73e49",
+    "commit:65921824da777284226ed3a4ea84b17939dd86ba": "65921824da777284226ed3a4ea84b17939dd86ba",
+    "commit:65edaf277a2dd3bb47406379904996ffdd3563e5": "65edaf277a2dd3bb47406379904996ffdd3563e5",
+    "commit:68808453d5a91fe32a55a8f30e42d95b6962523a": "68808453d5a91fe32a55a8f30e42d95b6962523a",
+    "commit:68cbbbcde7dafc1d7fddd29484972765b47b409b": "68cbbbcde7dafc1d7fddd29484972765b47b409b",
+    "commit:6a7746de7dfc1d1e98286aeeaabd674774453100": "6a7746de7dfc1d1e98286aeeaabd674774453100",
+    "commit:6b7a96f8487fc1ed75750d3bb908a67c9e2df00d": "6b7a96f8487fc1ed75750d3bb908a67c9e2df00d",
+    "commit:6bee574ca35cc98646be2a63ca77053c633f8f59": "6bee574ca35cc98646be2a63ca77053c633f8f59",
+    "commit:6de098533eb12d80d864e229054fe746378678a0": "6de098533eb12d80d864e229054fe746378678a0",
+    "commit:71f5a0123ae0e65ad446014de9dac2c9d0070c88": "71f5a0123ae0e65ad446014de9dac2c9d0070c88",
+    "commit:7217a50feec1bb777a0807b2003651e0ddd12ebc": "7217a50feec1bb777a0807b2003651e0ddd12ebc",
+    "commit:733f05c21c44b1e0fb1d235c82569d4ca4b43749": "733f05c21c44b1e0fb1d235c82569d4ca4b43749",
+    "commit:7593e75aca1962a406f07c9dfbeb9bf84c0c0816": "7593e75aca1962a406f07c9dfbeb9bf84c0c0816",
+    "commit:763c0dab37a37944ad40596e9d8c5f6ba232c3f8": "763c0dab37a37944ad40596e9d8c5f6ba232c3f8",
+    "commit:798425a17d5e06b6b7c0b0082c7ee3b5a4137271": "798425a17d5e06b6b7c0b0082c7ee3b5a4137271",
+    "commit:7b308358f4024283bc95265a60ac518db8870106": "7b308358f4024283bc95265a60ac518db8870106",
+    "commit:7b505b0ac0170adb26200daee6b7dffa894cf5ba": "7b505b0ac0170adb26200daee6b7dffa894cf5ba",
+    "commit:7b83a89dd743e40daf85e55950f21ccb012c4232": "7b83a89dd743e40daf85e55950f21ccb012c4232",
+    "commit:7cf7432216ec2cc36bc5283a92a5a8f481900673": "7cf7432216ec2cc36bc5283a92a5a8f481900673",
+    "commit:7e113f30cc90406acf46cb1b6188b8996372470b": "7e113f30cc90406acf46cb1b6188b8996372470b",
+    "commit:7eb3e3b281a169cc48630864a1c770cf19275428": "7eb3e3b281a169cc48630864a1c770cf19275428",
+    "commit:7efda2e32ff8c89769a2004eda26c3ca3236705a": "7efda2e32ff8c89769a2004eda26c3ca3236705a",
+    "commit:85f8ab663f9a5e72bab68d2e4b0849c59982f602": "85f8ab663f9a5e72bab68d2e4b0849c59982f602",
+    "commit:8627010094eae1122d703b293f5629acf1b3632f": "8627010094eae1122d703b293f5629acf1b3632f",
+    "commit:8879f241e895ab5229baa40d12144817ca1aa3d3": "8879f241e895ab5229baa40d12144817ca1aa3d3",
+    "commit:8893e5c92ca9f450f6a335261ff4838a3a63c863": "8893e5c92ca9f450f6a335261ff4838a3a63c863",
+    "commit:88f2983c104a1ef4d29311ae9848e46abab08d88": "88f2983c104a1ef4d29311ae9848e46abab08d88",
+    "commit:8a1b9aa9a8c7c0e0dbdc3152616bad1f9683f51f": "8a1b9aa9a8c7c0e0dbdc3152616bad1f9683f51f",
+    "commit:8a1d8fb24b34995c024f26bd11dbfe9161c5e4f3": "8a1d8fb24b34995c024f26bd11dbfe9161c5e4f3",
+    "commit:8b0f189a3fabdb2b70507c37f3df61eb85890f52": "8b0f189a3fabdb2b70507c37f3df61eb85890f52",
+    "commit:8c5463f62b283a59e674e16de1c6a88445c0a2ba": "8c5463f62b283a59e674e16de1c6a88445c0a2ba",
+    "commit:8ea833a7d0a668d1b23a80ba682d2c182f2ceb15": "8ea833a7d0a668d1b23a80ba682d2c182f2ceb15",
+    "commit:8ef9b7bb50c8b498aae44d8481ef915aebb5a6b3": "8ef9b7bb50c8b498aae44d8481ef915aebb5a6b3",
+    "commit:8fe7fee51631491a6d3985eb073e1b20e8a77164": "8fe7fee51631491a6d3985eb073e1b20e8a77164",
+    "commit:91af6d3007425803bee701a3ade23927e9901eff": "91af6d3007425803bee701a3ade23927e9901eff",
+    "commit:91c04ac073c287f20e05b48e00e7236133641850": "91c04ac073c287f20e05b48e00e7236133641850",
+    "commit:924408b463d94f371f4107c56d73f57636d9fbe9": "924408b463d94f371f4107c56d73f57636d9fbe9",
+    "commit:93fec337d030a3321f74b35a17a144837bef9086": "93fec337d030a3321f74b35a17a144837bef9086",
+    "commit:944dfc2e13cb3a9e51a3adec436dfe8bda69ff6d": "944dfc2e13cb3a9e51a3adec436dfe8bda69ff6d",
+    "commit:9540e69aef53e2a1da5720441e16417e778d1b24": "9540e69aef53e2a1da5720441e16417e778d1b24",
+    "commit:95ae4d372119cddba32e4935d2bbc6f4e2768dab": "95ae4d372119cddba32e4935d2bbc6f4e2768dab",
+    "commit:96aa3f12dd88638e06c3bf31ee44c86958391316": "96aa3f12dd88638e06c3bf31ee44c86958391316",
+    "commit:9958019d13e379d363fef4ec00d9986e31b00c94": "9958019d13e379d363fef4ec00d9986e31b00c94",
+    "commit:9987081fe0738695de17225a0dd6b68c8d8ae652": "9987081fe0738695de17225a0dd6b68c8d8ae652",
+    "commit:9bb662922b528d54e8e84a57b433f6b699ac7cc0": "9bb662922b528d54e8e84a57b433f6b699ac7cc0",
+    "commit:9f2a270c282ff6f23d813fcc87ab3c7e46df94ff": "9f2a270c282ff6f23d813fcc87ab3c7e46df94ff",
+    "commit:a1d21329ea73f69cbee6d6da74043c3320b90809": "a1d21329ea73f69cbee6d6da74043c3320b90809",
+    "commit:a2d0417fa3bd2720f4dac1d386573fe23863b277": "a2d0417fa3bd2720f4dac1d386573fe23863b277",
+    "commit:a2ec84866b21fe830d88ebb5f69e32b3bdfe71fc": "a2ec84866b21fe830d88ebb5f69e32b3bdfe71fc",
+    "commit:a3d9cc7d9593b717986f81014892303d0f5b8846": "a3d9cc7d9593b717986f81014892303d0f5b8846",
+    "commit:a3e0eb2cc1682104ccf2712ab132dc6e62f23447": "a3e0eb2cc1682104ccf2712ab132dc6e62f23447",
+    "commit:a44d888bf05d3607baec2a3add629ccb823082f7": "a44d888bf05d3607baec2a3add629ccb823082f7",
+    "commit:a5be555b3163236909f5699f783bbd03e28ea226": "a5be555b3163236909f5699f783bbd03e28ea226",
+    "commit:a66296bf284d72df1d63814d472d567b562124fe": "a66296bf284d72df1d63814d472d567b562124fe",
+    "commit:a7ad89ccef16a137a7ae93495bfd6628d3bea717": "a7ad89ccef16a137a7ae93495bfd6628d3bea717",
+    "commit:ab7144871b6f4f61cf19b0307be941ccc2d94ab8": "ab7144871b6f4f61cf19b0307be941ccc2d94ab8",
+    "commit:ac713c065924d30b0943ec28a107541057eb363c": "ac713c065924d30b0943ec28a107541057eb363c",
+    "commit:ad04fbff1c46c3f4c78191c8956657cdcab6f7f5": "ad04fbff1c46c3f4c78191c8956657cdcab6f7f5",
+    "commit:adc9cf80cf5a00f17517b20581708a2b1af596a0": "adc9cf80cf5a00f17517b20581708a2b1af596a0",
+    "commit:ae6165b99440dce8f8839b6e85e9d4c3ed7b2c42": "ae6165b99440dce8f8839b6e85e9d4c3ed7b2c42",
+    "commit:ae99d86d8916f44990e5ea52fb619339d12fed58": "ae99d86d8916f44990e5ea52fb619339d12fed58",
+    "commit:b0b6f7f8a3e82f9725e9d26aecede3827252102d": "b0b6f7f8a3e82f9725e9d26aecede3827252102d",
+    "commit:b0cac62cf1aa73ff3962dea52675b377c6749036": "b0cac62cf1aa73ff3962dea52675b377c6749036",
+    "commit:b1335f9fb296cfa4b947367bbad0512c7739c5f5": "b1335f9fb296cfa4b947367bbad0512c7739c5f5",
+    "commit:b41b1ebdeec3abc3dab1f2d837161deac881df02": "b41b1ebdeec3abc3dab1f2d837161deac881df02",
+    "commit:b49e557e5b4facf44cb745d663d75c610d2930c3": "b49e557e5b4facf44cb745d663d75c610d2930c3",
+    "commit:b546fd6984265912e5e2f8d4961410a3c76ea0f0": "b546fd6984265912e5e2f8d4961410a3c76ea0f0",
+    "commit:b55eb2e661128f4f962bcfce52fbae1d0d4f553a": "b55eb2e661128f4f962bcfce52fbae1d0d4f553a",
+    "commit:b567a574d63bd93378a803de7a0574b9dc0baa70": "b567a574d63bd93378a803de7a0574b9dc0baa70",
+    "commit:b6133c41306f955bf1b3bcadbd3302a0c065c36a": "b6133c41306f955bf1b3bcadbd3302a0c065c36a",
+    "commit:b7d72fd6dcb073354b598bc28392c1c7fff65e5f": "b7d72fd6dcb073354b598bc28392c1c7fff65e5f",
+    "commit:b88087b3f9729e3091beab931be437a7ac63e462": "b88087b3f9729e3091beab931be437a7ac63e462",
+    "commit:b9227b890c7f9b1d2513cd1cf75da5c8ea3e0076": "b9227b890c7f9b1d2513cd1cf75da5c8ea3e0076",
+    "commit:bbdc64bf5506dacaec8040a6e14b43677674f36e": "bbdc64bf5506dacaec8040a6e14b43677674f36e",
+    "commit:bc736da6a5dfc789b325e4678b90e9fb8a1daf9f": "bc736da6a5dfc789b325e4678b90e9fb8a1daf9f",
+    "commit:bea8aef7b538fd58e2e09babdda7382b80abc8da": "bea8aef7b538fd58e2e09babdda7382b80abc8da",
+    "commit:c02b83bccd45e98b2feaa188326258a5b262e223": "c02b83bccd45e98b2feaa188326258a5b262e223",
+    "commit:c08a2a77d7c10c3bd37520b0ea844a67e11b9581": "c08a2a77d7c10c3bd37520b0ea844a67e11b9581",
+    "commit:c155b92f57b389b23971d0731677ddad3276084b": "c155b92f57b389b23971d0731677ddad3276084b",
+    "commit:c2c76a8f3481363da8bc42a86bca214cb0b398e2": "c2c76a8f3481363da8bc42a86bca214cb0b398e2",
+    "commit:c502aa43312eeec19e01946b4543df6f19cf64f7": "c502aa43312eeec19e01946b4543df6f19cf64f7",
+    "commit:c522636662fb91ef4fd35a42a7df4db235836e78": "c522636662fb91ef4fd35a42a7df4db235836e78",
+    "commit:c6b434adddc7e4afea44d863e0dc18c580e837d6": "c6b434adddc7e4afea44d863e0dc18c580e837d6",
+    "commit:c83d80f17b58425ba669f8b73050cd18c8fb8d55": "c83d80f17b58425ba669f8b73050cd18c8fb8d55",
+    "commit:c882cef514f6ac3ef80862deedaa901c3d4c3fd6": "c882cef514f6ac3ef80862deedaa901c3d4c3fd6",
+    "commit:c883563d0519bf952073a843e6f5d1c3a60e727d": "c883563d0519bf952073a843e6f5d1c3a60e727d",
+    "commit:c88ead6d729a2337fbcee553189d69023975551b": "c88ead6d729a2337fbcee553189d69023975551b",
+    "commit:c9bd83025cadf7a93dbba9ede959a383f1af4c61": "c9bd83025cadf7a93dbba9ede959a383f1af4c61",
+    "commit:cc0aa7ae327ed84cc391d29086dec2a3e44e7a1f": "cc0aa7ae327ed84cc391d29086dec2a3e44e7a1f",
+    "commit:cceee36ce9bdf17d222adc1ac4da2b9aa6a82efe": "cceee36ce9bdf17d222adc1ac4da2b9aa6a82efe",
+    "commit:ce4ac5a6f56001e3813d02ffd0e4e4b6c7dd85fd": "ce4ac5a6f56001e3813d02ffd0e4e4b6c7dd85fd",
+    "commit:d038d82e66dbd9c3a4c5741a2ddf1f45be54561e": "d038d82e66dbd9c3a4c5741a2ddf1f45be54561e",
+    "commit:d130f76cb105bb57c48ac487943116ae7a32c74e": "d130f76cb105bb57c48ac487943116ae7a32c74e",
+    "commit:d5e7da31132fb19d6107a46301369dc6bbea6579": "d5e7da31132fb19d6107a46301369dc6bbea6579",
+    "commit:d6fa9d4cc01301fd1da2bb351e2ecf909d731ecd": "d6fa9d4cc01301fd1da2bb351e2ecf909d731ecd",
+    "commit:d72aa4b6d77c7b3150bf2b7bae001e6635fe98ae": "d72aa4b6d77c7b3150bf2b7bae001e6635fe98ae",
+    "commit:d87d9964433a4777b09abff9360ff12643d00440": "d87d9964433a4777b09abff9360ff12643d00440",
+    "commit:d8b0e7e51e1a9be9e3e77595b9237f0735a08194": "d8b0e7e51e1a9be9e3e77595b9237f0735a08194",
+    "commit:d8ea652ab9fbe42e482bbcfb3764b378116b74b2": "d8ea652ab9fbe42e482bbcfb3764b378116b74b2",
+    "commit:dc0696f2d17ed1b0d94791d42bed52919c87faf7": "dc0696f2d17ed1b0d94791d42bed52919c87faf7",
+    "commit:dd4122a5e06da508e3891ffcd1c63e7b3c0177f2": "dd4122a5e06da508e3891ffcd1c63e7b3c0177f2",
+    "commit:ddb1d862bc52f1364862a43bfcba749913ac5b89": "ddb1d862bc52f1364862a43bfcba749913ac5b89",
+    "commit:e288ac298370a5e222671270f833b3dd1a87dc04": "e288ac298370a5e222671270f833b3dd1a87dc04",
+    "commit:e460f024c62906dbe7c7d24ac6b8a884d2f05fd3": "e460f024c62906dbe7c7d24ac6b8a884d2f05fd3",
+    "commit:e6924271f385c1c88413501bd0c499dde1f8e3d8": "e6924271f385c1c88413501bd0c499dde1f8e3d8",
+    "commit:e989a93d0117cf3dec05308c32d7a51b9da79e0a": "e989a93d0117cf3dec05308c32d7a51b9da79e0a",
+    "commit:e9c6dd224c74e94f630d2d90d8baf1863016e079": "e9c6dd224c74e94f630d2d90d8baf1863016e079",
+    "commit:e9de50d7c38bf0cf51c02e451a420715e773d91f": "e9de50d7c38bf0cf51c02e451a420715e773d91f",
+    "commit:ea7a1b2d95ce220f850c732aba8e3fd55e3f8f65": "ea7a1b2d95ce220f850c732aba8e3fd55e3f8f65",
+    "commit:ec3648d0c32ec05ccf259cde2869d95e055b8a5b": "ec3648d0c32ec05ccf259cde2869d95e055b8a5b",
+    "commit:ed0efa79292044e590bf5c7d1823c242be2b22fe": "ed0efa79292044e590bf5c7d1823c242be2b22fe",
+    "commit:f600ddd8a42e1e1240618b648da776f580636862": "f600ddd8a42e1e1240618b648da776f580636862",
+    "commit:f91ec14e495c5c3c7ad107d7363060928a82ac5a": "f91ec14e495c5c3c7ad107d7363060928a82ac5a",
+    "commit:fb31c8aaac9443adcd891d878de6517dcbabb5b5": "fb31c8aaac9443adcd891d878de6517dcbabb5b5",
+    "commit:fdfa55a770cbad00d7b6431fd38b4b2b1ffb4c27": "fdfa55a770cbad00d7b6431fd38b4b2b1ffb4c27",
+    "commit:fe0d78791675699c3f89426d85485c69b5eeb089": "fe0d78791675699c3f89426d85485c69b5eeb089",
+    "commit:fea5947ea25f186913e9c1e9756fc9ce80429b9f": "fea5947ea25f186913e9c1e9756fc9ce80429b9f",
+    "commit:fefba4f067523ac0d34be07a981bbff5aca0ac3c": "fefba4f067523ac0d34be07a981bbff5aca0ac3c",
+    "commit:ff375c6b697cddbdd25179c9420b2a85c93222da": "ff375c6b697cddbdd25179c9420b2a85c93222da",
+    "commit:ff715fca4bd50d6bf16ee8149f79a7394543604d": "ff715fca4bd50d6bf16ee8149f79a7394543604d",
     "perf-measures/bundle-check/scripts/check-bundle-size.ts": "3428f4682b7a1402e3605e5e6923587835d896cfd2171689e524807f5aabcfcd",
     "perf-measures/type-check/client.ts": "022991ab8d9a84953db68f2116917c5cdecb4ee502fbae0112798ca680f43dae",
     "perf-measures/type-check/scripts/generate-app.ts": "8930a1697fa1a72a5b0f01981cdc8d29871b6d5671e20237bbf18fcc1f731862",
@@ -20616,13 +20810,380 @@
       ]
     },
     {
+      "source": "commit:029cf71303c1633a7d70d3296c192ae0b46e152d",
+      "source_path": "commit:029cf71303c1633a7d70d3296c192ae0b46e152d",
+      "source_sha": "029cf71303c1633a7d70d3296c192ae0b46e152d",
+      "severity": "soft",
+      "claim": "Object.hasOwn is recommended over alternatives (e.g., hasOwnProperty)",
+      "rationale": "Refactor commit explicitly states Object.hasOwn is the recommended approach, referencing MDN documentation",
+      "excerpt": "Object.hasOwn is recommended",
+      "symbol_ids": []
+    },
+    {
+      "source": "commit:0a4c7bb6c5d0e9bd5f436486215482813fe3ef5b",
+      "source_path": "commit:0a4c7bb6c5d0e9bd5f436486215482813fe3ef5b",
+      "source_sha": "0a4c7bb6c5d0e9bd5f436486215482813fe3ef5b",
+      "severity": "context",
+      "claim": "context.get() supports a generic type parameter for typecasting the returned value",
+      "rationale": "Refactor introduced generic typecast capability to context.get()",
+      "excerpt": "Allow typecast in context.get(), e.g.",
+      "symbol_ids": []
+    },
+    {
+      "source": "commit:0a974ffeb63c10e3de91965d8d87b2dc3c986288",
+      "source_path": "commit:0a974ffeb63c10e3de91965d8d87b2dc3c986288",
+      "source_sha": "0a974ffeb63c10e3de91965d8d87b2dc3c986288",
+      "severity": "hard",
+      "claim": "The second argument of app.route() is now required",
+      "rationale": "Refactor changed the API so the 2nd argument is mandatory",
+      "excerpt": "make 2nd arg of `app.route()` required",
+      "symbol_ids": []
+    },
+    {
+      "source": "commit:17e4455f1fb5b618764c40301a03b36d9fee77c7",
+      "source_path": "commit:17e4455f1fb5b618764c40301a03b36d9fee77c7",
+      "source_sha": "17e4455f1fb5b618764c40301a03b36d9fee77c7",
+      "severity": "soft",
+      "claim": "Prefer protected methods over computed properties to enable tree shaking",
+      "rationale": "Computed properties hinder tree shaking; protected methods allow unused code to be eliminated",
+      "excerpt": "use protected methods instead of computed properties to allow `tree shaking`",
+      "symbol_ids": []
+    },
+    {
+      "source": "commit:190f6e28e2ca85ce3d1f2f54db1310f5f3eab134",
+      "source_path": "commit:190f6e28e2ca85ce3d1f2f54db1310f5f3eab134",
+      "source_sha": "190f6e28e2ca85ce3d1f2f54db1310f5f3eab134",
+      "severity": "hard",
+      "claim": "JWK middleware alg option is required and typed AsymmetricAlgorithm[]; passed to verifyWithJwks as allowedAlgorithms",
+      "rationale": "Ensures users must explicitly specify allowed algorithms in middleware configuration",
+      "excerpt": "BREAKING CHANGE: alg option is now required with type AsymmetricAlgorithm[]",
+      "symbol_ids": [
+        "sym:ts:src/middleware/jwk/jwk.ts:jwk",
+        "sym:ts:src/middleware/jwt/jwt.ts:verifyWithJwks",
+        "sym:ts:src/utils/jwt/jwt.ts:verifyWithJwks"
+      ]
+    },
+    {
+      "source": "commit:190f6e28e2ca85ce3d1f2f54db1310f5f3eab134",
+      "source_path": "commit:190f6e28e2ca85ce3d1f2f54db1310f5f3eab134",
+      "source_sha": "190f6e28e2ca85ce3d1f2f54db1310f5f3eab134",
+      "severity": "hard",
+      "claim": "Use header.alg for verification instead of JWK alg fallback",
+      "rationale": "Security correctness in algorithm selection during verification",
+      "excerpt": "Use header.alg for verification instead of JWK alg fallback",
+      "symbol_ids": [
+        "sym:ts:src/middleware/jwt/jwt.ts:verifyWithJwks",
+        "sym:ts:src/utils/jwt/jwt.ts:verifyWithJwks"
+      ]
+    },
+    {
+      "source": "commit:190f6e28e2ca85ce3d1f2f54db1310f5f3eab134",
+      "source_path": "commit:190f6e28e2ca85ce3d1f2f54db1310f5f3eab134",
+      "source_sha": "190f6e28e2ca85ce3d1f2f54db1310f5f3eab134",
+      "severity": "context",
+      "claim": "Validation order in verifyWithJwks: reject symmetric algorithms first, then check whitelist, then validate JWK alg matches header alg",
+      "rationale": "Documents the order of security checks performed during verification",
+      "excerpt": "Reordered validation: symmetric algorithm rejection before whitelist check",
+      "symbol_ids": [
+        "sym:ts:src/middleware/jwt/jwt.ts:verifyWithJwks",
+        "sym:ts:src/utils/jwt/jwt.ts:verifyWithJwks"
+      ]
+    },
+    {
+      "source": "commit:190f6e28e2ca85ce3d1f2f54db1310f5f3eab134",
+      "source_path": "commit:190f6e28e2ca85ce3d1f2f54db1310f5f3eab134",
+      "source_sha": "190f6e28e2ca85ce3d1f2f54db1310f5f3eab134",
+      "severity": "hard",
+      "claim": "When the JWK has an alg field, it must match the JWT header alg",
+      "rationale": "Prevents algorithm confusion attacks",
+      "excerpt": "Verify JWK alg matches JWT header alg when JWK has alg field",
+      "symbol_ids": [
+        "sym:ts:src/middleware/jwt/jwt.ts:verifyWithJwks",
+        "sym:ts:src/utils/jwt/jwt.ts:verifyWithJwks"
+      ]
+    },
+    {
+      "source": "commit:190f6e28e2ca85ce3d1f2f54db1310f5f3eab134",
+      "source_path": "commit:190f6e28e2ca85ce3d1f2f54db1310f5f3eab134",
+      "source_sha": "190f6e28e2ca85ce3d1f2f54db1310f5f3eab134",
+      "severity": "hard",
+      "claim": "verifyWithJwks rejects symmetric algorithms (HS256/HS384/HS512) in JWK verification to prevent algorithm confusion attacks",
+      "rationale": "Symmetric algorithms in JWK verification enable algorithm confusion attacks",
+      "excerpt": "Reject symmetric algorithms (HS256/HS384/HS512) in JWK verification",
+      "symbol_ids": [
+        "sym:ts:src/middleware/jwt/jwt.ts:verifyWithJwks",
+        "sym:ts:src/utils/jwt/jwt.ts:verifyWithJwks"
+      ]
+    },
+    {
+      "source": "commit:190f6e28e2ca85ce3d1f2f54db1310f5f3eab134",
+      "source_path": "commit:190f6e28e2ca85ce3d1f2f54db1310f5f3eab134",
+      "source_sha": "190f6e28e2ca85ce3d1f2f54db1310f5f3eab134",
+      "severity": "hard",
+      "claim": "verifyWithJwks requires an allowedAlgorithms parameter of type AsymmetricAlgorithm[]; users must explicitly specify allowed algorithms",
+      "rationale": "Forces explicit algorithm whitelist at compile-time and runtime to prevent algorithm confusion attacks",
+      "excerpt": "BREAKING CHANGE: allowedAlgorithms is now a required parameter with type AsymmetricAlgorithm[]",
+      "symbol_ids": [
+        "sym:ts:src/middleware/jwt/jwt.ts:verifyWithJwks",
+        "sym:ts:src/utils/jwt/jwt.ts:verifyWithJwks",
+        "sym:ts:src/utils/jwt/types.ts:JwtAlgorithmNotAllowed"
+      ]
+    },
+    {
+      "source": "commit:190f6e28e2ca85ce3d1f2f54db1310f5f3eab134",
+      "source_path": "commit:190f6e28e2ca85ce3d1f2f54db1310f5f3eab134",
+      "source_sha": "190f6e28e2ca85ce3d1f2f54db1310f5f3eab134",
+      "severity": "context",
+      "claim": "SymmetricAlgorithm covers HMAC algorithms (HS256/HS384/HS512); AsymmetricAlgorithm covers RSA/ECDSA/EdDSA algorithms",
+      "rationale": "Type definitions enable compile-time prevention of algorithm confusion attacks",
+      "excerpt": "Enables compile-time prevention of algorithm confusion attacks",
+      "symbol_ids": [
+        "sym:ts:src/utils/jwt/jwa.ts:AsymmetricAlgorithm",
+        "sym:ts:src/utils/jwt/jwa.ts:SignatureAlgorithm",
+        "sym:ts:src/utils/jwt/jwa.ts:SymmetricAlgorithm"
+      ]
+    },
+    {
+      "source": "commit:190f6e28e2ca85ce3d1f2f54db1310f5f3eab134",
+      "source_path": "commit:190f6e28e2ca85ce3d1f2f54db1310f5f3eab134",
+      "source_sha": "190f6e28e2ca85ce3d1f2f54db1310f5f3eab134",
+      "severity": "context",
+      "claim": "Distinct error types exist for algorithm mismatch, symmetric algorithm rejection, and whitelist violations in JWT verification",
+      "rationale": "Allows callers to distinguish causes of JWT algorithm-related verification failures",
+      "excerpt": "add JwtAlgorithmMismatch and JwtSymmetricAlgorithmNotAllowed error types",
+      "symbol_ids": [
+        "sym:ts:src/utils/jwt/types.ts:JwtAlgorithmMismatch",
+        "sym:ts:src/utils/jwt/types.ts:JwtAlgorithmNotAllowed",
+        "sym:ts:src/utils/jwt/types.ts:JwtSymmetricAlgorithmNotAllowed"
+      ]
+    },
+    {
+      "source": "commit:3179adc1c243aaff00a8134e026c594c0118350e",
+      "source_path": "commit:3179adc1c243aaff00a8134e026c594c0118350e",
+      "source_sha": "3179adc1c243aaff00a8134e026c594c0118350e",
+      "severity": "context",
+      "claim": "Routes are returned in the registration order",
+      "rationale": "Describes ordering behavior of the reg-exp-router after refactor",
+      "excerpt": "Routes are returned in the registration order.",
+      "symbol_ids": []
+    },
+    {
+      "source": "commit:49025e0aad32c9455611518a9a0577e19d4d447e",
+      "source_path": "commit:49025e0aad32c9455611518a9a0577e19d4d447e",
+      "source_sha": "49025e0aad32c9455611518a9a0577e19d4d447e",
+      "severity": "hard",
+      "claim": "app.fire() is obsoleted as a breaking change in the deno refactor",
+      "rationale": "Marked [BREAKING] indicating the API is removed/obsolete and consumers must not use it",
+      "excerpt": "refactor(deno): [BREAKING] obsolete `app.fire()`",
+      "symbol_ids": []
+    },
+    {
+      "source": "commit:4b39eba6182be6f64036060586c4de2120061361",
+      "source_path": "commit:4b39eba6182be6f64036060586c4de2120061361",
+      "source_sha": "4b39eba6182be6f64036060586c4de2120061361",
+      "severity": "context",
+      "claim": "ETag middleware clones the response to read the body and compute an ETag when the upstream response lacks an ETag header",
+      "rationale": "Explains why cloning logic exists in the ETag middleware",
+      "excerpt": "If the upstream response doesn't include an `ETag` header, the ETag middleware needs to clone the response so it can read the body to compute an ETag.",
+      "symbol_ids": []
+    },
+    {
+      "source": "commit:6a7746de7dfc1d1e98286aeeaabd674774453100",
+      "source_path": "commit:6a7746de7dfc1d1e98286aeeaabd674774453100",
+      "source_sha": "6a7746de7dfc1d1e98286aeeaabd674774453100",
+      "severity": "context",
+      "claim": "Routes are returned in the order they were registered",
+      "rationale": "Refactor commit message describing behavior change of the trie-router",
+      "excerpt": "routes are returned in the registration order",
+      "symbol_ids": []
+    },
+    {
+      "source": "commit:8879f241e895ab5229baa40d12144817ca1aa3d3",
+      "source_path": "commit:8879f241e895ab5229baa40d12144817ca1aa3d3",
+      "source_sha": "8879f241e895ab5229baa40d12144817ca1aa3d3",
+      "severity": "context",
+      "claim": ".ico file extension maps to MIME type image/x-icon",
+      "rationale": "Refactor changes the MIME type associated with .ico files",
+      "excerpt": "made `.ico` file's extension to `image/x-icon`",
+      "symbol_ids": []
+    },
+    {
+      "source": "commit:adc9cf80cf5a00f17517b20581708a2b1af596a0",
+      "source_path": "commit:adc9cf80cf5a00f17517b20581708a2b1af596a0",
+      "source_sha": "adc9cf80cf5a00f17517b20581708a2b1af596a0",
+      "severity": "context",
+      "claim": "jwt middleware is not supported on Bun and throws an error when used",
+      "rationale": "Documents current incompatibility between jwt middleware and the Bun runtime",
+      "excerpt": "`jwt` middleware is not supported Bun, yet.",
+      "symbol_ids": [
+        "sym:ts:src/middleware/jwt/jwt.ts:jwt"
+      ]
+    },
+    {
+      "source": "commit:b0b6f7f8a3e82f9725e9d26aecede3827252102d",
+      "source_path": "commit:b0b6f7f8a3e82f9725e9d26aecede3827252102d",
+      "source_sha": "b0b6f7f8a3e82f9725e9d26aecede3827252102d",
+      "severity": "hard",
+      "claim": "Router must have only one handler",
+      "rationale": "Refactor commit explicitly states the constraint",
+      "excerpt": "router must have only one hander",
+      "symbol_ids": [
+        "sym:ts:benchmarks/deno/oak.ts:router"
+      ]
+    },
+    {
+      "source": "commit:b9227b890c7f9b1d2513cd1cf75da5c8ea3e0076",
+      "source_path": "commit:b9227b890c7f9b1d2513cd1cf75da5c8ea3e0076",
+      "source_sha": "b9227b890c7f9b1d2513cd1cf75da5c8ea3e0076",
+      "severity": "context",
+      "claim": "encode.ts no longer uses Buffer",
+      "rationale": "Refactor removed Buffer usage from the encode utility module",
+      "excerpt": "refactor(util): remove using `Buffer` from `encode.ts`",
+      "symbol_ids": []
+    },
+    {
+      "source": "commit:c883563d0519bf952073a843e6f5d1c3a60e727d",
+      "source_path": "commit:c883563d0519bf952073a843e6f5d1c3a60e727d",
+      "source_sha": "c883563d0519bf952073a843e6f5d1c3a60e727d",
+      "severity": "hard",
+      "claim": "Do not import the middleware package",
+      "rationale": "Refactor directive to eliminate dependency on the middleware module",
+      "excerpt": "refactor: do not import `middleware`",
+      "symbol_ids": []
+    },
+    {
+      "source": "commit:cc0aa7ae327ed84cc391d29086dec2a3e44e7a1f",
+      "source_path": "commit:cc0aa7ae327ed84cc391d29086dec2a3e44e7a1f",
+      "source_sha": "cc0aa7ae327ed84cc391d29086dec2a3e44e7a1f",
+      "severity": "hard",
+      "claim": "The alg option is required when using the JWT middleware; runtime validation throws if not provided.",
+      "rationale": "Prevents algorithm confusion attacks at the middleware layer.",
+      "excerpt": "BREAKING CHANGE: The `alg` option is now required when using the JWT middleware. This prevents algorithm confusion attacks.",
+      "symbol_ids": [
+        "sym:ts:src/middleware/jwt/jwt.ts:jwt"
+      ]
+    },
+    {
+      "source": "commit:cc0aa7ae327ed84cc391d29086dec2a3e44e7a1f",
+      "source_path": "commit:cc0aa7ae327ed84cc391d29086dec2a3e44e7a1f",
+      "source_sha": "cc0aa7ae327ed84cc391d29086dec2a3e44e7a1f",
+      "severity": "hard",
+      "claim": "The HS256 default fallback in verify() has been removed.",
+      "rationale": "Default fallback enabled algorithm confusion attacks against asymmetric keys.",
+      "excerpt": "Remove HS256 default fallback in verify() function",
+      "symbol_ids": [
+        "sym:ts:src/middleware/jwt/jwt.ts:verify",
+        "sym:ts:src/utils/jwt/jwt.ts:verify"
+      ]
+    },
+    {
+      "source": "commit:cc0aa7ae327ed84cc391d29086dec2a3e44e7a1f",
+      "source_path": "commit:cc0aa7ae327ed84cc391d29086dec2a3e44e7a1f",
+      "source_sha": "cc0aa7ae327ed84cc391d29086dec2a3e44e7a1f",
+      "severity": "hard",
+      "claim": "The alg parameter is required for JWT verification; no default algorithm fallback is permitted.",
+      "rationale": "Prevents algorithm confusion attacks where attackers forge tokens by exploiting HS256 default fallback with asymmetric keys.",
+      "excerpt": "BREAKING CHANGE: The `alg` parameter is now required for JWT verification. This prevents algorithm confusion attacks where an attacker could forge tokens by exploiting the default HS256 fallback with asymmetric keys.",
+      "symbol_ids": [
+        "sym:ts:src/middleware/jwt/jwt.ts:verify",
+        "sym:ts:src/utils/jwt/jwt.ts:verify",
+        "sym:ts:src/utils/jwt/types.ts:JwtAlgorithmRequired"
+      ]
+    },
+    {
+      "source": "commit:cc0aa7ae327ed84cc391d29086dec2a3e44e7a1f",
+      "source_path": "commit:cc0aa7ae327ed84cc391d29086dec2a3e44e7a1f",
+      "source_sha": "cc0aa7ae327ed84cc391d29086dec2a3e44e7a1f",
+      "severity": "hard",
+      "claim": "verify() must check that header.alg equals options.alg and throw JwtAlgorithmMismatch otherwise.",
+      "rationale": "Prevents algorithm substitution attacks where an attacker uses a different algorithm than expected.",
+      "excerpt": "Check header.alg === options.alg in verify() function",
+      "symbol_ids": [
+        "sym:ts:src/middleware/jwt/jwt.ts:verify",
+        "sym:ts:src/utils/jwt/jwt.ts:verify",
+        "sym:ts:src/utils/jwt/types.ts:JwtAlgorithmMismatch"
+      ]
+    },
+    {
+      "source": "commit:cc0aa7ae327ed84cc391d29086dec2a3e44e7a1f",
+      "source_path": "commit:cc0aa7ae327ed84cc391d29086dec2a3e44e7a1f",
+      "source_sha": "cc0aa7ae327ed84cc391d29086dec2a3e44e7a1f",
+      "severity": "context",
+      "claim": "JwtAlgorithmMismatch error class is defined in types.ts to signal algorithm substitution attempts.",
+      "rationale": "New error type added as part of algorithm mismatch enforcement.",
+      "excerpt": "Add JwtAlgorithmMismatch error class in types.ts",
+      "symbol_ids": [
+        "sym:ts:src/utils/jwt/types.ts:JwtAlgorithmMismatch"
+      ]
+    },
+    {
+      "source": "commit:cc0aa7ae327ed84cc391d29086dec2a3e44e7a1f",
+      "source_path": "commit:cc0aa7ae327ed84cc391d29086dec2a3e44e7a1f",
+      "source_sha": "cc0aa7ae327ed84cc391d29086dec2a3e44e7a1f",
+      "severity": "context",
+      "claim": "JwtAlgorithmRequired error is thrown when the algorithm is not specified during JWT verification.",
+      "rationale": "Part of the security fix to prevent algorithm confusion attacks.",
+      "excerpt": "Add a new error type to throw when algorithm is not specified during JWT verification. This is part of the security fix to prevent algorithm confusion attacks.",
+      "symbol_ids": [
+        "sym:ts:src/utils/jwt/types.ts:JwtAlgorithmRequired"
+      ]
+    },
+    {
+      "source": "commit:e6924271f385c1c88413501bd0c499dde1f8e3d8",
+      "source_path": "commit:e6924271f385c1c88413501bd0c499dde1f8e3d8",
+      "source_sha": "e6924271f385c1c88413501bd0c499dde1f8e3d8",
+      "severity": "context",
+      "claim": "Result is modeled as an interface rather than a class",
+      "rationale": "Parallel refactor making Result an interface",
+      "excerpt": "Make Result an interface, not a class.",
+      "symbol_ids": [
+        "sym:ts:src/router.ts:Result"
+      ]
+    },
+    {
+      "source": "commit:e6924271f385c1c88413501bd0c499dde1f8e3d8",
+      "source_path": "commit:e6924271f385c1c88413501bd0c499dde1f8e3d8",
+      "source_sha": "e6924271f385c1c88413501bd0c499dde1f8e3d8",
+      "severity": "context",
+      "claim": "getSortedHandlers is applied for result",
+      "rationale": "Sorting logic for handlers is invoked in the result path",
+      "excerpt": "Apply getSortedHandlers for result.",
+      "symbol_ids": [
+        "sym:ts:src/router.ts:Result"
+      ]
+    },
+    {
+      "source": "commit:e6924271f385c1c88413501bd0c499dde1f8e3d8",
+      "source_path": "commit:e6924271f385c1c88413501bd0c499dde1f8e3d8",
+      "source_sha": "e6924271f385c1c88413501bd0c499dde1f8e3d8",
+      "severity": "context",
+      "claim": "Initialization accepts router objects instead of a routerClass",
+      "rationale": "Enables passing router instances directly rather than a class to be instantiated",
+      "excerpt": "Allow initialization with router objects instead of routerClass.",
+      "symbol_ids": [
+        "sym:ts:src/router.ts:Router"
+      ]
+    },
+    {
+      "source": "commit:e6924271f385c1c88413501bd0c499dde1f8e3d8",
+      "source_path": "commit:e6924271f385c1c88413501bd0c499dde1f8e3d8",
+      "source_sha": "e6924271f385c1c88413501bd0c499dde1f8e3d8",
+      "severity": "context",
+      "claim": "Router is modeled as an interface rather than a class",
+      "rationale": "Refactor changes Router from a class to an interface to allow initialization with router objects instead of a routerClass",
+      "excerpt": "Make Router an interface, not a class.",
+      "symbol_ids": [
+        "sym:ts:src/router.ts:Router"
+      ]
+    },
+    {
       "source": "docstring:src/adapter/aws-lambda/conninfo.ts",
       "source_path": "src/adapter/aws-lambda/conninfo.ts",
       "source_sha": "0814b47cfd6e6682526acffc2e13d0af3363e5e11f594609151b7061acb5bc45",
       "severity": "context",
-      "claim": "getConnInfo extracts client IP from different Lambda event source shapes: API Gateway v1 uses requestContext.identity.sourceIp, API Gateway v2 uses requestContext.http.sourceIp, ALB falls back to x-forwarded-for header",
-      "rationale": "Documents the source-specific extraction logic so consumers understand which event shapes are supported and how the remote address is derived",
-      "excerpt": "Extracts client IP from various Lambda event sources:\n- API Gateway v1 (REST API): requestContext.identity.sourceIp\n- API Gateway v2 (HTTP API/Function URLs): requestContext.http.sourceIp\n- ALB: Falls back to x-forwarded-for header",
+      "claim": "Extracts client IP from Lambda event sources: API Gateway v1 uses requestContext.identity.sourceIp, API Gateway v2 uses requestContext.http.sourceIp, ALB falls back to x-forwarded-for header",
+      "rationale": "Different Lambda event sources expose client IP in different locations, requiring source-specific extraction logic",
+      "excerpt": "API Gateway v1 (REST API): requestContext.identity.sourceIp\n- API Gateway v2 (HTTP API/Function URLs): requestContext.http.sourceIp\n- ALB: Falls back to x-forwarded-for header",
       "symbol_ids": [
         "sym:ts:src/adapter/aws-lambda/conninfo.ts:getConnInfo",
         "sym:ts:src/adapter/bun/conninfo.ts:getConnInfo",
@@ -20640,8 +21201,8 @@
       "source_sha": "6464f8c4c0b0d18de4018c01f3aea47900dc437e8b45eb694d3aa87cfe79eafe",
       "severity": "context",
       "claim": "Default binary content-type check can be overridden via the isContentTypeBinary option in handler()",
-      "rationale": "Documents an extension point allowing user customization of binary detection",
-      "excerpt": "This is a default function and may be overwritten by the user via `isContentTypeBinary` option in handler()",
+      "rationale": "Documents an extension point for customizing binary detection behavior",
+      "excerpt": "This is a default function and may be overwritten by the user via `isContentTypeBinary` option in handler().",
       "symbol_ids": [
         "sym:ts:src/adapter/aws-lambda/handler.ts:defaultIsContentTypeBinary",
         "sym:ts:src/adapter/lambda-edge/handler.ts:isContentTypeBinary"
@@ -20653,7 +21214,7 @@
       "source_sha": "6464f8c4c0b0d18de4018c01f3aea47900dc437e8b45eb694d3aa87cfe79eafe",
       "severity": "context",
       "claim": "If isContentTypeBinary is not provided, a default function is used to determine binary content types",
-      "rationale": "Documents fallback behavior for binary detection",
+      "rationale": "Documents fallback behavior for binary content detection",
       "excerpt": "If not provided, the default function will be used.",
       "symbol_ids": [
         "sym:ts:src/adapter/aws-lambda/handler.ts:defaultIsContentTypeBinary",
@@ -20685,9 +21246,9 @@
       "source": "docstring:src/adapter/bun/ssg.ts",
       "source_path": "src/adapter/bun/ssg.ts",
       "source_sha": "45600cc8fd5a9e92128520e0dec5a9031f44c151a994ef2c2c0ce970c18d00bd",
-      "severity": "soft",
-      "claim": "bunFileSystemModule is experimental and its API may change",
-      "rationale": "Consumers should be aware that depending on this feature carries API stability risk",
+      "severity": "context",
+      "claim": "bunFileSystemModule is an experimental feature whose API may change",
+      "rationale": "Consumers should be aware the API is unstable",
       "excerpt": "`bunFileSystemModule` is an experimental feature. The API might be changed.",
       "symbol_ids": [
         "sym:ts:src/adapter/bun/ssg.ts:bunFileSystemModule"
@@ -20697,10 +21258,10 @@
       "source": "docstring:src/adapter/bun/ssg.ts",
       "source_path": "src/adapter/bun/ssg.ts",
       "source_sha": "45600cc8fd5a9e92128520e0dec5a9031f44c151a994ef2c2c0ce970c18d00bd",
-      "severity": "soft",
+      "severity": "context",
       "claim": "toSSG is experimental and its API may change",
-      "rationale": "Consumers should be aware the API is unstable and subject to change",
-      "excerpt": "`toSSG` is an experimental feature.\nThe API might be changed.",
+      "rationale": "Consumers are warned that the API is unstable and subject to change",
+      "excerpt": "`toSSG` is an experimental feature. The API might be changed.",
       "symbol_ids": [
         "sym:ts:src/adapter/bun/ssg.ts:toSSG",
         "sym:ts:src/adapter/deno/ssg.ts:toSSG",
@@ -20712,8 +21273,8 @@
       "source_path": "src/adapter/bun/websocket.ts",
       "source_sha": "73e8cd041218f2cb3ce2266afd85a09370aca59cce52fb2146cf0325037c5b07",
       "severity": "hard",
-      "claim": "Deprecated; import upgradeWebSocket and websocket directly from hono/bun instead",
-      "rationale": "Marked @deprecated with explicit replacement guidance",
+      "claim": "Deprecated: import `upgradeWebSocket` and `websocket` directly from `hono/bun` instead.",
+      "rationale": "Explicit @deprecated marker with replacement guidance.",
       "excerpt": "@deprecated — Import `upgradeWebSocket` and `websocket` directly from `hono/bun` instead.",
       "symbol_ids": [
         "sym:ts:src/adapter/bun/websocket.ts:createBunWebSocket",
@@ -20730,7 +21291,7 @@
       "source_sha": "b75fcc260629e91f16fd2efefc16689ec72887a588fc1ae9243d0207efd029be",
       "severity": "context",
       "claim": "serveStatic() is intended for Cloudflare Pages advanced mode",
-      "rationale": "Documents the use case context for serveStatic",
+      "rationale": "Documents the intended usage context of serveStatic()",
       "excerpt": "`serveStatic()` is for advanced mode",
       "symbol_ids": [
         "sym:ts:src/adapter/bun/serve-static.ts:serveStatic",
@@ -20745,9 +21306,9 @@
       "source_path": "src/adapter/cloudflare-workers/serve-static.ts",
       "source_sha": "eac578a3a7c2d108dbca1fba40c5320cb984df42ee039ad8703ce9debcf03012",
       "severity": "hard",
-      "claim": "serveStatic in the Cloudflare Workers adapter is deprecated; use Cloudflare Static Assets to serve static files directly",
-      "rationale": "Marked with @deprecated tag; consumers should migrate away from this API",
-      "excerpt": "`serveStatic` in the Cloudflare Workers adapter is deprecated.",
+      "claim": "serveStatic in the Cloudflare Workers adapter is deprecated; serve static files directly using Cloudflare Static Assets instead.",
+      "rationale": "Marked with @deprecated tag indicating the API should not be used in new code.",
+      "excerpt": "@deprecated  \n`serveStatic` in the Cloudflare Workers adapter is deprecated.",
       "symbol_ids": [
         "sym:ts:src/adapter/bun/serve-static.ts:serveStatic",
         "sym:ts:src/adapter/cloudflare-pages/handler.ts:serveStatic",
@@ -20761,8 +21322,8 @@
       "source_path": "src/adapter/cloudflare-workers/serve-static.ts",
       "source_sha": "eac578a3a7c2d108dbca1fba40c5320cb984df42ee039ad8703ce9debcf03012",
       "severity": "context",
-      "claim": "Cloudflare Static Assets is in open beta; Cloudflare Pages is an alternative if it doesn't work",
-      "rationale": "Informs migration choice given beta status of the recommended replacement",
+      "claim": "Cloudflare Static Assets is in open beta; if it doesn't work, consider using Cloudflare Pages (bootstrap with `npm create hono@latest`).",
+      "rationale": "Provides fallback guidance given beta status of the recommended replacement.",
       "excerpt": "Cloudflare Static Assets is currently in open beta. If this doesn't work for you, please consider using Cloudflare Pages.",
       "symbol_ids": [
         "sym:ts:src/adapter/cloudflare-workers/serve-static.ts:serveStatic"
@@ -20773,7 +21334,7 @@
       "source_path": "src/adapter/deno/ssg.ts",
       "source_sha": "2c014695c18ab15e35025d363fd43f572443d35ff32a9cd19e207596870f5cb7",
       "severity": "soft",
-      "claim": "toSSG is an experimental feature; its API may change",
+      "claim": "toSSG is an experimental feature whose API may change",
       "rationale": "Consumers should be aware the API is unstable and subject to change",
       "excerpt": "`toSSG` is an experimental feature. The API might be changed.",
       "symbol_ids": [
@@ -20787,8 +21348,8 @@
       "source_path": "src/adapter/deno/ssg.ts",
       "source_sha": "2c014695c18ab15e35025d363fd43f572443d35ff32a9cd19e207596870f5cb7",
       "severity": "soft",
-      "claim": "denoFileSystemModule is an experimental feature whose API might change",
-      "rationale": "Consumers should be cautious relying on it because the API is unstable",
+      "claim": "denoFileSystemModule is experimental and its API may change",
+      "rationale": "Consumers should be cautious relying on it because the API is not stable",
       "excerpt": "`denoFileSystemModule` is an experimental feature. The API might be changed.",
       "symbol_ids": [
         "sym:ts:src/adapter/deno/ssg.ts:denoFileSystemModule"
@@ -20799,7 +21360,7 @@
       "source_path": "src/adapter/lambda-edge/handler.ts",
       "source_sha": "aaf5e0b74860bbc239e9d17f88f12cbb6ce50eb60e80ea9e0994ff55806cbdc3",
       "severity": "context",
-      "claim": "Accepts events from Lambda@Edge event source",
+      "claim": "Accepts events from Lambda@Edge event",
       "rationale": "Describes the event source this code handles",
       "excerpt": "Accepts events from 'Lambda@Edge' event",
       "symbol_ids": [
@@ -20811,17 +21372,23 @@
       "source_path": "src/adapter/service-worker/index.ts",
       "source_sha": "8b8da2e321c4d5c30611d545da8776ffe87534525a818a40bbfb14037aaaca7b",
       "severity": "context",
-      "claim": "fire() registers a Hono app as a service worker fetch handler via addEventListener('fetch', handle(app, options))",
-      "rationale": "Describes the integration mechanism between Hono and the service worker fetch event lifecycle",
-      "excerpt": "This sets up `addEventListener('fetch', handle(app, options))` for the provided app.",
+      "claim": "The fetch option defaults to undefined when handling requests",
+      "rationale": "Documents default behavior of options parameter",
+      "excerpt": "Options for handling requests (fetch defaults to undefined)",
       "symbol_ids": [
-        "sym:ts:src/adapter/aws-lambda/handler.ts:handle",
-        "sym:ts:src/adapter/cloudflare-pages/handler.ts:handle",
-        "sym:ts:src/adapter/lambda-edge/handler.ts:handle",
-        "sym:ts:src/adapter/netlify/handler.ts:handle",
-        "sym:ts:src/adapter/service-worker/handler.ts:handle",
+        "sym:ts:src/adapter/service-worker/index.ts:fire"
+      ]
+    },
+    {
+      "source": "docstring:src/adapter/service-worker/index.ts",
+      "source_path": "src/adapter/service-worker/index.ts",
+      "source_sha": "8b8da2e321c4d5c30611d545da8776ffe87534525a818a40bbfb14037aaaca7b",
+      "severity": "context",
+      "claim": "fire registers a Hono app to handle fetch events in a service worker by setting up addEventListener('fetch', handle(app, options))",
+      "rationale": "Describes the integration mechanism between Hono and service worker fetch events",
+      "excerpt": "Registers a Hono app to handle fetch events in a service worker. This sets up `addEventListener('fetch', handle(app, options))` for the provided app.",
+      "symbol_ids": [
         "sym:ts:src/adapter/service-worker/index.ts:fire",
-        "sym:ts:src/adapter/vercel/handler.ts:handle",
         "sym:ts:src/hono-base.ts:Hono",
         "sym:ts:src/hono.ts:Hono",
         "sym:ts:src/preset/quick.ts:Hono",
@@ -20833,8 +21400,8 @@
       "source_path": "src/client/fetch-result-please.ts",
       "source_sha": "3c068997642838bf1b889b26ab31ab471b9016eff1803df91352776449e24d51",
       "severity": "context",
-      "claim": "Throws a structured DetailedError when the fetch Response is not ok",
-      "rationale": "Describes error-handling behavior of the parser when responses fail",
+      "claim": "Throws a structured error when the fetch Response is not ok",
+      "rationale": "Describes error-handling behavior of the parser, surfacing failures as structured DetailedError instances rather than raw responses",
       "excerpt": "Throwing a structured error if the response is not `ok`.",
       "symbol_ids": [
         "sym:ts:src/client/fetch-result-please.ts:DetailedError",
@@ -20847,11 +21414,15 @@
       "source_path": "src/client/fetch-result-please.ts",
       "source_sha": "3c068997642838bf1b889b26ab31ab471b9016eff1803df91352776449e24d51",
       "severity": "context",
-      "claim": "This file is a modified, minimalized adaptation of fetch-result-please (ofetch) tailored for Hono's needs",
-      "rationale": "Identifies the upstream origin and explains why the code diverges from a standard package",
+      "claim": "This file is a modified, minimalized version of fetch-result-please (ofetch) adapted for Hono's custom needs",
+      "rationale": "Indicates provenance and that the code has been customized rather than used as-is from the upstream package",
       "excerpt": "This file is a modified version of `fetch-result-please` (`ofetch`), minimalized and adapted to Hono's custom needs.",
       "symbol_ids": [
-        "sym:ts:src/client/fetch-result-please.ts:nullBodyResponses"
+        "sym:ts:src/client/fetch-result-please.ts:nullBodyResponses",
+        "sym:ts:src/hono-base.ts:Hono",
+        "sym:ts:src/hono.ts:Hono",
+        "sym:ts:src/preset/quick.ts:Hono",
+        "sym:ts:src/preset/tiny.ts:Hono"
       ]
     },
     {
@@ -20859,8 +21430,8 @@
       "source_path": "src/client/types.ts",
       "source_sha": "ad9ec820c24911b2fd28c5649a9a6a14ed53e44386c527d8e908bfc568304538",
       "severity": "context",
-      "claim": "Filters all routes of an app to retain only responses matching specific status codes",
-      "rationale": "Describes the purpose of the type utility",
+      "claim": "PickResponseByStatusCode filters app routes to expose only specified status code responses to the client",
+      "rationale": "Enables centralized error handling patterns where the client type only surfaces success responses",
       "excerpt": "Keep only specific status code responses from all routes of an app.",
       "symbol_ids": [
         "sym:ts:src/client/client.ts:hc",
@@ -20872,8 +21443,8 @@
       "source_path": "src/client/types.ts",
       "source_sha": "ad9ec820c24911b2fd28c5649a9a6a14ed53e44386c527d8e908bfc568304538",
       "severity": "context",
-      "claim": "Useful when error responses are handled centrally so the client only exposes success response types",
-      "rationale": "Explains the intended use case for centralized error handling",
+      "claim": "Useful when error responses are handled centrally (e.g., via custom fetch) so the client exposes only success response types",
+      "rationale": "Describes the architectural scenario this utility is designed for",
       "excerpt": "Useful when error responses are handled centrally (e.g., via custom fetch) and you want the client to only expose success response types.",
       "symbol_ids": [
         "sym:ts:src/client/types.ts:PickResponseByStatusCode"
@@ -20884,8 +21455,8 @@
       "source_path": "src/client/utils.ts",
       "source_sha": "0812b3353ba39764a0ffdce6d4a6a944ee10ecd71d43550b8de45fc4726ed0bb",
       "severity": "context",
-      "claim": "Throws a structured DetailedError when the fetch response is not ok",
-      "rationale": "Documents error-handling behavior of the response parser, providing a typed error contract for non-ok responses",
+      "claim": "Parses fetch response data and throws a structured error if the response is not ok",
+      "rationale": "Describes the function's behavior as a shortcut for consuming hc fetch calls with type inference",
       "excerpt": "Smartly parse the response data, throwing a structured error if the response is not `ok`.",
       "symbol_ids": [
         "sym:ts:src/client/client.ts:hc",
@@ -20899,8 +21470,8 @@
       "source_path": "src/compose.ts",
       "source_sha": "e62bb2748fae15bdfc2abdc994ffd7b8675d194c928d4448157f016e829d6e56",
       "severity": "context",
-      "claim": "Compose function is based on the koa-compose package",
-      "rationale": "Indicates derivation/inspiration from existing package, relevant for understanding behavior",
+      "claim": "Middleware composition is based on the koa-compose package",
+      "rationale": "Indicates the design lineage and behavioral model for the compose function",
       "excerpt": "Compose middleware functions into a single function based on `koa-compose` package.",
       "symbol_ids": [
         "sym:ts:src/compose.ts:compose"
@@ -20911,9 +21482,9 @@
       "source_path": "src/context.ts",
       "source_sha": "f486ae1578fcf1bb29497d2cb35f849d808fb77785426b9426397cbe89d77de3",
       "severity": "context",
-      "claim": "Accessing the event throws when the context has no associated FetchEvent",
-      "rationale": "Documents an error condition tied to context state",
-      "excerpt": "Will throw an error if the context does not have a FetchEvent.",
+      "claim": "Accessing this property throws if the context has no FetchEvent",
+      "rationale": "Documents error behavior when FetchEvent is unavailable in the context",
+      "excerpt": "Will throw an error if the context does not have a FetchEvent",
       "symbol_ids": [
         "sym:ts:src/adapter/service-worker/types.ts:FetchEvent",
         "sym:ts:src/context.ts:event"
@@ -20925,7 +21496,7 @@
       "source_sha": "f486ae1578fcf1bb29497d2cb35f849d808fb77785426b9426397cbe89d77de3",
       "severity": "context",
       "claim": ".req is an instance of HonoRequest",
-      "rationale": "Documents the type of the .req property",
+      "rationale": "Documents the type/identity of the .req property",
       "excerpt": "`.req` is the instance of [HonoRequest]",
       "symbol_ids": [
         "sym:ts:src/client/types.ts:HonoRequest",
@@ -20938,9 +21509,9 @@
       "source_path": "src/context.ts",
       "source_sha": "f486ae1578fcf1bb29497d2cb35f849d808fb77785426b9426397cbe89d77de3",
       "severity": "context",
-      "claim": "Accessing the ExecutionContext throws if the current request context does not have one",
-      "rationale": "Documents runtime error condition when ExecutionContext is unavailable",
-      "excerpt": "Will throw an error if the context does not have an ExecutionContext.",
+      "claim": "Accessing this throws an error if the context does not have an ExecutionContext",
+      "rationale": "Documents error behavior when ExecutionContext is absent",
+      "excerpt": "Will throw an error if the context does not have an ExecutionContext",
       "symbol_ids": [
         "sym:ts:src/context.ts:ExecutionContext",
         "sym:ts:src/context.ts:executionCtx"
@@ -20951,43 +21522,19 @@
       "source_path": "src/context.ts",
       "source_sha": "f486ae1578fcf1bb29497d2cb35f849d808fb77785426b9426397cbe89d77de3",
       "severity": "context",
-      "claim": ".var accesses the value of a variable on the context",
-      "rationale": "Describes the purpose of the .var accessor",
+      "claim": ".var accesses the value of a variable on Context",
+      "rationale": "Describes accessor behavior for context variables",
       "excerpt": "`.var` can access the value of a variable.",
       "symbol_ids": [
         "sym:ts:src/context.ts:var"
       ]
     },
     {
-      "source": "docstring:src/context.ts",
-      "source_path": "src/context.ts",
-      "source_sha": "f486ae1578fcf1bb29497d2cb35f849d808fb77785426b9426397cbe89d77de3",
-      "severity": "context",
-      "claim": "Extends the lifetime of the event callback until the promise is settled",
-      "rationale": "Describes how passing a promise affects callback lifetime",
-      "excerpt": "Extends the lifetime of the event callback until the promise is settled.",
-      "symbol_ids": [
-        "sym:ts:src/context.ts:waitUntil"
-      ]
-    },
-    {
       "source": "docstring:src/helper/css/common.ts",
       "source_path": "src/helper/css/common.ts",
       "source_sha": "443d07bda09c7f946db6e22811994355661b778fbac9b7a2c7aab35308f52fd8",
       "severity": "context",
-      "claim": "If the returned class name is not a safe CSS identifier, the default hash is used as fallback",
-      "rationale": "Describes fallback behavior for invalid return values",
-      "excerpt": "otherwise, the default hash is used as a fallback",
-      "symbol_ids": [
-        "sym:ts:src/helper/css/common.ts:ClassNameSlug"
-      ]
-    },
-    {
-      "source": "docstring:src/helper/css/common.ts",
-      "source_path": "src/helper/css/common.ts",
-      "source_sha": "443d07bda09c7f946db6e22811994355661b778fbac9b7a2c7aab35308f52fd8",
-      "severity": "context",
-      "claim": "Label whitespace is trimmed and inner spaces replaced with hyphens",
+      "claim": "Label whitespace is trimmed and inner spaces are replaced with hyphens before being passed",
       "rationale": "Describes preprocessing applied to the label argument",
       "excerpt": "Whitespace is trimmed and inner spaces are replaced with hyphens.",
       "symbol_ids": [
@@ -20999,8 +21546,8 @@
       "source_path": "src/helper/css/common.ts",
       "source_sha": "443d07bda09c7f946db6e22811994355661b778fbac9b7a2c7aab35308f52fd8",
       "severity": "hard",
-      "claim": "Returned custom class name must be a safe CSS identifier",
-      "rationale": "Unsafe identifiers cause fallback to the default hash",
+      "claim": "Returned custom class name must be a safe CSS identifier; otherwise the default hash is used as fallback",
+      "rationale": "Invalid CSS identifiers would break generated class names; the contract enforces safety with a fallback",
       "excerpt": "Must be a safe CSS identifier; otherwise, the default hash is used as a fallback.",
       "symbol_ids": [
         "sym:ts:src/helper/css/common.ts:ClassNameSlug"
@@ -21011,7 +21558,7 @@
       "source_path": "src/helper/css/common.ts",
       "source_sha": "443d07bda09c7f946db6e22811994355661b778fbac9b7a2c7aab35308f52fd8",
       "severity": "soft",
-      "claim": "rawCssString is experimental and its API may change",
+      "claim": "rawCssString is an experimental feature whose API may change",
       "rationale": "Consumers should be aware the API is unstable and subject to change",
       "excerpt": "`rawCssString` is an experimental feature. The API might be changed.",
       "symbol_ids": [
@@ -21022,10 +21569,10 @@
       "source": "docstring:src/helper/css/index.ts",
       "source_path": "src/helper/css/index.ts",
       "source_sha": "4840089e61a7f23da8001dade7f2dcefd93b3127a8eceeb9b87112f5a7b1e6f7",
-      "severity": "soft",
-      "claim": "createCssContext is experimental and its API may change",
-      "rationale": "Consumers should be cautious relying on this API since it is marked experimental and subject to change",
-      "excerpt": "createCssContext is an experimental feature. The API might be changed.",
+      "severity": "context",
+      "claim": "createCssContext is an experimental feature whose API might change",
+      "rationale": "Marked @experimental, signaling instability for consumers",
+      "excerpt": "`createCssContext` is an experimental feature.\nThe API might be changed.",
       "symbol_ids": [
         "sym:ts:src/helper/css/index.ts:createCssContext",
         "sym:ts:src/jsx/dom/css.ts:createCssContext"
@@ -21036,8 +21583,8 @@
       "source_path": "src/helper/proxy/index.ts",
       "source_sha": "a19d0605956c622c6c6378f224a8502c0e413d2dbd12bde2c88c60478a81f037",
       "severity": "context",
-      "claim": "proxy wrapper mirrors fetch's parameters and return value, except for proxy-specific options",
-      "rationale": "Establishes API surface compatibility with fetch",
+      "claim": "proxy mirrors fetch's parameters and return value, except for proxy-specific options",
+      "rationale": "Defines the API surface relative to fetch",
       "excerpt": "The parameters and return value are the same as for `fetch` (except for the proxy-specific options).",
       "symbol_ids": [
         "sym:ts:src/adapter/cloudflare-pages/handler.ts:fetch",
@@ -21049,8 +21596,8 @@
       "source_path": "src/helper/proxy/index.ts",
       "source_sha": "a19d0605956c622c6c6378f224a8502c0e413d2dbd12bde2c88c60478a81f037",
       "severity": "context",
-      "claim": "Unnecessary response headers are stripped and the returned Response can be returned as-is from a handler",
-      "rationale": "Describes response sanitization enabling direct handler return",
+      "claim": "Unnecessary response headers are deleted and the returned Response can be returned directly from a handler",
+      "rationale": "Explains response post-processing and intended usage pattern",
       "excerpt": "Unnecessary response headers are deleted and a Response object is returned that can be returned as is as a response from the handler.",
       "symbol_ids": [
         "sym:ts:src/client/types.ts:Response",
@@ -21062,20 +21609,8 @@
       "source_path": "src/helper/proxy/index.ts",
       "source_sha": "a19d0605956c622c6c6378f224a8502c0e413d2dbd12bde2c88c60478a81f037",
       "severity": "soft",
-      "claim": "Set Authorization to undefined to avoid propagating the original request's Authorization header",
-      "rationale": "Prevents leaking caller credentials to upstream proxy target",
-      "excerpt": "Authorization: undefined, // do not propagate request headers contained in c.req.header('Authorization')",
-      "symbol_ids": [
-        "sym:ts:src/helper/proxy/index.ts:proxy"
-      ]
-    },
-    {
-      "source": "docstring:src/helper/proxy/index.ts",
-      "source_path": "src/helper/proxy/index.ts",
-      "source_sha": "a19d0605956c622c6c6378f224a8502c0e413d2dbd12bde2c88c60478a81f037",
-      "severity": "soft",
-      "claim": "Spreading c.req.header() into proxy headers should only be done when forwarding all request data including credentials is necessary",
-      "rationale": "Forwarding all headers including credentials has security implications",
+      "claim": "Forwarding all request headers (including credentials) should only be done when necessary",
+      "rationale": "Caution against unnecessarily propagating credentials",
       "excerpt": "optional, specify only when forwarding all the request data (including credentials) is necessary.",
       "symbol_ids": [
         "sym:ts:src/helper/proxy/index.ts:proxy"
@@ -21085,9 +21620,21 @@
       "source": "docstring:src/helper/proxy/index.ts",
       "source_path": "src/helper/proxy/index.ts",
       "source_sha": "a19d0605956c622c6c6378f224a8502c0e413d2dbd12bde2c88c60478a81f037",
+      "severity": "soft",
+      "claim": "Setting Authorization to undefined prevents propagation of the incoming request's Authorization header",
+      "rationale": "Guidance to avoid leaking credentials to upstream",
+      "excerpt": "Authorization: undefined, // do not propagate request headers contained in c.req.header('Authorization')",
+      "symbol_ids": [
+        "sym:ts:src/helper/proxy/index.ts:proxy"
+      ]
+    },
+    {
+      "source": "docstring:src/helper/proxy/index.ts",
+      "source_path": "src/helper/proxy/index.ts",
+      "source_sha": "a19d0605956c622c6c6378f224a8502c0e413d2dbd12bde2c88c60478a81f037",
       "severity": "context",
-      "claim": "The Accept-Encoding header is replaced with an encoding the runtime can handle",
-      "rationale": "Documents automatic header rewriting behavior to ensure runtime compatibility",
+      "claim": "The Accept-Encoding header is replaced with an encoding the current runtime can handle",
+      "rationale": "Describes automatic header rewriting behavior",
       "excerpt": "The “Accept-Encoding” header is replaced with an encoding that the current runtime can handle.",
       "symbol_ids": [
         "sym:ts:src/helper/proxy/index.ts:proxy"
@@ -21099,7 +21646,7 @@
       "source_sha": "a19d0605956c622c6c6378f224a8502c0e413d2dbd12bde2c88c60478a81f037",
       "severity": "soft",
       "claim": "strictConnectionProcessing (strict RFC compliance mode) should be used only in trusted environments",
-      "rationale": "Strict RFC compliance mode is unsafe outside trusted environments",
+      "rationale": "Strict RFC mode has security/operational implications limiting its safe use",
       "excerpt": "Strict RFC compliance mode (use only in trusted environments)",
       "symbol_ids": [
         "sym:ts:src/helper/proxy/index.ts:proxy"
@@ -21110,8 +21657,8 @@
       "source_path": "src/helper/ssg/middleware.ts",
       "source_sha": "8a5fb4a45be9c8beb069e7c9c090d707de6c713228665308e83724c178067042",
       "severity": "hard",
-      "claim": "Deprecated; use X_HONO_DISABLE_SSG_HEADER_KEY instead. Will be removed in the next minor version.",
-      "rationale": "Explicit @deprecated tag with scheduled removal in the next minor version.",
+      "claim": "This constant is deprecated; use X_HONO_DISABLE_SSG_HEADER_KEY instead.",
+      "rationale": "Marked @deprecated and scheduled for removal in the next minor version.",
       "excerpt": "@deprecated  \nUse `X_HONO_DISABLE_SSG_HEADER_KEY` instead.\nThis constant will be removed in the next minor version.",
       "symbol_ids": [
         "sym:ts:src/helper/ssg/middleware.ts:SSG_DISABLED_RESPONSE",
@@ -21124,7 +21671,7 @@
       "source_sha": "8a5fb4a45be9c8beb069e7c9c090d707de6c713228665308e83724c178067042",
       "severity": "soft",
       "claim": "disableSSG is an experimental feature whose API may change",
-      "rationale": "Consumers should be cautious relying on it because the API is unstable",
+      "rationale": "Consumers should be cautious relying on it because the API is not stable",
       "excerpt": "`disableSSG` is an experimental feature. The API might be changed.",
       "symbol_ids": [
         "sym:ts:src/helper/ssg/middleware.ts:disableSSG"
@@ -21146,9 +21693,9 @@
       "source": "docstring:src/helper/ssg/middleware.ts",
       "source_path": "src/helper/ssg/middleware.ts",
       "source_sha": "8a5fb4a45be9c8beb069e7c9c090d707de6c713228665308e83724c178067042",
-      "severity": "context",
-      "claim": "onlySSG is an experimental feature whose API may change",
-      "rationale": "Consumers should be aware that relying on this feature carries instability risk",
+      "severity": "soft",
+      "claim": "onlySSG is experimental and its API may change",
+      "rationale": "Consumers should be aware the API is unstable and subject to change",
       "excerpt": "`onlySSG` is an experimental feature. The API might be changed.",
       "symbol_ids": [
         "sym:ts:src/helper/ssg/middleware.ts:onlySSG"
@@ -21159,8 +21706,8 @@
       "source_path": "src/helper/ssg/plugins.ts",
       "source_sha": "7d72337f0418c3653d4bef98025ca14cb3b4237f1404be7d2649ea4b01594148",
       "severity": "hard",
-      "claim": "When using redirectPlugin with defaultPlugin, redirectPlugin must be placed before defaultPlugin in the plugins array",
-      "rationale": "defaultPlugin skips non-200 responses, so it would discard redirect responses if it ran first",
+      "claim": "When used together, redirectPlugin must be placed before defaultPlugin in the plugins array",
+      "rationale": "defaultPlugin skips non-200 responses, so placing it first prevents redirectPlugin from handling redirect status codes",
       "excerpt": "place `redirectPlugin` before it, because `defaultPlugin` skips non-200 responses",
       "symbol_ids": [
         "sym:ts:src/adapter/bun/ssg.ts:toSSG",
@@ -21175,8 +21722,8 @@
       "source_path": "src/helper/ssg/plugins.ts",
       "source_sha": "7d72337f0418c3653d4bef98025ca14cb3b4237f1404be7d2649ea4b01594148",
       "severity": "context",
-      "claim": "Defines the recommended default behavior for the plugin system",
-      "rationale": "Establishes the role of this plugin as the default/recommended one",
+      "claim": "Defines the recommended default behavior as a plugin",
+      "rationale": "Describes the role of the plugin within the system",
       "excerpt": "The default plugin that defines the recommended behavior.",
       "symbol_ids": [
         "sym:ts:src/helper/ssg/plugins.ts:defaultPlugin"
@@ -21187,8 +21734,8 @@
       "source_path": "src/helper/ssg/plugins.ts",
       "source_sha": "7d72337f0418c3653d4bef98025ca14cb3b4237f1404be7d2649ea4b01594148",
       "severity": "soft",
-      "claim": "defaultPlugin is experimental and its API may change",
-      "rationale": "Consumers should be cautious relying on the API since it is marked experimental and subject to change",
+      "claim": "defaultPlugin is an experimental feature whose API may change",
+      "rationale": "Consumers should be aware the API is unstable and subject to change",
       "excerpt": "`defaultPlugin` is an experimental feature. The API might be changed.",
       "symbol_ids": [
         "sym:ts:src/helper/ssg/plugins.ts:defaultPlugin"
@@ -21199,10 +21746,11 @@
       "source_path": "src/helper/ssg/plugins.ts",
       "source_sha": "7d72337f0418c3653d4bef98025ca14cb3b4237f1404be7d2649ea4b01594148",
       "severity": "context",
-      "claim": "redirectPlugin generates HTML redirect pages for HTTP redirect responses with status codes 301, 302, 303, 307, and 308",
-      "rationale": "Describes the purpose and scope of the plugin",
-      "excerpt": "generates HTML redirect pages for HTTP redirect responses for status codes 301, 302, 303, 307 and 308",
+      "claim": "defaultPlugin skips non-200 responses",
+      "rationale": "Explains the ordering constraint with redirectPlugin",
+      "excerpt": "`defaultPlugin` skips non-200 responses",
       "symbol_ids": [
+        "sym:ts:src/helper/ssg/plugins.ts:defaultPlugin",
         "sym:ts:src/helper/ssg/plugins.ts:redirectPlugin"
       ]
     },
@@ -21211,9 +21759,21 @@
       "source_path": "src/helper/ssg/plugins.ts",
       "source_sha": "7d72337f0418c3653d4bef98025ca14cb3b4237f1404be7d2649ea4b01594148",
       "severity": "context",
+      "claim": "redirectPlugin generates HTML redirect pages for HTTP redirect responses with status codes 301, 302, 303, 307, and 308",
+      "rationale": "Describes the plugin's purpose and supported status codes",
+      "excerpt": "The redirect plugin that generates HTML redirect pages for HTTP redirect responses for status codes 301, 302, 303, 307 and 308.",
+      "symbol_ids": [
+        "sym:ts:src/helper/ssg/plugins.ts:redirectPlugin"
+      ]
+    },
+    {
+      "source": "docstring:src/helper/ssg/plugins.ts",
+      "source_path": "src/helper/ssg/plugins.ts",
+      "source_sha": "7d72337f0418c3653d4bef98025ca14cb3b4237f1404be7d2649ea4b01594148",
+      "severity": "soft",
       "claim": "redirectPlugin is experimental and its API may change",
-      "rationale": "Consumers should be aware that the API is unstable",
-      "excerpt": "`redirectPlugin` is an experimental feature. The API might be changed.",
+      "rationale": "Consumers should be cautious depending on it as the API is unstable",
+      "excerpt": "`redirectPlugin` is an experimental feature.\nThe API might be changed.",
       "symbol_ids": [
         "sym:ts:src/helper/ssg/plugins.ts:redirectPlugin"
       ]
@@ -21224,7 +21784,7 @@
       "source_sha": "a178a70327d231691d30f1dd5a915eaba7c8933555071f33b36bdb6d4622e6bc",
       "severity": "soft",
       "claim": "toSSG is an experimental feature whose API may change",
-      "rationale": "Consumers should be cautious relying on it because the API is not stable",
+      "rationale": "Consumers should be aware the API is unstable and subject to change",
       "excerpt": "`toSSG` is an experimental feature. The API might be changed.",
       "symbol_ids": [
         "sym:ts:src/adapter/bun/ssg.ts:toSSG",
@@ -21238,7 +21798,7 @@
       "source_sha": "a178a70327d231691d30f1dd5a915eaba7c8933555071f33b36bdb6d4622e6bc",
       "severity": "soft",
       "claim": "FileSystemModule is experimental and its API may change",
-      "rationale": "Consumers should be cautious relying on this API since it may change",
+      "rationale": "Consumers should be aware the API is unstable and subject to change",
       "excerpt": "`FileSystemModule` is an experimental feature. The API might be changed.",
       "symbol_ids": [
         "sym:ts:src/helper/ssg/ssg.ts:FileSystemModule"
@@ -21248,9 +21808,9 @@
       "source": "docstring:src/helper/ssg/ssg.ts",
       "source_path": "src/helper/ssg/ssg.ts",
       "source_sha": "a178a70327d231691d30f1dd5a915eaba7c8933555071f33b36bdb6d4622e6bc",
-      "severity": "context",
+      "severity": "soft",
       "claim": "ToSSGAdaptorInterface is experimental and its API may change",
-      "rationale": "Consumers should be aware the API is unstable",
+      "rationale": "Consumers should be cautious relying on this API since it is marked experimental and subject to change",
       "excerpt": "`ToSSGAdaptorInterface` is an experimental feature. The API might be changed.",
       "symbol_ids": [
         "sym:ts:src/helper/ssg/ssg.ts:ToSSGAdaptorInterface"
@@ -21262,7 +21822,7 @@
       "source_sha": "a178a70327d231691d30f1dd5a915eaba7c8933555071f33b36bdb6d4622e6bc",
       "severity": "soft",
       "claim": "ToSSGInterface is experimental and its API may change",
-      "rationale": "Consumers should be cautious relying on it because the API is not stable",
+      "rationale": "Consumers should be aware the API is unstable and subject to change",
       "excerpt": "`ToSSGInterface` is an experimental feature. The API might be changed.",
       "symbol_ids": [
         "sym:ts:src/helper/ssg/ssg.ts:ToSSGInterface"
@@ -21273,8 +21833,8 @@
       "source_path": "src/helper/ssg/ssg.ts",
       "source_sha": "a178a70327d231691d30f1dd5a915eaba7c8933555071f33b36bdb6d4622e6bc",
       "severity": "soft",
-      "claim": "ToSSGResult is an experimental feature whose API may change",
-      "rationale": "Consumers should be cautious relying on it because the API is unstable",
+      "claim": "ToSSGResult is experimental and its API may change",
+      "rationale": "Consumers should be cautious relying on it because the API is not stable",
       "excerpt": "`ToSSGResult` is an experimental feature. The API might be changed.",
       "symbol_ids": [
         "sym:ts:src/helper/ssg/ssg.ts:ToSSGResult"
@@ -21285,8 +21845,8 @@
       "source_path": "src/helper/ssg/ssg.ts",
       "source_sha": "a178a70327d231691d30f1dd5a915eaba7c8933555071f33b36bdb6d4622e6bc",
       "severity": "soft",
-      "claim": "saveContentToFile is experimental and its API may change",
-      "rationale": "Consumers should be cautious relying on this API since it is marked experimental and subject to change",
+      "claim": "saveContentToFile is an experimental feature whose API may change",
+      "rationale": "Consumers should be aware the API is unstable and subject to change",
       "excerpt": "`saveContentToFile` is an experimental feature. The API might be changed.",
       "symbol_ids": [
         "sym:ts:src/helper/ssg/ssg.ts:createdDirs",
@@ -21299,7 +21859,7 @@
       "source_sha": "a178a70327d231691d30f1dd5a915eaba7c8933555071f33b36bdb6d4622e6bc",
       "severity": "soft",
       "claim": "fetchRoutesContent is an experimental feature whose API may change",
-      "rationale": "Consumers should be cautious relying on it because the API is unstable",
+      "rationale": "Marked @experimental with explicit warning that the API might change, signaling consumers should not rely on stability",
       "excerpt": "`fetchRoutesContent` is an experimental feature. The API might be changed.",
       "symbol_ids": [
         "sym:ts:src/helper/ssg/ssg.ts:fetchRoutesContent"
@@ -21311,8 +21871,8 @@
       "source_sha": "068061a01effa9a3af709e30abb5803310868186a177c8f57ed5e1886966fbb1",
       "severity": "context",
       "claim": ".mount() integrates applications built with other frameworks into a Hono application",
-      "rationale": "Describes the architectural purpose of the mount method as an interop boundary between Hono and external frameworks",
-      "excerpt": ".mount()` allows you to mount applications built with other frameworks into your Hono application",
+      "rationale": "Describes the architectural purpose of .mount() as a framework interop mechanism",
+      "excerpt": ".mount()` allows you to mount applications built with other frameworks into your Hono application.",
       "symbol_ids": [
         "sym:ts:src/hono-base.ts:Hono",
         "sym:ts:src/hono-base.ts:mount",
@@ -21338,12 +21898,24 @@
       ]
     },
     {
+      "source": "docstring:src/hono-base.ts",
+      "source_path": "src/hono-base.ts",
+      "source_sha": "068061a01effa9a3af709e30abb5803310868186a177c8f57ed5e1886966fbb1",
+      "severity": "context",
+      "claim": "The replaceRequest option controls how the request is forwarded to the mounted application; passing (req) => req sends it without modification",
+      "rationale": "Documents an option that affects request transformation behavior at the mount boundary",
+      "excerpt": "Send the request to another application without modification.\napp.mount('/app', anotherApp, {\n  replaceRequest: (req) => req,\n})",
+      "symbol_ids": [
+        "sym:ts:src/hono-base.ts:mount"
+      ]
+    },
+    {
       "source": "docstring:src/hono.ts",
       "source_path": "src/hono.ts",
       "source_sha": "d39498b9bb339bfc72cbc3741d1dbd499b2fb9aa762204418c7a7c241bcae8d4",
       "severity": "context",
-      "claim": "Hono class extends HonoBase to provide routing setup and customizable options",
-      "rationale": "Describes the inheritance and purpose of the Hono class",
+      "claim": "Hono class extends HonoBase to set up routing and allow custom options",
+      "rationale": "Describes the inheritance relationship and purpose of the Hono class",
       "excerpt": "The Hono class extends the functionality of the HonoBase class. It sets up routing and allows for custom options to be passed.",
       "symbol_ids": [
         "sym:ts:src/hono.ts:Hono"
@@ -21355,7 +21927,7 @@
       "source_sha": "6f37149536b482d7b654d69cf4c44ef1043679e5c04f635da24fe57f38770c36",
       "severity": "hard",
       "claim": "HTTPException must be used when a fatal error such as authentication failure occurs",
-      "rationale": "Explicit 'must' constraint on consumers for handling fatal errors like auth failures",
+      "rationale": "Explicit 'must' constraint directing consumers to use HTTPException for fatal errors like auth failures",
       "excerpt": "`HTTPException` must be used when a fatal error such as authentication failure occurs.",
       "symbol_ids": [
         "sym:ts:src/http-exception.ts:HTTPException"
@@ -21366,7 +21938,7 @@
       "source_path": "src/jsx/components.ts",
       "source_sha": "c00f5fc797e3de77257e39267786c77f49aadf9cfb0359410f2be74dca2cc3a3",
       "severity": "soft",
-      "claim": "ErrorBoundary is experimental and its API may change",
+      "claim": "ErrorBoundary is an experimental feature whose API may change",
       "rationale": "Consumers should be cautious relying on it because the API is unstable",
       "excerpt": "`ErrorBoundary` is an experimental feature. The API might be changed.",
       "symbol_ids": [
@@ -21379,8 +21951,8 @@
       "source_path": "src/jsx/dom/css.ts",
       "source_sha": "a3dd5058a1fa52593de754365b6cc7ba5ada4fcd9dfab7e3b4e56a6d89efc854",
       "severity": "soft",
-      "claim": "createCssContext is experimental and its API may change",
-      "rationale": "Consumers should be aware the API is unstable and subject to change",
+      "claim": "createCssContext is an experimental API and its surface may change",
+      "rationale": "Marked @experimental with a warning that the API might change, signaling consumers should expect instability",
       "excerpt": "`createCssContext` is an experimental feature. The API might be changed.",
       "symbol_ids": [
         "sym:ts:src/helper/css/index.ts:createCssContext",
@@ -21392,8 +21964,8 @@
       "source_path": "src/jsx/streaming.ts",
       "source_sha": "0171bc75c6341438ed411e394a49c0d812f2a102dc13e650f6e711c640479967",
       "severity": "context",
-      "claim": "StreamingContext provides scriptNonce used for scripts generated by Suspense and ErrorBoundary",
-      "rationale": "Documents the purpose of the nonce value in streaming context for CSP-related script tagging",
+      "claim": "StreamingContext provides a scriptNonce used for scripts generated by Suspense and ErrorBoundary",
+      "rationale": "Allows passing a nonce to inline scripts emitted during streaming, supporting CSP requirements",
       "excerpt": "Used to specify nonce for scripts generated by `Suspense` and `ErrorBoundary`.",
       "symbol_ids": [
         "sym:ts:src/jsx/components.ts:ErrorBoundary",
@@ -21408,8 +21980,8 @@
       "source_path": "src/jsx/streaming.ts",
       "source_sha": "0171bc75c6341438ed411e394a49c0d812f2a102dc13e650f6e711c640479967",
       "severity": "soft",
-      "claim": "Suspense is an experimental feature whose API may change",
-      "rationale": "Consumers should be cautious relying on it because the API is not stable",
+      "claim": "Suspense is an experimental feature and its API may change",
+      "rationale": "Consumers should be cautious relying on it since the API is unstable",
       "excerpt": "`Suspense` is an experimental feature. The API might be changed.",
       "symbol_ids": [
         "sym:ts:src/jsx/dom/components.ts:Suspense",
@@ -21420,9 +21992,9 @@
       "source": "docstring:src/jsx/streaming.ts",
       "source_path": "src/jsx/streaming.ts",
       "source_sha": "0171bc75c6341438ed411e394a49c0d812f2a102dc13e650f6e711c640479967",
-      "severity": "soft",
+      "severity": "context",
       "claim": "renderToReadableStream is experimental and its API may change",
-      "rationale": "Consumers should be aware the API is unstable and may change",
+      "rationale": "Marked as experimental, signaling instability for consumers",
       "excerpt": "`renderToReadableStream()` is an experimental feature. The API might be changed.",
       "symbol_ids": [
         "sym:ts:src/jsx/dom/server.ts:renderToReadableStream",
@@ -21435,10 +22007,34 @@
       "source_sha": "8692ff7ac33e3291cf7c83d842fab91309cd655448e388f285cf0b888f7ce606",
       "severity": "hard",
       "claim": "basicAuth throws HTTPException if neither username/password pair nor verifyUser option is provided",
-      "rationale": "Configuration must include at least one credential verification mechanism",
-      "excerpt": "{HTTPException} If neither \"username and password\" nor \"verifyUser\" options are provided.",
+      "rationale": "Caller must supply one of these credential mechanisms or the middleware will throw",
+      "excerpt": "@throws — {HTTPException} If neither \"username and password\" nor \"verifyUser\" options are provided.",
       "symbol_ids": [
         "sym:ts:src/http-exception.ts:HTTPException",
+        "sym:ts:src/middleware/basic-auth/index.ts:basicAuth"
+      ]
+    },
+    {
+      "source": "docstring:src/middleware/basic-auth/index.ts",
+      "source_path": "src/middleware/basic-auth/index.ts",
+      "source_sha": "8692ff7ac33e3291cf7c83d842fab91309cd655448e388f285cf0b888f7ce606",
+      "severity": "context",
+      "claim": "hashFunction option is used for secure comparison of credentials",
+      "rationale": "Indicates security-sensitive comparison is configurable",
+      "excerpt": "The hash function used for secure comparison.",
+      "symbol_ids": [
+        "sym:ts:src/middleware/basic-auth/index.ts:basicAuth"
+      ]
+    },
+    {
+      "source": "docstring:src/middleware/basic-auth/index.ts",
+      "source_path": "src/middleware/basic-auth/index.ts",
+      "source_sha": "8692ff7ac33e3291cf7c83d842fab91309cd655448e388f285cf0b888f7ce606",
+      "severity": "context",
+      "claim": "realm option sets the realm attribute on the WWW-Authenticate header",
+      "rationale": "Documents HTTP auth header behavior",
+      "excerpt": "The realm attribute for the WWW-Authenticate header.",
+      "symbol_ids": [
         "sym:ts:src/middleware/basic-auth/index.ts:basicAuth"
       ]
     },
@@ -21448,7 +22044,7 @@
       "source_sha": "fdce02912d13cb203bdf9911ee015aa20c5921673b9334c800a23468228bada7",
       "severity": "context",
       "claim": "Authentication failures throw HTTPException with 401 for missing/invalid token or 400 for invalid request.",
-      "rationale": "Documents the error-signaling contract for failed authentication.",
+      "rationale": "Documents the error contract of the middleware.",
       "excerpt": "@throws — {HTTPException} If authentication fails, with 401 status code for missing or invalid token, or 400 status code for invalid request.",
       "symbol_ids": [
         "sym:ts:src/http-exception.ts:HTTPException",
@@ -21461,7 +22057,7 @@
       "source_sha": "fdce02912d13cb203bdf9911ee015aa20c5921673b9334c800a23468228bada7",
       "severity": "hard",
       "claim": "Either 'token' or 'verifyToken' option must be provided; otherwise an Error is thrown.",
-      "rationale": "Constructor-time validation enforces that at least one token source is configured.",
+      "rationale": "Constructor enforces that at least one validation mechanism is configured.",
       "excerpt": "@throws — {Error} If neither \"token\" nor \"verifyToken\" options are provided.",
       "symbol_ids": [
         "sym:ts:src/middleware/bearer-auth/index.ts:bearerAuth"
@@ -21472,8 +22068,8 @@
       "source_path": "src/middleware/bearer-auth/index.ts",
       "source_sha": "fdce02912d13cb203bdf9911ee015aa20c5921673b9334c800a23468228bada7",
       "severity": "context",
-      "claim": "If options.prefix is set to the empty string, no prefix is expected on the Authorization header.",
-      "rationale": "Describes special-case configuration of the Authorization scheme prefix.",
+      "claim": "Setting options.prefix to the empty string disables the expected Authorization header prefix.",
+      "rationale": "Configurability of the Authorization scheme prefix affects how tokens are parsed.",
       "excerpt": "If set to the empty string, no prefix is expected.",
       "symbol_ids": [
         "sym:ts:src/middleware/bearer-auth/index.ts:bearerAuth"
@@ -21484,8 +22080,8 @@
       "source_path": "src/middleware/bearer-auth/index.ts",
       "source_sha": "fdce02912d13cb203bdf9911ee015aa20c5921673b9334c800a23468228bada7",
       "severity": "context",
-      "claim": "options.hashFunction is used for safe comparison of authentication tokens.",
-      "rationale": "Indicates token comparison should be done via a hash function for safety (timing-safe comparison).",
+      "claim": "options.hashFunction enables safe comparison of authentication tokens.",
+      "rationale": "Hashing is provided to support timing-safe or otherwise secure token comparison.",
       "excerpt": "A function to handle hashing for safe comparison of authentication tokens.",
       "symbol_ids": [
         "sym:ts:src/middleware/bearer-auth/index.ts:bearerAuth"
@@ -21497,7 +22093,7 @@
       "source_sha": "0394494d589988b1b87c8a6c4016593e9f3b49f3d3ece2d29e904d848c5a14c8",
       "severity": "context",
       "claim": "If the original response already has a Vary header, values are merged with duplicates removed",
-      "rationale": "Describes merge behavior for Vary header",
+      "rationale": "Describes merge behavior for the Vary header",
       "excerpt": "If the original response header already contains a `Vary` header, the values are merged, removing any duplicates.",
       "symbol_ids": [
         "sym:ts:src/middleware/cache/index.ts:cache"
@@ -21520,20 +22116,8 @@
       "source_path": "src/middleware/cache/index.ts",
       "source_sha": "0394494d589988b1b87c8a6c4016593e9f3b49f3d3ece2d29e904d848c5a14c8",
       "severity": "context",
-      "claim": "keyGenerator can derive cache keys from request or context parameters within the cacheName store",
-      "rationale": "Explains key scoping and customization",
-      "excerpt": "Generates keys for every request in the `cacheName` store. This can be used to cache data based on request parameters or context parameters.",
-      "symbol_ids": [
-        "sym:ts:src/middleware/cache/index.ts:cache"
-      ]
-    },
-    {
-      "source": "docstring:src/middleware/cache/index.ts",
-      "source_path": "src/middleware/cache/index.ts",
-      "source_sha": "0394494d589988b1b87c8a6c4016593e9f3b49f3d3ece2d29e904d848c5a14c8",
-      "severity": "context",
-      "claim": "onCacheNotAvailable is invoked when globalThis.caches is unavailable; defaults to console log, can be set false to suppress or provided as custom function",
-      "rationale": "Describes fallback behavior when Cache API is missing",
+      "claim": "onCacheNotAvailable is invoked when globalThis.caches is unavailable; defaults to console log, can be set to false to suppress or replaced with a custom function",
+      "rationale": "Describes fallback behavior when the Cache API is unavailable in the runtime",
       "excerpt": "A callback invoked when `globalThis.caches` is not available. By default, a message is logged to the console.",
       "symbol_ids": [
         "sym:ts:src/middleware/cache/index.ts:cache"
@@ -21544,8 +22128,8 @@
       "source_path": "src/middleware/cache/index.ts",
       "source_sha": "0394494d589988b1b87c8a6c4016593e9f3b49f3d3ece2d29e904d848c5a14c8",
       "severity": "hard",
-      "claim": "options.wait must be true for the Deno environment",
-      "rationale": "Deno requires waiting for the cache.put Promise to resolve before continuing",
+      "claim": "options.wait must be true in the Deno environment to await cache.put resolution before continuing",
+      "rationale": "Deno requires awaiting the cache.put promise before continuing the request",
       "excerpt": "Required to be true for the Deno environment.",
       "symbol_ids": [
         "sym:ts:src/middleware/cache/index.ts:cache"
@@ -21556,13 +22140,12 @@
       "source_path": "src/middleware/combine/index.ts",
       "source_sha": "5d4da987f3c9b290c11be98029a62946a8ca47618ab7616ab3bdefbb5317507a",
       "severity": "context",
-      "claim": "Middleware is applied in the order it is passed; if any middleware exits without throwing, subsequent middleware will not be executed.",
-      "rationale": "Describes the short-circuit evaluation behavior of the composed middleware.",
-      "excerpt": "Middleware is applied in the order it is passed, and if any middleware exits without returning an exception first, subsequent middleware will not be executed.",
+      "claim": "A condition function returning false halts evaluation and prevents remaining middleware from executing.",
+      "rationale": "Describes short-circuit behavior of condition functions in the composition.",
+      "excerpt": "If returns false the evaluation will be halted, and rest of the middleware will not be executed.",
       "symbol_ids": [
         "sym:ts:src/middleware/combine/index.ts:Condition",
-        "sym:ts:src/middleware/combine/index.ts:some",
-        "sym:ts:src/types.ts:MiddlewareHandler"
+        "sym:ts:src/middleware/combine/index.ts:every"
       ]
     },
     {
@@ -21570,7 +22153,7 @@
       "source_path": "src/middleware/combine/index.ts",
       "source_sha": "5d4da987f3c9b290c11be98029a62946a8ca47618ab7616ab3bdefbb5317507a",
       "severity": "context",
-      "claim": "Middleware is applied in the order it is passed; if any middleware throws, subsequent middleware will not be executed.",
+      "claim": "Middleware in the composed array is applied in the order passed; if any middleware throws, subsequent middleware will not execute.",
       "rationale": "Describes execution semantics of the composed middleware.",
       "excerpt": "Middleware is applied in the order it is passed, and if any middleware throws an error, subsequent middleware will not be executed.",
       "symbol_ids": [
@@ -21584,11 +22167,13 @@
       "source_path": "src/middleware/combine/index.ts",
       "source_sha": "5d4da987f3c9b290c11be98029a62946a8ca47618ab7616ab3bdefbb5317507a",
       "severity": "context",
-      "claim": "A condition function returning false halts evaluation and prevents execution of remaining middleware.",
-      "rationale": "Describes short-circuit semantics for condition functions.",
-      "excerpt": "If returns false the evaluation will be halted, and rest of the middleware will not be executed.",
+      "claim": "some() runs middleware in the order passed; if a middleware exits without throwing, subsequent middleware is not executed.",
+      "rationale": "Describes execution semantics of the composed middleware.",
+      "excerpt": "Middleware is applied in the order it is passed, and if any middleware exits without returning an exception first, subsequent middleware will not be executed.",
       "symbol_ids": [
-        "sym:ts:src/middleware/combine/index.ts:every"
+        "sym:ts:src/middleware/combine/index.ts:Condition",
+        "sym:ts:src/middleware/combine/index.ts:some",
+        "sym:ts:src/types.ts:MiddlewareHandler"
       ]
     },
     {
@@ -21596,8 +22181,8 @@
       "source_path": "src/middleware/combine/index.ts",
       "source_sha": "5d4da987f3c9b290c11be98029a62946a8ca47618ab7616ab3bdefbb5317507a",
       "severity": "context",
-      "claim": "A condition function returning true halts evaluation and prevents remaining middleware from executing.",
-      "rationale": "Defines how condition functions control middleware chain execution.",
+      "claim": "A condition function returning true halts evaluation and skips the rest of the middleware.",
+      "rationale": "Defines short-circuit behavior of condition functions in the composition.",
       "excerpt": "If returns true the evaluation will be halted, and rest of the middleware will not be executed.",
       "symbol_ids": [
         "sym:ts:src/middleware/combine/index.ts:some"
@@ -21608,9 +22193,9 @@
       "source_path": "src/middleware/compress/index.ts",
       "source_sha": "e58c1ee45b6369e311f4fcd6c926e2680dfe5a6f60442e2e1705b0e10b87c7ea",
       "severity": "context",
-      "claim": "Compress middleware supports 'gzip' or 'deflate' encoding; if unspecified, both are allowed and selected via Accept-Encoding header",
-      "rationale": "Describes default negotiation behavior for response compression",
-      "excerpt": "If not defined, both are allowed and will be used based on the Accept-Encoding header.",
+      "claim": "Compress middleware for Hono framework",
+      "rationale": "Identifies the framework integration target",
+      "excerpt": "Compress Middleware for Hono.",
       "symbol_ids": [
         "sym:ts:src/hono-base.ts:Hono",
         "sym:ts:src/hono.ts:Hono",
@@ -21624,8 +22209,8 @@
       "source_path": "src/middleware/compress/index.ts",
       "source_sha": "e58c1ee45b6369e311f4fcd6c926e2680dfe5a6f60442e2e1705b0e10b87c7ea",
       "severity": "context",
-      "claim": "Default minimum response size for compression is 1024 bytes (threshold option)",
-      "rationale": "Establishes default threshold below which responses are not compressed",
+      "claim": "Threshold defaults to 1024 bytes minimum size for compression",
+      "rationale": "Documents default behavior threshold below which compression is skipped",
       "excerpt": "The minimum size in bytes to compress. Defaults to 1024 bytes.",
       "symbol_ids": [
         "sym:ts:src/middleware/compress/index.ts:compress"
@@ -21636,9 +22221,9 @@
       "source_path": "src/middleware/compress/index.ts",
       "source_sha": "e58c1ee45b6369e311f4fcd6c926e2680dfe5a6f60442e2e1705b0e10b87c7ea",
       "severity": "context",
-      "claim": "When encoding option is not provided and client accepts both, 'gzip' is prioritized over 'deflate'",
-      "rationale": "Documents tie-breaking default for compression scheme selection",
-      "excerpt": "'gzip' is prioritized if this option is not provided and the client provides both in the Accept-Encoding header.",
+      "claim": "When encoding option is not provided, both gzip and deflate are allowed and selected based on Accept-Encoding header, with gzip prioritized when client supports both",
+      "rationale": "Describes default content negotiation behavior",
+      "excerpt": "If not defined, both are allowed and will be used based on the Accept-Encoding header. 'gzip' is prioritized if this option is not provided and the client provides both in the Accept-Encoding header.",
       "symbol_ids": [
         "sym:ts:src/middleware/compress/index.ts:compress"
       ]
@@ -21648,9 +22233,9 @@
       "source_path": "src/middleware/csrf/index.ts",
       "source_sha": "dbf9ec0348aa7019c995e14ab8f53da4b5c332f367dcc116e3f77cd25461466e",
       "severity": "context",
-      "claim": "CSRF middleware allows the request if either origin validation or sec-fetch-site validation passes",
-      "rationale": "Defines the validation semantics: combined OR logic between two checks",
-      "excerpt": "The request is allowed if either validation passes.",
+      "claim": "CSRF middleware validates both request origin and sec-fetch-site header; request is allowed if either validation passes",
+      "rationale": "Defines the dual-validation security model where passing either check permits the request",
+      "excerpt": "Protects against Cross-Site Request Forgery attacks by validating request origins and sec-fetch-site headers. The request is allowed if either validation passes.",
       "symbol_ids": [
         "sym:ts:src/hono-base.ts:Hono",
         "sym:ts:src/hono.ts:Hono",
@@ -21664,8 +22249,8 @@
       "source_path": "src/middleware/csrf/index.ts",
       "source_sha": "dbf9ec0348aa7019c995e14ab8f53da4b5c332f367dcc116e3f77cd25461466e",
       "severity": "context",
-      "claim": "Default origin policy permits only the same origin as the request URL",
-      "rationale": "Describes secure-by-default behavior when no origin option is supplied",
+      "claim": "Default origin policy allows only same origin as the request URL",
+      "rationale": "Documents the secure-by-default origin behavior",
       "excerpt": "Default: Only same origin as the request URL",
       "symbol_ids": [
         "sym:ts:src/middleware/csrf/index.ts:csrf"
@@ -21676,8 +22261,8 @@
       "source_path": "src/middleware/csrf/index.ts",
       "source_sha": "dbf9ec0348aa7019c995e14ab8f53da4b5c332f367dcc116e3f77cd25461466e",
       "severity": "context",
-      "claim": "Default sec-fetch-site policy permits only 'same-origin'",
-      "rationale": "Describes secure-by-default behavior for the sec-fetch-site validation",
+      "claim": "Default sec-fetch-site policy allows only 'same-origin'",
+      "rationale": "Documents the secure-by-default sec-fetch-site behavior",
       "excerpt": "Default: Only allows 'same-origin'",
       "symbol_ids": [
         "sym:ts:src/middleware/csrf/index.ts:csrf"
@@ -21688,7 +22273,23 @@
       "source_path": "src/middleware/etag/index.ts",
       "source_sha": "6e593c9a40bb225f97b90644927de7b17a6e5a79f77436330e34922f729a01be",
       "severity": "context",
-      "claim": "Custom digest function receives response body as Uint8Array and returns ArrayBuffer or Promise of one",
+      "claim": "ETag middleware default digest algorithm is SHA-1",
+      "rationale": "Documents the default hashing algorithm used when no custom generateDigest is supplied",
+      "excerpt": "A custom digest generation function. By default, it uses 'SHA-1'",
+      "symbol_ids": [
+        "sym:ts:src/hono-base.ts:Hono",
+        "sym:ts:src/hono.ts:Hono",
+        "sym:ts:src/middleware/etag/index.ts:etag",
+        "sym:ts:src/preset/quick.ts:Hono",
+        "sym:ts:src/preset/tiny.ts:Hono"
+      ]
+    },
+    {
+      "source": "docstring:src/middleware/etag/index.ts",
+      "source_path": "src/middleware/etag/index.ts",
+      "source_sha": "6e593c9a40bb225f97b90644927de7b17a6e5a79f77436330e34922f729a01be",
+      "severity": "context",
+      "claim": "Custom generateDigest receives the response body as Uint8Array and returns ArrayBuffer or Promise<ArrayBuffer>",
       "rationale": "Defines the contract for custom digest implementations",
       "excerpt": "This function is called with the response body as a `Uint8Array` and should return a hash as an `ArrayBuffer` or a Promise of one.",
       "symbol_ids": [
@@ -21700,22 +22301,9 @@
       "source": "docstring:src/middleware/etag/index.ts",
       "source_path": "src/middleware/etag/index.ts",
       "source_sha": "6e593c9a40bb225f97b90644927de7b17a6e5a79f77436330e34922f729a01be",
-      "severity": "context",
-      "claim": "Default digest algorithm for ETag generation is SHA-1",
-      "rationale": "Documents the default hashing behavior consumers can override",
-      "excerpt": "A custom digest generation function. By default, it uses 'SHA-1'",
-      "symbol_ids": [
-        "sym:ts:src/middleware/etag/digest.ts:generateDigest",
-        "sym:ts:src/middleware/etag/index.ts:etag"
-      ]
-    },
-    {
-      "source": "docstring:src/middleware/etag/index.ts",
-      "source_path": "src/middleware/etag/index.ts",
-      "source_sha": "6e593c9a40bb225f97b90644927de7b17a6e5a79f77436330e34922f729a01be",
       "severity": "hard",
-      "claim": "304 responses must not contain a body and must include headers that would have been sent in an equivalent 200 OK response: Cache-Control, Content-Location, Date, ETag, Expires, and Vary",
-      "rationale": "Quoted directly from the HTTP spec governing 304 response semantics",
+      "claim": "304 responses must not contain a body and must include headers equivalent to a 200 OK response: Cache-Control, Content-Location, Date, ETag, Expires, and Vary",
+      "rationale": "Conformance to the HTTP spec for 304 Not Modified responses",
       "excerpt": "The response must not contain a body and must include the headers that would have been sent in an equivalent 200 OK response: Cache-Control, Content-Location, Date, ETag, Expires, and Vary.",
       "symbol_ids": [
         "sym:ts:src/middleware/etag/index.ts:RETAINED_304_HEADERS"
@@ -21726,8 +22314,8 @@
       "source_path": "src/middleware/etag/index.ts",
       "source_sha": "6e593c9a40bb225f97b90644927de7b17a6e5a79f77436330e34922f729a01be",
       "severity": "context",
-      "claim": "When weak option is true, 'W/' prefix is added to the ETag value",
-      "rationale": "Describes weak validation behavior per HTTP ETag semantics",
+      "claim": "Weak validation option prefixes the ETag value with 'W/'",
+      "rationale": "Describes how the weak option modifies the emitted ETag value",
       "excerpt": "If true is set, then `W/` is added to the prefix of the value.",
       "symbol_ids": [
         "sym:ts:src/middleware/etag/index.ts:etag"
@@ -21738,8 +22326,8 @@
       "source_path": "src/middleware/etag/index.ts",
       "source_sha": "6e593c9a40bb225f97b90644927de7b17a6e5a79f77436330e34922f729a01be",
       "severity": "context",
-      "claim": "retainedHeaders specifies headers preserved on 304 responses",
-      "rationale": "Controls which headers survive into Not Modified responses",
+      "claim": "retainedHeaders option controls which headers are preserved in 304 responses",
+      "rationale": "Indicates that header retention on 304 responses is configurable, affecting downstream caching behavior",
       "excerpt": "The headers that you want to retain in the 304 Response.",
       "symbol_ids": [
         "sym:ts:src/middleware/etag/index.ts:etag"
@@ -21750,8 +22338,8 @@
       "source_path": "src/middleware/ip-restriction/index.ts",
       "source_sha": "5f3ab0e943edc21f68636d51d3a67bcf602c77d9795c185c2394c61c5780dccd",
       "severity": "soft",
-      "claim": "The getIP function should be obtained via getConnInfo from the runtime-specific adapter",
-      "rationale": "IP retrieval is runtime-dependent; using the appropriate adapter ensures correct client IP resolution",
+      "claim": "The getIP function should be obtained via getConnInfo from the runtime-appropriate adapter",
+      "rationale": "Different runtimes (e.g., Cloudflare Workers) require their own adapter to retrieve client connection info",
       "excerpt": "A function to retrieve the client IP address. Use `getConnInfo` from the appropriate runtime adapter.",
       "symbol_ids": [
         "sym:ts:src/adapter/aws-lambda/conninfo.ts:getConnInfo",
@@ -21770,8 +22358,8 @@
       "source_path": "src/middleware/ip-restriction/index.ts",
       "source_sha": "5f3ab0e943edc21f68636d51d3a67bcf602c77d9795c185c2394c61c5780dccd",
       "severity": "context",
-      "claim": "Rules accept static IPs, CIDR ranges, or custom functions in denyList/allowList arrays",
-      "rationale": "Defines the supported rule shapes for IP restriction configuration",
+      "claim": "Rules in denyList/allowList may be a static IP, a CIDR range, or a custom function",
+      "rationale": "Defines the accepted shapes of IP rules for the middleware",
       "excerpt": "Each rule can be a static IP, a CIDR range, or a custom function.",
       "symbol_ids": [
         "sym:ts:src/middleware/ip-restriction/index.ts:ipRestriction"
@@ -21782,8 +22370,8 @@
       "source_path": "src/middleware/ip-restriction/index.ts",
       "source_sha": "5f3ab0e943edc21f68636d51d3a67bcf602c77d9795c185c2394c61c5780dccd",
       "severity": "context",
-      "claim": "When no custom onError handler is provided, blocked requests receive a 403 Forbidden response by default",
-      "rationale": "Documents the default blocking behavior for security-relevant denial responses",
+      "claim": "When no onError handler is provided, blocked requests receive a 403 Forbidden response",
+      "rationale": "Documents the default blocking behavior of the middleware",
       "excerpt": "Optional custom handler invoked when a request is blocked. Defaults to returning a 403 Forbidden response.",
       "symbol_ids": [
         "sym:ts:src/middleware/ip-restriction/index.ts:ipRestriction"
@@ -21794,8 +22382,8 @@
       "source_path": "src/middleware/jsx-renderer/index.ts",
       "source_sha": "80a0494c145c58d225fa6765d112f5e221fa1e802622c76a9939e85892d91f8b",
       "severity": "context",
-      "claim": "docType option controls DOCTYPE prefix; false disables it",
-      "rationale": "Describes how the docType option affects rendered HTML output",
+      "claim": "docType option controls whether a DOCTYPE is prepended to the HTML; false disables it",
+      "rationale": "Describes how the docType option affects rendered output",
       "excerpt": "The DOCTYPE to be added at the beginning of the HTML. If set to false, no DOCTYPE will be added.",
       "symbol_ids": [
         "sym:ts:src/middleware/jsx-renderer/index.ts:jsxRenderer"
@@ -21806,8 +22394,8 @@
       "source_path": "src/middleware/jsx-renderer/index.ts",
       "source_sha": "80a0494c145c58d225fa6765d112f5e221fa1e802622c76a9939e85892d91f8b",
       "severity": "context",
-      "claim": "stream option enables streaming response; true uses default headers, a record provides custom headers",
-      "rationale": "Describes how the stream option configures response streaming and headers",
+      "claim": "stream option enables streaming response with default headers when true, or custom headers when given a record",
+      "rationale": "Describes streaming behavior configuration",
       "excerpt": "If set to true, enables streaming response with default headers. If a record is provided, custom headers will be used.",
       "symbol_ids": [
         "sym:ts:src/middleware/jsx-renderer/index.ts:jsxRenderer"
@@ -21818,8 +22406,8 @@
       "source_path": "src/middleware/jwk/jwk.ts",
       "source_sha": "567bbcfc4bf3322401ee21783714c1e7b2fafe05ed76709884a63f0a34030e4b",
       "severity": "context",
-      "claim": "JWK Auth middleware for Hono framework",
-      "rationale": "Identifies the framework integration target",
+      "claim": "JWK middleware for Hono provides JWT verification using public keys",
+      "rationale": "Identifies the middleware's purpose and integration point",
       "excerpt": "JWK Auth Middleware for Hono.",
       "symbol_ids": [
         "sym:ts:src/hono-base.ts:Hono",
@@ -21834,9 +22422,9 @@
       "source_path": "src/middleware/jwk/jwk.ts",
       "source_sha": "567bbcfc4bf3322401ee21783714c1e7b2fafe05ed76709884a63f0a34030e4b",
       "severity": "context",
-      "claim": "Cookie token retrieval is only attempted when no token is found in the header",
-      "rationale": "Defines fallback ordering between header and cookie token sources",
-      "excerpt": "the middleware attempts to retrieve the token from a cookie with these options (optionally signed) only if no token is found in the header",
+      "claim": "Cookie token lookup occurs only as a fallback when no token is found in the header",
+      "rationale": "Defines token source precedence: header takes priority over cookie",
+      "excerpt": "attempts to retrieve the token from a cookie with these options (optionally signed) only if no token is found in the header",
       "symbol_ids": [
         "sym:ts:src/middleware/jwk/jwk.ts:jwk"
       ]
@@ -21846,8 +22434,8 @@
       "source_path": "src/middleware/jwk/jwk.ts",
       "source_sha": "567bbcfc4bf3322401ee21783714c1e7b2fafe05ed76709884a63f0a34030e4b",
       "severity": "context",
-      "claim": "Default header name for JWT token is 'Authorization'",
-      "rationale": "Documents default behavior",
+      "claim": "Default header name for JWT token retrieval is 'Authorization'",
+      "rationale": "Documents default behavior for header-based token lookup",
       "excerpt": "The name of the header to look for the JWT token. Default is 'Authorization'.",
       "symbol_ids": [
         "sym:ts:src/middleware/jwk/jwk.ts:jwk"
@@ -21858,8 +22446,32 @@
       "source_path": "src/middleware/jwk/jwk.ts",
       "source_sha": "567bbcfc4bf3322401ee21783714c1e7b2fafe05ed76709884a63f0a34030e4b",
       "severity": "hard",
-      "claim": "alg option restricts JWT verification to the listed asymmetric algorithms only",
-      "rationale": "Security constraint limiting accepted signing algorithms",
+      "claim": "JWKS endpoint response must be a JSON object containing a keys array",
+      "rationale": "Defines required response shape for the jwks_uri fetch",
+      "excerpt": "The response must be a JSON object containing a `keys` array, which will be merged with the `keys` option.",
+      "symbol_ids": [
+        "sym:ts:src/middleware/jwk/jwk.ts:jwk"
+      ]
+    },
+    {
+      "source": "docstring:src/middleware/jwk/jwk.ts",
+      "source_path": "src/middleware/jwk/jwk.ts",
+      "source_sha": "567bbcfc4bf3322401ee21783714c1e7b2fafe05ed76709884a63f0a34030e4b",
+      "severity": "context",
+      "claim": "Keys fetched from jwks_uri are merged with the keys option rather than replacing them",
+      "rationale": "Clarifies merge semantics between two key sources",
+      "excerpt": "which will be merged with the `keys` option",
+      "symbol_ids": [
+        "sym:ts:src/middleware/jwk/jwk.ts:jwk"
+      ]
+    },
+    {
+      "source": "docstring:src/middleware/jwk/jwk.ts",
+      "source_path": "src/middleware/jwk/jwk.ts",
+      "source_sha": "567bbcfc4bf3322401ee21783714c1e7b2fafe05ed76709884a63f0a34030e4b",
+      "severity": "hard",
+      "claim": "Only tokens signed with algorithms listed in options.alg will be accepted",
+      "rationale": "Restricts accepted JWT signatures to an explicit allow-list of asymmetric algorithms",
       "excerpt": "Only tokens signed with these algorithms will be accepted.",
       "symbol_ids": [
         "sym:ts:src/middleware/jwk/jwk.ts:jwk"
@@ -21870,9 +22482,9 @@
       "source_path": "src/middleware/jwk/jwk.ts",
       "source_sha": "567bbcfc4bf3322401ee21783714c1e7b2fafe05ed76709884a63f0a34030e4b",
       "severity": "context",
-      "claim": "allow_anon=true permits unauthenticated requests to proceed",
-      "rationale": "Security-relevant option that bypasses authentication",
-      "excerpt": "If set to `true`, the middleware allows requests without a token to proceed without authentication.",
+      "claim": "allow_anon=true permits requests without a token to proceed unauthenticated",
+      "rationale": "Security-relevant option that bypasses authentication when enabled",
+      "excerpt": "the middleware allows requests without a token to proceed without authentication",
       "symbol_ids": [
         "sym:ts:src/middleware/jwk/jwk.ts:jwk"
       ]
@@ -21881,10 +22493,10 @@
       "source": "docstring:src/middleware/jwk/jwk.ts",
       "source_path": "src/middleware/jwk/jwk.ts",
       "source_sha": "567bbcfc4bf3322401ee21783714c1e7b2fafe05ed76709884a63f0a34030e4b",
-      "severity": "hard",
-      "claim": "jwks_uri response must be a JSON object containing a keys array, which is merged with the keys option",
-      "rationale": "Defines the required response shape for the JWKS endpoint",
-      "excerpt": "The response must be a JSON object containing a `keys` array, which will be merged with the `keys` option.",
+      "severity": "context",
+      "claim": "options.alg is restricted to asymmetric algorithms",
+      "rationale": "Constrains the algorithm set to asymmetric, consistent with JWK public-key verification",
+      "excerpt": "An array of allowed asymmetric algorithms for JWT verification.",
       "symbol_ids": [
         "sym:ts:src/middleware/jwk/jwk.ts:jwk"
       ]
@@ -21893,12 +22505,11 @@
       "source": "docstring:src/middleware/serve-static/index.ts",
       "source_path": "src/middleware/serve-static/index.ts",
       "source_sha": "8414698bc80768e39b8aeeb7fc08401d066fb6bb0e56bd3daaa2e9a74eb31472",
-      "severity": "context",
-      "claim": "Middleware is not consumed directly; environment-specific wrappers should provide getContent()",
-      "rationale": "Indicates this module is an internal building block requiring environment-specific adaptation",
+      "severity": "soft",
+      "claim": "Middleware is not used directly; consumers should create a wrapper specifying getContent() for the target environment (e.g., Deno, Bun)",
+      "rationale": "The middleware requires environment-specific content retrieval, so a wrapper is needed per runtime",
       "excerpt": "This middleware is not directly used by the user. Create a wrapper specifying `getContent()` by the environment such as Deno or Bun.",
       "symbol_ids": [
-        "sym:ts:src/adapter/deno/deno.d.ts:Deno",
         "sym:ts:src/middleware/serve-static/index.ts:serveStatic"
       ]
     },
@@ -21907,8 +22518,8 @@
       "source_path": "src/middleware/serve-static/path.ts",
       "source_sha": "64cdf7abc8921c77830a26ddd42c58403cb0ddb2a13a928a49996cd16b28e15d",
       "severity": "soft",
-      "claim": "For Windows path support, use join exported from node:path instead of defaultJoin",
-      "rationale": "Recommends an alternative when Windows path semantics are required",
+      "claim": "For Windows path support, use join from node:path instead",
+      "rationale": "Directs users to the appropriate alternative when Windows paths are needed",
       "excerpt": "If you need Windows path support, please use `join` exported from `node:path` etc. instead.",
       "symbol_ids": [
         "sym:ts:src/middleware/serve-static/path.ts:defaultJoin"
@@ -21918,9 +22529,9 @@
       "source": "docstring:src/middleware/serve-static/path.ts",
       "source_path": "src/middleware/serve-static/path.ts",
       "source_sha": "64cdf7abc8921c77830a26ddd42c58403cb0ddb2a13a928a49996cd16b28e15d",
-      "severity": "context",
+      "severity": "hard",
       "claim": "defaultJoin does not support Windows paths and always uses '/' separators",
-      "rationale": "Describes the behavior/limitation of defaultJoin so consumers know its scope",
+      "rationale": "Function is restricted to POSIX-style separators; Windows path support requires a different API",
       "excerpt": "`defaultJoin` does not support Windows paths and always uses `/` separators.",
       "symbol_ids": [
         "sym:ts:src/middleware/serve-static/path.ts:defaultJoin"
@@ -21931,23 +22542,9 @@
       "source_path": "src/request.ts",
       "source_sha": "44b20e61d223f68583e1755e983565a3a4c282a20b4d9729061d054727c4c745",
       "severity": "hard",
-      "claim": "Body consumption must go through HonoRequest methods (e.g., req.json(), req.text()) to enable later cloning.",
-      "rationale": "Cached body data is only populated when HonoRequest's own consumption methods are used.",
-      "excerpt": "without using HonoRequest methods (e.g., `req.json()`, `req.text()`), making it impossible to reconstruct the body from cache",
-      "symbol_ids": [
-        "sym:ts:src/client/types.ts:HonoRequest",
-        "sym:ts:src/request.ts:HonoRequest",
-        "sym:ts:src/request.ts:cloneRawRequest"
-      ]
-    },
-    {
-      "source": "docstring:src/request.ts",
-      "source_path": "src/request.ts",
-      "source_sha": "44b20e61d223f68583e1755e983565a3a4c282a20b4d9729061d054727c4c745",
-      "severity": "hard",
-      "claim": "Throws HTTPException if the body was consumed directly via req.raw rather than through HonoRequest methods, because the body cannot be reconstructed from cache.",
-      "rationale": "Bypassing HonoRequest's caching methods makes reconstruction impossible, causing a thrown exception.",
-      "excerpt": "{HTTPException} If the request body was consumed directly via `req.raw` without using HonoRequest methods",
+      "claim": "Throws HTTPException if the body was consumed directly via req.raw rather than through HonoRequest methods, since cache reconstruction is impossible",
+      "rationale": "Body consumption must go through HonoRequest methods to enable cache-based reconstruction",
+      "excerpt": "{HTTPException} If the request body was consumed directly via `req.raw` without using HonoRequest methods (e.g., `req.json()`, `req.text()`), making it impossible to reconstruct the body from cache",
       "symbol_ids": [
         "sym:ts:src/client/types.ts:HonoRequest",
         "sym:ts:src/http-exception.ts:HTTPException",
@@ -21960,8 +22557,8 @@
       "source_path": "src/request.ts",
       "source_sha": "44b20e61d223f68583e1755e983565a3a4c282a20b4d9729061d054727c4c745",
       "severity": "context",
-      "claim": "When the request body has not been consumed, cloning uses the native Request.clone() method; when consumed, it reconstructs from cached body data.",
-      "rationale": "Describes the dual strategy used to handle both consumed and unconsumed bodies.",
+      "claim": "Uses native clone() when body is unconsumed; reconstructs Request from cached body data when consumed",
+      "rationale": "Describes the dual-mode behavior of the clone utility based on body consumption state",
       "excerpt": "If the request body hasn't been consumed, it uses the native `clone()` method",
       "symbol_ids": [
         "sym:ts:src/client/types.ts:HonoRequest",
@@ -21976,7 +22573,7 @@
       "source_sha": "44b20e61d223f68583e1755e983565a3a4c282a20b4d9729061d054727c4c745",
       "severity": "hard",
       "claim": "matchedRoutes() on the request is deprecated; use the matchedRoutes helper from \"hono/route\" instead.",
-      "rationale": "Marked with @deprecated tag directing consumers to a replacement helper.",
+      "rationale": "Explicit @deprecated JSDoc tag directs consumers to a replacement API.",
       "excerpt": "@deprecated — Use matchedRoutes helper defined in \"hono/route\" instead.",
       "symbol_ids": [
         "sym:ts:src/helper/route/index.ts:matchedRoutes",
@@ -21989,7 +22586,7 @@
       "source_sha": "44b20e61d223f68583e1755e983565a3a4c282a20b4d9729061d054727c4c745",
       "severity": "hard",
       "claim": "routePath() on the request is deprecated; use the routePath helper from \"hono/route\" instead.",
-      "rationale": "Marked with @deprecated tag indicating the API should no longer be used.",
+      "rationale": "Explicit @deprecated tag directs consumers to a replacement API.",
       "excerpt": "@deprecated — Use routePath helper defined in \"hono/route\" instead.",
       "symbol_ids": [
         "sym:ts:src/helper/route/index.ts:routePath",
@@ -22001,21 +22598,8 @@
       "source_path": "src/request.ts",
       "source_sha": "44b20e61d223f68583e1755e983565a3a4c282a20b4d9729061d054727c4c745",
       "severity": "context",
-      "claim": "routePath() retrieves the path registered within the handler.",
-      "rationale": "Describes the purpose of the function.",
-      "excerpt": "`routePath()` can retrieve the path registered within the handler",
-      "symbol_ids": [
-        "sym:ts:src/helper/route/index.ts:routePath",
-        "sym:ts:src/request.ts:routePath"
-      ]
-    },
-    {
-      "source": "docstring:src/request.ts",
-      "source_path": "src/request.ts",
-      "source_sha": "44b20e61d223f68583e1755e983565a3a4c282a20b4d9729061d054727c4c745",
-      "severity": "context",
-      "claim": "Useful for processing the same request body multiple times or forwarding requests to external services after validation.",
-      "rationale": "Describes intended use cases for the utility.",
+      "claim": "Intended for processing the same request body multiple times or forwarding requests to external services after validation",
+      "rationale": "Describes the architectural use cases motivating this utility",
       "excerpt": "Process the same request body multiple times\n- Pass requests to external services after validation",
       "symbol_ids": [
         "sym:ts:src/request.ts:cloneRawRequest"
@@ -22027,7 +22611,7 @@
       "source_sha": "44b20e61d223f68583e1755e983565a3a4c282a20b4d9729061d054727c4c745",
       "severity": "context",
       "claim": ".json() parses Request body of type application/json",
-      "rationale": "Describes what the .json() method does on the request object",
+      "rationale": "Describes what the json() method does on the request object",
       "excerpt": "`.json()` can parse Request body of type `application/json`",
       "symbol_ids": [
         "sym:ts:src/request.ts:json"
@@ -22038,9 +22622,21 @@
       "source_path": "src/request.ts",
       "source_sha": "44b20e61d223f68583e1755e983565a3a4c282a20b4d9729061d054727c4c745",
       "severity": "context",
-      "claim": "parseBody() handles Request bodies of type multipart/form-data or application/x-www-form-urlencoded",
-      "rationale": "Describes the supported content types the method parses",
-      "excerpt": ".parseBody() can parse Request body of type multipart/form-data or application/x-www-form-urlencoded",
+      "claim": "parseBody() handles multipart/form-data or application/x-www-form-urlencoded request bodies",
+      "rationale": "Defines the supported content types for body parsing",
+      "excerpt": ".parseBody()` can parse Request body of type `multipart/form-data` or `application/x-www-form-urlencoded`",
+      "symbol_ids": [
+        "sym:ts:src/request.ts:parseBody"
+      ]
+    },
+    {
+      "source": "docstring:src/request.ts",
+      "source_path": "src/request.ts",
+      "source_sha": "44b20e61d223f68583e1755e983565a3a4c282a20b4d9729061d054727c4c745",
+      "severity": "context",
+      "claim": "parseBody() handles only multipart/form-data or application/x-www-form-urlencoded request bodies",
+      "rationale": "Defines the supported content types for the parser",
+      "excerpt": ".parseBody()` can parse Request body of type `multipart/form-data` or `application/x-www-form-urlencoded",
       "symbol_ids": [
         "sym:ts:src/request.ts:parseBody",
         "sym:ts:src/utils/body.ts:parseBody"
@@ -22052,7 +22648,7 @@
       "source_sha": "44b20e61d223f68583e1755e983565a3a4c282a20b4d9729061d054727c4c745",
       "severity": "context",
       "claim": "parseBody() handles request bodies of type multipart/form-data or application/x-www-form-urlencoded",
-      "rationale": "Describes the supported content types for the parseBody method",
+      "rationale": "Describes the supported content types parseBody can decode",
       "excerpt": "`.parseBody()` can parse Request body of type `multipart/form-data` or `application/x-www-form-urlencoded`",
       "symbol_ids": [
         "sym:ts:src/request.ts:parseBody"
@@ -22063,33 +22659,8 @@
       "source_path": "src/request.ts",
       "source_sha": "44b20e61d223f68583e1755e983565a3a4c282a20b4d9729061d054727c4c745",
       "severity": "context",
-      "claim": "parseBody() handles request bodies of type multipart/form-data or application/x-www-form-urlencoded",
-      "rationale": "Defines the supported content types for body parsing",
-      "excerpt": "`.parseBody()` can parse Request body of type `multipart/form-data` or `application/x-www-form-urlencoded`",
-      "symbol_ids": [
-        "sym:ts:src/request.ts:parseBody",
-        "sym:ts:src/utils/body.ts:parseBody"
-      ]
-    },
-    {
-      "source": "docstring:src/request.ts",
-      "source_path": "src/request.ts",
-      "source_sha": "44b20e61d223f68583e1755e983565a3a4c282a20b4d9729061d054727c4c745",
-      "severity": "context",
-      "claim": ".queries() retrieves multiple querystring parameter values for a given key, returning an array",
-      "rationale": "Distinguishes .queries() from single-value query retrieval; relevant when handling repeated query params",
-      "excerpt": ".queries()` can get multiple querystring parameter values, e.g. /search?tags=A&tags=B",
-      "symbol_ids": [
-        "sym:ts:src/request.ts:queries"
-      ]
-    },
-    {
-      "source": "docstring:src/request.ts",
-      "source_path": "src/request.ts",
-      "source_sha": "44b20e61d223f68583e1755e983565a3a4c282a20b4d9729061d054727c4c745",
-      "severity": "context",
-      "claim": ".queries() returns multiple querystring parameter values as a string array",
-      "rationale": "Describes behavior of the queries() method for repeated query parameters",
+      "claim": ".queries() retrieves multiple querystring parameter values for a given key, returning a string array",
+      "rationale": "Describes the behavior of the queries() method for handling repeated query parameters",
       "excerpt": ".queries() can get multiple querystring parameter values, e.g. /search?tags=A&tags=B",
       "symbol_ids": [
         "sym:ts:src/request.ts:queries"
@@ -22101,8 +22672,8 @@
       "source_sha": "44b20e61d223f68583e1755e983565a3a4c282a20b4d9729061d054727c4c745",
       "severity": "context",
       "claim": ".queries() returns multiple querystring parameter values as an array",
-      "rationale": "Describes behavior of the method for repeated query parameters",
-      "excerpt": "`.queries()` can get multiple querystring parameter values, e.g. /search?tags=A&tags=B",
+      "rationale": "Describes behavior for retrieving repeated querystring parameters",
+      "excerpt": ".queries() can get multiple querystring parameter values, e.g. /search?tags=A&tags=B",
       "symbol_ids": [
         "sym:ts:src/request.ts:queries"
       ]
@@ -22112,11 +22683,11 @@
       "source_path": "src/request.ts",
       "source_sha": "44b20e61d223f68583e1755e983565a3a4c282a20b4d9729061d054727c4c745",
       "severity": "context",
-      "claim": ".query() retrieves querystring parameters from the request",
-      "rationale": "Describes the purpose of the query() method on the request object",
-      "excerpt": ".query() can get querystring parameters.",
+      "claim": ".queries() returns multiple querystring parameter values as an array",
+      "rationale": "Describes behavior for handling repeated query parameters",
+      "excerpt": ".queries()` can get multiple querystring parameter values, e.g. /search?tags=A&tags=B",
       "symbol_ids": [
-        "sym:ts:src/request.ts:query"
+        "sym:ts:src/request.ts:queries"
       ]
     },
     {
@@ -22125,22 +22696,10 @@
       "source_sha": "44b20e61d223f68583e1755e983565a3a4c282a20b4d9729061d054727c4c745",
       "severity": "context",
       "claim": ".text() parses Request body of type text/plain",
-      "rationale": "Describes what the .text() method does on a Request",
+      "rationale": "Describes what the .text() method does on the request object",
       "excerpt": "`.text()` can parse Request body of type `text/plain`",
       "symbol_ids": [
         "sym:ts:src/request.ts:text"
-      ]
-    },
-    {
-      "source": "docstring:src/router/reg-exp-router/node.ts",
-      "source_path": "src/router/reg-exp-router/node.ts",
-      "source_sha": "e5d7dbbcacd2920fca494c4220c6ab5282333bbe55fc53571809508b675af502",
-      "severity": "context",
-      "claim": "Sort order: literal first, then special pattern, then common label pattern, then wildcard",
-      "rationale": "Defines precedence ordering for pattern matching",
-      "excerpt": "Sort order:\n1. literal\n2. special pattern (e.g. :label{[0-9]+})\n3. common label pattern (e.g. :label)\n4. wildcard",
-      "symbol_ids": [
-        "sym:ts:src/router/reg-exp-router/node.ts:compareKey"
       ]
     },
     {
@@ -22148,8 +22707,8 @@
       "source_path": "src/types.ts",
       "source_sha": "66db6081a897ce664b1c890b97842270f7326616b0d0c1aaa77c5feccd8f5c6e",
       "severity": "context",
-      "claim": "NotFoundResponse interface can be extended via module augmentation to define a custom c.notFound() Response type",
-      "rationale": "Describes an extension point for customizing the not-found response shape",
+      "claim": "NotFoundResponse interface can be extended via module augmentation to define a custom c.notFound() Response type.",
+      "rationale": "Documents the extension point for customizing the not-found response type.",
       "excerpt": "You can extend this interface to define a custom `c.notFound()` Response type.",
       "symbol_ids": [
         "sym:ts:src/client/types.ts:Response",
@@ -22162,21 +22721,8 @@
       "source_path": "src/utils/color.ts",
       "source_sha": "b74ef1e26f87942183778bc67ef6971b5e639e17600444ba2e637cd6910222a7",
       "severity": "context",
-      "claim": "Returns false when NO_COLOR environment variable is set",
-      "rationale": "Describes behavior aligned with the no-color.org convention",
-      "excerpt": "If `NO_COLOR` environment variable is set, this function returns `false`.",
-      "symbol_ids": [
-        "sym:ts:src/utils/color.ts:getColorEnabled",
-        "sym:ts:src/utils/color.ts:getColorEnabledAsync"
-      ]
-    },
-    {
-      "source": "docstring:src/utils/color.ts",
-      "source_path": "src/utils/color.ts",
-      "source_sha": "b74ef1e26f87942183778bc67ef6971b5e639e17600444ba2e637cd6910222a7",
-      "severity": "context",
-      "claim": "This synchronous variant cannot inspect Cloudflare environment variables, unlike getColorEnabledAsync()",
-      "rationale": "Distinguishes capability boundary between sync and async variants",
+      "claim": "This synchronous variant cannot check Cloudflare environment variables, unlike getColorEnabledAsync()",
+      "rationale": "Documents capability gap between sync and async variants",
       "excerpt": "Unlike getColorEnabledAsync(), this cannot check Cloudflare environment variables.",
       "symbol_ids": [
         "sym:ts:src/utils/color.ts:getColorEnabled",
@@ -22188,8 +22734,21 @@
       "source_path": "src/utils/color.ts",
       "source_sha": "b74ef1e26f87942183778bc67ef6971b5e639e17600444ba2e637cd6910222a7",
       "severity": "context",
-      "claim": "Color output is disabled when the NO_COLOR environment variable is set",
-      "rationale": "Documents that the function honors the NO_COLOR convention for disabling color output",
+      "claim": "When NO_COLOR environment variable is set, color is disabled (returns false)",
+      "rationale": "Honors the NO_COLOR convention for disabling terminal colors",
+      "excerpt": "If `NO_COLOR` environment variable is set, this function returns `false`.",
+      "symbol_ids": [
+        "sym:ts:src/utils/color.ts:getColorEnabled",
+        "sym:ts:src/utils/color.ts:getColorEnabledAsync"
+      ]
+    },
+    {
+      "source": "docstring:src/utils/color.ts",
+      "source_path": "src/utils/color.ts",
+      "source_sha": "b74ef1e26f87942183778bc67ef6971b5e639e17600444ba2e637cd6910222a7",
+      "severity": "context",
+      "claim": "Function returns false when NO_COLOR environment variable is set",
+      "rationale": "Documents adherence to the NO_COLOR convention for disabling terminal color output",
       "excerpt": "If `NO_COLOR` environment variable is set, this function returns `false`.",
       "symbol_ids": [
         "sym:ts:src/utils/color.ts:getColorEnabledAsync"
@@ -22199,10 +22758,10 @@
       "source": "docstring:src/utils/html.ts",
       "source_path": "src/utils/html.ts",
       "source_sha": "ea55e58ccb46a28edfd86c307abca670f6ec2290cabde3a268270d0e7f3eeb69",
-      "severity": "context",
-      "claim": "StringBuffer is an array of odd length alternating string and Promise<string>, where odd-indexed elements are strings and even-indexed elements are Promise<string>",
-      "rationale": "Defines the structural invariant of the StringBuffer type",
-      "excerpt": "StringBuffer contains string and Promise<string> alternately\nThe length of the array will be odd, the odd numbered element will be a string,\nand the even numbered element will be a Promise<string>.",
+      "severity": "hard",
+      "claim": "Concatenation into a single string must be processed from the tail",
+      "rationale": "Explicit ordering constraint on how the buffer is consumed",
+      "excerpt": "When concatenating into a single string, it must be processed from the tail.",
       "symbol_ids": [
         "sym:ts:src/utils/html.ts:StringBuffer"
       ]
@@ -22211,10 +22770,10 @@
       "source": "docstring:src/utils/html.ts",
       "source_path": "src/utils/html.ts",
       "source_sha": "ea55e58ccb46a28edfd86c307abca670f6ec2290cabde3a268270d0e7f3eeb69",
-      "severity": "hard",
-      "claim": "When concatenating a StringBuffer into a single string, processing must occur from the tail",
-      "rationale": "Explicit 'must' constraint on how concatenation is performed",
-      "excerpt": "When concatenating into a single string, it must be processed from the tail.",
+      "severity": "context",
+      "claim": "StringBuffer is an odd-length array with strings at odd indices and Promise<string> at even indices, alternating",
+      "rationale": "Defines the structural invariant of the StringBuffer type",
+      "excerpt": "StringBuffer contains string and Promise<string> alternately The length of the array will be odd, the odd numbered element will be a string, and the even numbered element will be a Promise<string>.",
       "symbol_ids": [
         "sym:ts:src/utils/html.ts:StringBuffer"
       ]
@@ -22224,7 +22783,7 @@
       "source_path": "src/utils/http-status.ts",
       "source_sha": "7736f82dec467fb8d5075166f502d819bd472657e87336f00cb420ea44ee2531",
       "severity": "soft",
-      "claim": "Use UnofficialStatusCode for unofficial HTTP status codes",
+      "claim": "Use UnofficialStatusCode for unofficial status codes",
       "rationale": "Directs consumers to a specific type when handling unofficial status codes",
       "excerpt": "If you want to use an unofficial status, use `UnofficialStatusCode`.",
       "symbol_ids": [
@@ -22238,7 +22797,7 @@
       "source_sha": "7736f82dec467fb8d5075166f502d819bd472657e87336f00cb420ea44ee2531",
       "severity": "hard",
       "claim": "Deprecated; use UnofficialStatusCode instead.",
-      "rationale": "Marked with @deprecated JSDoc tag indicating the symbol should not be used in new code.",
+      "rationale": "Marked deprecated via @deprecated tag with explicit replacement.",
       "excerpt": "@deprecated — Use `UnofficialStatusCode` instead.",
       "symbol_ids": [
         "sym:ts:src/utils/http-status.ts:UnOfficalStatusCode",
@@ -22251,23 +22810,22 @@
       "source_sha": "7736f82dec467fb8d5075166f502d819bd472657e87336f00cb420ea44ee2531",
       "severity": "context",
       "claim": "UnofficialStatusCode is used to specify status codes outside the official set",
-      "rationale": "Describes the purpose of the type for unofficial HTTP status codes",
+      "rationale": "Describes the purpose of the type for typing non-standard HTTP status codes",
       "excerpt": "`UnofficialStatusCode` can be used to specify an unofficial status code.",
       "symbol_ids": [
         "sym:ts:src/utils/http-status.ts:UnofficialStatusCode"
       ]
     },
     {
-      "source": "docstring:src/utils/types.ts",
-      "source_path": "src/utils/types.ts",
-      "source_sha": "14d203532a112d61769d74fcf4ded5e1c24a197a6a4d2db2c078112d9da59a0d",
+      "source": "docstring:src/utils/stream.ts",
+      "source_path": "src/utils/stream.ts",
+      "source_sha": "900b11af8a5139519e799ea47092a694c3cfbd07b9c9c448f5e4b298c3678757",
       "severity": "context",
-      "claim": "JSON.stringify() throws a TypeError on bigint values unless a custom replacer or .toJSON() is provided",
-      "rationale": "Explains why the type conversion needs to handle bigint specially",
-      "excerpt": "`JSON.stringify()` throws a `TypeError` when it encounters a `bigint` value, unless a custom `replacer` function or `.toJSON()` method is provided.",
+      "claim": "This method should be called when the stream is aborted by an external event",
+      "rationale": "Describes the intended use case for invoking the abort method",
+      "excerpt": "You can call this method when stream is aborted by external event.",
       "symbol_ids": [
-        "sym:ts:src/utils/types.ts:JSONObject",
-        "sym:ts:src/utils/types.ts:JSONParsed"
+        "sym:ts:src/utils/stream.ts:abort"
       ]
     },
     {
@@ -22275,8 +22833,8 @@
       "source_path": "src/utils/types.ts",
       "source_sha": "14d203532a112d61769d74fcf4ded5e1c24a197a6a4d2db2c078112d9da59a0d",
       "severity": "context",
-      "claim": "Non-JSON values like Date implement .toJSON() so they become assignable to JSONObject",
-      "rationale": "Explains how non-JSON native types are handled in conversion",
+      "claim": "Non-JSON values like Date implement .toJSON() to become assignable to JSONObject",
+      "rationale": "Explains how non-JSON types are converted via toJSON()",
       "excerpt": "Non-JSON values such as `Date` implement `.toJSON()`, so they can be transformed to a value assignable to `JSONObject`",
       "symbol_ids": [
         "sym:ts:src/utils/types.ts:JSONObject",
@@ -22288,9 +22846,9 @@
       "source_path": "src/utils/types.ts",
       "source_sha": "14d203532a112d61769d74fcf4ded5e1c24a197a6a4d2db2c078112d9da59a0d",
       "severity": "context",
-      "claim": "TError generic parameter controls bigint check behavior; defaults to bigint | ReadonlyArray<bigint>, can be set to never to disable",
-      "rationale": "Documents the configuration mechanism for the bigint behavior",
-      "excerpt": "This behaviour can be controlled by the `TError` generic type parameter, which defaults to `bigint | ReadonlyArray<bigint>`.",
+      "claim": "JSON.stringify() throws TypeError on bigint unless a replacer or .toJSON() is provided",
+      "rationale": "Explains why bigint requires special handling in the type",
+      "excerpt": "`JSON.stringify()` throws a `TypeError` when it encounters a `bigint` value, unless a custom `replacer` function or `.toJSON()` method is provided",
       "symbol_ids": [
         "sym:ts:src/utils/types.ts:JSONParsed"
       ]
@@ -22300,8 +22858,20 @@
       "source_path": "src/utils/types.ts",
       "source_sha": "14d203532a112d61769d74fcf4ded5e1c24a197a6a4d2db2c078112d9da59a0d",
       "severity": "context",
-      "claim": "Symbol-keyed properties are omitted by JSON.stringify",
-      "rationale": "Documents serialization behavior relevant to using symbols as keys",
+      "claim": "TError generic defaults to `bigint | ReadonlyArray<bigint>` and can be set to `never` to disable the check",
+      "rationale": "Documents the configurable behavior of the TError parameter",
+      "excerpt": "This behaviour can be controlled by the `TError` generic type parameter, which defaults to `bigint | ReadonlyArray<bigint>`. You can set it to `never` to disable this check.",
+      "symbol_ids": [
+        "sym:ts:src/utils/types.ts:JSONParsed"
+      ]
+    },
+    {
+      "source": "docstring:src/utils/types.ts",
+      "source_path": "src/utils/types.ts",
+      "source_sha": "14d203532a112d61769d74fcf4ded5e1c24a197a6a4d2db2c078112d9da59a0d",
+      "severity": "context",
+      "claim": "Symbol keys are omitted by JSON.stringify",
+      "rationale": "Describes serialization behavior of JSON.stringify regarding symbol-keyed properties",
       "excerpt": "symbol keys are omitted through `JSON.stringify`",
       "symbol_ids": [
         "sym:ts:src/utils/types.ts:OmitSymbolKeys"
@@ -22312,7 +22882,7 @@
       "source_path": "src/utils/types.ts",
       "source_sha": "14d203532a112d61769d74fcf4ded5e1c24a197a6a4d2db2c078112d9da59a0d",
       "severity": "context",
-      "claim": "Utility flattens type output to improve editor type hints and converts interfaces to types for assignability",
+      "claim": "Utility flattens type output to improve editor type hints and converts interfaces to types to aid assignability",
       "rationale": "Describes the purpose of the type utility",
       "excerpt": "Useful to flatten the type output to improve type hints shown in editors. And also to transform an interface into a type to aide with assignability.",
       "symbol_ids": [
@@ -22320,15 +22890,15 @@
       ]
     },
     {
-      "source": "docstring:src/utils/types.ts",
-      "source_path": "src/utils/types.ts",
-      "source_sha": "14d203532a112d61769d74fcf4ded5e1c24a197a6a4d2db2c078112d9da59a0d",
+      "source": "docstring:src/utils/url.ts",
+      "source_path": "src/utils/url.ts",
+      "source_sha": "57b0de0a6f097c56cbc7b600b160f2b4463c8d632ed7123a2f18dc5d3ab2628a",
       "severity": "context",
-      "claim": "Provides string literal types with auto-completion",
-      "rationale": "Describes the purpose of the type utility",
-      "excerpt": "String literal types with auto-completion",
+      "claim": "Returned string may still contain undecodable percent encoding",
+      "rationale": "Consumers must be aware the output is not guaranteed to be fully decoded",
+      "excerpt": "The decoded string that sometimes contains undecodable percent encoding.",
       "symbol_ids": [
-        "sym:ts:src/utils/types.ts:StringLiteralUnion"
+        "sym:ts:src/utils/url.ts:tryDecodeURI"
       ]
     },
     {
@@ -22336,8 +22906,8 @@
       "source_path": "src/utils/url.ts",
       "source_sha": "57b0de0a6f097c56cbc7b600b160f2b4463c8d632ed7123a2f18dc5d3ab2628a",
       "severity": "context",
-      "claim": "tryDecodeURI falls back to partial decoding when decodeURI fails on invalid percent encoding or UTF-8 sequences, returning a string that may still contain undecodable percent encoding.",
-      "rationale": "Documents the fallback behavior so callers know the result is not guaranteed to be fully decoded.",
+      "claim": "tryDecodeURI falls back to partial decoding when decodeURI fails, skipping invalid percent encoding or invalid UTF-8 sequences",
+      "rationale": "Documents the recovery behavior so callers know undecodable sequences may remain in the output",
       "excerpt": "If it fails, skip invalid percent encoding or invalid UTF-8 sequences, and apply decodeURI() to the rest as much as possible.",
       "symbol_ids": [
         "sym:ts:src/utils/url.ts:tryDecodeURI"
@@ -22348,9 +22918,9 @@
       "source_path": "src/validator/utils.ts",
       "source_sha": "aa652d5f854b8c6be2e2b2883ca5dbd95303bf29f529cf3f0e91d086597c7f1b",
       "severity": "context",
-      "claim": "Utility type infers input types for validation targets, preserving literal union types while using the default ValidationTargets type for other values.",
-      "rationale": "Describes the purpose and behavior of the utility type.",
-      "excerpt": "Utility type to infer input types for validation targets. Preserves literal union types (e.g., 'asc' | 'desc') while using the default ValidationTargets type for other values.",
+      "claim": "Utility type infers input types for validation targets, preserving literal union types while falling back to default ValidationTargets type for other values",
+      "rationale": "Describes the purpose and behavior of the utility type",
+      "excerpt": "Preserves literal union types (e.g., 'asc' | 'desc') while using the default ValidationTargets type for other values.",
       "symbol_ids": [
         "sym:ts:src/types.ts:ValidationTargets",
         "sym:ts:src/validator/utils.ts:InferInput"
