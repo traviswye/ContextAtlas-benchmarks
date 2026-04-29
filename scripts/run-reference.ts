@@ -45,6 +45,8 @@ import { stat } from "node:fs/promises";
 import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { ATLAS_VERSION } from "contextatlas/dist/storage/types.js";
+
 import { CapsTracker } from "../src/harness/caps.js";
 import { runClaudeCode } from "../src/harness/claude-code-driver.js";
 import {
@@ -57,6 +59,18 @@ import {
   runMatrix,
 } from "../src/harness/run.js";
 import { loadPromptFile, filterStep7 } from "../src/harness/prompts.js";
+
+// v0.4 Step 6 / A3: replace hardcoded contextatlasVersionLabel with
+// derivation from main-repo ATLAS_VERSION + package.json version.
+// Future schema bumps no longer require benchmarks-repo edits.
+// Phase 8 §9.1 proposal landed.
+const contextatlasPkgRequire = createRequire(import.meta.url);
+const contextatlasPkg = contextatlasPkgRequire("contextatlas/package.json") as {
+  version: string;
+};
+export function buildContextatlasVersionLabel(): string {
+  return `ContextAtlas v${contextatlasPkg.version} (atlas schema v${ATLAS_VERSION})`;
+}
 
 const VALID_CONDITIONS: readonly Condition[] = [
   "alpha",
@@ -402,6 +416,13 @@ async function main(): Promise<void> {
   );
   // eslint-disable-next-line no-console
   console.log(`[run-reference] output: ${outputRoot}`);
+  // v0.4 Step 6 cost-projection disclaimer (Q5 lock).
+  // eslint-disable-next-line no-console
+  console.log(
+    `[run-reference] cost projection note: script-projected costs use full-token API pricing; ` +
+      `platform-billed actuals typically ~3x lower (prompt-cache discount on EXTRACTION_PROMPT prefix). ` +
+      `v0.4 Step 5 reference: cobra $5.44->$1.82, httpx $5.53->$1.85, hono $10.89->$3.65.`,
+  );
 
   const provenance = await resolveProvenance();
   // eslint-disable-next-line no-console
@@ -456,7 +477,7 @@ async function main(): Promise<void> {
     retryOnCap: args.retry,
     benchmarksRoot: ROOT,
     pinnedRepoSha: PINNED_REPO_SHAS[args.repo],
-    contextatlasVersionLabel: "ContextAtlas v0.3-dev (atlas schema v1.3)",
+    contextatlasVersionLabel: buildContextatlasVersionLabel(),
     ...provenance,
   });
 

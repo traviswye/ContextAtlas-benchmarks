@@ -221,6 +221,15 @@ async function extractOne(repoName) {
     process.exit(1);
   }
 
+  // v0.4 Step 6 cost-projection disclaimer (Q5 lock). Surfaces
+  // before any extraction work so users see the framing before
+  // reading per-stream cost outputs.
+  console.log(
+    `[${repoName}] cost projection note: script-projected costs use full-token API pricing; ` +
+      `platform-billed actuals typically ~3x lower (prompt-cache discount on EXTRACTION_PROMPT prefix). ` +
+      `v0.4 Step 5 reference: cobra $5.44->$1.82, httpx $5.53->$1.85, hono $10.89->$3.65.`,
+  );
+
   // Load config from our repo; paths resolve against configRoot=ROOT.
   const config = loadConfig(ROOT, `configs/${repoName}.yml`);
   console.log(`[${repoName}] loaded config from ${configSrc}`);

@@ -520,6 +520,26 @@ fallback — unseeded `repoName` falls back to hono (TS-baseline);
 unseeded `(bucket, condition)` falls back to $0.30. Forward-compat
 for adding new target repos before priors are calibrated.
 
+**Cost-projection disclaimer (v0.4 Step 6 / Q5 lock).** These
+priors project script-side costs using Anthropic's full-token API
+pricing. Platform-billed actuals typically run **~3x lower** due to
+prompt-cache discount on the shared `EXTRACTION_PROMPT` prefix
+(~90% off cached tokens after the first call warms the cache). v0.4
+Step 5 reference measurements confirmed the 3.0x ratio across all
+three targets:
+
+| Repo  | Script-projected | Platform-billed | Ratio |
+|-------|------------------|-----------------|-------|
+| cobra | $5.44            | $1.82           | 3.0x  |
+| httpx | $5.53            | $1.85 (est)     | 3.0x  |
+| hono  | $10.89           | $3.65 (est)     | 3.0x  |
+
+Treat priors-derived projections as **conservative upper bounds**;
+actual platform charges typically lower. Per Q5 lock, projection
+math is NOT tuned toward platform-actual values (pricing volatility
+makes maintenance a liability, not a one-time fix). Adaptive priors-
+based correction is a v0.5+ candidate if priors observably drift.
+
 **Source data:**
 - [`research/phase-5-reference-run.md`](research/phase-5-reference-run.md)
   §7 — hono cost data (also the original $176–210 step-13 projection

@@ -1,6 +1,21 @@
 import { describe, expect, it } from "vitest";
 
-import { parseArgs } from "./run-reference.js";
+import {
+  buildContextatlasVersionLabel,
+  parseArgs,
+} from "./run-reference.js";
+
+describe("buildContextatlasVersionLabel (v0.4 Step 6 / A3)", () => {
+  it("derives label from main-repo ATLAS_VERSION + package.json", () => {
+    // Format: "ContextAtlas v<package-version> (atlas schema v<ATLAS_VERSION>)"
+    // Regression-protection: a hardcoded label in run-reference.ts
+    // would not match this pattern after future schema bumps.
+    const label = buildContextatlasVersionLabel();
+    expect(label).toMatch(
+      /^ContextAtlas v\d+\.\d+\.\d+(?:-[\w.]+)? \(atlas schema v\d+\.\d+\)$/,
+    );
+  });
+});
 
 describe("parseArgs — defaults", () => {
   it("no args → full matrix, hono, null ceilings (priors-derived in main)", () => {
