@@ -612,10 +612,11 @@ thesis-supportive evidence.
 
 ## §9 v0.6+ candidates
 
-15 candidates queued from cycle commits + carry-forwards.
-Source attribution per candidate per Q9 lock: cycle-commit
-finding number, originating-step, or session-handoff line
-reference.
+17 candidates queued from cycle commits + carry-forwards (includes
+16th + 17th cycle-emergent additions per Step 10.3 + Step 11.7
+cross-repo back-references). Source attribution per candidate per
+Q9 lock: cycle-commit finding number, originating-step, or
+session-handoff line reference.
 
 | # | Candidate | Source | Disposition |
 |---|---|---|---|
@@ -635,8 +636,9 @@ reference.
 | 14 | `src/extraction/pricing.ts` Opus 4.7 staleness fix | Step 2 finding #4 (verified 2026-04-30: stale $15/$75 vs verified $5/$25) | v0.5+ separate small-housekeeping commit (Travis-flagged) |
 | 15 | ADR-19 §2 cost projection recalculation pre-Step-6 (Opus 4.7 = 1.67× Sonnet) | Step 2 finding #3 (commit `dd7d87c`); Opus 4.7 verified pricing 2026-04-30 | v0.6+ ADR-19 §2 amendment (analogous to §4 paired-t amendment cycle) |
 | 16 | Cycle-based aggregation alternative for cost-priors (include v0.4 cycle v0.3.0-tagged substrate) | Surfaced at Step 10.1 filter-interpretation adjudication (benchmarks `8e39aa6`); cycle-emergent; not in v0.5-candidates.md canonical inventory | v0.6+ if backward-looking cycle-history aggregate becomes useful; deferred per atlas-version-based forward-applicable interpretation lock at Step 10.1 |
+| 17 | Formalize self-use logging during cycle execution | Step 11.3 verification table criterion 12 Q13 adjudication (main-repo `19f207f` ship commit; cycle-emergent at ship-gate); self-use of v0.5 atlas + judge harness occurred throughout cycle execution (cycle was inherently self-using) but formal documentation of self-use observations (rubric-design feedback; quality observations; UX observations) not produced as separate committed artifact; honest-scope-acknowledgment-over-retroactive-checkbox per discipline #4 surfaced gap as forward-pointer | v0.6+ if scope-doc explicitly captures self-use-logging requirement; concrete shape: dedicated cycle-execution-time observation file (`research/v0.6-self-use-log.md` or similar) capturing rubric-design feedback, quality observations, UX observations during execution rather than retrospectively |
 
-**Disposition note.** All 15 candidates retained per Q9 lock
+**Disposition note.** All 17 candidates retained per Q9 lock
 all-15-present-unless-explicitly-filtered discipline. None
 filtered as out-of-scope (v0.6+ infrastructure-flavored items
 #10/#12 retained; #13 retained pending v0.6 vs v1.0 placement
@@ -809,3 +811,30 @@ consistency rather than CI-test inferential strength.
   if becomes useful for v0.6+). Per Q10 §9 cycle-emergent-only
   scope; new candidate qualifies as cycle-emergent (not in
   v0.5-candidates.md canonical inventory).
+
+- **2026-05-04 (v0.5 ship close back-reference)** — main-repo
+  v0.5 ship commit `19f207f` (contextatlas v0.5: LLM-judge
+  methodology + quality-axis blind-grading + adaptive cost
+  priors; STEP-PLAN-V0.5 Step 11 progress log entry +
+  verification table + cycle-introduced-discipline framing;
+  Path X amend applied post-execution-verification catch of
+  HEREDOC backslash-dollar artifact; pre-push window
+  affordance enabled in-place fix without force-push).
+  Annotated tag `v0.5.0` (tag object `c8cdb198`) points at
+  amended ship commit; tag body verified clean of HEREDOC
+  artifacts via Step 7.5 post-execution verification step
+  (v0.6+ ship-gate canonical 9-step sequence inheritance).
+  §9 v0.6+ candidates table extended with 17th cycle-emergent
+  candidate (formalize self-use logging during cycle
+  execution; surfaced at Step 11.3 verification table
+  criterion 12 Q13 △ PARTIAL adjudication; honest-scope-
+  acknowledgment-over-retroactive-checkbox discipline #4
+  surfaced gap as forward-pointer rather than retroactively-
+  checked). Per Q10 §9 cycle-emergent-only scope; new
+  candidate qualifies as cycle-emergent (not in
+  v0.5-candidates.md canonical inventory). v0.5 cycle
+  definitively closed per ROADMAP v0.5 [SHIPPED] section +
+  v1.0 ship-gate criterion #1 quality-axis methodology
+  parenthetical CLOSED annotation; statistically-meaningful-
+  wins gate remains open per matrix-replication v0.6+
+  graduation framing.
