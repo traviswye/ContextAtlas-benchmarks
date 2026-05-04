@@ -634,6 +634,7 @@ reference.
 | 13 | Production-pipeline single-dependency architecture | Session-state handoff; cycle-cross-cutting | v0.6+ or v1.0+ |
 | 14 | `src/extraction/pricing.ts` Opus 4.7 staleness fix | Step 2 finding #4 (verified 2026-04-30: stale $15/$75 vs verified $5/$25) | v0.5+ separate small-housekeeping commit (Travis-flagged) |
 | 15 | ADR-19 §2 cost projection recalculation pre-Step-6 (Opus 4.7 = 1.67× Sonnet) | Step 2 finding #3 (commit `dd7d87c`); Opus 4.7 verified pricing 2026-04-30 | v0.6+ ADR-19 §2 amendment (analogous to §4 paired-t amendment cycle) |
+| 16 | Cycle-based aggregation alternative for cost-priors (include v0.4 cycle v0.3.0-tagged substrate) | Surfaced at Step 10.1 filter-interpretation adjudication (benchmarks `8e39aa6`); cycle-emergent; not in v0.5-candidates.md canonical inventory | v0.6+ if backward-looking cycle-history aggregate becomes useful; deferred per atlas-version-based forward-applicable interpretation lock at Step 10.1 |
 
 **Disposition note.** All 15 candidates retained per Q9 lock
 all-15-present-unless-explicitly-filtered discipline. None
@@ -795,3 +796,16 @@ consistency rather than CI-test inferential strength.
   entry + audit-trail copy at scripts/v0.5-step9-outputs/);
   benchmarks-repo Step 9.1 commit `e32b5dd` (this doc + doc-gen
   script).
+
+- **2026-05-04 (Step 10.3 close back-reference)** — main-repo
+  Step 10.3 close commit `87f12e6` (contextatlas STEP-PLAN-V0.5
+  Step 10 progress log entry + Q4(i) atlas-version-filter
+  interpretation rationale + bidirectional SHA refs to Step 10.1
+  benchmarks `8e39aa6` + Step 10.2 main `ef99b92`). §9 v0.6+
+  candidates table extended with 16th cycle-emergent candidate
+  (cycle-based aggregation alternative for cost-priors;
+  surfaced at Step 10.1 filter-interpretation adjudication;
+  deferred for backward-looking cycle-history aggregate use case
+  if becomes useful for v0.6+). Per Q10 §9 cycle-emergent-only
+  scope; new candidate qualifies as cycle-emergent (not in
+  v0.5-candidates.md canonical inventory).
