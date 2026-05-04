@@ -789,4 +789,9 @@ consistency rather than CI-test inferential strength.
   thesis evaluation per Option α strict-three-tier framing
   (pre-registered threshold criteria locked at Step 9.1.b
   spot-check kickoff before precision values computed; honored
-  without post-hoc adjustment).
+  without post-hoc adjustment). Bidirectional cross-repo SHA
+  audit trail per Step 5.3 precedent: main-repo Step 9.2 close
+  commit `ed7519d` (contextatlas STEP-PLAN-V0.5 progress log
+  entry + audit-trail copy at scripts/v0.5-step9-outputs/);
+  benchmarks-repo Step 9.1 commit `e32b5dd` (this doc + doc-gen
+  script).
