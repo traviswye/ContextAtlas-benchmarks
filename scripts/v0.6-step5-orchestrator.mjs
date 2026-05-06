@@ -127,9 +127,9 @@ const CELLS = [
   },
   {
     repo: "hono",
-    promptId: "h10-env-type-on-context",
+    promptId: "h5-hono-generics",
     anchor:
-      "v0.6 tie-bucket / TS held-out tie; tests +0.037 completeness NOT distinguishable generalization",
+      "v0.6 tie-bucket / TS active step7 tie (substituted from h10-env-type-on-context per Q11-style refinement at Step 5.2 trial-67 pause; h10 has bucket=held_out which filterStep7 strips); tests +0.037 completeness NOT distinguishable generalization; task_category=impact (h10 was undefined; honest scope-acknowledgment per Step 5.4 close)",
   },
   {
     repo: "cobra",
