@@ -39,14 +39,23 @@ import { fileURLToPath } from "node:url";
 const __filename = fileURLToPath(import.meta.url);
 const REPO_ROOT = resolve(dirname(__filename), "..");
 const RUNS_DIR = resolve(REPO_ROOT, "runs");
-const OUTPUT_PATH = resolve(REPO_ROOT, "cost-priors-v0.5.json");
+const OUTPUT_PATH = resolve(REPO_ROOT, "cost-priors-v0.6.json");
 
 const VERSION_FILTER_PREFIXES = [
   "ContextAtlas v0.4",
   "ContextAtlas v0.5",
 ];
 
-const ORCHESTRATOR_DIR_PATTERNS = [/^v0\.5-step\d+/];
+// v0.6 cycle extension per v0.6 Step 5.3.b / Q5.3.b.2 lock: extend
+// orchestrator dir patterns to include v0.6 cycle dirs. v0.6 trial
+// manifests tag atlas substrate as ContextAtlas v0.5.0 per Q5.1.3
+// atlas-version-tagging discipline (cycle-version captured via run-
+// uuid prefix); VERSION_FILTER_PREFIXES unchanged. Cumulative
+// aggregation per Q4(ii) lock at Step 2.
+const ORCHESTRATOR_DIR_PATTERNS = [
+  /^v0\.5-step\d+/,
+  /^v0\.6-step\d+/,
+];
 
 // ============================================================================
 // Substrate walk
@@ -215,7 +224,7 @@ function buildOutput({ buckets, includedRuns, skippedReasons }) {
     schema_version: 1,
     substrate_window: "v0.4 + v0.5 runs; v0.1-v0.3 excluded due to different conditions/tooling",
     aggregation_strategy: "cumulative",
-    version_filter: "ContextAtlas v0.4.x or v0.5.x (via contextatlas.version_label prefix on run-manifest.json)",
+    version_filter: "ContextAtlas v0.4.x or v0.5.x (via contextatlas.version_label prefix on run-manifest.json; v0.6 cycle trials tagged v0.5.0 atlas per Q5.1.3 atlas-version-tagging discipline; cycle-version via run-uuid prefix v0.6-step5-)",
     generation_timestamp: new Date().toISOString(),
     source_runs_count: includedRuns.length,
     source_runs: includedRuns.map((r) => r.timestamp).sort(),
