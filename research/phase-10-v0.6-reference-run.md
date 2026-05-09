@@ -221,4 +221,63 @@ v0.6 cycle design at Step 5.0 (Q5.0.7 atlas-version-tagging discipline lock) cap
 
 ---
 
+## §12 Revision history
+
+- **2026-05-06 (Step 5.3.b auto-generation)** — initial draft
+  via `scripts/v0.6-step5.3-doc-gen.mjs` per Q5.3.b.1 lock
+  (hybrid strategy: §1-§8 fully auto + §9-§11 dev-prefilled
+  skeleton with paired-t outcome integration). Companion to v0.5
+  phase-9-v0.5-reference-run.md; v0.6's primary research-note
+  artifact. Drafts F1-F9 cycle findings; documents v0.5-vs-v0.6
+  tier-gradation comparison per §8 + atlas-substrate-version
+  confound primary mechanism per §11 F1. Bidirectional cross-
+  repo SHA audit trail per Step 5.3 precedent: main-repo Step
+  5.3.a commit `c2aabc4` (production grading harness + 43 base
+  pairs + 9 cross-order regrades + 2 swap-retry recoveries);
+  benchmarks-repo Step 5.3.b commit `23dd385` (this doc + doc-
+  gen script + cost-priors-v0.6.json snapshot).
+
+- **2026-05-06 (Step 5.4 close v0_7-HANDOFF.md amendment)** —
+  main-repo Step 5.4 close commit `f2e0c08` + `ead1487`
+  (contextatlas STEP-PLAN-V0.6 Step 5.4 progress log + v0_7-
+  HANDOFF.md amendment per Path α handoff inheritance). F1-F9
+  substantive findings + 5 methodology amendment scope items +
+  3 cycle-execution patterns absorbed from this doc to v0_7-
+  HANDOFF.md "v0.6 cycle execution substrate" section for v0.7
+  cycle pre-planning bridge consumption.
+
+- **2026-05-09 (v0.6 ship close back-reference)** — main-repo
+  v0.6 ship commit `6c48078` (contextatlas v0.6: early-access
+  pipeline-mechanics + 8-cell matrix-replication subset +
+  cohort infrastructure; STEP-PLAN-V0.6 Step 9.6 progress log
+  entry + 15-criterion verification table + cycle-introduced-
+  discipline framing + 7-class recursive catch-pattern
+  observation enumeration for v0.7+ inheritance + B14
+  housekeeping fix absorbed via Option 1 ship-now per scope-
+  doc-locked-but-not-shipped catch at 9.5). Annotated tag
+  `v0.6.0` points at ship commit; tag body verified clean of
+  HEREDOC artifacts via Step 7.5 post-execution verification
+  step (v0.5+ ship-gate canonical 9-step sequence inheritance
+  preserved). Substrate-evolution drift on F1 + F9 framings
+  Path C lock applied (this doc preserves cycle-emergent-
+  findings-at-Step-5.3.b-time canonical text per "deferred to
+  v0.7 investigation" + "v0.7 methodology amendment" framings;
+  main-repo ship surfaces + tag body reflect post-launch-
+  bearing-reframe state per "deferred to v0.8+ post-launch
+  cycle" + "v0.7+ inheritance" framings). v0.6 cycle
+  definitively closed per ROADMAP v0.6 [SHIPPED] section +
+  honest 2-of-3 MET + 1 carried forward V1.0 ship-gate
+  criteria framing per launch-bearing reframe (Travis pivot at
+  v0.6 Step 7.5).
+
+- **§9 cycle-emergent candidate inventory addition.** No new
+  cycle-emergent candidates surfaced at v0.6 Step 8 cycle
+  close beyond Step 8.1 generalizable pre-registration
+  discipline pattern (already captured at v0_7-HANDOFF.md
+  "Cycle-pre-planning insights" section per Q8.0.4 aggregation
+  lock). Per Q9.0.8 surfacing analysis at v0.6 Step 9.0 design
+  adjudications. §9 inventory unchanged at v0.6 ship.
+
+---
+
 Generated at 2026-05-06T18:36:12.339Z.
