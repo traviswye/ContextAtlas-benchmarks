@@ -43,7 +43,8 @@
  * trial-runner wiring point per session-context boundary discipline.
  */
 
-import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { dirname } from "node:path";
@@ -255,22 +256,165 @@ export function trackCost(state, trialCostUsd) {
 // Trial execution stub (delegation boundary)
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// Step 1.1.a — runTrial wiring per Q1.1.A + Q1.1.C γ canonical commit
+// ---------------------------------------------------------------------------
+
 /**
- * Execute a single dry-run trial per (cell, condition, trial-index).
+ * Parse output directory from run-reference.ts stdout. Returns the
+ * extracted path or null if no match. Pure function for testability.
  *
- * STUB: actual execution delegates to existing v0.6 trial-runner
- * substrate (scripts/run-reference.ts pattern; subprocess invocation
- * per v0.6-step5-orchestrator.mjs precedent). Travis-side execution
- * at canonical trial-runner wiring point per session-context boundary
- * discipline (analogous to v0.7 Step 5.1 atlas refresh Travis-side
- * cadence). Wiring TBD at empirical execution-trigger time.
- *
- * Returns trial outcome shape per Q1.0.2 LOCK D.1 manifest substrate.
+ * Format per scripts/run-reference.ts:418 (verified empirically at
+ * Step 1.1.a wiring time):
+ *   `[run-reference] output: <path>`
  */
-export async function runTrial({ cell, condition, trialIndex, manifest }) {
-  throw new Error(
-    "runTrial stub — wire to v0.6 trial-runner substrate at canonical trial-execution boundary (Travis-side trigger per session-context discipline)",
-  );
+export function parseRunReferenceStdout(stdout) {
+  const match = (stdout ?? "").match(/\[run-reference\] output: (.+)/);
+  return match ? match[1].trim() : null;
+}
+
+/**
+ * Build canonical trial artifact path. Per v0.6-step5-orchestrator.mjs
+ * precedent: `<outDir>/<repo>/<prompt_id>/<condition>.json`.
+ */
+export function buildArtifactPath(outDir, cell, condition) {
+  return join(outDir, cell.repo, cell.prompt_id, `${condition}.json`);
+}
+
+/**
+ * Compute score per Q1.1.A.1 Option α (tool-call count proxy) +
+ * Q1.1.A.2 (higher-score = better; score = 1 / (1 + calls)).
+ *
+ * Reads tool_calls from trial JSON artifact at `metrics.tool_calls`
+ * (per src/harness/alpha-agent.ts:185 + src/harness/run.ts artifact
+ * shape verified empirically at Step 1.1.a wiring time).
+ *
+ * Q1.1.A.3 failure-path disposition: missing tool_calls field →
+ * score=0 (composite criteria fail naturally → cell excluded from
+ * 24-cell selection substrate).
+ */
+export function computeScoreFromTrialJson(json) {
+  if (!json || typeof json !== "object") return 0;
+  const metrics = json.metrics;
+  if (!metrics || typeof metrics !== "object") return 0;
+  const calls = metrics.tool_calls;
+  if (typeof calls !== "number" || !Number.isFinite(calls) || calls < 0) {
+    return 0;
+  }
+  return 1 / (1 + calls);
+}
+
+/**
+ * Default spawnSync wrapper. Injectable for testing via runTrial
+ * `spawnFn` option per test-seam pattern.
+ */
+function defaultSpawn(args) {
+  return spawnSync("npx", args, {
+    cwd: REPO_ROOT,
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+    shell: process.platform === "win32",
+    env: process.env,
+  });
+}
+
+/**
+ * Default trial-artifact reader. Injectable for testing via runTrial
+ * `readArtifact` option.
+ */
+function defaultReadArtifact(artifactPath) {
+  if (!existsSync(artifactPath)) return null;
+  try {
+    return JSON.parse(readFileSync(artifactPath, "utf8"));
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Execute a single dry-run trial per (cell, condition, trial-index)
+ * via subprocess invocation of v0.6 trial-runner substrate
+ * (scripts/run-reference.ts).
+ *
+ * Per Q1.1.A locks:
+ *   - score = 1 / (1 + tool_calls) on subprocess success + valid
+ *     artifact (Q1.1.A.1 Option α + Q1.1.A.2 higher-score = better)
+ *   - score = 0 on subprocess failure OR missing source artifact
+ *     OR missing/invalid tool_calls field (Q1.1.A.3; composite
+ *     criteria fail naturally → cell excluded)
+ *
+ * Per Q1.1.C γ: canonical wiring shipped at this commit; Travis-side
+ * verification-filter inline edit at runCellScreen candidates
+ * (single-cell .slice(0, 1) verification before full F3 dry-run)
+ * substantively local-only; never committed.
+ *
+ * Test seams: spawnFn + readArtifact options for unit-test injection.
+ */
+export async function runTrial({
+  cell,
+  condition,
+  trialIndex: _trialIndex,
+  manifest,
+  spawnFn = defaultSpawn,
+  readArtifact = defaultReadArtifact,
+}) {
+  const t0 = Date.now();
+  const r = spawnFn([
+    "tsx",
+    "scripts/run-reference.ts",
+    "--repo",
+    cell.repo,
+    "--prompts",
+    cell.prompt_id,
+    "--conditions",
+    condition,
+  ]);
+  const wallClockMs = Date.now() - t0;
+
+  if (r.status !== 0) {
+    return {
+      score: 0,
+      cost_usd: 0,
+      wall_clock_ms: wallClockMs,
+      error: `run-reference exited ${r.status}`,
+      stderr_tail: (r.stderr ?? "").slice(-500),
+      trial_id: manifest.trial_id,
+    };
+  }
+
+  const outDir = parseRunReferenceStdout(r.stdout);
+  if (outDir === null) {
+    return {
+      score: 0,
+      cost_usd: 0,
+      wall_clock_ms: wallClockMs,
+      error: "could not parse output dir from run-reference stdout",
+      stdout_tail: (r.stdout ?? "").slice(-500),
+      trial_id: manifest.trial_id,
+    };
+  }
+
+  const artifactPath = buildArtifactPath(outDir, cell, condition);
+  const json = readArtifact(artifactPath);
+  if (json === null) {
+    return {
+      score: 0,
+      cost_usd: 0,
+      wall_clock_ms: wallClockMs,
+      error: `source artifact missing or unreadable: ${artifactPath}`,
+      trial_id: manifest.trial_id,
+    };
+  }
+
+  return {
+    score: computeScoreFromTrialJson(json),
+    cost_usd: typeof json.cost_usd === "number" ? json.cost_usd : 0,
+    wall_clock_ms: wallClockMs,
+    tool_calls: json.metrics?.tool_calls ?? null,
+    answer_preview:
+      typeof json.answer === "string" ? json.answer.slice(0, 200) : "",
+    trial_id: manifest.trial_id,
+  };
 }
 
 // ---------------------------------------------------------------------------

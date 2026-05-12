@@ -12,10 +12,14 @@ import { describe, expect, it } from "vitest";
 
 import {
   COMPOSITE_CRITERIA,
+  buildArtifactPath,
+  computeScoreFromTrialJson,
   computeSubstrateFingerprint,
   evaluateCompositeCriteria,
   loadCandidateCells,
+  parseRunReferenceStdout,
   readInstalledSdkVersion,
+  runTrial,
   trackCost,
 } from "./v0.8-cell-screen.mjs";
 
@@ -240,5 +244,174 @@ describe("trackCost (Q1.0.4.c Option γ soft alerts)", () => {
     trackCost(state, 5); // still > 150
     // Set membership; idempotent
     expect(state.alertsFired.size).toBe(1);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Step 1.1.a — runTrial wiring + pure-function helpers (Q1.1.A locks)
+// ---------------------------------------------------------------------------
+
+describe("parseRunReferenceStdout (Step 1.1.a wiring; pure)", () => {
+  it("extracts path from canonical run-reference stdout pattern", () => {
+    const stdout = "...preflight ok\n[run-reference] output: /path/to/runs/x\nmore\n";
+    expect(parseRunReferenceStdout(stdout)).toBe("/path/to/runs/x");
+  });
+  it("returns null when output marker is absent", () => {
+    expect(parseRunReferenceStdout("nothing here")).toBeNull();
+    expect(parseRunReferenceStdout("")).toBeNull();
+    expect(parseRunReferenceStdout(null)).toBeNull();
+  });
+});
+
+describe("buildArtifactPath (Step 1.1.a wiring; pure)", () => {
+  it("composes canonical <outDir>/<repo>/<prompt_id>/<condition>.json path", () => {
+    const cell = { repo: "hono", prompt_id: "h1-context-runtime" };
+    const result = buildArtifactPath("/runs/abc", cell, "ca");
+    // Normalize separators for cross-platform comparison
+    expect(result.replace(/\\/g, "/")).toBe(
+      "/runs/abc/hono/h1-context-runtime/ca.json",
+    );
+  });
+});
+
+describe("computeScoreFromTrialJson (Q1.1.A.1 Option α + A.2 + A.3)", () => {
+  it("returns 1/(1+calls) on valid metrics.tool_calls (Q1.1.A.1)", () => {
+    expect(computeScoreFromTrialJson({ metrics: { tool_calls: 0 } })).toBe(1);
+    expect(computeScoreFromTrialJson({ metrics: { tool_calls: 9 } })).toBeCloseTo(0.1, 4);
+    expect(computeScoreFromTrialJson({ metrics: { tool_calls: 19 } })).toBeCloseTo(0.05, 4);
+  });
+  it("higher-score = better convention (Q1.1.A.2): fewer-calls → higher score", () => {
+    const lowCalls = computeScoreFromTrialJson({ metrics: { tool_calls: 3 } });
+    const highCalls = computeScoreFromTrialJson({ metrics: { tool_calls: 30 } });
+    expect(lowCalls).toBeGreaterThan(highCalls);
+  });
+  it("returns 0 on missing metrics field (Q1.1.A.3)", () => {
+    expect(computeScoreFromTrialJson({})).toBe(0);
+    expect(computeScoreFromTrialJson({ cost_usd: 1, answer: "x" })).toBe(0);
+  });
+  it("returns 0 on missing tool_calls field (Q1.1.A.3)", () => {
+    expect(computeScoreFromTrialJson({ metrics: {} })).toBe(0);
+    expect(computeScoreFromTrialJson({ metrics: { tokens: 100 } })).toBe(0);
+  });
+  it("returns 0 on non-number / non-finite / negative tool_calls (Q1.1.A.3)", () => {
+    expect(computeScoreFromTrialJson({ metrics: { tool_calls: "5" } })).toBe(0);
+    expect(computeScoreFromTrialJson({ metrics: { tool_calls: NaN } })).toBe(0);
+    expect(computeScoreFromTrialJson({ metrics: { tool_calls: -1 } })).toBe(0);
+  });
+  it("returns 0 on null / non-object input (Q1.1.A.3)", () => {
+    expect(computeScoreFromTrialJson(null)).toBe(0);
+    expect(computeScoreFromTrialJson("not an object")).toBe(0);
+  });
+});
+
+describe("runTrial (Step 1.1.a wiring; spawnSync + outcome shape)", () => {
+  const cell = { repo: "hono", prompt_id: "h1-context-runtime" };
+  const manifest = { trial_id: "hono-h1-context-runtime-ca-0" };
+
+  it("returns canonical outcome shape on subprocess success + valid artifact", async () => {
+    const spawnFn = () => ({
+      status: 0,
+      stdout: "[run-reference] output: /tmp/runs/test\n",
+      stderr: "",
+    });
+    const readArtifact = () => ({
+      cost_usd: 0.42,
+      metrics: { tool_calls: 9 },
+      answer: "Some answer text.",
+    });
+    const result = await runTrial({
+      cell,
+      condition: "ca",
+      trialIndex: 0,
+      manifest,
+      spawnFn,
+      readArtifact,
+    });
+    expect(result.score).toBeCloseTo(0.1, 4); // 1/(1+9)
+    expect(result.cost_usd).toBe(0.42);
+    expect(result.tool_calls).toBe(9);
+    expect(result.trial_id).toBe(manifest.trial_id);
+    expect(result.error).toBeUndefined();
+  });
+
+  it("returns score=0 on subprocess exit ≠ 0 (Q1.1.A.3)", async () => {
+    const spawnFn = () => ({
+      status: 1,
+      stdout: "",
+      stderr: "boom\n",
+    });
+    const readArtifact = () => null;
+    const result = await runTrial({
+      cell,
+      condition: "ca",
+      trialIndex: 0,
+      manifest,
+      spawnFn,
+      readArtifact,
+    });
+    expect(result.score).toBe(0);
+    expect(result.error).toMatch(/run-reference exited 1/);
+    expect(result.stderr_tail).toBe("boom\n");
+  });
+
+  it("returns score=0 on missing output dir marker in stdout", async () => {
+    const spawnFn = () => ({
+      status: 0,
+      stdout: "no marker here",
+      stderr: "",
+    });
+    const readArtifact = () => null;
+    const result = await runTrial({
+      cell,
+      condition: "ca",
+      trialIndex: 0,
+      manifest,
+      spawnFn,
+      readArtifact,
+    });
+    expect(result.score).toBe(0);
+    expect(result.error).toMatch(/could not parse output dir/);
+  });
+
+  it("returns score=0 on missing source artifact (Q1.1.A.3)", async () => {
+    const spawnFn = () => ({
+      status: 0,
+      stdout: "[run-reference] output: /tmp/runs/test\n",
+      stderr: "",
+    });
+    const readArtifact = () => null;
+    const result = await runTrial({
+      cell,
+      condition: "ca",
+      trialIndex: 0,
+      manifest,
+      spawnFn,
+      readArtifact,
+    });
+    expect(result.score).toBe(0);
+    expect(result.error).toMatch(/source artifact missing/);
+  });
+
+  it("preserves trial_id from manifest substrate (Q4.0.1.c manifest integration)", async () => {
+    const spawnFn = () => ({
+      status: 0,
+      stdout: "[run-reference] output: /tmp/runs/test\n",
+      stderr: "",
+    });
+    const readArtifact = () => ({
+      cost_usd: 0,
+      metrics: { tool_calls: 0 },
+      answer: "",
+    });
+    const customManifest = { trial_id: "custom-trial-id-xyz" };
+    const result = await runTrial({
+      cell,
+      condition: "ca",
+      trialIndex: 0,
+      manifest: customManifest,
+      spawnFn,
+      readArtifact,
+    });
+    expect(result.trial_id).toBe("custom-trial-id-xyz");
   });
 });
