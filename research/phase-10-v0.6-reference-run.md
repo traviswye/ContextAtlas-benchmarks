@@ -278,6 +278,48 @@ v0.6 cycle design at Step 5.0 (Q5.0.7 atlas-version-tagging discipline lock) cap
   lock). Per Q9.0.8 surfacing analysis at v0.6 Step 9.0 design
   adjudications. §9 inventory unchanged at v0.6 ship.
 
+- **2026-05-12 (v0.7 ship cross-repo back-reference)** —
+  main-repo v0.7 ship commit `fe3ae7e` (contextatlas v0.7.0:
+  launch-bearing cycle to v1.0 substrate complete; PRIMARY
+  (a) claude-code-only extraction path + PRIMARY (b)
+  generate-adrs feature + SECONDARY install + setup 2-repo
+  verification all ✓ MET; TERTIARY A1+A2+A3 substrate-gap
+  fixes deferred to v0.8+ post-launch). Annotated tag
+  `v0.7.0` points at ship commit `fe3ae7e`; tag body verified
+  clean of HEREDOC artifacts via Step 7.5 post-execution
+  verification + Adjudication 3 atomic ship-gate discipline-
+  leveraging in-place fix for cosmetic `~$0.23` escape pattern
+  (v0.5+ ship-gate cadence + pre-push window affordance
+  inheritance preserved). V0.7 launch-bearing cycle main-
+  repo only; benchmarks substrate generation deferred to
+  v0.8+ post-launch per F1 atlas-substrate-version confound
+  causal investigation + Stream B matrix-completion
+  graduation per v0.6 8-cell subset → v0.8+ full matrix.
+  V1.0 ship-gate criteria post-v0.7: 2-of-3 MET + 2
+  carried-forward (criterion #1 quality-axis methodology
+  parenthetical ✓ MET CLOSED at v0.5 preserved; criterion
+  #2 user-can-install-without-friction ✓ MET newly CLOSES
+  at v0.7 via PRIMARY (a) + PRIMARY (b) pipeline-mechanics
+  empirical verification; criterion #1 statistically-
+  meaningful-wins △ PARTIAL → v0.8+ matrix-completion;
+  criterion #3 external dogfood trial ✗ NOT MET → v0.8+
+  post-launch cohort exposure execution against carried-
+  forward v0.6 recruitment infrastructure). v0.7 cycle
+  definitively closed per ROADMAP v0.7 [SHIPPED] section.
+  15 Class-15 cycle-execution observations preserved at
+  capstone composition (substrate-distributed progress-log
+  entries per Option b v0.6 Q8 aggregation precedent); 21
+  v0.8+ forward-pointer candidates consolidated at main-
+  repo `research/v0.8-candidates.md` (substrate evolution +
+  mechanical absorption + cohort UX refinement + test
+  substrate + TERTIARY deferred + cross-cycle inheritance
+  items); v0_8-HANDOFF.md generated at main-repo Step 5.5
+  close per LOCK 6 (β v0.5/v0.6 precedent; §1-§4 structure
+  mirrors v0_7-HANDOFF.md). Phase-10 reference doc
+  unchanged at v0.7 ship (no new matrix-replication
+  substrate generated; benchmarks substrate inheritance
+  preserved for v0.8+ post-launch cycle).
+
 ---
 
 Generated at 2026-05-06T18:36:12.339Z.
