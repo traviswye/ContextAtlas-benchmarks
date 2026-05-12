@@ -157,6 +157,15 @@ export function evaluateCompositeCriteria(trials) {
  * adapter_versions).
  *
  * Captured per-trial in manifest at Q1.0.2 LOCK D.1 substrate.
+ *
+ * Per Q4.0.1.c split lock (v0.8 Step 4.1): sdk_version is captured
+ * as a standalone manifest field (see readInstalledSdkVersion below)
+ * and is EXCLUDED from this fingerprint hash. SDK is generation-
+ * client substrate (Anthropic SDK), orthogonal to language-adapter
+ * substrate (tsserver / Pyright / gopls). Future SDK bumps do NOT
+ * retroactively invalidate atlas substrate fingerprint; sdk_version
+ * preserved as forensic-data substrate for cross-cycle regression
+ * correlation analysis if needed.
  */
 export function computeSubstrateFingerprint({
   extractionPromptText,
@@ -170,6 +179,28 @@ export function computeSubstrateFingerprint({
     .join(",");
   const input = `${extractionPromptText}|${model}|${effort}|${adapterStr}`;
   return createHash("sha256").update(input).digest("hex").slice(0, 16);
+}
+
+/**
+ * Read installed @anthropic-ai/sdk version from node_modules.
+ *
+ * Per Q4.0.1.c split lock (v0.8 Step 4.1): sdk_version captured as
+ * standalone manifest field at run manifest substrate per Q1.0.2
+ * LOCK D.1. Forensic-data discipline: if future SDK bump correlates
+ * with regression, manifest field is queryable for correlation
+ * analysis. EXCLUDED from Q1.0.2.d fingerprint hash (no retroactive
+ * substrate invalidation on SDK bump).
+ */
+export function readInstalledSdkVersion() {
+  const pkgPath = pathResolve(
+    REPO_ROOT,
+    "node_modules",
+    "@anthropic-ai",
+    "sdk",
+    "package.json",
+  );
+  const pkg = JSON.parse(readFileSync(pkgPath, "utf8"));
+  return pkg.version;
 }
 
 // ---------------------------------------------------------------------------
@@ -258,6 +289,15 @@ export async function runCellScreen({ outDir, manifestBase }) {
     `[v0.8-cell-screen] loaded ${candidates.length} candidate cells (target: 24-cell selection)`,
   );
 
+  // Per Q4.0.1.c split lock: capture installed SDK version once per
+  // matrix-cycle invocation; embed in each per-trial manifest as
+  // standalone forensic-data field (not part of substrate fingerprint
+  // per Q1.0.2.d scope confirmation).
+  const sdkVersion = readInstalledSdkVersion();
+  console.log(
+    `[v0.8-cell-screen] captured sdk_version: ${sdkVersion} (forensic substrate per Q4.0.1.c)`,
+  );
+
   const state = { totalCost: 0, alertsFired: new Set() };
   const allTrials = [];
   const cellOutcomes = [];
@@ -270,6 +310,7 @@ export async function runCellScreen({ outDir, manifestBase }) {
       for (let trialIndex = 0; trialIndex < 2; trialIndex++) {
         const trialManifest = {
           ...manifestBase,
+          sdk_version: sdkVersion,
           cell: `${cell.repo}/${cell.prompt_id}`,
           condition,
           trial_index: trialIndex,

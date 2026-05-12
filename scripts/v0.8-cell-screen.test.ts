@@ -15,6 +15,7 @@ import {
   computeSubstrateFingerprint,
   evaluateCompositeCriteria,
   loadCandidateCells,
+  readInstalledSdkVersion,
   trackCost,
 } from "./v0.8-cell-screen.mjs";
 
@@ -162,6 +163,20 @@ describe("computeSubstrateFingerprint (Q1.0.2.d)", () => {
       adapterVersions: { py: "2.0", ts: "1.0" },
     });
     expect(a).toBe(b);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// readInstalledSdkVersion — Q4.0.1.c split forensic-data substrate
+// ---------------------------------------------------------------------------
+
+describe("readInstalledSdkVersion (Q4.0.1.c split)", () => {
+  it("returns semver-shaped string matching installed @anthropic-ai/sdk", () => {
+    const v = readInstalledSdkVersion();
+    // Q4.0.1.c locked target: ^0.32.0; resolves to 0.32.x per
+    // package.json + lockfile. Forensic substrate, not fingerprint
+    // input — accepts any semver-shaped value the lockfile resolves.
+    expect(v).toMatch(/^\d+\.\d+\.\d+/);
   });
 });
 
