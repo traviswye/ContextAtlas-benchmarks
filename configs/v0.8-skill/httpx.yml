@@ -1,0 +1,25 @@
+# ContextAtlas config for httpx benchmark target — v0.8-skill variant.
+#
+# Step 1.1.b.0 (Q1.1.D.4-8 lock). Factorial-design Skill atlas-
+# extraction substrate per v0.8 sandbox structure. Same ADR substrate
+# as v0.8-cli variant (Stage 1 generate-adrs Skill output at
+# `v0.8/adrs/httpx/`); atlas output diverges to
+# `v0.8/atlases-skill/`.
+
+version: 1
+
+languages: [python]
+
+source:
+  root: v0.8/repos/httpx/
+
+adrs:
+  path: v0.8/adrs/httpx/
+
+docs:
+  include: []
+
+atlas:
+  committed: true
+  path: v0.8/atlases-skill/httpx/atlas.json
+  local_cache: v0.8/atlases-skill/httpx/index.db

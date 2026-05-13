@@ -14,6 +14,7 @@ import { readFile, stat } from "node:fs/promises";
 import { createRequire } from "node:module";
 import path from "node:path";
 import type { Condition } from "./metrics.js";
+import { mcpConfigTemplateFilename } from "./variant-routing.js";
 
 /** Single preflight observation. */
 export interface PreflightCheck {
@@ -407,7 +408,7 @@ async function checkMcpConfigExists(
   condition: "beta" | "beta-ca",
 ): Promise<PreflightCheck> {
   const filename =
-    condition === "beta" ? "mcp-empty.json" : `mcp-contextatlas-${repoName}.json`;
+    condition === "beta" ? "mcp-empty.json" : mcpConfigTemplateFilename(repoName);
   const configPath = path.join(benchmarksRoot, "configs", filename);
   try {
     const raw = await readFile(configPath, "utf-8");

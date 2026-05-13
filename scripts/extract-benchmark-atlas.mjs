@@ -2,13 +2,20 @@
 //
 // Usage:
 //   node scripts/extract-benchmark-atlas.mjs <hono|httpx|cobra|all>
+//   node scripts/extract-benchmark-atlas.mjs <repo> --config <yaml>
 //
-// Reads configs/<repo>.yml and runs contextatlas's extraction
-// pipeline (ADR-08) with configRoot pointing at the benchmarks
-// repo root. The config's `source.root` names where the cloned
-// source lives; other paths (atlas, adrs, cache) resolve inside
-// the benchmarks repo directly. No .contextatlas.yml copy into
-// the target repo is needed.
+// Reads configs/<repo>.yml (default) and runs contextatlas's
+// extraction pipeline (ADR-08) with configRoot pointing at the
+// benchmarks repo root. The config's `source.root` names where the
+// cloned source lives; other paths (atlas, adrs, cache) resolve
+// inside the benchmarks repo directly. No .contextatlas.yml copy
+// into the target repo is needed.
+//
+// The optional `--config <yaml>` flag overrides the default
+// `configs/<repo>.yml` resolution for v0.8 cycle factorial-design
+// substrate variants (Step 1.1.b.0; Q1.1.D.4-8 lock). Path is
+// resolved relative to ROOT and must exist; the `all` argument is
+// not compatible with `--config` and rejects at arg-parse time.
 //
 // TODO(contextatlas): expose a higher-level extractAtlas helper
 //   so external callers don't assemble adapters, storage, and the
@@ -202,20 +209,61 @@ async function runStreamBPass({
 
 function usage() {
   console.error(
-    "usage: node scripts/extract-benchmark-atlas.mjs <hono|httpx|cobra|all>",
+    "usage: node scripts/extract-benchmark-atlas.mjs <hono|httpx|cobra|all> [--config <yaml>]",
   );
   process.exit(1);
 }
 
-async function extractOne(repoName) {
+/**
+ * Parse CLI args into `{ targets, configOverride }`. Supports the
+ * historical `<repo>` and `all` positional plus the v0.8 cycle
+ * `--config <yaml>` override flag. `all` + `--config` is rejected;
+ * the override is single-config and `all` would re-use it for every
+ * repo (probably not what the caller intended).
+ *
+ * Exported for unit tests (parseArgs is pure).
+ */
+export function parseArgs(argv) {
+  const positional = [];
+  let configOverride = null;
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i];
+    if (a === "--config") {
+      const v = argv[i + 1];
+      if (v === undefined) {
+        return { error: "--config requires a path argument" };
+      }
+      configOverride = v;
+      i++;
+      continue;
+    }
+    positional.push(a);
+  }
+  if (positional.length !== 1) {
+    return { error: "expected exactly one repo argument (or 'all')" };
+  }
+  const [arg] = positional;
+  if (arg === "all" && configOverride !== null) {
+    return { error: "--config is incompatible with 'all'" };
+  }
+  return { targets: arg, configOverride };
+}
+
+async function extractOne(repoName, configOverride = null) {
   const meta = SUPPORTED[repoName];
   if (!meta) usage();
 
-  const configSrc = join(ROOT, "configs", `${repoName}.yml`);
+  const configSrc =
+    configOverride !== null
+      ? resolve(ROOT, configOverride)
+      : join(ROOT, "configs", `${repoName}.yml`);
   if (!existsSync(configSrc)) {
     console.error(`[${repoName}] missing ${configSrc}`);
     process.exit(1);
   }
+  // Derive the configRelPath for loadConfig — must be relative to ROOT.
+  const configRelPath =
+    configOverride !== null ? configOverride : `configs/${repoName}.yml`;
   if (!process.env.ANTHROPIC_API_KEY) {
     console.error("ANTHROPIC_API_KEY not set");
     process.exit(1);
@@ -231,7 +279,7 @@ async function extractOne(repoName) {
   );
 
   // Load config from our repo; paths resolve against configRoot=ROOT.
-  const config = loadConfig(ROOT, `configs/${repoName}.yml`);
+  const config = loadConfig(ROOT, configRelPath);
   console.log(`[${repoName}] loaded config from ${configSrc}`);
 
   // Derive source root from the config. ADR-08: source.root is the
@@ -564,19 +612,31 @@ async function extractOne(repoName) {
 }
 
 async function main() {
-  const arg = process.argv[2];
-  if (!arg) usage();
+  const parsed = parseArgs(process.argv.slice(2));
+  if (parsed.error) {
+    console.error(parsed.error);
+    usage();
+  }
+  const arg = parsed.targets;
   const targets = arg === "all" ? Object.keys(SUPPORTED) : [arg];
   for (const repo of targets) {
     if (!(repo in SUPPORTED)) {
       console.error(`unknown repo '${repo}'. valid: ${Object.keys(SUPPORTED).join(", ")}, all`);
       process.exit(1);
     }
-    await extractOne(repo);
+    await extractOne(repo, parsed.configOverride);
   }
 }
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+// Only auto-run when invoked directly (not when imported by tests).
+// Step 1.1.b.0: parseArgs export requires gating to keep test import
+// side-effect-free.
+const isDirectInvocation =
+  process.argv[1] !== undefined &&
+  resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+if (isDirectInvocation) {
+  main().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+}

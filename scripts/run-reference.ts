@@ -59,6 +59,7 @@ import {
   runMatrix,
 } from "../src/harness/run.js";
 import { loadPromptFile, filterStep7 } from "../src/harness/prompts.js";
+import { mcpConfigTemplateFilename } from "../src/harness/variant-routing.js";
 
 // v0.4 Step 6 / A3: replace hardcoded contextatlasVersionLabel with
 // derivation from main-repo ATLAS_VERSION + package.json version.
@@ -313,7 +314,7 @@ export async function runMcpPreflight(opts: {
   const mcpConfigTemplatePath = path.resolve(
     opts.benchmarksRoot,
     "configs",
-    `mcp-contextatlas-${opts.repo}.json`,
+    mcpConfigTemplateFilename(opts.repo),
   );
   const addDir = path.resolve(opts.benchmarksRoot, "repos", opts.repo);
 

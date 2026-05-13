@@ -34,6 +34,10 @@ import {
   type RecordWithMeta,
   type RunManifest,
 } from "./summary.js";
+import {
+  contextatlasConfigPath,
+  mcpConfigTemplateFilename,
+} from "./variant-routing.js";
 import { globTool } from "./tools/glob.js";
 import { grepTool } from "./tools/grep.js";
 import { lsTool } from "./tools/ls.js";
@@ -249,7 +253,7 @@ export async function defaultDispatch(
           ctx: { repoDir: opts.repoDir },
           caps: opts.caps,
           configRoot: opts.benchmarksRoot,
-          contextatlasConfigPath: `configs/${opts.repoName}.yml`,
+          contextatlasConfigPath: contextatlasConfigPath(opts.repoName),
           caToolHangTimeoutMs: opts.caToolHangTimeoutMs,
         },
         deps,
@@ -277,7 +281,7 @@ export async function defaultDispatch(
         mcpConfigTemplatePath: path.join(
           opts.benchmarksRoot,
           "configs",
-          `mcp-contextatlas-${opts.repoName}.json`,
+          mcpConfigTemplateFilename(opts.repoName),
         ),
         caps: opts.caps,
         claudeBin: opts.claudeBin,
